@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RenderAI — Mimari Render Platformu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0f;
+      color: #e8e8f0;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1e1e2e;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 80px 20px 50px;
+    }
+
+    .hero h1 {
+      font-size: 52px;
+      font-weight: 700;
+      letter-spacing: -2px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff 40%, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #6b6b8a;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .panel {
+      background: #111118;
+      border: 1px solid #1e1e2e;
+      border-radius: 16px;
+      padding: 28px;
+    }
+
+    .panel h2 {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #6b6b8a;
+      margin-bottom: 20px;
+    }
+
+    .upload-zone {
+      border: 2px dashed #2a2a40;
+      border-radius: 12px;
+      padding: 50px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: #a78bfa;
+      background: rgba(167, 139, 250, 0.05);
+    }
+
+    .upload-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .upload-zone p {
+      color: #6b6b8a;
+      font-size: 14px;
+    }
+
+    .upload-zone strong {
+      color: #a78bfa;
+    }
+
+    .preview-img {
+      width: 100%;
+      border-radius: 8px;
+      display: none;
+      max-height: 250px;
+      object-fit: contain;
+    }
+
+    .styles-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .style-btn {
+      padding: 12px;
+      border: 1px solid #2a2a40;
+      border-radius: 10px;
+      background: transparent;
+      color: #9090b0;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .style-btn:hover { border-color: #a78bfa; color: #e8e8f0; }
+    .style-btn.active {
+      border-color: #a78bfa;
+      background: rgba(167, 139, 250, 0.1);
+      color: #a78bfa;
+      font-weight: 500;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #6b6b8a;
+      margin-bottom: 8px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #a78bfa;
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      background: #0a0a0f;
+      border: 1px solid #2a2a40;
+      border-radius: 10px;
+      color: #e8e8f0;
+      padding: 12px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: none;
+      height: 80px;
+      margin-bottom: 20px;
+    }
+
+    textarea:focus { outline: none; border-color: #a78bfa; }
+
+    .render-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .render-btn:hover { opacity: 0.9; }
+    .render-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .result-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+    }
+
+    .result-placeholder {
+      text-align: center;
+      color: #3a3a5a;
+    }
+
+    .result-placeholder .icon { font-size: 48px; margin-bottom: 12px; }
+    .result-placeholder p { font-size: 14px; }
+
+    .result-img {
+      width: 100%;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .loading {
+      text-align: center;
+      display: none;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid #2a2a40;
+      border-top-color: #a78bfa;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading p { color: #6b6b8a; font-size: 14px; }
+
+    .download-btn {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 24px;
+      background: #1e1e2e;
+      border: 1px solid #2a2a40;
+      border-radius: 10px;
+      color: #e8e8f0;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .error-msg {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      color: #f87171;
+      font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+      .main { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">RenderAI</div>
+  <div style="font-size:13px; color:#6b6b8a;">Mimari Render Platformu</div>
+</header>
+
+<section class="hero">
+  <h1>Çizimden Gerçeğe</h1>
+  <p>Mimari çizimlerinizi saniyeler içinde fotorealistik render'a dönüştürün. Çizgiler korunur, tasarım bozulmaz.</p>
+</section>
+
+<main class="main">
+  <!-- Sol Panel: Kontroller -->
+  <div>
+    <div class="panel" style="margin-bottom:20px;">
+      <h2>Görsel Yükle</h2>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="image/*" />
+        <div class="upload-icon">🏛️</div>
+        <p><strong>Görsel seçin</strong> veya sürükleyin</p>
+        <p style="margin-top:6px; font-size:12px;">PNG, JPG — Kat planı, 3D model, eskiz</p>
+      </div>
+      <img id="previewImg" class="preview-img" />
+    </div>
+
+    <div class="panel">
+      <h2>Render Stili</h2>
+      <div class="styles-grid">
+        <button class="style-btn active" data-style="modern_interior">Modern İç Mekan</button>
+        <button class="style-btn" data-style="minimalist">Minimalist</button>
+        <button class="style-btn" data-style="luxury">Lüks & Premium</button>
+        <button class="style-btn" data-style="scandinavian">İskandinav</button>
+        <button class="style-btn" data-style="industrial">Endüstriyel</button>
+      </div>
+
+      <div class="slider-label">
+        <span>Çizgi Koruma Gücü</span>
+        <span id="strengthVal">0.75</span>
+      </div>
+      <input type="range" id="strength" min="0" max="1" step="0.05" value="0.75"
+        oninput="document.getElementById('strengthVal').textContent = this.value" />
+
+      <textarea id="customPrompt" placeholder="İsteğe bağlı ek açıklama: 'ahşap tavan, beyaz duvarlar, doğal ışık'"></textarea>
+
+      <button class="render-btn" id="renderBtn" onclick="startRender()">Render Oluştur</button>
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+  </div>
+
+  <!-- Sağ Panel: Sonuç -->
+  <div class="panel result-panel" id="resultPanel">
+    <div class="result-placeholder" id="placeholder">
+      <div class="icon">✨</div>
+      <p>Render sonucu burada görünecek</p>
+    </div>
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Render oluşturuluyor...<br><span style="font-size:12px;">Bu işlem 30-60 saniye sürebilir</span></p>
+    </div>
+    <div style="width:100%; text-align:center;">
+      <img id="resultImg" class="result-img" />
+      <a id="downloadBtn" class="download-btn" download="render.png">⬇ İndir</a>
+    </div>
+  </div>
+</main>
+
+<script>
+  const API = 'https://renderai-backend-production.up.railway.app';
+  let selectedStyle = 'modern_interior';
+  let selectedFile = null;
+
+  // Stil seçimi
+  document.querySelectorAll('.style-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedStyle = btn.dataset.style;
+    });
+  });
+
+  // Görsel yükleme
+  document.getElementById('fileInput').addEventListener('change', e => {
+    selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const preview = document.getElementById('previewImg');
+      preview.src = ev.target.result;
+      preview.style.display = 'block';
+      document.querySelector('.upload-zone').style.padding = '12px';
+      document.querySelector('.upload-icon').style.display = 'none';
+    };
+    reader.readAsDataURL(selectedFile);
+  });
+
+  // Drag & Drop
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    selectedFile = e.dataTransfer.files[0];
+    document.getElementById('fileInput').files = e.dataTransfer.files;
+    document.getElementById('fileInput').dispatchEvent(new Event('change'));
+  });
+
+  async function startRender() {
+    if (!selectedFile) {
+      showError('Lütfen önce bir görsel yükleyin.');
+      return;
+    }
+
+    const btn = document.getElementById('renderBtn');
+    btn.disabled = true;
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('resultImg').style.display = 'none';
+    document.getElementById('downloadBtn').style.display = 'none';
+    document.getElementById('errorMsg').style.display = 'none';
+
+    const formData = new FormData();
+    formData.append('image', selectedFile);
+    formData.append('style', selectedStyle);
+    formData.append('control_strength', document.getElementById('strength').value);
+    formData.append('custom_prompt', document.getElementById('customPrompt').value);
+
+    try {
+      const res = await fetch(`${API}/render`, { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.detail || 'Render başarısız');
+
+      const img = document.getElementById('resultImg');
+      img.src = data.render_url;
+      img.style.display = 'block';
+      img.onload = () => {
+        document.getElementById('loading').style.display = 'none';
+        const dl = document.getElementById('downloadBtn');
+        dl.href = data.render_url;
+        dl.style.display = 'inline-block';
+      };
+    } catch (err) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('placeholder').style.display = 'block';
+      showError('Hata: ' + err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+</script>
+</body>
+</html>
