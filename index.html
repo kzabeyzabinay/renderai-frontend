@@ -762,7 +762,16 @@
     formData.append('custom_prompt', combinedPrompt);
 
     try {
-      const res = await fetch(`${API}/render`, { method: 'POST', body: formData });
+      // Sunucuyu önce uyandır
+      document.querySelector('.loading p').innerHTML = 'Sunucu hazırlanıyor...<br><span style="font-size:12px; color:#4a4a6a;">İlk istekte 30-50 saniye sürebilir</span>';
+      try { await fetch(`${API}/`, { signal: AbortSignal.timeout(60000) }); } catch(e) {}
+
+      document.querySelector('.loading p').innerHTML = 'Render oluşturuluyor...<br><span style="font-size:12px; color:#4a4a6a;">60-90 saniye sürebilir</span>';
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 180000); // 3 dakika
+      const res = await fetch(`${API}/render`, { method: 'POST', body: formData, signal: controller.signal });
+      clearTimeout(timeout);
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.detail || 'Render başarısız');
