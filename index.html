@@ -320,6 +320,90 @@
       font-size: 13px;
     }
 
+    /* Preset Tabs */
+    .preset-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .preset-tab {
+      padding: 7px 12px;
+      border: 1px solid #2a2a40;
+      border-radius: 8px;
+      background: transparent;
+      color: #6b6b8a;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preset-tab.active {
+      border-color: #a78bfa;
+      background: rgba(167,139,250,0.1);
+      color: #a78bfa;
+    }
+
+    .preset-content { display: none; }
+    .preset-content.active { display: block; }
+
+    .preset-group-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #4a4a6a;
+      margin: 12px 0 6px;
+    }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .chip {
+      padding: 5px 10px;
+      border: 1px solid #2a2a40;
+      border-radius: 20px;
+      background: transparent;
+      color: #9090b0;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip:hover { border-color: #a78bfa; color: #e8e8f0; }
+
+    .chip.active {
+      border-color: #a78bfa;
+      background: rgba(167,139,250,0.15);
+      color: #a78bfa;
+    }
+
+    .chip-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: rgba(167,139,250,0.15);
+      border: 1px solid #a78bfa;
+      border-radius: 20px;
+      color: #a78bfa;
+      font-size: 11px;
+    }
+
+    .chip-tag button {
+      background: none;
+      border: none;
+      color: #a78bfa;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 0;
+      line-height: 1;
+    }
+
     @media (max-width: 768px) {
       .main { grid-template-columns: 1fr; }
       .hero h1 { font-size: 32px; }
@@ -382,7 +466,6 @@
     <div class="panel">
       <h2>Stil</h2>
       <div class="styles-grid" id="stylesGrid">
-        <!-- İç mekan stilleri (default) -->
         <button class="style-btn active" data-style="modern_interior">Modern İç Mekan</button>
         <button class="style-btn" data-style="minimalist">Minimalist</button>
         <button class="style-btn" data-style="luxury">Lüks & Premium</button>
@@ -392,15 +475,108 @@
         <button class="style-btn" data-style="japandi">Japandi</button>
         <button class="style-btn" data-style="classic">Klasik & Şık</button>
       </div>
+    </div>
 
-      <div class="slider-label">
+    <!-- Creative Preset (Suapp tarzı) -->
+    <div class="panel">
+      <h2>Creative Preset</h2>
+
+      <!-- Kategori Sekmeleri -->
+      <div class="preset-tabs">
+        <button class="preset-tab active" onclick="switchPresetTab(this, 'tab-env')">🌤 Mevsim & Hava</button>
+        <button class="preset-tab" onclick="switchPresetTab(this, 'tab-light')">💡 Işık & Zaman</button>
+        <button class="preset-tab" onclick="switchPresetTab(this, 'tab-mood')">✨ Atmosfer</button>
+        <button class="preset-tab" onclick="switchPresetTab(this, 'tab-arch')">🏛 Mimari</button>
+      </div>
+
+      <!-- Mevsim & Hava -->
+      <div class="preset-content active" id="tab-env">
+        <div class="preset-group-label">Mevsim</div>
+        <div class="preset-chips">
+          <button class="chip" data-prompt="spring season, blooming trees, fresh greenery">İlkbahar</button>
+          <button class="chip" data-prompt="summer, lush vegetation, bright sunlight">Yaz</button>
+          <button class="chip" data-prompt="autumn foliage, warm orange tones, fallen leaves">Sonbahar</button>
+          <button class="chip" data-prompt="winter, snow covered ground, bare trees">Kış</button>
+        </div>
+        <div class="preset-group-label">Hava Durumu</div>
+        <div class="preset-chips">
+          <button class="chip" data-prompt="sunny day, clear blue sky, bright sunlight">Güneşli</button>
+          <button class="chip" data-prompt="misty atmosphere, soft diffused light, fog">Sisli</button>
+          <button class="chip" data-prompt="overcast sky, soft even lighting, cloudy">Bulutlu</button>
+          <button class="chip" data-prompt="rainy weather, wet surfaces, rain reflections">Yağmurlu</button>
+          <button class="chip" data-prompt="snow covered, snowy landscape, white ground">Karlı</button>
+        </div>
+      </div>
+
+      <!-- Işık & Zaman -->
+      <div class="preset-content" id="tab-light">
+        <div class="preset-group-label">Gün Işığı</div>
+        <div class="preset-chips">
+          <button class="chip" data-prompt="early morning light, soft warm sunrise, dawn">Sabah Işığı</button>
+          <button class="chip" data-prompt="midday, bright overhead sunlight, noon">Öğlen</button>
+          <button class="chip" data-prompt="golden hour, warm orange sunset light, magic hour">Altın Saat</button>
+          <button class="chip" data-prompt="dusk, twilight, blue hour sky, purple tones">Alacakaranlık</button>
+          <button class="chip" data-prompt="moonlight, night scene, soft moonlight glow">Ay Işığı</button>
+        </div>
+        <div class="preset-group-label">Yapay Işık</div>
+        <div class="preset-chips">
+          <button class="chip" data-prompt="urban night, city lights, artificial lighting, illuminated">Şehir Geceleri</button>
+          <button class="chip" data-prompt="warm interior lighting glowing through windows">Pencere Işığı</button>
+          <button class="chip" data-prompt="dramatic spotlight lighting, architectural spotlights">Spot Işık</button>
+        </div>
+      </div>
+
+      <!-- Atmosfer -->
+      <div class="preset-content" id="tab-mood">
+        <div class="preset-group-label">Estetik</div>
+        <div class="preset-chips">
+          <button class="chip" data-prompt="luxury aesthetic, high-end, premium, sophisticated">Lüks</button>
+          <button class="chip" data-prompt="cozy warm atmosphere, inviting, comfortable">Sıcak & Samimi</button>
+          <button class="chip" data-prompt="futuristic architecture, avant-garde, cutting-edge">Fütüristik</button>
+          <button class="chip" data-prompt="serene peaceful atmosphere, calm, zen">Huzurlu</button>
+          <button class="chip" data-prompt="vibrant colorful, energetic, bold design">Canlı</button>
+          <button class="chip" data-prompt="grand monumental scale, impressive, majestic">Görkemli</button>
+        </div>
+        <div class="preset-group-label">Anlatı</div>
+        <div class="preset-chips">
+          <button class="chip" data-prompt="urban modern, city living, metropolitan">Urban Modern</button>
+          <button class="chip" data-prompt="zen minimalism, japanese aesthetic, wabi-sabi">Zen</button>
+          <button class="chip" data-prompt="industrial style, raw materials, urban loft">Endüstriyel</button>
+          <button class="chip" data-prompt="mediterranean coastal living, warm climate">Akdeniz</button>
+          <button class="chip" data-prompt="historic traditional architecture, classical">Tarihi</button>
+        </div>
+      </div>
+
+      <!-- Mimari -->
+      <div class="preset-content" id="tab-arch">
+        <div class="preset-group-label">Çevre</div>
+        <div class="preset-chips">
+          <button class="chip" data-prompt="park setting, surrounded by mature trees, green landscape">Park</button>
+          <button class="chip" data-prompt="urban street setting, city environment, asphalt road">Şehir Sokağı</button>
+          <button class="chip" data-prompt="hillside location, elevated terrain, mountain view">Tepe</button>
+          <button class="chip" data-prompt="waterfront property, sea view, coastal setting">Deniz Kenarı</button>
+          <button class="chip" data-prompt="desert landscape, arid terrain, dry environment">Çöl</button>
+        </div>
+        <div class="preset-group-label">Malzeme</div>
+        <div class="preset-chips">
+          <button class="chip" data-prompt="natural stone facade, travertine, limestone cladding">Taş Cephe</button>
+          <button class="chip" data-prompt="glass and steel facade, curtain wall, reflective glass">Cam & Çelik</button>
+          <button class="chip" data-prompt="wood cladding, timber facade, natural wood texture">Ahşap Kaplama</button>
+          <button class="chip" data-prompt="white plaster facade, smooth render, white walls">Beyaz Sıva</button>
+          <button class="chip" data-prompt="exposed concrete, brutalist concrete surface, raw concrete">Beton</button>
+          <button class="chip" data-prompt="brick facade, red brick, traditional brick">Tuğla</button>
+        </div>
+      </div>
+
+      <!-- Seçili etiketler -->
+      <div id="selectedChips" style="min-height:28px; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
+
+      <div class="slider-label" style="margin-top:12px;">
         <span>Creativity Weight</span>
         <span id="strengthVal">0.68</span>
       </div>
       <input type="range" id="strength" min="0.3" max="0.9" step="0.05" value="0.68"
         oninput="document.getElementById('strengthVal').textContent = parseFloat(this.value).toFixed(2)" />
-
-      <textarea id="customPrompt" placeholder="İsteğe bağlı ek açıklama: 'mermer zemin, yüksek tavan, geniş pencere'"></textarea>
 
       <button class="render-btn" id="renderBtn" onclick="startRender()">✨ Render Oluştur</button>
       <div class="error-msg" id="errorMsg"></div>
@@ -430,6 +606,54 @@
   let selectedFile = null;
   let renderType = 'interior';
   let selectedRoom = '';
+  let selectedPresets = {}; // { prompt_text: label }
+
+  function switchPresetTab(btn, tabId) {
+    document.querySelectorAll('.preset-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.preset-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+  }
+
+  function toggleChip(btn) {
+    const prompt = btn.dataset.prompt;
+    const label = btn.textContent.trim();
+    if (btn.classList.contains('active')) {
+      btn.classList.remove('active');
+      delete selectedPresets[prompt];
+    } else {
+      btn.classList.add('active');
+      selectedPresets[prompt] = label;
+    }
+    renderChipTags();
+  }
+
+  function renderChipTags() {
+    const container = document.getElementById('selectedChips');
+    container.innerHTML = Object.entries(selectedPresets).map(([prompt, label]) =>
+      `<span class="chip-tag">${label} <button onclick="removeChip('${prompt.replace(/'/g,"\\'")}', this)">×</button></span>`
+    ).join('');
+  }
+
+  function removeChip(prompt, btn) {
+    delete selectedPresets[prompt];
+    // ilgili chip butonunu bul ve active'i kaldır
+    document.querySelectorAll('.chip').forEach(c => {
+      if (c.dataset.prompt === prompt) c.classList.remove('active');
+    });
+    renderChipTags();
+  }
+
+  function buildPresetPrompt() {
+    return Object.keys(selectedPresets).join(', ');
+  }
+
+  // Chip click handler
+  document.addEventListener('click', e => {
+    if (e.target.classList.contains('chip')) {
+      toggleChip(e.target);
+    }
+  });
 
   const INTERIOR_STYLES = [
     { key: 'modern_interior', label: 'Modern İç Mekan' },
@@ -525,13 +749,17 @@
     document.getElementById('downloadBtn').style.display = 'none';
     document.getElementById('errorMsg').style.display = 'none';
 
+    const presetPrompt = buildPresetPrompt();
+    const customText = document.getElementById('customPrompt').value;
+    const combinedPrompt = [presetPrompt, customText].filter(Boolean).join(', ');
+
     const formData = new FormData();
     formData.append('image', selectedFile);
     formData.append('style', selectedStyle);
     formData.append('render_type', renderType);
     formData.append('room_type', selectedRoom);
     formData.append('control_strength', document.getElementById('strength').value);
-    formData.append('custom_prompt', document.getElementById('customPrompt').value);
+    formData.append('custom_prompt', combinedPrompt);
 
     try {
       const res = await fetch(`${API}/render`, { method: 'POST', body: formData });
