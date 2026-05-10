@@ -35,22 +35,22 @@
 
     .hero {
       text-align: center;
-      padding: 80px 20px 50px;
+      padding: 60px 20px 40px;
     }
 
     .hero h1 {
-      font-size: 52px;
+      font-size: 48px;
       font-weight: 700;
       letter-spacing: -2px;
       line-height: 1.1;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       background: linear-gradient(135deg, #ffffff 40%, #a78bfa);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .hero p {
-      font-size: 18px;
+      font-size: 16px;
       color: #6b6b8a;
       max-width: 500px;
       margin: 0 auto;
@@ -58,34 +58,66 @@
     }
 
     .main {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 0 20px 80px;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 32px;
+      gap: 28px;
     }
 
     .panel {
       background: #111118;
       border: 1px solid #1e1e2e;
       border-radius: 16px;
-      padding: 28px;
-    }
-
-    .panel h2 {
-      font-size: 14px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #6b6b8a;
+      padding: 24px;
       margin-bottom: 20px;
     }
 
+    .panel:last-child { margin-bottom: 0; }
+
+    .panel h2 {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #6b6b8a;
+      margin-bottom: 16px;
+    }
+
+    /* Type Toggle */
+    .type-toggle {
+      display: flex;
+      background: #0a0a0f;
+      border: 1px solid #1e1e2e;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+
+    .type-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: #6b6b8a;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .type-btn.active {
+      background: #1e1e2e;
+      color: #e8e8f0;
+    }
+
+    /* Upload */
     .upload-zone {
       border: 2px dashed #2a2a40;
       border-radius: 12px;
-      padding: 50px 20px;
+      padding: 40px 20px;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
@@ -106,42 +138,60 @@
       height: 100%;
     }
 
-    .upload-icon {
-      font-size: 40px;
-      margin-bottom: 12px;
-    }
-
-    .upload-zone p {
-      color: #6b6b8a;
-      font-size: 14px;
-    }
-
-    .upload-zone strong {
-      color: #a78bfa;
-    }
+    .upload-icon { font-size: 36px; margin-bottom: 10px; }
+    .upload-zone p { color: #6b6b8a; font-size: 13px; }
+    .upload-zone strong { color: #a78bfa; }
 
     .preview-img {
       width: 100%;
       border-radius: 8px;
       display: none;
-      max-height: 250px;
+      max-height: 220px;
       object-fit: contain;
     }
 
+    /* Room type */
+    .room-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .room-btn {
+      padding: 8px 6px;
+      border: 1px solid #2a2a40;
+      border-radius: 8px;
+      background: transparent;
+      color: #9090b0;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .room-btn:hover { border-color: #a78bfa; color: #e8e8f0; }
+    .room-btn.active {
+      border-color: #a78bfa;
+      background: rgba(167, 139, 250, 0.1);
+      color: #a78bfa;
+    }
+
+    /* Styles */
     .styles-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: 8px;
+      margin-bottom: 16px;
     }
 
     .style-btn {
-      padding: 12px;
+      padding: 11px 12px;
       border: 1px solid #2a2a40;
       border-radius: 10px;
       background: transparent;
       color: #9090b0;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
       transition: all 0.2s;
       text-align: left;
@@ -155,10 +205,11 @@
       font-weight: 500;
     }
 
+    /* Slider */
     .slider-label {
       display: flex;
       justify-content: space-between;
-      font-size: 13px;
+      font-size: 12px;
       color: #6b6b8a;
       margin-bottom: 8px;
     }
@@ -166,7 +217,7 @@
     input[type="range"] {
       width: 100%;
       accent-color: #a78bfa;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     textarea {
@@ -179,20 +230,20 @@
       font-size: 13px;
       font-family: inherit;
       resize: none;
-      height: 80px;
-      margin-bottom: 20px;
+      height: 70px;
+      margin-bottom: 16px;
     }
 
     textarea:focus { outline: none; border-color: #a78bfa; }
 
     .render-btn {
       width: 100%;
-      padding: 16px;
+      padding: 15px;
       background: linear-gradient(135deg, #a78bfa, #60a5fa);
       border: none;
       border-radius: 12px;
       color: white;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       transition: opacity 0.2s;
@@ -201,11 +252,15 @@
     .render-btn:hover { opacity: 0.9; }
     .render-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    /* Result */
     .result-panel {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 400px;
+      min-height: 500px;
+      position: sticky;
+      top: 20px;
     }
 
     .result-placeholder {
@@ -238,18 +293,17 @@
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
-
     .loading p { color: #6b6b8a; font-size: 14px; }
 
     .download-btn {
       display: none;
-      margin-top: 16px;
-      padding: 12px 24px;
+      margin-top: 14px;
+      padding: 11px 24px;
       background: #1e1e2e;
       border: 1px solid #2a2a40;
       border-radius: 10px;
       color: #e8e8f0;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
       text-decoration: none;
       text-align: center;
@@ -268,7 +322,8 @@
 
     @media (max-width: 768px) {
       .main { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 36px; }
+      .hero h1 { font-size: 32px; }
+      .room-grid { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
@@ -281,43 +336,73 @@
 
 <section class="hero">
   <h1>Çizimden Gerçeğe</h1>
-  <p>Mimari çizimlerinizi saniyeler içinde fotorealistik render'a dönüştürün. Çizgiler korunur, tasarım bozulmaz.</p>
+  <p>Mimari çizimlerinizi saniyeler içinde fotorealistik render'a dönüştürün.</p>
 </section>
 
 <main class="main">
-  <!-- Sol Panel: Kontroller -->
+  <!-- Sol Panel -->
   <div>
-    <div class="panel" style="margin-bottom:20px;">
+    <!-- Görsel Yükle -->
+    <div class="panel">
       <h2>Görsel Yükle</h2>
       <div class="upload-zone" id="uploadZone">
         <input type="file" id="fileInput" accept="image/*" />
         <div class="upload-icon">🏛️</div>
         <p><strong>Görsel seçin</strong> veya sürükleyin</p>
-        <p style="margin-top:6px; font-size:12px;">PNG, JPG — Kat planı, 3D model, eskiz</p>
+        <p style="margin-top:6px; font-size:11px;">PNG, JPG — 3D model, perspektif eskiz, kat planı</p>
       </div>
       <img id="previewImg" class="preview-img" />
     </div>
 
+    <!-- Render Tipi -->
     <div class="panel">
-      <h2>Render Stili</h2>
-      <div class="styles-grid">
+      <h2>Render Tipi</h2>
+      <div class="type-toggle">
+        <button class="type-btn active" id="typeInterior" onclick="setRenderType('interior')">🏠 İç Mekan</button>
+        <button class="type-btn" id="typeExterior" onclick="setRenderType('exterior')">🏢 Dış Cephe</button>
+      </div>
+
+      <!-- İç mekan oda tipi -->
+      <div id="roomSection">
+        <div style="font-size:11px; color:#6b6b8a; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Oda Tipi</div>
+        <div class="room-grid">
+          <button class="room-btn active" data-room="" onclick="setRoom(this, '')">Tümü</button>
+          <button class="room-btn" data-room="living room" onclick="setRoom(this, 'living room')">Salon</button>
+          <button class="room-btn" data-room="bedroom" onclick="setRoom(this, 'bedroom')">Yatak Odası</button>
+          <button class="room-btn" data-room="kitchen" onclick="setRoom(this, 'kitchen')">Mutfak</button>
+          <button class="room-btn" data-room="bathroom" onclick="setRoom(this, 'bathroom')">Banyo</button>
+          <button class="room-btn" data-room="dining room" onclick="setRoom(this, 'dining room')">Yemek Odası</button>
+          <button class="room-btn" data-room="home office" onclick="setRoom(this, 'home office')">Ofis</button>
+          <button class="room-btn" data-room="kids room" onclick="setRoom(this, 'kids room')">Çocuk Odası</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stil Seçimi -->
+    <div class="panel">
+      <h2>Stil</h2>
+      <div class="styles-grid" id="stylesGrid">
+        <!-- İç mekan stilleri (default) -->
         <button class="style-btn active" data-style="modern_interior">Modern İç Mekan</button>
         <button class="style-btn" data-style="minimalist">Minimalist</button>
         <button class="style-btn" data-style="luxury">Lüks & Premium</button>
         <button class="style-btn" data-style="scandinavian">İskandinav</button>
         <button class="style-btn" data-style="industrial">Endüstriyel</button>
+        <button class="style-btn" data-style="mediterranean">Akdeniz</button>
+        <button class="style-btn" data-style="japandi">Japandi</button>
+        <button class="style-btn" data-style="classic">Klasik & Şık</button>
       </div>
 
       <div class="slider-label">
         <span>Çizgi Koruma Gücü</span>
-        <span id="strengthVal">0.75</span>
+        <span id="strengthVal">0.90</span>
       </div>
-      <input type="range" id="strength" min="0" max="1" step="0.05" value="0.75"
-        oninput="document.getElementById('strengthVal').textContent = this.value" />
+      <input type="range" id="strength" min="0.5" max="1" step="0.05" value="0.90"
+        oninput="document.getElementById('strengthVal').textContent = parseFloat(this.value).toFixed(2)" />
 
-      <textarea id="customPrompt" placeholder="İsteğe bağlı ek açıklama: 'ahşap tavan, beyaz duvarlar, doğal ışık'"></textarea>
+      <textarea id="customPrompt" placeholder="İsteğe bağlı ek açıklama: 'mermer zemin, yüksek tavan, geniş pencere'"></textarea>
 
-      <button class="render-btn" id="renderBtn" onclick="startRender()">Render Oluştur</button>
+      <button class="render-btn" id="renderBtn" onclick="startRender()">✨ Render Oluştur</button>
       <div class="error-msg" id="errorMsg"></div>
     </div>
   </div>
@@ -330,7 +415,7 @@
     </div>
     <div class="loading" id="loading">
       <div class="spinner"></div>
-      <p>Render oluşturuluyor...<br><span style="font-size:12px;">Bu işlem 30-60 saniye sürebilir</span></p>
+      <p>Render oluşturuluyor...<br><span style="font-size:12px; color:#4a4a6a;">Bu işlem 30-60 saniye sürebilir</span></p>
     </div>
     <div style="width:100%; text-align:center;">
       <img id="resultImg" class="result-img" />
@@ -343,8 +428,54 @@
   const API = 'https://renderai-backend-x9xs.onrender.com';
   let selectedStyle = 'modern_interior';
   let selectedFile = null;
+  let renderType = 'interior';
+  let selectedRoom = '';
 
-  // Stil seçimi
+  const INTERIOR_STYLES = [
+    { key: 'modern_interior', label: 'Modern İç Mekan' },
+    { key: 'minimalist', label: 'Minimalist' },
+    { key: 'luxury', label: 'Lüks & Premium' },
+    { key: 'scandinavian', label: 'İskandinav' },
+    { key: 'industrial', label: 'Endüstriyel' },
+    { key: 'mediterranean', label: 'Akdeniz' },
+    { key: 'japandi', label: 'Japandi' },
+    { key: 'classic', label: 'Klasik & Şık' },
+  ];
+
+  const EXTERIOR_STYLES = [
+    { key: 'modern_exterior', label: 'Modern Dış Cephe' },
+    { key: 'contemporary', label: 'Çağdaş' },
+    { key: 'luxury_villa', label: 'Lüks Villa' },
+    { key: 'commercial', label: 'Ticari Bina' },
+  ];
+
+  function setRenderType(type) {
+    renderType = type;
+    document.getElementById('typeInterior').classList.toggle('active', type === 'interior');
+    document.getElementById('typeExterior').classList.toggle('active', type === 'exterior');
+    document.getElementById('roomSection').style.display = type === 'interior' ? 'block' : 'none';
+
+    const styles = type === 'interior' ? INTERIOR_STYLES : EXTERIOR_STYLES;
+    selectedStyle = styles[0].key;
+    const grid = document.getElementById('stylesGrid');
+    grid.innerHTML = styles.map((s, i) =>
+      `<button class="style-btn ${i === 0 ? 'active' : ''}" data-style="${s.key}" onclick="selectStyle(this, '${s.key}')">${s.label}</button>`
+    ).join('');
+  }
+
+  function selectStyle(btn, style) {
+    document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedStyle = style;
+  }
+
+  function setRoom(btn, room) {
+    document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedRoom = room;
+  }
+
+  // Stil seçimi (initial)
   document.querySelectorAll('.style-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
@@ -397,6 +528,8 @@
     const formData = new FormData();
     formData.append('image', selectedFile);
     formData.append('style', selectedStyle);
+    formData.append('render_type', renderType);
+    formData.append('room_type', selectedRoom);
     formData.append('control_strength', document.getElementById('strength').value);
     formData.append('custom_prompt', document.getElementById('customPrompt').value);
 
