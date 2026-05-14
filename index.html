@@ -602,6 +602,9 @@
 
 <script>
   const API = 'https://renderai-backend-x9xs.onrender.com';
+
+  // Sayfa açılınca sunucuyu uyandır — kullanıcı ayarları seçerken hazır olur
+  fetch(`${API}/`).catch(() => {});
   let selectedStyle = 'modern_interior';
   let selectedFile = null;
   let renderType = 'interior';
@@ -762,12 +765,8 @@
     formData.append('custom_prompt', combinedPrompt);
 
     try {
-      // 1. Sunucuyu uyandır
-      document.querySelector('.loading p').innerHTML = 'Sunucu hazırlanıyor...<br><span style="font-size:12px;color:#4a4a6a;">Lütfen bekleyin</span>';
-      try { await fetch(`${API}/`, { signal: AbortSignal.timeout(60000) }); } catch(e) {}
-
-      // 2. Render başlat — hemen ID al
-      document.querySelector('.loading p').innerHTML = 'Render kuyruğa alındı...<br><span style="font-size:12px;color:#4a4a6a;">İşlem başlıyor</span>';
+      // Render başlat — hemen ID al
+      document.querySelector('.loading p').innerHTML = 'Render başlatılıyor...<br><span style="font-size:12px;color:#4a4a6a;">İşlem başlıyor</span>';
       const startRes = await fetch(`${API}/render/start`, { method: 'POST', body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
