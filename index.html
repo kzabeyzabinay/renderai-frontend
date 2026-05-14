@@ -762,29 +762,46 @@
     formData.append('custom_prompt', combinedPrompt);
 
     try {
-      // Sunucuyu önce uyandır
-      document.querySelector('.loading p').innerHTML = 'Sunucu hazırlanıyor...<br><span style="font-size:12px; color:#4a4a6a;">İlk istekte 30-50 saniye sürebilir</span>';
+      // 1. Sunucuyu uyandır
+      document.querySelector('.loading p').innerHTML = 'Sunucu hazırlanıyor...<br><span style="font-size:12px;color:#4a4a6a;">Lütfen bekleyin</span>';
       try { await fetch(`${API}/`, { signal: AbortSignal.timeout(60000) }); } catch(e) {}
 
-      document.querySelector('.loading p').innerHTML = 'Render oluşturuluyor...<br><span style="font-size:12px; color:#4a4a6a;">60-90 saniye sürebilir</span>';
+      // 2. Render başlat — hemen ID al
+      document.querySelector('.loading p').innerHTML = 'Render kuyruğa alındı...<br><span style="font-size:12px;color:#4a4a6a;">İşlem başlıyor</span>';
+      const startRes = await fetch(`${API}/render/start`, { method: 'POST', body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
 
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 180000); // 3 dakika
-      const res = await fetch(`${API}/render`, { method: 'POST', body: formData, signal: controller.signal });
-      clearTimeout(timeout);
-      const data = await res.json();
+      const predictionId = startData.prediction_id;
+      let elapsed = 0;
 
-      if (!res.ok) throw new Error(data.detail || 'Render başarısız');
+      // 3. Sonucu poll et
+      while (true) {
+        await new Promise(r => setTimeout(r, 3000));
+        elapsed += 3;
+        document.querySelector('.loading p').innerHTML = `Render oluşturuluyor... ${elapsed}sn<br><span style="font-size:12px;color:#4a4a6a;">AI görüntü işliyor</span>`;
 
-      const img = document.getElementById('resultImg');
-      img.src = data.render_url;
-      img.style.display = 'block';
-      img.onload = () => {
-        document.getElementById('loading').style.display = 'none';
-        const dl = document.getElementById('downloadBtn');
-        dl.href = data.render_url;
-        dl.style.display = 'inline-block';
-      };
+        const statusRes = await fetch(`${API}/render/status/${predictionId}`);
+        const statusData = await statusRes.json();
+
+        if (statusData.status === 'succeeded') {
+          const img = document.getElementById('resultImg');
+          img.src = statusData.render_url;
+          img.style.display = 'block';
+          img.onload = () => {
+            document.getElementById('loading').style.display = 'none';
+            const dl = document.getElementById('downloadBtn');
+            dl.href = statusData.render_url;
+            dl.style.display = 'inline-block';
+          };
+          break;
+        } else if (statusData.status === 'failed') {
+          throw new Error(statusData.error || 'Render başarısız');
+        }
+
+        if (elapsed > 300) throw new Error('5 dakika aşıldı, lütfen tekrar deneyin');
+      }
+
     } catch (err) {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('placeholder').style.display = 'block';
