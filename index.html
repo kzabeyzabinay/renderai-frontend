@@ -607,94 +607,137 @@
       </div>
     </div>
 
-    <!-- Creative Preset (Suapp tarzı) -->
+    <!-- Creative Preset -->
     <div class="panel">
       <h2>Creative Preset</h2>
 
-      <!-- Kategori Sekmeleri -->
-      <div class="preset-tabs">
-        <button class="preset-tab active" onclick="switchPresetTab(this, 'tab-env')">🌤 Mevsim & Hava</button>
-        <button class="preset-tab" onclick="switchPresetTab(this, 'tab-light')">💡 Işık & Zaman</button>
-        <button class="preset-tab" onclick="switchPresetTab(this, 'tab-mood')">✨ Atmosfer</button>
-        <button class="preset-tab" onclick="switchPresetTab(this, 'tab-arch')">🏛 Mimari</button>
+      <!-- Kategori Sekmeleri — 2 satır -->
+      <div class="preset-tabs" style="gap:5px;">
+        <button class="preset-tab active" onclick="switchPresetTab(this,'tab-season')">🌿 Mevsim</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-time')">🕐 Zaman</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-weather')">☁️ Hava</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-sky')">🌅 Gökyüzü</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-light')">💡 Işık</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-env')">🌆 Çevre</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-mood')">🎬 Görüntü</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-mat')">🏗 Malzeme</button>
       </div>
 
-      <!-- Mevsim & Hava -->
-      <div class="preset-content active" id="tab-env">
-        <div class="preset-group-label">Mevsim</div>
-        <div class="preset-chips">
-          <button class="chip" data-prompt="spring season, cherry blossom trees, fresh bright green new foliage, flower beds in bloom, clean crisp spring air">İlkbahar</button>
-          <button class="chip" data-prompt="summer, lush deep green mature tree canopy, vibrant green lawn, peak vegetation, warm bright sunlight, rich saturated colors">Yaz</button>
-          <button class="chip" data-prompt="autumn fall season, orange amber and red foliage on trees, fallen leaves on ground, warm golden tones, late afternoon harvest light">Sonbahar</button>
-          <button class="chip" data-prompt="winter season, pristine white snow covering ground roof and branches, bare dark tree branches with frost, crisp cold winter light, grey overcast sky">Kış</button>
-        </div>
-        <div class="preset-group-label">Hava Durumu</div>
-        <div class="preset-chips">
-          <button class="chip" data-prompt="perfect sunny day, deep blue sky with a few white clouds, bright direct sunlight, crisp sharp shadows, vivid colors, clear visibility">Güneşli</button>
-          <button class="chip" data-prompt="global illumination, physically based diffused light, perfectly even soft shadows, overcast bright white sky, no harsh highlights, studio-quality lighting">Global Aydınlatma</button>
-          <button class="chip" data-prompt="dramatic storm clouds gathering, moody dark sky with silver lining, cinematic pre-storm atmosphere, dramatic contrast">Dramatik Bulut</button>
-          <button class="chip" data-prompt="misty morning atmosphere, soft fog in distance, volumetric light rays piercing through mist, ethereal dreamy quality, soft diffused light">Sisli</button>
-          <button class="chip" data-prompt="after rain wet surfaces with puddle reflections, glistening wet asphalt and pavement, fresh clean air, dark wet ground contrast with building">Yağmur Sonrası</button>
+      <!-- 1. MEVSİM -->
+      <div class="preset-content active" id="tab-season">
+        <div class="preset-chips" style="margin-top:8px;">
+          <button class="chip" data-prompt="vibrant summer season, lush deep green mature tree canopy, peak vegetation density, vibrant green manicured lawn, warm bright sunlight, rich saturated colors, summer heat shimmer">Yaz ☀️</button>
+          <button class="chip" data-prompt="spring season, cherry blossom and flowering ornamental trees, fresh bright lime green new foliage, colorful flower beds in bloom, clean crisp spring air, gentle spring light">İlkbahar 🌸</button>
+          <button class="chip" data-prompt="autumn fall season, orange amber red and golden yellow foliage on all trees, fallen colorful leaves on ground and pathways, warm golden harvest light, rich warm color palette">Sonbahar 🍂</button>
+          <button class="chip" data-prompt="winter season, pristine white snow blanketing ground roof surfaces and tree branches, bare dark skeletal tree branches with frost, crisp cold winter light, soft grey overcast winter sky, cold blue-white tones">Kış ❄️</button>
         </div>
       </div>
 
-      <!-- Işık & Zaman -->
+      <!-- 2. ZAMAN -->
+      <div class="preset-content" id="tab-time">
+        <div class="preset-chips" style="margin-top:8px;">
+          <button class="chip" data-prompt="early morning sunrise, soft warm amber-pink low angle light from the east, long delicate gentle shadows, dew drops on grass and leaves, peaceful quiet dawn atmosphere, fresh morning air, birds singing">Sabah 🌄</button>
+          <button class="chip" data-prompt="late afternoon light 3-5pm, warm side lighting from low western sun at 40 degrees, soft warm golden tones on facade, defined medium-length shadows, pleasant relaxed afternoon warmth">Öğleden Sonra</button>
+          <button class="chip" data-prompt="golden hour photography, magical warm amber-orange sunlight at 15 degree very low angle just before sunset, long romantic dramatic shadows, volumetric light rays, subtle lens flare, cinematic magic hour lighting, warm glow on all surfaces">Altın Saat ✨</button>
+          <button class="chip" data-prompt="dusk twilight, sky transitioning from warm orange at horizon to deep purple-blue above, building exterior architectural lights turning on, warm glowing windows starting to show, soft dim romantic remaining daylight, twilight atmosphere">Akşamüstü 🌇</button>
+          <button class="chip" data-prompt="blue hour photography, deep blue indigo twilight sky 20 minutes after sunset, building exterior architectural spot lights fully on, warm amber glowing windows, ground and surfaces reflecting blue sky, cinematic dusk atmosphere">Dusk 🌆</button>
+          <button class="chip" data-prompt="full night scene, deep blue-black starry sky, building dramatically illuminated by warm exterior architectural spotlights and uplighting, all windows warmly glowing amber, ambient city light glow on horizon, beautiful night photography">Gece 🌙</button>
+        </div>
+      </div>
+
+      <!-- 3. HAVA DURUMU -->
+      <div class="preset-content" id="tab-weather">
+        <div class="preset-chips" style="margin-top:8px;">
+          <button class="chip" data-prompt="perfect sunny clear weather, strong bright direct sunlight, crisp sharp precise shadows, vivid saturated colors, excellent visibility, energetic bright atmosphere">Güneşli ☀️</button>
+          <button class="chip" data-prompt="misty foggy morning, soft white atmospheric fog in middle distance, volumetric light rays piercing beautifully through mist, ethereal dreamy soft quality, gentle diffused light, mysterious atmosphere">Sisli 🌫️</button>
+          <button class="chip" data-prompt="overcast cloudy weather, thick cloud cover creating perfectly diffused soft even light, no harsh direct shadows, soft grey and white sky, studio-quality even illumination, calm peaceful weather">Bulutlu ⛅</button>
+          <button class="chip" data-prompt="rain weather, heavy rain falling visibly in air, wet glistening surfaces on ground and building, puddles with ripples and reflections, streaks of rain on glass, dark wet asphalt, fresh petrichor atmosphere">Yağmurlu 🌧️</button>
+          <button class="chip" data-prompt="heavy snowfall, large snowflakes visibly falling in air, thick white snow accumulating on all horizontal surfaces rooftop ledges and branches, grey white winter sky, everything blanketed in white, magical winter snowfall">Karlı 🌨️</button>
+        </div>
+      </div>
+
+      <!-- 4. GÖKYÜZÜ -->
+      <div class="preset-content" id="tab-sky">
+        <div class="preset-chips" style="margin-top:8px;">
+          <button class="chip" data-prompt="perfectly clear deep azure blue sky, not a single cloud, pure vivid blue, ideal photography conditions, maximum contrast with building">Temiz Gökyüzü</button>
+          <button class="chip" data-prompt="dramatic large cumulus cloud formations, billowing white and grey clouds with dark undersides, dynamic turbulent sky, interesting varied cloud texture, dramatic light breaks through clouds">Bulutlu Gökyüzü</button>
+          <button class="chip" data-prompt="spectacular sunset sky, vivid orange pink purple and red gradient from horizon upward, glowing warm horizon, dramatic colorful sunset, atmospheric haze and color">Günbatımı 🌅</button>
+          <button class="chip" data-prompt="deep twilight night blue sky, dark blue-black gradient, few bright stars visible, deep atmospheric night sky color, mysterious deep blue tone">Gece Mavisi 🌃</button>
+          <button class="chip" data-prompt="bright white near-white overcast sky, soft diffused white cloud cover, minimal tonal variation, clean bright neutral background sky, even soft light from above">Beyazımsı Gökyüzü</button>
+        </div>
+      </div>
+
+      <!-- 5. IŞIK -->
       <div class="preset-content" id="tab-light">
-        <div class="preset-group-label">Gün Işığı</div>
+        <div class="preset-group-label">Işık Kaynağı</div>
         <div class="preset-chips">
-          <button class="chip" data-prompt="soft warm morning sunrise light at very low angle, gentle amber pink tones on facade, long delicate shadows, dew on grass, peaceful quiet dawn atmosphere">Gün Doğumu</button>
-          <button class="chip" data-prompt="bright midday sunlight directly overhead, short crisp sharp shadows, high color saturation, maximum visibility and clarity, clear blue sky">Öğlen</button>
-          <button class="chip" data-prompt="golden hour photography, warm amber orange sunlight at 15 degree low angle, long romantic shadows, volumetric light rays, subtle lens flare, magical cinematic hour lighting, skin-warm facade tones">Altın Saat ✨</button>
-          <button class="chip" data-prompt="blue hour photography, deep blue indigo twilight sky after sunset, building exterior architectural lighting turned on, warm glowing windows, reflections on surfaces, cinematic dusk atmosphere">Mavi Saat 🌆</button>
-          <button class="chip" data-prompt="full dark night scene, deep blue-black sky with stars, building dramatically illuminated by warm architectural exterior spotlights, glowing windows, ambient city glow on horizon">Gece 🌙</button>
+          <button class="chip" data-prompt="natural sunlight as sole light source, pure natural daylight, sun position defining all shadows, no artificial lighting visible, pure natural light quality">Doğal Işık</button>
+          <button class="chip" data-prompt="artificial exterior lighting fixtures visible and active, outdoor wall sconces and post lights on, man-made artificial illumination supplementing natural light">Yapay Işık</button>
+          <button class="chip" data-prompt="soft ambient atmospheric light, gentle surrounding illumination from sky and environment, no single dominant light source, moody even ambient quality">Ambiyans Işığı</button>
+          <button class="chip" data-prompt="global illumination, physically based light bouncing and interreflection, photorealistic GI rendering quality, realistic soft shadow gradients, accurate light behavior">Global Işık</button>
+          <button class="chip" data-prompt="architectural exterior facade lighting system, recessed LED wall washers illuminating facade surfaces from above or below, dramatic light and shadow on building texture, premium hotel exterior lighting design">Cephe Aydınlatması</button>
+          <button class="chip" data-prompt="all interior rooms warmly illuminated, warm amber interior light glowing through every window, cozy inhabited feeling, strong contrast between warm interior glow and cool exterior, lived-in welcoming atmosphere">İç Mekan Işığı</button>
         </div>
-        <div class="preset-group-label">Işık Kalitesi</div>
+        <div class="preset-group-label">Işık Tonu</div>
         <div class="preset-chips">
-          <button class="chip" data-prompt="soft diffused indirect light, no harsh shadows, even illumination, overcast light quality, gentle subtle shadows with soft edges">Yumuşak Işık</button>
-          <button class="chip" data-prompt="dramatic hard directional sunlight, deep dark shadows with crisp edges, high contrast, graphic bold shadows pattern on facade">Dramatik Gölge</button>
-          <button class="chip" data-prompt="warm glowing light spilling through large windows, interior illumination visible, warm amber interior light contrasting cool exterior, cozy inviting glow">Pencere Işığı</button>
-          <button class="chip" data-prompt="architectural exterior spotlights uplighting facade, dramatic shadow uplighting, highlighted texture, theatrical lighting design, luxury hotel exterior lighting">Spot Işık</button>
+          <button class="chip" data-prompt="warm amber light tone, 2700K warm white color temperature, golden warm amber tones throughout, incandescent warmth">Amber 🟠</button>
+          <button class="chip" data-prompt="neutral pure white light, 5000K neutral white balanced light, clean neutral illumination, no color cast, pure white tones">Beyaz Işık</button>
+          <button class="chip" data-prompt="vibrant neon colored accent lighting, saturated colored LED neon glow, urban neon sign atmosphere, colorful vibrant neon light">Neon 🌈</button>
+          <button class="chip" data-prompt="dramatic red accent lighting, deep crimson red light tone, passionate dramatic red illumination, theatrical red light wash">Kırmızı</button>
+          <button class="chip" data-prompt="warm yellow-orange light, classic warm sodium lamp color, traditional warm street light yellow-amber tone, vintage warm glow">Sarı</button>
+          <button class="chip" data-prompt="cool daylight balanced light, 6500K cool white daylight temperature, bright crisp daylight color, clear clean cool illumination">Günışığı</button>
         </div>
       </div>
 
-      <!-- Atmosfer -->
+      <!-- 6. ÇEVRE ATMOSFERİ -->
+      <div class="preset-content" id="tab-env">
+        <div class="preset-chips" style="margin-top:8px;">
+          <button class="chip" data-prompt="busy urban traffic environment, multiple moving cars on road, pedestrians walking on sidewalk, city rush hour activity, dynamic urban movement and life">Kalabalık Şehir 🚗</button>
+          <button class="chip" data-prompt="serene calm peaceful environment, completely empty street and surroundings, no people or vehicles, quiet still residential setting, tranquil undisturbed atmosphere">Sakin & Huzurlu</button>
+          <button class="chip" data-prompt="village countryside rural setting, unpaved dirt roads, agricultural fields and farmland, rural landscape, rustic village surroundings, pastoral environment">Köy 🌾</button>
+          <button class="chip" data-prompt="dense urban city neighborhood, other buildings and city infrastructure visible in background, metropolitan urban context, busy city environment">Şehir 🏙️</button>
+          <button class="chip" data-prompt="exclusive luxury villa neighborhood, other high-end private residences nearby, manicured private street, gated luxury community, prestigious residential area">Villa Bölgesi 🏡</button>
+          <button class="chip" data-prompt="dense apartment residential neighborhood, multiple apartment blocks surrounding, urban residential density, typical city apartment district">Apartman Çevresi 🏢</button>
+          <button class="chip" data-prompt="public urban plaza and civic space, wide pedestrian area, public seating and landscaping, urban design elements, people enjoying public space">Kamusal Alan</button>
+          <button class="chip" data-prompt="public park recreational setting, park benches and lamp posts, families and people walking, mature park trees and grass, recreational green urban space">Park 🌳</button>
+          <button class="chip" data-prompt="seafront coastal waterfront location, ocean sea visible in background or foreground, beach promenade, coastal palm trees, sea breeze Mediterranean atmosphere">Deniz Kenarı 🌊</button>
+          <button class="chip" data-prompt="dramatic mountain alpine setting, mountain peaks and ridges visible in background, alpine landscape, mountain forest, high altitude atmosphere, fresh mountain air">Dağ ⛰️</button>
+        </div>
+      </div>
+
+      <!-- 7. GÖRÜNTÜ ATMOSFERİ -->
       <div class="preset-content" id="tab-mood">
-        <div class="preset-group-label">Estetik</div>
-        <div class="preset-chips">
-          <button class="chip" data-prompt="ultra luxury premium aesthetic, high-end materials, impeccable craftsmanship, sophisticated refined, prestigious, 5-star hotel quality">Lüks</button>
-          <button class="chip" data-prompt="warm cozy inviting atmosphere, comfortable human scale, welcoming, family home feeling, soft warm tones, intimate spaces">Sıcak & Samimi</button>
-          <button class="chip" data-prompt="avant-garde futuristic architecture, parametric forms, cutting-edge design, innovative materials, visionary, Zaha Hadid inspired">Fütüristik</button>
-          <button class="chip" data-prompt="serene peaceful zen atmosphere, deep calm, meditative silence, harmonious proportions, spiritual tranquility, nothing excessive">Huzurlu</button>
-          <button class="chip" data-prompt="grand monumental scale, impressive civic architecture, majestic proportions, powerful imposing presence, landmark building">Görkemli</button>
-        </div>
-        <div class="preset-group-label">Fotoğraf Stili</div>
-        <div class="preset-chips">
-          <button class="chip" data-prompt="editorial architecture photography, magazine cover composition, carefully framed, rule of thirds, leading lines, Dezeen magazine quality">Editöryal</button>
-          <button class="chip" data-prompt="cinematic photography, movie scene quality, anamorphic lens look, filmic color grade, cinematic aspect ratio feel, dramatic composition">Sinematik</button>
-          <button class="chip" data-prompt="drone aerial view photography, bird eye view from above at 45 degree angle, wide establishing shot, surrounding context visible">Drone Görüntü</button>
-          <button class="chip" data-prompt="close up architectural detail photography, extreme detail visible in materials and textures, shallow depth of field, macro surface quality">Detay Çekim</button>
+        <div class="preset-chips" style="margin-top:8px;">
+          <button class="chip" data-prompt="cinematic photography style, anamorphic widescreen lens quality, rich filmic color grade, movie scene production quality, dramatic cinematic framing and composition, Hollywood film aesthetic">Sinematik 🎬</button>
+          <button class="chip" data-prompt="clean photorealistic documentary photography, no artistic filters or color grading, true to life accurate colors, professional clean architectural photography, objective realistic presentation">Gerçekçi & Temiz</button>
+          <button class="chip" data-prompt="architectural sketch illustration style, hand-drawn pencil and ink sketch aesthetic, architectural rendering illustration, artistic line work, sketch render style">Eskiz ✏️</button>
+          <button class="chip" data-prompt="editorial magazine architecture photography, award-winning composition, Dezeen Architectural Digest magazine cover quality, perfectly framed professional shot">Editöryal</button>
+          <button class="chip" data-prompt="aerial drone photography, bird's eye view from above at 45-60 degree angle, wide establishing aerial shot, full building and surroundings visible from above">Drone 🚁</button>
         </div>
       </div>
 
-      <!-- Mimari -->
-      <div class="preset-content" id="tab-arch">
-        <div class="preset-group-label">Çevre & Konum</div>
+      <!-- 8. BİNA MALZEMELERİ + PEYZAJ -->
+      <div class="preset-content" id="tab-mat">
+        <div class="preset-group-label">Bina Malzemeleri — renk ve doku modelden alınır</div>
         <div class="preset-chips">
-          <button class="chip" data-prompt="park setting surrounded by mature 20-meter oak and plane trees, lush green lawn, garden pathways, flowers and shrubs, peaceful natural setting">Park İçi</button>
-          <button class="chip" data-prompt="urban street setting, city environment, asphalt road with parked luxury cars, sidewalk with pedestrians, city backdrop, metropolitan atmosphere">Şehir Merkezi</button>
-          <button class="chip" data-prompt="hillside elevated location, sloped terrain with retaining walls, panoramic city or valley view in background, dramatic elevated setting">Tepe Konumu</button>
-          <button class="chip" data-prompt="waterfront seafront property, deep blue sea or lake visible, coastal landscaping with palm trees and Mediterranean plants, sea breeze atmosphere">Deniz Kenarı 🌊</button>
-          <button class="chip" data-prompt="forest setting, surrounded by tall pine and birch forest, dappled light through trees, nature immersed architecture, cabin feel">Orman İçi</button>
+          <button class="chip" data-prompt="apply photorealistic natural stone texture to building surfaces, match the exact color and pattern of stone visible in the 3D model, realistic natural stone with visible joint lines, surface variation and depth">Taş Doku</button>
+          <button class="chip" data-prompt="apply photorealistic composite aluminum panel cladding, match the exact color tone from the 3D model, smooth flat metallic composite surface with visible panel seams and joints, precision manufactured facade system">Kompozit Panel</button>
+          <button class="chip" data-prompt="apply photorealistic architectural ceramic tile cladding, match the exact color from the 3D model, precision ceramic surface with fine grout joints, high-end architectural porcelain facade material">Mekanik Seramik</button>
+          <button class="chip" data-prompt="apply photorealistic smooth plaster and paint finish to building surfaces, match the exact color visible in the 3D model, clean flat smooth rendered stucco surface with subtle texture and imperfection">Sıvalı Boya</button>
+          <button class="chip" data-prompt="apply photorealistic natural wood cladding, match the color tone and warmth of wood visible in the 3D model, realistic wood grain texture, natural timber with visible grain variation and warmth">Ahşap</button>
+          <button class="chip" data-prompt="remove any logos, text labels, brand names, signage or written text from all building surfaces and facade, replace with clean smooth surface matching surrounding material">Logo / İsim Kaldır ✕</button>
         </div>
-        <div class="preset-group-label">Cephe Malzemesi</div>
+        <div class="preset-group-label">Peyzaj Öğeleri</div>
         <div class="preset-chips">
-          <button class="chip" data-prompt="natural travertine and limestone stone cladding, visible stone texture and veining, premium stone masonry, warm beige stone tones">Travertin Taş</button>
-          <button class="chip" data-prompt="full height glass curtain wall facade, highly reflective glass panels, steel and aluminum frame, sky and trees reflected in glass">Cam Cephe</button>
-          <button class="chip" data-prompt="natural teak or cedar wood cladding, visible wood grain texture, weathered premium timber, warm honey brown wood tones">Ahşap Kaplama</button>
-          <button class="chip" data-prompt="smooth white and light grey plaster render facade, clean flat surface, minimal detailing, pure white walls, contemporary minimalist">Beyaz Sıva</button>
-          <button class="chip" data-prompt="board-formed exposed concrete facade, visible wood formwork pattern in concrete surface, raw brutalist concrete, grey textured surface">Çıplak Beton</button>
-          <button class="chip" data-prompt="handmade brick facade, traditional red or light buff brick, visible mortar joints, artisanal masonry, classic warm brick tone">Tuğla</button>
-          <button class="chip" data-prompt="dark anthracite grey metal panel cladding, zinc or corten steel facade, industrial premium metallic surface, dark dramatic tone">Metal Panel</button>
+          <button class="chip" data-prompt="natural lake with perfectly calm mirror-like reflective water surface, reeds and water plants at edge, lake shore landscape">Göl 🏞️</button>
+          <button class="chip" data-prompt="ocean sea with deep blue water, gentle waves, coastal atmosphere, sea foam at shore, vast open water view">Deniz 🌊</button>
+          <button class="chip" data-prompt="luxury swimming pool with crystal clear turquoise-blue water, precise pool edge, underwater lighting visible, wet pool deck surround">Havuz 🏊</button>
+          <button class="chip" data-prompt="natural hardwood timber deck terrace, warm teak or ipe wood deck boards, outdoor lounge furniture, seamless indoor-outdoor connection">Deck 🪵</button>
+          <button class="chip" data-prompt="stone paved garden walkway path, natural stone stepping path through landscape, garden pedestrian circulation, neat path edges with plants">Yürüyüş Yolu</button>
+          <button class="chip" data-prompt="clean fresh asphalt road surface in foreground, new smooth dark tarmac, clear road markings, well-maintained urban road">Asfalt</button>
+          <button class="chip" data-prompt="perfectly manicured emerald green lawn, golf-course quality short cut grass, lush healthy even turf, pristine green ground cover">Temiz Çim 🌿</button>
+          <button class="chip" data-prompt="colorful ornamental flower beds in full bloom, seasonal flowering plants in borders, bright vivid flower colors, well-tended garden flower display">Çiçekler 🌺</button>
+          <button class="chip" data-prompt="large mature deciduous trees with full canopy, established shade trees, tree canopy providing dappled shade, mature landscaping with tall trees">Ağaçlar 🌳</button>
         </div>
       </div>
 
