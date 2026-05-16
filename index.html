@@ -320,6 +320,91 @@
       font-size: 13px;
     }
 
+    /* Render Model Grid */
+    .render-model-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .rm-btn {
+      padding: 10px 8px;
+      border: 1px solid #2a2a40;
+      border-radius: 9px;
+      background: transparent;
+      color: #9090b0;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      position: relative;
+    }
+
+    .rm-btn:hover { border-color: #a78bfa; color: #e8e8f0; }
+    .rm-btn.active {
+      border-color: #a78bfa;
+      background: rgba(167,139,250,0.12);
+      color: #a78bfa;
+      font-weight: 600;
+    }
+
+    .rm-badge {
+      position: absolute;
+      top: -6px;
+      right: 6px;
+      background: #f59e0b;
+      color: #000;
+      font-size: 8px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Mod & Kalite row */
+    .row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .mini-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #4a4a6a;
+      margin-bottom: 7px;
+    }
+
+    .mini-toggle {
+      display: flex;
+      background: #0a0a0f;
+      border: 1px solid #1e1e2e;
+      border-radius: 8px;
+      padding: 3px;
+    }
+
+    .mini-btn {
+      flex: 1;
+      padding: 7px 4px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: #6b6b8a;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mini-btn.active {
+      background: #1e1e2e;
+      color: #e8e8f0;
+    }
+
     /* Preset Tabs */
     .preset-tabs {
       display: flex;
@@ -462,9 +547,49 @@
       </div>
     </div>
 
-    <!-- Stil Seçimi -->
+    <!-- Render Modeli + Mod + Kalite -->
     <div class="panel">
-      <h2>Stil</h2>
+      <h2>Render Ayarları</h2>
+
+      <!-- MOD + KALİTE -->
+      <div class="row-2col">
+        <div>
+          <div class="mini-label">Mod</div>
+          <div class="mini-toggle">
+            <button class="mini-btn active" id="modeAdvanced" onclick="setMode('advanced')">Gelişmiş</button>
+            <button class="mini-btn" id="modeCreative" onclick="setMode('creative')">Yaratıcı</button>
+          </div>
+        </div>
+        <div>
+          <div class="mini-label">Kalite</div>
+          <div class="mini-toggle">
+            <button class="mini-btn active" id="qualityAuto" onclick="setQuality('auto')">Oto</button>
+            <button class="mini-btn" id="qualityHigh" onclick="setQuality('high')">Yüksek</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RENDER MODELİ -->
+      <div class="mini-label">Render Modeli</div>
+      <div class="render-model-grid">
+        <button class="rm-btn" id="rm-soft" onclick="setRenderModel('soft')">Soft</button>
+        <button class="rm-btn" id="rm-soft2" onclick="setRenderModel('soft2')">Soft 2</button>
+        <button class="rm-btn" id="rm-contrast" onclick="setRenderModel('contrast')">Contrast</button>
+        <button class="rm-btn active" id="rm-balance" onclick="setRenderModel('balance')">Balance</button>
+        <button class="rm-btn" id="rm-clay" onclick="setRenderModel('clay')">Clay</button>
+        <button class="rm-btn" id="rm-fluid" onclick="setRenderModel('fluid')">
+          Fluid
+          <span class="rm-badge">YENİ</span>
+        </button>
+      </div>
+
+      <!-- Model açıklaması -->
+      <div id="modelDesc" style="font-size:11px; color:#5a5a7a; padding:8px 10px; background:#0a0a0f; border-radius:8px; border:1px solid #1e1e2e; margin-bottom:14px; line-height:1.5;">
+        Yapı çizgilerini koruyarak fotorealistik çıktı üretir.
+      </div>
+
+      <!-- STİL -->
+      <div class="mini-label">Stil</div>
       <div class="styles-grid" id="stylesGrid">
         <button class="style-btn active" data-style="modern_interior">Modern İç Mekan</button>
         <button class="style-btn" data-style="minimalist">Minimalist</button>
@@ -571,14 +696,7 @@
       <!-- Seçili etiketler -->
       <div id="selectedChips" style="min-height:28px; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
 
-      <div class="slider-label" style="margin-top:12px;">
-        <span>Creativity Weight</span>
-        <span id="strengthVal">0.85</span>
-      </div>
-      <input type="range" id="strength" min="0.5" max="1.0" step="0.05" value="0.85"
-        oninput="document.getElementById('strengthVal').textContent = parseFloat(this.value).toFixed(2)" />
-
-      <button class="render-btn" id="renderBtn" onclick="startRender()">✨ Render Oluştur</button>
+      <button class="render-btn" id="renderBtn" onclick="startRender()" style="margin-top:16px;">✨ Render Oluştur</button>
       <div class="error-msg" id="errorMsg"></div>
     </div>
   </div>
@@ -605,11 +723,45 @@
 
   // Sayfa açılınca sunucuyu uyandır — kullanıcı ayarları seçerken hazır olur
   fetch(`${API}/`).catch(() => {});
+
   let selectedStyle = 'modern_interior';
   let selectedFile = null;
   let renderType = 'interior';
   let selectedRoom = '';
   let selectedPresets = {}; // { prompt_text: label }
+
+  // Yeni render ayarları
+  let selectedRenderModel = 'balance';
+  let selectedMode = 'advanced';
+  let selectedQuality = 'auto';
+
+  const MODEL_DESCRIPTIONS = {
+    soft:     'Yumuşak kenarlar, doğal ışık — organik bir gerçekçilik sağlar.',
+    soft2:    'Daha özgür yorum — sanatsal, akışkan çizgiler.',
+    contrast: 'Sert kenarlar, dramatik ışık — güçlü mimari etki.',
+    balance:  'Yapı çizgilerini koruyarak fotorealistik çıktı üretir.',
+    clay:     'Kil model görünümü — malzeme ve form çalışması için idealdir.',
+    fluid:    'AI\'nın derinlik algısıyla yaratıcı reinterpretasyon.',
+  };
+
+  function setRenderModel(model) {
+    selectedRenderModel = model;
+    document.querySelectorAll('.rm-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('rm-' + model).classList.add('active');
+    document.getElementById('modelDesc').textContent = MODEL_DESCRIPTIONS[model] || '';
+  }
+
+  function setMode(mode) {
+    selectedMode = mode;
+    document.getElementById('modeAdvanced').classList.toggle('active', mode === 'advanced');
+    document.getElementById('modeCreative').classList.toggle('active', mode === 'creative');
+  }
+
+  function setQuality(q) {
+    selectedQuality = q;
+    document.getElementById('qualityAuto').classList.toggle('active', q === 'auto');
+    document.getElementById('qualityHigh').classList.toggle('active', q === 'high');
+  }
 
   function switchPresetTab(btn, tabId) {
     document.querySelectorAll('.preset-tab').forEach(t => t.classList.remove('active'));
@@ -761,7 +913,9 @@
     formData.append('style', selectedStyle);
     formData.append('render_type', renderType);
     formData.append('room_type', selectedRoom);
-    formData.append('control_strength', document.getElementById('strength').value);
+    formData.append('render_model', selectedRenderModel);
+    formData.append('mode', selectedMode);
+    formData.append('quality', selectedQuality);
     formData.append('custom_prompt', combinedPrompt);
 
     try {
