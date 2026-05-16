@@ -572,6 +572,9 @@
     <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')">
       ✨ AI Geliştir
     </button>
+    <button class="main-nav-btn" id="nav-video" onclick="switchMainSection('video')">
+      🎬 Video
+    </button>
   </div>
 </div>
 
@@ -970,6 +973,58 @@
   </div>
 </div>
 
+<!-- 🎬 Video Bölümü -->
+<div id="section-video" style="display:none; max-width:1200px; margin:0 auto; padding:0 20px 80px;">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+
+    <!-- Sol: Görsel yükle + ayarlar -->
+    <div>
+      <div class="panel">
+        <h2>GÖRSELLER YÜKLE</h2>
+        <p style="font-size:12px; color:#6b6b8a; margin-bottom:14px; line-height:1.6;">
+          1-10 render yükle · Her görsel 5 sn · Aralarında smooth geçiş
+        </p>
+
+        <!-- Drop Zone -->
+        <div id="videoDropZone" style="border:2px dashed #2a2a40; border-radius:14px; padding:28px; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:14px;" onclick="document.getElementById('videoFileInput').click()" ondragover="event.preventDefault(); this.style.borderColor='#a78bfa'" ondragleave="this.style.borderColor='#2a2a40'" ondrop="handleVideoDrop(event)">
+          <input type="file" id="videoFileInput" accept="image/*" multiple style="display:none" onchange="handleVideoFiles(this.files)" />
+          <div style="font-size:32px; margin-bottom:8px;">🎬</div>
+          <div style="font-size:14px; color:#a78bfa; font-weight:600;">Görsel seçin veya sürükleyin</div>
+          <div style="font-size:12px; color:#4a4a6a; margin-top:4px;">PNG, JPG · Maksimum 10 görsel</div>
+        </div>
+
+        <!-- Thumbnail sırası -->
+        <div id="videoThumbRow" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;"></div>
+
+        <!-- Bilgi -->
+        <div id="videoInfo" style="display:none; padding:12px; background:#0a0a0f; border:1px solid #1e1e2e; border-radius:10px; margin-bottom:16px; font-size:12px; color:#6b6b8a; line-height:1.6;">
+          📽 <span id="videoInfoText"></span>
+        </div>
+
+        <button class="render-btn" id="videoBtn" onclick="startVideo()">🎬 Video Oluştur</button>
+        <div class="error-msg" id="videoError"></div>
+      </div>
+    </div>
+
+    <!-- Sağ: Video player + indirme -->
+    <div class="panel result-panel" id="videoResultPanel">
+      <div class="result-placeholder" id="videoPlaceholder">
+        <div class="icon">🎬</div>
+        <p>Oluşturulan video burada görünecek</p>
+      </div>
+      <div class="loading" id="videoLoading" style="display:none;">
+        <div class="spinner"></div>
+        <p>Video oluşturuluyor...<br><span style="font-size:12px; color:#4a4a6a;">Ken Burns efekti + geçişler işleniyor</span></p>
+      </div>
+      <div id="videoResultContainer" style="display:none; width:100%; text-align:center;">
+        <video id="videoResultEl" controls style="width:100%; border-radius:10px; background:#000;" playsinline></video>
+        <a id="videoDownloadBtn" class="download-btn" download="renderai_video.mp4" style="margin-top:12px;">⬇ Video İndir (MP4)</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
   const API = 'https://renderai-backend-x9xs.onrender.com';
 
@@ -1230,9 +1285,10 @@
     document.getElementById('section-render').style.display  = section === 'render'  ? 'grid'  : 'none';
     document.getElementById('section-upscale').style.display = section === 'upscale' ? 'block' : 'none';
     document.getElementById('section-enhance').style.display = section === 'enhance' ? 'block' : 'none';
-    document.getElementById('nav-render').classList.toggle('active',  section === 'render');
-    document.getElementById('nav-upscale').classList.toggle('active', section === 'upscale');
-    document.getElementById('nav-enhance').classList.toggle('active', section === 'enhance');
+    document.getElementById('section-video').style.display   = section === 'video'   ? 'block' : 'none';
+    ['render','upscale','enhance','video'].forEach(s =>
+      document.getElementById('nav-' + s).classList.toggle('active', s === section)
+    );
   }
 
   // ─── BÜYÜT & GELİŞTİR ────────────────────────────────────────────────────
@@ -1429,6 +1485,111 @@
       document.getElementById('enhancePlaceholder').style.display = 'block';
       document.getElementById('enhanceError').textContent = 'Hata: ' + err.message;
       document.getElementById('enhanceError').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ─── 🎬 VİDEO ────────────────────────────────────────────────────────────
+  let videoFiles = [];
+
+  function handleVideoFiles(fileList) {
+    const incoming = Array.from(fileList);
+    incoming.forEach(f => { if (videoFiles.length < 10) videoFiles.push(f); });
+    renderVideoThumbs();
+  }
+
+  function handleVideoDrop(e) {
+    e.preventDefault();
+    document.getElementById('videoDropZone').style.borderColor = '#2a2a40';
+    handleVideoFiles(e.dataTransfer.files);
+  }
+
+  function removeVideoFile(idx) {
+    videoFiles.splice(idx, 1);
+    renderVideoThumbs();
+  }
+
+  function renderVideoThumbs() {
+    const row = document.getElementById('videoThumbRow');
+    row.innerHTML = '';
+    videoFiles.forEach((f, i) => {
+      const url = URL.createObjectURL(f);
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative; width:90px; flex-shrink:0;';
+      wrap.innerHTML = `
+        <img src="${url}" style="width:90px; height:60px; object-fit:cover; border-radius:8px; border:1px solid #2a2a40;" />
+        <div style="position:absolute; top:3px; left:5px; background:rgba(0,0,0,0.7); color:#a78bfa; font-size:11px; font-weight:700; padding:1px 5px; border-radius:4px;">${i+1}</div>
+        <div onclick="removeVideoFile(${i})" style="position:absolute; top:3px; right:4px; background:rgba(200,50,50,0.8); color:#fff; font-size:10px; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; line-height:1;">✕</div>
+      `;
+      row.appendChild(wrap);
+    });
+
+    const info = document.getElementById('videoInfo');
+    const infoTxt = document.getElementById('videoInfoText');
+    if (videoFiles.length > 0) {
+      const dur = videoFiles.length * 5;
+      infoTxt.textContent = `${videoFiles.length} görsel · ${dur} saniyelik video · Ken Burns efekti + smooth geçişler`;
+      info.style.display = 'block';
+    } else {
+      info.style.display = 'none';
+    }
+  }
+
+  async function startVideo() {
+    if (videoFiles.length === 0) {
+      document.getElementById('videoError').textContent = 'Lütfen en az 1 görsel ekleyin.';
+      document.getElementById('videoError').style.display = 'block';
+      return;
+    }
+    const btn = document.getElementById('videoBtn');
+    btn.disabled = true;
+    document.getElementById('videoPlaceholder').style.display = 'none';
+    document.getElementById('videoLoading').style.display = 'block';
+    document.getElementById('videoResultContainer').style.display = 'none';
+    document.getElementById('videoError').style.display = 'none';
+
+    const formData = new FormData();
+    videoFiles.forEach(f => formData.append('images', f));
+
+    try {
+      const startRes = await fetch(`${API}/video/start`, { method: 'POST', body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+
+      const jobId = startData.prediction_id;
+      let elapsed = 0;
+
+      while (true) {
+        await new Promise(r => setTimeout(r, 5000));
+        elapsed += 5;
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+
+        if (statusData.stage_label) {
+          document.querySelector('#videoLoading p').innerHTML =
+            `${statusData.stage_label}<br><span style="font-size:12px;color:#4a4a6a;">${elapsed}sn geçti</span>`;
+        }
+
+        if (statusData.status === 'succeeded') {
+          const videoUrl = statusData.render_url;
+          const videoEl = document.getElementById('videoResultEl');
+          videoEl.src = videoUrl;
+          const dl = document.getElementById('videoDownloadBtn');
+          dl.href = videoUrl;
+          document.getElementById('videoLoading').style.display = 'none';
+          document.getElementById('videoResultContainer').style.display = 'block';
+          break;
+        } else if (statusData.status === 'failed') {
+          throw new Error(statusData.error || 'Video oluşturma başarısız');
+        }
+        if (elapsed > 600) throw new Error('10 dakika aşıldı, lütfen tekrar deneyin');
+      }
+    } catch (err) {
+      document.getElementById('videoLoading').style.display = 'none';
+      document.getElementById('videoPlaceholder').style.display = 'block';
+      document.getElementById('videoError').textContent = 'Hata: ' + err.message;
+      document.getElementById('videoError').style.display = 'block';
     } finally {
       btn.disabled = false;
     }
