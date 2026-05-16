@@ -827,7 +827,7 @@
       <div class="panel">
         <h2>Büyütme Ayarları</h2>
         <div class="mini-label" style="margin-bottom:10px;">Çözünürlük</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
           <button class="scale-btn active" id="scale-2" onclick="setScale(2)">
             <div style="font-size:18px; font-weight:700; color:#a78bfa;">2K</div>
             <div style="font-size:11px; color:#6b6b8a; margin-top:3px;">Hızlı · ~1-2 dk</div>
@@ -835,6 +835,10 @@
           <button class="scale-btn" id="scale-4" onclick="setScale(4)">
             <div style="font-size:18px; font-weight:700; color:#60a5fa;">4K</div>
             <div style="font-size:11px; color:#6b6b8a; margin-top:3px;">Detaylı · ~2-4 dk</div>
+          </button>
+          <button class="scale-btn" id="scale-8" onclick="setScale(8)">
+            <div style="font-size:18px; font-weight:700; color:#f59e0b;">8K</div>
+            <div style="font-size:11px; color:#6b6b8a; margin-top:3px;">Maksimum · ~5-8 dk</div>
           </button>
         </div>
 
@@ -1137,6 +1141,7 @@
     selectedScale = scale;
     document.getElementById('scale-2').classList.toggle('active', scale === 2);
     document.getElementById('scale-4').classList.toggle('active', scale === 4);
+    document.getElementById('scale-8').classList.toggle('active', scale === 8);
   }
 
   document.getElementById('upscaleFileInput').addEventListener('change', e => {
