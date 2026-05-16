@@ -571,20 +571,11 @@
 
       <!-- RENDER MODELİ -->
       <div class="mini-label">Render Modeli</div>
-      <div class="render-model-grid">
-        <button class="rm-btn" id="rm-soft" onclick="setRenderModel('soft')">Soft</button>
-        <button class="rm-btn" id="rm-soft2" onclick="setRenderModel('soft2')">Soft 2</button>
-        <button class="rm-btn" id="rm-contrast" onclick="setRenderModel('contrast')">Contrast</button>
-        <button class="rm-btn active" id="rm-balance" onclick="setRenderModel('balance')">Balance</button>
-        <button class="rm-btn" id="rm-clay" onclick="setRenderModel('clay')">Clay</button>
-        <button class="rm-btn" id="rm-fluid" onclick="setRenderModel('fluid')">Fluid</button>
-        <button class="rm-btn" id="rm-pro" onclick="setRenderModel('pro')" style="border-color:#f59e0b; color:#f59e0b;">
-          ⭐ Pro
-          <span class="rm-badge" style="background:#f59e0b;">YENİ</span>
-        </button>
+      <div class="render-model-grid" style="grid-template-columns: repeat(3,1fr);">
+        <button class="rm-btn active" id="rm-balance" onclick="setRenderModel('balance')">⚡ Balance</button>
+        <button class="rm-btn" id="rm-clay" onclick="setRenderModel('clay')">🧱 Clay</button>
         <button class="rm-btn" id="rm-gpt" onclick="setRenderModel('gpt')" style="border-color:#10b981; color:#10b981;">
           🤖 GPT
-          <span class="rm-badge" style="background:#10b981;">YENİ</span>
         </button>
       </div>
 
@@ -786,14 +777,9 @@
   let selectedQuality = 'auto';
 
   const MODEL_DESCRIPTIONS = {
-    soft:     'Yumuşak kenarlar, doğal ışık — organik bir gerçekçilik sağlar.',
-    soft2:    'Daha özgür yorum — sanatsal, akışkan çizgiler.',
-    contrast: 'Sert kenarlar, dramatik ışık — güçlü mimari etki.',
-    balance:  'Yapı çizgilerini koruyarak fotorealistik çıktı üretir.',
-    clay:     'Kil model görünümü — malzeme ve form çalışması için idealdir.',
-    fluid:    'AI\'nın derinlik algısıyla yaratıcı reinterpretasyon.',
-    pro:      '⭐ 2 aşamalı pipeline: Flux Canny Pro → Clarity 2K — en yüksek kalite, 2-4 dakika.',
-    gpt:      '🤖 OpenAI GPT-Image-2 — Archifruits ile aynı teknoloji. En yüksek kalite ve detay.',
+    balance:  '⚡ Hızlı ve güvenilir — yapı korunarak fotorealistik render. Standart seçim.',
+    clay:     '🧱 Saf form çalışması — tüm yüzeyler mat beyaz. Malzeme kararı verilmeden önce ideal.',
+    gpt:      '🤖 GPT-Image-2 — en yüksek kalite, en detaylı sonuç. Sunum ve müşteri için.',
   };
 
   function setRenderModel(model) {
