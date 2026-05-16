@@ -524,6 +524,22 @@
       background: rgba(167,139,250,0.1);
     }
 
+    .enhance-card {
+      padding: 16px 10px;
+      border: 1px solid #2a2a40;
+      border-radius: 12px;
+      background: #0d0d16;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .enhance-card:hover { border-color: #a78bfa; background: rgba(167,139,250,0.06); }
+    .enhance-card.active {
+      border-color: #a78bfa;
+      background: rgba(167,139,250,0.12);
+      box-shadow: 0 0 0 1px rgba(167,139,250,0.3);
+    }
+
     @media (max-width: 768px) {
       .main { grid-template-columns: 1fr; }
       #section-upscale > div { grid-template-columns: 1fr; }
@@ -552,6 +568,9 @@
     </button>
     <button class="main-nav-btn" id="nav-upscale" onclick="switchMainSection('upscale')">
       🔍 Büyüt & Geliştir
+    </button>
+    <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')">
+      ✨ AI Geliştir
     </button>
   </div>
 </div>
@@ -872,6 +891,85 @@
   </div>
 </div>
 
+<!-- ✨ AI Geliştir Bölümü -->
+<div id="section-enhance" style="display:none; max-width:1200px; margin:0 auto; padding:0 20px 80px;">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+
+    <!-- Sol: Yükle + Preset Seçim -->
+    <div>
+      <div class="panel">
+        <h2>GÖRSEL YÜKLE</h2>
+        <div class="upload-zone" id="enhanceUploadZone">
+          <input type="file" id="enhanceFileInput" accept="image/*" />
+          <div class="upload-icon" id="enhanceIcon">✨</div>
+          <p class="upload-text">Render görselinizi seçin veya sürükleyin</p>
+          <p class="upload-sub">Render çıktısı, fotoğraf veya herhangi bir görsel</p>
+          <img id="enhancePreview" class="preview-img" />
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>GELİŞTİRME TİPİ</h2>
+        <p style="font-size:12px; color:#6b6b8a; margin-bottom:16px; line-height:1.6;">Görseline uygulamak istediğin efekti seç — gpt-image-2 ile işlenir</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
+
+          <div class="enhance-card active" id="ecard-entourage" onclick="setEnhanceType('entourage')">
+            <div style="font-size:28px; margin-bottom:6px;">👥</div>
+            <div style="font-size:13px; font-weight:600; color:#e8e8f0;">AI Entourage</div>
+            <div style="font-size:10px; color:#6b6b8a; margin-top:4px; line-height:1.4;">İnsan · Araç · Bitki ekler</div>
+          </div>
+
+          <div class="enhance-card" id="ecard-illumination" onclick="setEnhanceType('illumination')">
+            <div style="font-size:28px; margin-bottom:6px;">☀️</div>
+            <div style="font-size:13px; font-weight:600; color:#e8e8f0;">Illumination+</div>
+            <div style="font-size:10px; color:#6b6b8a; margin-top:4px; line-height:1.4;">Işık · Gölge · Derinlik</div>
+          </div>
+
+          <div class="enhance-card" id="ecard-realistic" onclick="setEnhanceType('realistic')">
+            <div style="font-size:28px; margin-bottom:6px;">📸</div>
+            <div style="font-size:13px; font-weight:600; color:#e8e8f0;">Realistic+</div>
+            <div style="font-size:10px; color:#6b6b8a; margin-top:4px; line-height:1.4;">Fotorealizm · Atmosfer</div>
+          </div>
+
+          <div class="enhance-card" id="ecard-detail" onclick="setEnhanceType('detail')">
+            <div style="font-size:28px; margin-bottom:6px;">🔬</div>
+            <div style="font-size:13px; font-weight:600; color:#e8e8f0;">Detail+</div>
+            <div style="font-size:10px; color:#6b6b8a; margin-top:4px; line-height:1.4;">Doku · Malzeme derinliği</div>
+          </div>
+
+          <div class="enhance-card" id="ecard-color" onclick="setEnhanceType('color')">
+            <div style="font-size:28px; margin-bottom:6px;">🎨</div>
+            <div style="font-size:13px; font-weight:600; color:#e8e8f0;">Color+</div>
+            <div style="font-size:10px; color:#6b6b8a; margin-top:4px; line-height:1.4;">Renk grading · Kontrast</div>
+          </div>
+
+        </div>
+
+        <button class="render-btn" id="enhanceBtn" onclick="startEnhance()">✨ Uygula</button>
+        <div class="error-msg" id="enhanceError"></div>
+      </div>
+    </div>
+
+    <!-- Sağ: Sonuç -->
+    <div class="panel result-panel" id="enhanceResultPanel">
+      <div class="result-placeholder" id="enhancePlaceholder">
+        <div class="icon">✨</div>
+        <p>Geliştirilmiş görsel burada görünecek</p>
+      </div>
+      <div class="loading" id="enhanceLoading" style="display:none;">
+        <div class="spinner"></div>
+        <p>Geliştirme uygulanıyor...<br><span style="font-size:12px; color:#4a4a6a;">gpt-image-2 işliyor</span></p>
+      </div>
+      <div style="width:100%; text-align:center;">
+        <img id="enhanceResultImg" class="result-img" style="display:none;" />
+        <a id="enhanceDownloadBtn" class="download-btn" download="enhanced.png" style="display:none;">⬇ İndir</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
   const API = 'https://renderai-backend-x9xs.onrender.com';
 
@@ -1129,10 +1227,12 @@
 
   // ─── ANA SEKME NAVIGASYONU ────────────────────────────────────────────────
   function switchMainSection(section) {
-    document.getElementById('section-render').style.display = section === 'render' ? 'grid' : 'none';
+    document.getElementById('section-render').style.display  = section === 'render'  ? 'grid'  : 'none';
     document.getElementById('section-upscale').style.display = section === 'upscale' ? 'block' : 'none';
-    document.getElementById('nav-render').classList.toggle('active', section === 'render');
+    document.getElementById('section-enhance').style.display = section === 'enhance' ? 'block' : 'none';
+    document.getElementById('nav-render').classList.toggle('active',  section === 'render');
     document.getElementById('nav-upscale').classList.toggle('active', section === 'upscale');
+    document.getElementById('nav-enhance').classList.toggle('active', section === 'enhance');
   }
 
   // ─── BÜYÜT & GELİŞTİR ────────────────────────────────────────────────────
@@ -1230,6 +1330,105 @@
       document.getElementById('upscalePlaceholder').style.display = 'block';
       document.getElementById('upscaleError').textContent = 'Hata: ' + err.message;
       document.getElementById('upscaleError').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ─── AI GELİŞTİR ─────────────────────────────────────────────────────────
+  let enhanceFile = null;
+  let selectedEnhanceType = 'entourage';
+
+  function setEnhanceType(type) {
+    selectedEnhanceType = type;
+    ['entourage','illumination','realistic','detail','color'].forEach(t => {
+      document.getElementById('ecard-' + t).classList.toggle('active', t === type);
+    });
+  }
+
+  document.getElementById('enhanceFileInput').addEventListener('change', e => {
+    enhanceFile = e.target.files[0];
+    if (!enhanceFile) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const preview = document.getElementById('enhancePreview');
+      preview.src = ev.target.result;
+      preview.style.display = 'block';
+      document.querySelector('#enhanceUploadZone').style.padding = '12px';
+      document.getElementById('enhanceIcon').style.display = 'none';
+    };
+    reader.readAsDataURL(enhanceFile);
+  });
+
+  const enhanceZone = document.getElementById('enhanceUploadZone');
+  enhanceZone.addEventListener('dragover', e => { e.preventDefault(); enhanceZone.classList.add('drag-over'); });
+  enhanceZone.addEventListener('dragleave', () => enhanceZone.classList.remove('drag-over'));
+  enhanceZone.addEventListener('drop', e => {
+    e.preventDefault();
+    enhanceZone.classList.remove('drag-over');
+    enhanceFile = e.dataTransfer.files[0];
+    document.getElementById('enhanceFileInput').files = e.dataTransfer.files;
+    document.getElementById('enhanceFileInput').dispatchEvent(new Event('change'));
+  });
+
+  async function startEnhance() {
+    if (!enhanceFile) {
+      document.getElementById('enhanceError').textContent = 'Lütfen önce bir görsel yükleyin.';
+      document.getElementById('enhanceError').style.display = 'block';
+      return;
+    }
+    const btn = document.getElementById('enhanceBtn');
+    btn.disabled = true;
+    document.getElementById('enhancePlaceholder').style.display = 'none';
+    document.getElementById('enhanceLoading').style.display = 'block';
+    document.getElementById('enhanceResultImg').style.display = 'none';
+    document.getElementById('enhanceDownloadBtn').style.display = 'none';
+    document.getElementById('enhanceError').style.display = 'none';
+
+    const formData = new FormData();
+    formData.append('image', enhanceFile);
+    formData.append('enhance_type', selectedEnhanceType);
+
+    try {
+      const startRes = await fetch(`${API}/enhance/start`, { method: 'POST', body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+
+      const jobId = startData.prediction_id;
+      let elapsed = 0;
+
+      while (true) {
+        await new Promise(r => setTimeout(r, 4000));
+        elapsed += 4;
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+
+        if (statusData.stage_label) {
+          document.querySelector('#enhanceLoading p').innerHTML =
+            `${statusData.stage_label}<br><span style="font-size:12px;color:#4a4a6a;">${elapsed}sn geçti</span>`;
+        }
+
+        if (statusData.status === 'succeeded') {
+          const img = document.getElementById('enhanceResultImg');
+          img.src = statusData.render_url;
+          img.style.display = 'block';
+          img.onload = () => {
+            document.getElementById('enhanceLoading').style.display = 'none';
+            const dl = document.getElementById('enhanceDownloadBtn');
+            dl.href = statusData.render_url;
+            dl.style.display = 'inline-block';
+          };
+          break;
+        } else if (statusData.status === 'failed') {
+          throw new Error(statusData.error || 'Geliştirme başarısız');
+        }
+        if (elapsed > 300) throw new Error('5 dakika aşıldı, lütfen tekrar deneyin');
+      }
+    } catch (err) {
+      document.getElementById('enhanceLoading').style.display = 'none';
+      document.getElementById('enhancePlaceholder').style.display = 'block';
+      document.getElementById('enhanceError').textContent = 'Hata: ' + err.message;
+      document.getElementById('enhanceError').style.display = 'block';
     } finally {
       btn.disabled = false;
     }
