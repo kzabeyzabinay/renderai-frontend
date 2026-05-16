@@ -577,8 +577,9 @@
         <button class="rm-btn" id="rm-contrast" onclick="setRenderModel('contrast')">Contrast</button>
         <button class="rm-btn active" id="rm-balance" onclick="setRenderModel('balance')">Balance</button>
         <button class="rm-btn" id="rm-clay" onclick="setRenderModel('clay')">Clay</button>
-        <button class="rm-btn" id="rm-fluid" onclick="setRenderModel('fluid')">
-          Fluid
+        <button class="rm-btn" id="rm-fluid" onclick="setRenderModel('fluid')">Fluid</button>
+        <button class="rm-btn rm-pro" id="rm-pro" onclick="setRenderModel('pro')" style="grid-column:1/-1; border-color:#f59e0b; color:#f59e0b;">
+          ⭐ Pro  <span style="font-size:10px; font-weight:400; color:#9ca3af;">— 2 aşamalı yüksek kalite</span>
           <span class="rm-badge">YENİ</span>
         </button>
       </div>
@@ -742,6 +743,7 @@
     balance:  'Yapı çizgilerini koruyarak fotorealistik çıktı üretir.',
     clay:     'Kil model görünümü — malzeme ve form çalışması için idealdir.',
     fluid:    'AI\'nın derinlik algısıyla yaratıcı reinterpretasyon.',
+    pro:      '⭐ 2 aşamalı pipeline: Flux Canny Pro → Clarity 2K — en yüksek kalite, 2-4 dakika.',
   };
 
   function setRenderModel(model) {
@@ -952,7 +954,13 @@
           throw new Error(statusData.error || 'Render başarısız');
         }
 
-        if (elapsed > 300) throw new Error('5 dakika aşıldı, lütfen tekrar deneyin');
+        // Aşama bilgisi varsa göster (Pro pipeline)
+        if (statusData.stage_label) {
+          document.querySelector('.loading p').innerHTML =
+            `${statusData.stage_label} — ${elapsed}sn<br><span style="font-size:12px;color:#4a4a6a;">AI görüntü işliyor</span>`;
+        }
+
+        if (elapsed > 360) throw new Error('6 dakika aşıldı, lütfen tekrar deneyin');
       }
 
     } catch (err) {
