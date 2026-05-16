@@ -578,9 +578,13 @@
         <button class="rm-btn active" id="rm-balance" onclick="setRenderModel('balance')">Balance</button>
         <button class="rm-btn" id="rm-clay" onclick="setRenderModel('clay')">Clay</button>
         <button class="rm-btn" id="rm-fluid" onclick="setRenderModel('fluid')">Fluid</button>
-        <button class="rm-btn rm-pro" id="rm-pro" onclick="setRenderModel('pro')" style="grid-column:1/-1; border-color:#f59e0b; color:#f59e0b;">
-          ⭐ Pro  <span style="font-size:10px; font-weight:400; color:#9ca3af;">— 2 aşamalı yüksek kalite</span>
-          <span class="rm-badge">YENİ</span>
+        <button class="rm-btn" id="rm-pro" onclick="setRenderModel('pro')" style="border-color:#f59e0b; color:#f59e0b;">
+          ⭐ Pro
+          <span class="rm-badge" style="background:#f59e0b;">YENİ</span>
+        </button>
+        <button class="rm-btn" id="rm-gpt" onclick="setRenderModel('gpt')" style="border-color:#10b981; color:#10b981;">
+          🤖 GPT
+          <span class="rm-badge" style="background:#10b981;">YENİ</span>
         </button>
       </div>
 
@@ -744,6 +748,7 @@
     clay:     'Kil model görünümü — malzeme ve form çalışması için idealdir.',
     fluid:    'AI\'nın derinlik algısıyla yaratıcı reinterpretasyon.',
     pro:      '⭐ 2 aşamalı pipeline: Flux Canny Pro → Clarity 2K — en yüksek kalite, 2-4 dakika.',
+    gpt:      '🤖 OpenAI GPT-Image-1 — farklı bir AI perspektifi, yaratıcı ve detaylı sonuçlar.',
   };
 
   function setRenderModel(model) {
