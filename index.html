@@ -753,7 +753,7 @@
     document.getElementById('errorMsg').style.display = 'none';
 
     const presetPrompt = buildPresetPrompt();
-    const customText = document.getElementById('customPrompt').value;
+    const customText = (document.getElementById('customPrompt')?.value || '').trim();
     const combinedPrompt = [presetPrompt, customText].filter(Boolean).join(', ');
 
     const formData = new FormData();
