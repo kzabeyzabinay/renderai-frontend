@@ -830,20 +830,22 @@
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
           <button class="scale-btn active" id="scale-2" onclick="setScale(2)">
             <div style="font-size:18px; font-weight:700; color:#a78bfa;">2K</div>
-            <div style="font-size:11px; color:#6b6b8a; margin-top:3px;">Hızlı · ~1-2 dk</div>
+            <div style="font-size:11px; color:#6b6b8a; margin-top:3px;">Hızlı büyütme · ~1 dk</div>
           </button>
           <button class="scale-btn" id="scale-4" onclick="setScale(4)">
             <div style="font-size:18px; font-weight:700; color:#60a5fa;">4K</div>
-            <div style="font-size:11px; color:#6b6b8a; margin-top:3px;">Detaylı · ~2-4 dk</div>
+            <div style="font-size:11px; color:#60a5fa; margin-top:3px;">GPT Doku · ~2-3 dk</div>
           </button>
           <button class="scale-btn" id="scale-8" onclick="setScale(8)">
             <div style="font-size:18px; font-weight:700; color:#f59e0b;">8K</div>
-            <div style="font-size:11px; color:#6b6b8a; margin-top:3px;">Maksimum · ~5-8 dk</div>
+            <div style="font-size:11px; color:#f59e0b; margin-top:3px;">GPT Ultra · ~3-5 dk</div>
           </button>
         </div>
 
         <div style="padding:12px; background:#0a0a0f; border:1px solid #1e1e2e; border-radius:10px; margin-bottom:16px; font-size:12px; color:#6b6b8a; line-height:1.6;">
-          🔍 Görüntüdeki tüm yüzeyler yeniden işlenir — malzeme dokusu, kenar keskinliği ve detay derinliği artırılır.
+          <b style="color:#a78bfa;">2K</b> — Hızlı piksel büyütme (ESRGAN)<br>
+          <b style="color:#60a5fa;">4K</b> — GPT malzeme analizi → gerçekçi doku sentezi → 2x çözünürlük<br>
+          <b style="color:#f59e0b;">8K</b> — GPT malzeme analizi → gerçekçi doku sentezi → 4x çözünürlük
         </div>
 
         <button class="render-btn" id="upscaleBtn" onclick="startUpscale()">🔍 Büyüt & Geliştir</button>
