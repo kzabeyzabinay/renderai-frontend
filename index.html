@@ -975,11 +975,25 @@
 
 <!-- 🎬 Video Bölümü -->
 <div id="section-video" style="display:none; max-width:1200px; margin:0 auto; padding:0 20px 80px;">
+
+  <!-- Video Mod Seçici -->
+  <div style="display:flex; gap:10px; margin-bottom:24px;">
+    <button class="video-mode-btn active" id="vmode-animate" onclick="setVideoMode('animate')" style="flex:1; padding:14px; border:1px solid #a78bfa; border-radius:12px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:13px; font-weight:600;">
+      🎬 Sahne Canlandır
+      <div style="font-size:11px; color:#6b6b8a; margin-top:4px; font-weight:400;">1-5 render → AI hareket</div>
+    </button>
+    <button class="video-mode-btn" id="vmode-seasons" onclick="setVideoMode('seasons')" style="flex:1; padding:14px; border:1px solid #2a2a40; border-radius:12px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:13px; font-weight:600;">
+      🍂 4 Mevsim Geçişi
+      <div style="font-size:11px; color:#6b6b8a; margin-top:4px; font-weight:400;">1 render → 4 mevsim videosu</div>
+    </button>
+  </div>
+
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
 
     <!-- Sol: Görsel yükle + ayarlar -->
     <div>
-      <div class="panel">
+      <!-- CANLANDIR MODU -->
+      <div class="panel" id="vpanel-animate">
         <h2>GÖRSELLER YÜKLE</h2>
         <p style="font-size:12px; color:#6b6b8a; margin-bottom:14px; line-height:1.6;">
           Render yükle → AI gerçek sahne hareketi üretir<br>
@@ -1005,6 +1019,33 @@
         <button class="render-btn" id="videoBtn" onclick="startVideo()">🎬 Video Oluştur</button>
         <div class="error-msg" id="videoError"></div>
       </div>
+
+      <!-- 4 MEVSİM MODU -->
+      <div class="panel" id="vpanel-seasons" style="display:none;">
+        <h2>GÖRSEL YÜKLE</h2>
+        <p style="font-size:12px; color:#6b6b8a; margin-bottom:14px; line-height:1.6;">
+          1 render → GPT 4 mevsim render üretir → her mevsim AI ile canlandırılır<br>
+          <span style="color:#a78bfa;">İlkbahar 🌸 · Yaz ☀️ · Sonbahar 🍂 · Kış ❄️</span>
+        </p>
+
+        <div id="seasonsDropZone" style="border:2px dashed #2a2a40; border-radius:14px; padding:28px; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:14px;" onclick="document.getElementById('seasonsFileInput').click()" ondragover="event.preventDefault(); this.style.borderColor='#a78bfa'" ondragleave="this.style.borderColor='#2a2a40'" ondrop="handleSeasonsDrop(event)">
+          <input type="file" id="seasonsFileInput" accept="image/*" style="display:none" onchange="handleSeasonsFile(this.files[0])" />
+          <div style="font-size:32px; margin-bottom:8px;" id="seasonsIcon">🍂</div>
+          <div style="font-size:14px; color:#a78bfa; font-weight:600;">Render görselinizi seçin</div>
+          <div style="font-size:12px; color:#4a4a6a; margin-top:4px;">Tek görsel · ~10-15 dk sürer</div>
+          <img id="seasonsPreview" class="preview-img" style="display:none;" />
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; padding:12px; background:#0a0a0f; border:1px solid #1e1e2e; border-radius:10px;">
+          <div style="text-align:center; font-size:11px; color:#6b6b8a;"><div style="font-size:20px;">🌸</div>İlkbahar<br>GPT render + AI</div>
+          <div style="text-align:center; font-size:11px; color:#6b6b8a;"><div style="font-size:20px;">☀️</div>Yaz<br>GPT render + AI</div>
+          <div style="text-align:center; font-size:11px; color:#6b6b8a;"><div style="font-size:20px;">🍂</div>Sonbahar<br>GPT render + AI</div>
+          <div style="text-align:center; font-size:11px; color:#6b6b8a;"><div style="font-size:20px;">❄️</div>Kış<br>GPT render + AI</div>
+        </div>
+
+        <button class="render-btn" id="seasonsBtn" onclick="startSeasons()">🍂 4 Mevsim Videosu Oluştur</button>
+        <div class="error-msg" id="seasonsError"></div>
+      </div>
     </div>
 
     <!-- Sağ: Video player + indirme -->
@@ -1015,7 +1056,7 @@
       </div>
       <div class="loading" id="videoLoading" style="display:none;">
         <div class="spinner"></div>
-        <p>AI sahne canlandırılıyor...<br><span style="font-size:12px; color:#4a4a6a;">Stable Video Diffusion işliyor (~60-90 sn/görsel)</span></p>
+        <p>AI işliyor...<br><span style="font-size:12px; color:#4a4a6a;">Lütfen bekleyin</span></p>
       </div>
       <div id="videoResultContainer" style="display:none; width:100%; text-align:center;">
         <video id="videoResultEl" controls style="width:100%; border-radius:10px; background:#000;" playsinline></video>
@@ -1387,6 +1428,105 @@
       document.getElementById('upscalePlaceholder').style.display = 'block';
       document.getElementById('upscaleError').textContent = 'Hata: ' + err.message;
       document.getElementById('upscaleError').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ─── VİDEO MOD SEÇİCİ ───────────────────────────────────────────────────
+  let currentVideoMode = 'animate';
+
+  function setVideoMode(mode) {
+    currentVideoMode = mode;
+    document.getElementById('vpanel-animate').style.display = mode === 'animate' ? 'block' : 'none';
+    document.getElementById('vpanel-seasons').style.display = mode === 'seasons' ? 'block' : 'none';
+    document.getElementById('vmode-animate').style.borderColor = mode === 'animate' ? '#a78bfa' : '#2a2a40';
+    document.getElementById('vmode-animate').style.background  = mode === 'animate' ? 'rgba(167,139,250,0.12)' : 'transparent';
+    document.getElementById('vmode-seasons').style.borderColor = mode === 'seasons' ? '#a78bfa' : '#2a2a40';
+    document.getElementById('vmode-seasons').style.background  = mode === 'seasons' ? 'rgba(167,139,250,0.12)' : 'transparent';
+    // Sonucu sıfırla
+    document.getElementById('videoPlaceholder').style.display = 'block';
+    document.getElementById('videoResultContainer').style.display = 'none';
+    document.getElementById('videoLoading').style.display = 'none';
+  }
+
+  // ─── 4 MEVSİM ────────────────────────────────────────────────────────────
+  let seasonsFile = null;
+
+  function handleSeasonsFile(file) {
+    if (!file) return;
+    seasonsFile = file;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const prev = document.getElementById('seasonsPreview');
+      prev.src = ev.target.result;
+      prev.style.display = 'block';
+      document.getElementById('seasonsDropZone').style.padding = '12px';
+      document.getElementById('seasonsIcon').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleSeasonsDrop(e) {
+    e.preventDefault();
+    document.getElementById('seasonsDropZone').style.borderColor = '#2a2a40';
+    handleSeasonsFile(e.dataTransfer.files[0]);
+  }
+
+  async function startSeasons() {
+    if (!seasonsFile) {
+      document.getElementById('seasonsError').textContent = 'Lütfen bir görsel yükleyin.';
+      document.getElementById('seasonsError').style.display = 'block';
+      return;
+    }
+    const btn = document.getElementById('seasonsBtn');
+    btn.disabled = true;
+    document.getElementById('videoPlaceholder').style.display = 'none';
+    document.getElementById('videoLoading').style.display = 'block';
+    document.getElementById('videoResultContainer').style.display = 'none';
+    document.getElementById('seasonsError').style.display = 'none';
+    document.querySelector('#videoLoading p').innerHTML =
+      'Mevsimler hazırlanıyor...<br><span style="font-size:12px;color:#4a4a6a;">GPT + AI animasyon (4 mevsim × ~2 dk)</span>';
+
+    const formData = new FormData();
+    formData.append('image', seasonsFile);
+
+    try {
+      const startRes = await fetch(`${API}/seasons/start`, { method: 'POST', body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+
+      const jobId = startData.prediction_id;
+      let elapsed = 0;
+
+      while (true) {
+        await new Promise(r => setTimeout(r, 6000));
+        elapsed += 6;
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+
+        if (statusData.stage_label) {
+          document.querySelector('#videoLoading p').innerHTML =
+            `${statusData.stage_label}<br><span style="font-size:12px;color:#4a4a6a;">${elapsed}sn geçti</span>`;
+        }
+
+        if (statusData.status === 'succeeded') {
+          const videoEl = document.getElementById('videoResultEl');
+          videoEl.src = statusData.render_url;
+          document.getElementById('videoDownloadBtn').href = statusData.render_url;
+          document.getElementById('videoLoading').style.display = 'none';
+          document.getElementById('videoResultContainer').style.display = 'block';
+          break;
+        } else if (statusData.status === 'failed') {
+          throw new Error(statusData.error || 'Hata');
+        }
+        if (elapsed > 1200) throw new Error('20 dakika aşıldı');
+      }
+    } catch (err) {
+      document.getElementById('videoLoading').style.display = 'none';
+      document.getElementById('videoPlaceholder').style.display = 'block';
+      document.getElementById('seasonsError').textContent = 'Hata: ' + err.message;
+      document.getElementById('seasonsError').style.display = 'block';
     } finally {
       btn.disabled = false;
     }
