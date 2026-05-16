@@ -1062,6 +1062,33 @@
         <video id="videoResultEl" controls style="width:100%; border-radius:10px; background:#000;" playsinline></video>
         <a id="videoDownloadBtn" class="download-btn" download="renderai_video.mp4" style="margin-top:12px;">⬇ Video İndir (MP4)</a>
       </div>
+
+      <!-- 4 MEVSİM PLAYLIST PLAYER -->
+      <div id="seasonPlaylistContainer" style="display:none; width:100%;">
+        <div style="position:relative; border-radius:12px; overflow:hidden; background:#000;">
+          <video id="seasonVideoEl" autoplay playsinline controls
+            style="width:100%; display:block; border-radius:12px;"></video>
+          <div id="seasonOverlayLabel" style="
+            position:absolute; bottom:14px; left:14px;
+            background:rgba(10,10,20,0.82); backdrop-filter:blur(8px);
+            padding:6px 16px; border-radius:20px;
+            font-size:14px; font-weight:700; color:#fff; letter-spacing:0.3px;
+            pointer-events:none;
+          "></div>
+          <!-- Auto-play indicator -->
+          <div id="seasonAutoLabel" style="
+            position:absolute; top:12px; right:12px;
+            background:rgba(167,139,250,0.9); border-radius:12px;
+            padding:4px 10px; font-size:11px; font-weight:600; color:#fff;
+            pointer-events:none;
+          ">▶ Otomatik</div>
+        </div>
+        <!-- Season nav buttons -->
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;" id="seasonNavBtns"></div>
+        <p style="font-size:11px; color:#4a4a6a; text-align:center; margin-top:8px;">
+          Her mevsime tıklayarak geç · Otomatik döngü aktif
+        </p>
+      </div>
     </div>
 
   </div>
@@ -1448,6 +1475,60 @@
     document.getElementById('videoPlaceholder').style.display = 'block';
     document.getElementById('videoResultContainer').style.display = 'none';
     document.getElementById('videoLoading').style.display = 'none';
+    document.getElementById('seasonPlaylistContainer').style.display = 'none';
+    const sv = document.getElementById('seasonVideoEl');
+    if (sv) { sv.pause(); sv.src = ''; }
+  }
+
+  // ─── 4 MEVSİM PLAYLIST PLAYER ───────────────────────────────────────────
+  let seasonClips = [];
+  let seasonNames = [];
+  let currentSeason = 0;
+
+  function showSeasonPlaylist(clips, labels) {
+    seasonClips = clips;
+    seasonNames = labels.length ? labels : ['🌸 İlkbahar','☀️ Yaz','🍂 Sonbahar','❄️ Kış'];
+    currentSeason = 0;
+
+    // Nav butonları oluştur
+    const nav = document.getElementById('seasonNavBtns');
+    nav.innerHTML = '';
+    seasonNames.forEach((lbl, i) => {
+      const btn = document.createElement('button');
+      btn.id = `sBtn${i}`;
+      btn.innerHTML = lbl;
+      btn.style.cssText = `padding:10px 6px; border-radius:10px; border:1px solid #2a2a40;
+        background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600;
+        transition:all 0.2s;`;
+      btn.onclick = () => playSeason(i);
+      nav.appendChild(btn);
+    });
+
+    document.getElementById('seasonPlaylistContainer').style.display = 'block';
+    document.getElementById('videoPlaceholder').style.display = 'none';
+    playSeason(0);
+  }
+
+  function playSeason(idx) {
+    currentSeason = idx;
+    const video = document.getElementById('seasonVideoEl');
+    video.src = seasonClips[idx];
+    video.load();
+    video.play().catch(() => {});
+    document.getElementById('seasonOverlayLabel').textContent = seasonNames[idx] || '';
+    // Nav buton renkleri
+    seasonNames.forEach((_, i) => {
+      const btn = document.getElementById(`sBtn${i}`);
+      if (!btn) return;
+      btn.style.background = i === idx ? 'rgba(167,139,250,0.2)' : 'transparent';
+      btn.style.borderColor = i === idx ? '#a78bfa' : '#2a2a40';
+      btn.style.color = i === idx ? '#a78bfa' : '#e8e8f0';
+    });
+    // Video bitince sonraki mevsime geç (döngü)
+    video.onended = () => {
+      const next = (idx + 1) % seasonClips.length;
+      playSeason(next);
+    };
   }
 
   // ─── 4 MEVSİM ────────────────────────────────────────────────────────────
@@ -1511,11 +1592,18 @@
         }
 
         if (statusData.status === 'succeeded') {
-          const videoEl = document.getElementById('videoResultEl');
-          videoEl.src = statusData.render_url;
-          document.getElementById('videoDownloadBtn').href = statusData.render_url;
           document.getElementById('videoLoading').style.display = 'none';
-          document.getElementById('videoResultContainer').style.display = 'block';
+
+          if (statusData.clip_urls && statusData.clip_urls.length > 0) {
+            // ── 4 Mevsim Playlist Player ──
+            showSeasonPlaylist(statusData.clip_urls, statusData.season_labels || []);
+          } else {
+            // ── Tek video (fallback) ──
+            const videoEl = document.getElementById('videoResultEl');
+            videoEl.src = statusData.render_url;
+            document.getElementById('videoDownloadBtn').href = statusData.render_url;
+            document.getElementById('videoResultContainer').style.display = 'block';
+          }
           break;
         } else if (statusData.status === 'failed') {
           throw new Error(statusData.error || 'Hata');
