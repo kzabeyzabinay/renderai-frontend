@@ -997,29 +997,55 @@
     <div>
       <!-- CANLANDIR MODU -->
       <div class="panel" id="vpanel-animate">
-        <h2>GÖRSELLER YÜKLE</h2>
+        <h2>GÖRSEL YÜKLE</h2>
         <p style="font-size:12px; color:#6b6b8a; margin-bottom:14px; line-height:1.6;">
-          Render yükle → AI gerçek sahne hareketi üretir<br>
-          <span style="color:#a78bfa;">İnsanlar yürür · Ağaçlar sallanır · Gökyüzü akar · Arabalar hareket eder</span>
+          Render yükle → atmosfer seç → AI 5 saniyelik gerçek sahne videosu üretir<br>
+          <span style="color:#a78bfa;">Sabit kamera · İnsanlar yürür · Ağaçlar sallanır · Gökyüzü hareket eder</span>
         </p>
 
-        <!-- Drop Zone -->
-        <div id="videoDropZone" style="border:2px dashed #2a2a40; border-radius:14px; padding:28px; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:14px;" onclick="document.getElementById('videoFileInput').click()" ondragover="event.preventDefault(); this.style.borderColor='#a78bfa'" ondragleave="this.style.borderColor='#2a2a40'" ondrop="handleVideoDrop(event)">
-          <input type="file" id="videoFileInput" accept="image/*" multiple style="display:none" onchange="handleVideoFiles(this.files)" />
-          <div style="font-size:32px; margin-bottom:8px;">🎬</div>
+        <!-- Drop Zone — tek görsel -->
+        <div id="videoDropZone" style="border:2px dashed #2a2a40; border-radius:14px; padding:24px; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:16px;"
+          onclick="document.getElementById('videoFileInput').click()"
+          ondragover="event.preventDefault(); this.style.borderColor='#a78bfa'"
+          ondragleave="this.style.borderColor='#2a2a40'"
+          ondrop="handleVideoDrop(event)">
+          <input type="file" id="videoFileInput" accept="image/*" style="display:none" onchange="handleVideoFiles(this.files)" />
+          <div style="font-size:32px; margin-bottom:8px;" id="videoIcon">🎬</div>
           <div style="font-size:14px; color:#a78bfa; font-weight:600;">Render görselinizi seçin veya sürükleyin</div>
-          <div style="font-size:12px; color:#4a4a6a; margin-top:4px;">PNG, JPG · 1-5 görsel · SVD AI ile canlandırılır</div>
+          <div style="font-size:12px; color:#4a4a6a; margin-top:4px;">PNG, JPG · Tek görsel · Kling AI ile canlandırılır</div>
+          <img id="videoSinglePreview" style="display:none; max-width:100%; border-radius:8px; margin-top:10px; max-height:160px; object-fit:cover;" />
         </div>
 
-        <!-- Thumbnail sırası -->
-        <div id="videoThumbRow" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;"></div>
-
-        <!-- Bilgi -->
-        <div id="videoInfo" style="display:none; padding:12px; background:#0a0a0f; border:1px solid #1e1e2e; border-radius:10px; margin-bottom:16px; font-size:12px; color:#6b6b8a; line-height:1.6;">
-          📽 <span id="videoInfoText"></span>
+        <!-- 6 Preset -->
+        <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">ATMOSFER SEÇ</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px;" id="videoPresetGrid">
+          <button class="vpreset-btn" data-preset="spring" onclick="setVideoPreset(this)"
+            style="padding:10px 6px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            🌸<br><span style="font-size:11px;">İlkbahar</span>
+          </button>
+          <button class="vpreset-btn active" data-preset="daytime" onclick="setVideoPreset(this)"
+            style="padding:10px 6px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            🌤️<br><span style="font-size:11px;">Gündüz</span>
+          </button>
+          <button class="vpreset-btn" data-preset="summer" onclick="setVideoPreset(this)"
+            style="padding:10px 6px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            ☀️<br><span style="font-size:11px;">Yaz</span>
+          </button>
+          <button class="vpreset-btn" data-preset="autumn" onclick="setVideoPreset(this)"
+            style="padding:10px 6px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            🍂<br><span style="font-size:11px;">Sonbahar</span>
+          </button>
+          <button class="vpreset-btn" data-preset="winter" onclick="setVideoPreset(this)"
+            style="padding:10px 6px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            ❄️<br><span style="font-size:11px;">Kış</span>
+          </button>
+          <button class="vpreset-btn" data-preset="night" onclick="setVideoPreset(this)"
+            style="padding:10px 6px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            🌙<br><span style="font-size:11px;">Gece</span>
+          </button>
         </div>
 
-        <button class="render-btn" id="videoBtn" onclick="startVideo()">🎬 Video Oluştur</button>
+        <button class="render-btn" id="videoBtn" onclick="startVideo()">🎬 Video Oluştur (~60-90 sn)</button>
         <div class="error-msg" id="videoError"></div>
       </div>
 
@@ -1806,11 +1832,33 @@
 
   // ─── 🎬 VİDEO ────────────────────────────────────────────────────────────
   let videoFiles = [];
+  let selectedVideoPreset = 'daytime';
+
+  function setVideoPreset(btn) {
+    document.querySelectorAll('.vpreset-btn').forEach(b => {
+      b.style.borderColor = '#2a2a40';
+      b.style.background = 'transparent';
+      b.classList.remove('active');
+    });
+    btn.style.borderColor = '#a78bfa';
+    btn.style.background = 'rgba(167,139,250,0.12)';
+    btn.classList.add('active');
+    selectedVideoPreset = btn.dataset.preset;
+  }
 
   function handleVideoFiles(fileList) {
-    const incoming = Array.from(fileList);
-    incoming.forEach(f => { if (videoFiles.length < 10) videoFiles.push(f); });
-    renderVideoThumbs();
+    const file = fileList[0];
+    if (!file) return;
+    videoFiles = [file];
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const prev = document.getElementById('videoSinglePreview');
+      prev.src = ev.target.result;
+      prev.style.display = 'block';
+      document.getElementById('videoDropZone').style.padding = '12px';
+      document.getElementById('videoIcon').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
   }
 
   function handleVideoDrop(e) {
@@ -1819,40 +1867,9 @@
     handleVideoFiles(e.dataTransfer.files);
   }
 
-  function removeVideoFile(idx) {
-    videoFiles.splice(idx, 1);
-    renderVideoThumbs();
-  }
-
-  function renderVideoThumbs() {
-    const row = document.getElementById('videoThumbRow');
-    row.innerHTML = '';
-    videoFiles.forEach((f, i) => {
-      const url = URL.createObjectURL(f);
-      const wrap = document.createElement('div');
-      wrap.style.cssText = 'position:relative; width:90px; flex-shrink:0;';
-      wrap.innerHTML = `
-        <img src="${url}" style="width:90px; height:60px; object-fit:cover; border-radius:8px; border:1px solid #2a2a40;" />
-        <div style="position:absolute; top:3px; left:5px; background:rgba(0,0,0,0.7); color:#a78bfa; font-size:11px; font-weight:700; padding:1px 5px; border-radius:4px;">${i+1}</div>
-        <div onclick="removeVideoFile(${i})" style="position:absolute; top:3px; right:4px; background:rgba(200,50,50,0.8); color:#fff; font-size:10px; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; line-height:1;">✕</div>
-      `;
-      row.appendChild(wrap);
-    });
-
-    const info = document.getElementById('videoInfo');
-    const infoTxt = document.getElementById('videoInfoText');
-    if (videoFiles.length > 0) {
-      const dur = videoFiles.length * 5;
-      infoTxt.textContent = `${videoFiles.length} görsel · SVD AI canlandırma · ~${videoFiles.length * 75} sn sürer`;
-      info.style.display = 'block';
-    } else {
-      info.style.display = 'none';
-    }
-  }
-
   async function startVideo() {
     if (videoFiles.length === 0) {
-      document.getElementById('videoError').textContent = 'Lütfen en az 1 görsel ekleyin.';
+      document.getElementById('videoError').textContent = 'Lütfen bir görsel yükleyin.';
       document.getElementById('videoError').style.display = 'block';
       return;
     }
@@ -1864,7 +1881,8 @@
     document.getElementById('videoError').style.display = 'none';
 
     const formData = new FormData();
-    videoFiles.forEach(f => formData.append('images', f));
+    formData.append('images', videoFiles[0]);
+    formData.append('preset', selectedVideoPreset);
 
     try {
       const startRes = await fetch(`${API}/video/start`, { method: 'POST', body: formData });
