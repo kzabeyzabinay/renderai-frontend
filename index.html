@@ -978,32 +978,18 @@
 
 <!-- 🎬 Video Bölümü -->
 <div id="section-video" style="display:none; max-width:1200px; margin:0 auto; padding:0 20px 80px;">
-
-  <!-- Video Mod Seçici -->
-  <div style="display:flex; gap:10px; margin-bottom:24px;">
-    <button class="video-mode-btn active" id="vmode-animate" onclick="setVideoMode('animate')" style="flex:1; padding:14px; border:1px solid #a78bfa; border-radius:12px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:13px; font-weight:600;">
-      🎬 Sahne Canlandır
-      <div style="font-size:11px; color:#6b6b8a; margin-top:4px; font-weight:400;">1-5 render → AI hareket</div>
-    </button>
-    <button class="video-mode-btn" id="vmode-seasons" onclick="setVideoMode('seasons')" style="flex:1; padding:14px; border:1px solid #2a2a40; border-radius:12px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:13px; font-weight:600;">
-      🍂 4 Mevsim Geçişi
-      <div style="font-size:11px; color:#6b6b8a; margin-top:4px; font-weight:400;">1 render → 4 mevsim videosu</div>
-    </button>
-  </div>
-
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
 
-    <!-- Sol: Görsel yükle + ayarlar -->
+    <!-- Sol: Görsel + Seçenekler -->
     <div>
-      <!-- CANLANDIR MODU -->
-      <div class="panel" id="vpanel-animate">
+      <div class="panel">
         <h2>GÖRSEL YÜKLE</h2>
         <p style="font-size:12px; color:#6b6b8a; margin-bottom:14px; line-height:1.6;">
-          Render yükle → atmosfer seç → AI 5 saniyelik gerçek sahne videosu üretir<br>
+          Render yükle → mevsim ve zaman seç → AI 5 saniyelik gerçek sahne videosu üretir<br>
           <span style="color:#a78bfa;">Sabit kamera · İnsanlar yürür · Ağaçlar sallanır · Gökyüzü hareket eder</span>
         </p>
 
-        <!-- Drop Zone — tek görsel -->
+        <!-- Drop Zone -->
         <div id="videoDropZone" style="border:2px dashed #2a2a40; border-radius:14px; padding:24px; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:16px;"
           onclick="document.getElementById('videoFileInput').click()"
           ondragover="event.preventDefault(); this.style.borderColor='#a78bfa'"
@@ -1016,68 +1002,50 @@
           <img id="videoSinglePreview" style="display:none; max-width:100%; border-radius:8px; margin-top:10px; max-height:160px; object-fit:cover;" />
         </div>
 
-        <!-- 6 Preset -->
-        <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">ATMOSFER SEÇ</div>
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px;" id="videoPresetGrid">
-          <button class="vpreset-btn" data-preset="spring" onclick="setVideoPreset(this)"
-            style="padding:10px 6px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            🌸<br><span style="font-size:11px;">İlkbahar</span>
+        <!-- MEVSİM SEÇİCİ -->
+        <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">MEVSİM</div>
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-bottom:14px;">
+          <button class="vseason-btn active" data-season="none" onclick="setVideoSeason(this)"
+            style="padding:8px 4px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            🌿<br>Nötr
           </button>
-          <button class="vpreset-btn active" data-preset="daytime" onclick="setVideoPreset(this)"
-            style="padding:10px 6px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            🌤️<br><span style="font-size:11px;">Gündüz</span>
+          <button class="vseason-btn" data-season="spring" onclick="setVideoSeason(this)"
+            style="padding:8px 4px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            🌸<br>İlkbahar
           </button>
-          <button class="vpreset-btn" data-preset="summer" onclick="setVideoPreset(this)"
-            style="padding:10px 6px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            ☀️<br><span style="font-size:11px;">Yaz</span>
+          <button class="vseason-btn" data-season="summer" onclick="setVideoSeason(this)"
+            style="padding:8px 4px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            ☀️<br>Yaz
           </button>
-          <button class="vpreset-btn" data-preset="autumn" onclick="setVideoPreset(this)"
-            style="padding:10px 6px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            🍂<br><span style="font-size:11px;">Sonbahar</span>
+          <button class="vseason-btn" data-season="autumn" onclick="setVideoSeason(this)"
+            style="padding:8px 4px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            🍂<br>Sonbahar
           </button>
-          <button class="vpreset-btn" data-preset="winter" onclick="setVideoPreset(this)"
-            style="padding:10px 6px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            ❄️<br><span style="font-size:11px;">Kış</span>
+          <button class="vseason-btn" data-season="winter" onclick="setVideoSeason(this)"
+            style="padding:8px 4px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            ❄️<br>Kış
           </button>
-          <button class="vpreset-btn" data-preset="night" onclick="setVideoPreset(this)"
-            style="padding:10px 6px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            🌙<br><span style="font-size:11px;">Gece</span>
+        </div>
+
+        <!-- ZAMAN SEÇİCİ -->
+        <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">ZAMAN</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;">
+          <button class="vtime-btn active" data-time="day" onclick="setVideoTime(this)"
+            style="padding:10px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
+            🌤️ Gündüz
+          </button>
+          <button class="vtime-btn" data-time="night" onclick="setVideoTime(this)"
+            style="padding:10px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
+            🌙 Gece
           </button>
         </div>
 
         <button class="render-btn" id="videoBtn" onclick="startVideo()">🎬 Video Oluştur (~60-90 sn)</button>
         <div class="error-msg" id="videoError"></div>
       </div>
-
-      <!-- 4 MEVSİM MODU -->
-      <div class="panel" id="vpanel-seasons" style="display:none;">
-        <h2>GÖRSEL YÜKLE</h2>
-        <p style="font-size:12px; color:#6b6b8a; margin-bottom:14px; line-height:1.6;">
-          1 render → GPT 4 mevsim render üretir → her mevsim AI ile canlandırılır<br>
-          <span style="color:#a78bfa;">İlkbahar 🌸 · Yaz ☀️ · Sonbahar 🍂 · Kış ❄️</span>
-        </p>
-
-        <div id="seasonsDropZone" style="border:2px dashed #2a2a40; border-radius:14px; padding:28px; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:14px;" onclick="document.getElementById('seasonsFileInput').click()" ondragover="event.preventDefault(); this.style.borderColor='#a78bfa'" ondragleave="this.style.borderColor='#2a2a40'" ondrop="handleSeasonsDrop(event)">
-          <input type="file" id="seasonsFileInput" accept="image/*" style="display:none" onchange="handleSeasonsFile(this.files[0])" />
-          <div style="font-size:32px; margin-bottom:8px;" id="seasonsIcon">🍂</div>
-          <div style="font-size:14px; color:#a78bfa; font-weight:600;">Render görselinizi seçin</div>
-          <div style="font-size:12px; color:#4a4a6a; margin-top:4px;">Tek görsel · ~10-15 dk sürer</div>
-          <img id="seasonsPreview" class="preview-img" style="display:none;" />
-        </div>
-
-        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; padding:12px; background:#0a0a0f; border:1px solid #1e1e2e; border-radius:10px;">
-          <div style="text-align:center; font-size:11px; color:#6b6b8a;"><div style="font-size:20px;">🌸</div>İlkbahar<br>GPT render + AI</div>
-          <div style="text-align:center; font-size:11px; color:#6b6b8a;"><div style="font-size:20px;">☀️</div>Yaz<br>GPT render + AI</div>
-          <div style="text-align:center; font-size:11px; color:#6b6b8a;"><div style="font-size:20px;">🍂</div>Sonbahar<br>GPT render + AI</div>
-          <div style="text-align:center; font-size:11px; color:#6b6b8a;"><div style="font-size:20px;">❄️</div>Kış<br>GPT render + AI</div>
-        </div>
-
-        <button class="render-btn" id="seasonsBtn" onclick="startSeasons()">🍂 4 Mevsim Videosu Oluştur</button>
-        <div class="error-msg" id="seasonsError"></div>
-      </div>
     </div>
 
-    <!-- Sağ: Video player + indirme -->
+    <!-- Sağ: Video player -->
     <div class="panel result-panel" id="videoResultPanel">
       <div class="result-placeholder" id="videoPlaceholder">
         <div class="icon">🎬</div>
@@ -1090,33 +1058,6 @@
       <div id="videoResultContainer" style="display:none; width:100%; text-align:center;">
         <video id="videoResultEl" controls style="width:100%; border-radius:10px; background:#000;" playsinline></video>
         <a id="videoDownloadBtn" class="download-btn" download="renderai_video.mp4" style="margin-top:12px;">⬇ Video İndir (MP4)</a>
-      </div>
-
-      <!-- 4 MEVSİM PLAYLIST PLAYER -->
-      <div id="seasonPlaylistContainer" style="display:none; width:100%;">
-        <div style="position:relative; border-radius:12px; overflow:hidden; background:#000;">
-          <video id="seasonVideoEl" autoplay playsinline controls
-            style="width:100%; display:block; border-radius:12px;"></video>
-          <div id="seasonOverlayLabel" style="
-            position:absolute; bottom:14px; left:14px;
-            background:rgba(10,10,20,0.82); backdrop-filter:blur(8px);
-            padding:6px 16px; border-radius:20px;
-            font-size:14px; font-weight:700; color:#fff; letter-spacing:0.3px;
-            pointer-events:none;
-          "></div>
-          <!-- Auto-play indicator -->
-          <div id="seasonAutoLabel" style="
-            position:absolute; top:12px; right:12px;
-            background:rgba(167,139,250,0.9); border-radius:12px;
-            padding:4px 10px; font-size:11px; font-weight:600; color:#fff;
-            pointer-events:none;
-          ">▶ Otomatik</div>
-        </div>
-        <!-- Season nav buttons -->
-        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;" id="seasonNavBtns"></div>
-        <p style="font-size:11px; color:#4a4a6a; text-align:center; margin-top:8px;">
-          Her mevsime tıklayarak geç · Otomatik döngü aktif
-        </p>
       </div>
     </div>
 
@@ -1832,18 +1773,27 @@
 
   // ─── 🎬 VİDEO ────────────────────────────────────────────────────────────
   let videoFiles = [];
-  let selectedVideoPreset = 'daytime';
+  let selectedVideoSeason = 'none';
+  let selectedVideoTime = 'day';
 
-  function setVideoPreset(btn) {
-    document.querySelectorAll('.vpreset-btn').forEach(b => {
+  function setVideoSeason(btn) {
+    document.querySelectorAll('.vseason-btn').forEach(b => {
       b.style.borderColor = '#2a2a40';
       b.style.background = 'transparent';
-      b.classList.remove('active');
     });
     btn.style.borderColor = '#a78bfa';
     btn.style.background = 'rgba(167,139,250,0.12)';
-    btn.classList.add('active');
-    selectedVideoPreset = btn.dataset.preset;
+    selectedVideoSeason = btn.dataset.season;
+  }
+
+  function setVideoTime(btn) {
+    document.querySelectorAll('.vtime-btn').forEach(b => {
+      b.style.borderColor = '#2a2a40';
+      b.style.background = 'transparent';
+    });
+    btn.style.borderColor = '#a78bfa';
+    btn.style.background = 'rgba(167,139,250,0.12)';
+    selectedVideoTime = btn.dataset.time;
   }
 
   function handleVideoFiles(fileList) {
@@ -1882,7 +1832,8 @@
 
     const formData = new FormData();
     formData.append('images', videoFiles[0]);
-    formData.append('preset', selectedVideoPreset);
+    formData.append('season', selectedVideoSeason);
+    formData.append('time_of_day', selectedVideoTime);
 
     try {
       const startRes = await fetch(`${API}/video/start`, { method: 'POST', body: formData });
