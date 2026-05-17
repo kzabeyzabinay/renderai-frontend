@@ -575,6 +575,9 @@
     <button class="main-nav-btn" id="nav-video" onclick="switchMainSection('video')">
       🎬 Video
     </button>
+    <button class="main-nav-btn" id="nav-floorplan" onclick="switchMainSection('floorplan')">
+      📐 Kat Planı
+    </button>
   </div>
 </div>
 
@@ -1094,6 +1097,87 @@
   </div>
 </div>
 
+<!-- 📐 Kat Planı Bölümü -->
+<div id="section-floorplan" style="display:none; max-width:1200px; margin:0 auto; padding:0 20px 80px;">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+
+    <!-- Sol: Yükleme + Stil -->
+    <div>
+      <div class="panel">
+        <h2>KAT PLANI YÜKLE</h2>
+        <p style="font-size:12px; color:#6b6b8a; margin-bottom:14px; line-height:1.6;">
+          2D kat planı çizimi yükleyin → AI profesyonel renkli sunum planına dönüştürür<br>
+          <span style="color:#a78bfa;">Duvarlar korunur · Oda tipleri renklenir · Mobilya sembolleri eklenir</span>
+        </p>
+
+        <!-- Drop Zone -->
+        <div id="fpDropZone" style="border:2px dashed #2a2a40; border-radius:14px; padding:28px; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:16px;"
+          onclick="document.getElementById('fpFileInput').click()"
+          ondragover="event.preventDefault(); document.getElementById('fpDropZone').style.borderColor='#a78bfa'"
+          ondragleave="document.getElementById('fpDropZone').style.borderColor='#2a2a40'"
+          ondrop="handleFpDrop(event)">
+          <input type="file" id="fpFileInput" accept="image/*" style="display:none" onchange="handleFpFile(this.files[0])" />
+          <div id="fpIcon" style="font-size:36px; margin-bottom:8px;">📐</div>
+          <div style="font-size:14px; color:#a78bfa; font-weight:600;">Kat planı görselini seçin veya sürükleyin</div>
+          <div style="font-size:12px; color:#4a4a6a; margin-top:4px;">PNG, JPG — 2D kat planı çizimi, AutoCAD export, tarama</div>
+          <img id="fpPreview" style="display:none; max-width:100%; border-radius:8px; margin-top:10px;" />
+        </div>
+
+        <!-- Stil Seçici -->
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">BOYAMA STİLİ</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;" id="fpStyleGrid">
+            <button class="fp-style-btn active" data-style="professional" onclick="setFpStyle(this)"
+              style="padding:10px 8px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
+              🏛️ Profesyonel Sunum<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Standart mimari renk şeması</span>
+            </button>
+            <button class="fp-style-btn" data-style="modern" onclick="setFpStyle(this)"
+              style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
+              ◻️ Modern & Minimal<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Sade, açık tonlar</span>
+            </button>
+            <button class="fp-style-btn" data-style="warm" onclick="setFpStyle(this)"
+              style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
+              🌿 Sıcak & Toprak<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Doğal, toprak tonları</span>
+            </button>
+            <button class="fp-style-btn" data-style="vibrant" onclick="setFpStyle(this)"
+              style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
+              🎨 Renk Kodlu<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Oda tipine göre canlı renkler</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Özellikler -->
+        <div style="padding:12px; background:#0a0a0f; border:1px solid #1e1e2e; border-radius:10px; margin-bottom:16px; font-size:12px; color:#6b6b8a; line-height:1.8;">
+          ✅ Duvar çizgileri ve kapılar korunur<br>
+          ✅ Oda tipine göre renklendirme<br>
+          ✅ Minimal mobilya sembolleri eklenir<br>
+          ✅ Profesyonel sunum kalitesi
+        </div>
+
+        <button class="render-btn" id="fpBtn" onclick="startFloorplan()">📐 Kat Planı Renklendir</button>
+        <div class="error-msg" id="fpError"></div>
+      </div>
+    </div>
+
+    <!-- Sağ: Sonuç -->
+    <div class="panel result-panel">
+      <div class="result-placeholder" id="fpPlaceholder">
+        <div class="icon">📐</div>
+        <p>Renklendirilmiş kat planı burada görünecek</p>
+      </div>
+      <div class="loading" id="fpLoading" style="display:none;">
+        <div class="spinner"></div>
+        <p>Kat planı boyanıyor...<br><span style="font-size:12px;color:#4a4a6a;">GPT-Image-2 işliyor (~20-40 sn)</span></p>
+      </div>
+      <div id="fpResultContainer" style="display:none; width:100%; text-align:center;">
+        <img id="fpResultImg" style="max-width:100%; border-radius:10px; display:block;" />
+        <a id="fpDownloadBtn" class="download-btn" download="renderai_floorplan.png" style="margin-top:12px;">⬇ Kat Planı İndir (PNG)</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
   const API = 'https://renderai-backend-x9xs.onrender.com';
 
@@ -1351,11 +1435,12 @@
 
   // ─── ANA SEKME NAVIGASYONU ────────────────────────────────────────────────
   function switchMainSection(section) {
-    document.getElementById('section-render').style.display  = section === 'render'  ? 'grid'  : 'none';
-    document.getElementById('section-upscale').style.display = section === 'upscale' ? 'block' : 'none';
-    document.getElementById('section-enhance').style.display = section === 'enhance' ? 'block' : 'none';
-    document.getElementById('section-video').style.display   = section === 'video'   ? 'block' : 'none';
-    ['render','upscale','enhance','video'].forEach(s =>
+    document.getElementById('section-render').style.display    = section === 'render'    ? 'grid'  : 'none';
+    document.getElementById('section-upscale').style.display   = section === 'upscale'   ? 'block' : 'none';
+    document.getElementById('section-enhance').style.display   = section === 'enhance'   ? 'block' : 'none';
+    document.getElementById('section-video').style.display     = section === 'video'     ? 'block' : 'none';
+    document.getElementById('section-floorplan').style.display = section === 'floorplan' ? 'block' : 'none';
+    ['render','upscale','enhance','video','floorplan'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
   }
@@ -1819,6 +1904,99 @@
       document.getElementById('videoPlaceholder').style.display = 'block';
       document.getElementById('videoError').textContent = 'Hata: ' + err.message;
       document.getElementById('videoError').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ─── 📐 KAT PLANI ─────────────────────────────────────────────────────────
+  let fpFile = null;
+  let selectedFpStyle = 'professional';
+
+  function handleFpFile(file) {
+    if (!file) return;
+    fpFile = file;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const prev = document.getElementById('fpPreview');
+      prev.src = ev.target.result;
+      prev.style.display = 'block';
+      document.getElementById('fpDropZone').style.padding = '12px';
+      document.getElementById('fpIcon').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleFpDrop(e) {
+    e.preventDefault();
+    document.getElementById('fpDropZone').style.borderColor = '#2a2a40';
+    handleFpFile(e.dataTransfer.files[0]);
+  }
+
+  function setFpStyle(btn) {
+    document.querySelectorAll('.fp-style-btn').forEach(b => {
+      b.style.borderColor = '#2a2a40';
+      b.style.background = 'transparent';
+    });
+    btn.style.borderColor = '#a78bfa';
+    btn.style.background = 'rgba(167,139,250,0.12)';
+    selectedFpStyle = btn.dataset.style;
+  }
+
+  async function startFloorplan() {
+    if (!fpFile) {
+      document.getElementById('fpError').textContent = 'Lütfen bir kat planı görseli yükleyin.';
+      document.getElementById('fpError').style.display = 'block';
+      return;
+    }
+    const btn = document.getElementById('fpBtn');
+    btn.disabled = true;
+    document.getElementById('fpPlaceholder').style.display = 'none';
+    document.getElementById('fpLoading').style.display = 'block';
+    document.getElementById('fpResultContainer').style.display = 'none';
+    document.getElementById('fpError').style.display = 'none';
+
+    const formData = new FormData();
+    formData.append('image', fpFile);
+    formData.append('style', selectedFpStyle);
+
+    try {
+      const startRes = await fetch(`${API}/floorplan/start`, { method: 'POST', body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+
+      const jobId = startData.prediction_id;
+      let elapsed = 0;
+
+      while (true) {
+        await new Promise(r => setTimeout(r, 4000));
+        elapsed += 4;
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+
+        if (statusData.stage_label) {
+          document.querySelector('#fpLoading p').innerHTML =
+            `${statusData.stage_label}<br><span style="font-size:12px;color:#4a4a6a;">${elapsed}sn geçti</span>`;
+        }
+
+        if (statusData.status === 'succeeded') {
+          document.getElementById('fpLoading').style.display = 'none';
+          const img = document.getElementById('fpResultImg');
+          img.src = statusData.render_url;
+          document.getElementById('fpDownloadBtn').href = statusData.render_url;
+          document.getElementById('fpResultContainer').style.display = 'block';
+          break;
+        } else if (statusData.status === 'failed') {
+          throw new Error(statusData.error || 'Boyama başarısız');
+        }
+
+        if (elapsed > 180) throw new Error('3 dakika aşıldı, lütfen tekrar deneyin');
+      }
+    } catch (err) {
+      document.getElementById('fpLoading').style.display = 'none';
+      document.getElementById('fpPlaceholder').style.display = 'block';
+      document.getElementById('fpError').textContent = 'Hata: ' + err.message;
+      document.getElementById('fpError').style.display = 'block';
     } finally {
       btn.disabled = false;
     }
