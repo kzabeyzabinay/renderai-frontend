@@ -1068,13 +1068,13 @@
 <div id="section-floorplan" style="display:none; max-width:1200px; margin:0 auto; padding:0 20px 80px;">
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
 
-    <!-- Sol: Yükleme + Stil -->
+    <!-- Sol: Yükleme + Plan Tipi + Stil -->
     <div>
       <div class="panel">
-        <h2>KAT PLANI YÜKLE</h2>
+        <h2>PLAN YÜKLE</h2>
         <p style="font-size:12px; color:#6b6b8a; margin-bottom:14px; line-height:1.6;">
-          2D kat planı çizimi yükleyin → AI profesyonel renkli sunum planına dönüştürür<br>
-          <span style="color:#a78bfa;">Duvarlar korunur · Oda tipleri renklenir · Mobilya sembolleri eklenir</span>
+          2D plan çizimi yükleyin → AI profesyonel renkli sunum planına dönüştürür<br>
+          <span style="color:#a78bfa;">Çizgiler korunur · Alanlar renklenir · Profesyonel sunum kalitesi</span>
         </p>
 
         <!-- Drop Zone -->
@@ -1085,43 +1085,47 @@
           ondrop="handleFpDrop(event)">
           <input type="file" id="fpFileInput" accept="image/*" style="display:none" onchange="handleFpFile(this.files[0])" />
           <div id="fpIcon" style="font-size:36px; margin-bottom:8px;">📐</div>
-          <div style="font-size:14px; color:#a78bfa; font-weight:600;">Kat planı görselini seçin veya sürükleyin</div>
-          <div style="font-size:12px; color:#4a4a6a; margin-top:4px;">PNG, JPG — 2D kat planı çizimi, AutoCAD export, tarama</div>
+          <div style="font-size:14px; color:#a78bfa; font-weight:600;">Plan görselini seçin veya sürükleyin</div>
+          <div style="font-size:12px; color:#4a4a6a; margin-top:4px;">PNG, JPG — Kat planı, vaziyet planı, AutoCAD export</div>
           <img id="fpPreview" style="display:none; max-width:100%; border-radius:8px; margin-top:10px;" />
         </div>
 
-        <!-- Stil Seçici -->
-        <div style="margin-bottom:16px;">
-          <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">BOYAMA STİLİ</div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;" id="fpStyleGrid">
-            <button class="fp-style-btn active" data-style="professional" onclick="setFpStyle(this)"
-              style="padding:10px 8px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
-              🏛️ Profesyonel Sunum<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Standart mimari renk şeması</span>
-            </button>
-            <button class="fp-style-btn" data-style="modern" onclick="setFpStyle(this)"
-              style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
-              ◻️ Modern & Minimal<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Sade, açık tonlar</span>
-            </button>
-            <button class="fp-style-btn" data-style="warm" onclick="setFpStyle(this)"
-              style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
-              🌿 Sıcak & Toprak<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Doğal, toprak tonları</span>
-            </button>
-            <button class="fp-style-btn" data-style="vibrant" onclick="setFpStyle(this)"
-              style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
-              🎨 Renk Kodlu<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Oda tipine göre canlı renkler</span>
-            </button>
-          </div>
+        <!-- Plan Tipi Seçici -->
+        <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">PLAN TİPİ</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
+          <button class="fp-type-btn active" data-type="floor" onclick="setFpType(this)"
+            style="padding:10px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
+            🏠 Kat Planı<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">İç mekan, odalar</span>
+          </button>
+          <button class="fp-type-btn" data-type="site" onclick="setFpType(this)"
+            style="padding:10px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
+            🗺️ Vaziyet Planı<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Dış alan, peyzaj</span>
+          </button>
         </div>
 
-        <!-- Özellikler -->
-        <div style="padding:12px; background:#0a0a0f; border:1px solid #1e1e2e; border-radius:10px; margin-bottom:16px; font-size:12px; color:#6b6b8a; line-height:1.8;">
-          ✅ Duvar çizgileri ve kapılar korunur<br>
-          ✅ Oda tipine göre renklendirme<br>
-          ✅ Minimal mobilya sembolleri eklenir<br>
-          ✅ Profesyonel sunum kalitesi
+        <!-- Stil Seçici — plan tipine göre değişir -->
+        <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">BOYAMA STİLİ</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;" id="fpStyleGrid">
+          <!-- Kat planı stilleri (varsayılan) -->
+          <button class="fp-style-btn active" data-style="professional" onclick="setFpStyle(this)"
+            style="padding:10px 8px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
+            🏛️ Profesyonel<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Standart mimari renkler</span>
+          </button>
+          <button class="fp-style-btn" data-style="modern" onclick="setFpStyle(this)"
+            style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
+            ◻️ Modern & Minimal<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Sade, açık tonlar</span>
+          </button>
+          <button class="fp-style-btn" data-style="warm" onclick="setFpStyle(this)"
+            style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
+            🌿 Sıcak & Toprak<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Doğal, toprak tonları</span>
+          </button>
+          <button class="fp-style-btn" data-style="vibrant" onclick="setFpStyle(this)"
+            style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
+            🎨 Renk Kodlu<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Oda tipine göre canlı</span>
+          </button>
         </div>
 
-        <button class="render-btn" id="fpBtn" onclick="startFloorplan()">📐 Kat Planı Renklendir</button>
+        <button class="render-btn" id="fpBtn" onclick="startFloorplan()">📐 Plan Renklendir</button>
         <div class="error-msg" id="fpError"></div>
       </div>
     </div>
@@ -1912,9 +1916,67 @@
     selectedFpStyle = btn.dataset.style;
   }
 
+  const FP_STYLES = {
+    floor: [
+      { key: 'professional', icon: '🏛️', label: 'Profesyonel',    desc: 'Standart mimari renkler' },
+      { key: 'modern',       icon: '◻️', label: 'Modern & Minimal', desc: 'Sade, açık tonlar' },
+      { key: 'warm',         icon: '🌿', label: 'Sıcak & Toprak',  desc: 'Doğal, toprak tonları' },
+      { key: 'vibrant',      icon: '🎨', label: 'Renk Kodlu',      desc: 'Oda tipine göre canlı' },
+    ],
+    site: [
+      { key: 'vaziyet_professional', icon: '🏛️', label: 'Profesyonel',   desc: 'Gri tonlu standart vaziyet' },
+      { key: 'vaziyet_modern',       icon: '◻️', label: 'Modern & Sade', desc: 'Minimal, açık tonlar' },
+      { key: 'vaziyet_vibrant',      icon: '🎨', label: 'Renk Kodlu',    desc: 'Bina/yol/park ayrımı' },
+    ],
+  };
+
+  function setFpType(btn) {
+    document.querySelectorAll('.fp-type-btn').forEach(b => {
+      b.style.borderColor = '#2a2a40';
+      b.style.background = 'transparent';
+    });
+    btn.style.borderColor = '#a78bfa';
+    btn.style.background = 'rgba(167,139,250,0.12)';
+
+    const type = btn.dataset.type;
+    const styles = FP_STYLES[type] || FP_STYLES.floor;
+    const grid = document.getElementById('fpStyleGrid');
+    grid.innerHTML = styles.map((s, i) =>
+      `<button class="fp-style-btn${i === 0 ? ' _active' : ''}" data-style="${s.key}" onclick="setFpStyle(this)"
+        style="padding:10px 8px; border:1px solid ${i === 0 ? '#a78bfa' : '#2a2a40'}; border-radius:10px; background:${i === 0 ? 'rgba(167,139,250,0.12)' : 'transparent'}; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
+        ${s.icon} ${s.label}<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">${s.desc}</span>
+      </button>`
+    ).join('');
+
+    selectedFpStyle = styles[0].key;
+
+    // Sonuç paneli başlığını güncelle
+    const placeholder = document.getElementById('fpPlaceholder');
+    if (placeholder) {
+      placeholder.querySelector('p').textContent =
+        type === 'site'
+          ? 'Renklendirilmiş vaziyet planı burada görünecek'
+          : 'Renklendirilmiş kat planı burada görünecek';
+    }
+    const loadingText = document.querySelector('#fpLoading p');
+    if (loadingText) {
+      loadingText.innerHTML =
+        type === 'site'
+          ? 'Vaziyet planı boyanıyor...<br><span style="font-size:12px;color:#4a4a6a;">GPT-Image-2 işliyor (~20-40 sn)</span>'
+          : 'Kat planı boyanıyor...<br><span style="font-size:12px;color:#4a4a6a;">GPT-Image-2 işliyor (~20-40 sn)</span>';
+    }
+    const dlBtn = document.getElementById('fpDownloadBtn');
+    if (dlBtn) {
+      dlBtn.textContent = type === 'site' ? '⬇ Vaziyet Planı İndir (PNG)' : '⬇ Kat Planı İndir (PNG)';
+      dlBtn.download = type === 'site' ? 'renderai_site_plan.png' : 'renderai_floorplan.png';
+    }
+  }
+
   async function startFloorplan() {
     if (!fpFile) {
-      document.getElementById('fpError').textContent = 'Lütfen bir kat planı görseli yükleyin.';
+      const activeTypBtn = document.querySelector('.fp-type-btn[style*="#a78bfa"]') || document.querySelector('.fp-type-btn.active');
+      const planLabel = activeTypBtn && activeTypBtn.dataset.type === 'site' ? 'vaziyet planı' : 'kat planı';
+      document.getElementById('fpError').textContent = `Lütfen bir ${planLabel} görseli yükleyin.`;
       document.getElementById('fpError').style.display = 'block';
       return;
     }
