@@ -1123,6 +1123,12 @@
             style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
             🎨 Renk Kodlu<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Oda tipine göre canlı</span>
           </button>
+          <!-- 3D Fotorealistik — tam genişlik -->
+          <button class="fp-style-btn" data-style="realistic_3d" onclick="setFpStyle(this)"
+            style="grid-column:1/-1; padding:12px 14px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:13px; font-weight:700; text-align:left; line-height:1.5; display:flex; align-items:center; gap:10px;">
+            <span style="font-size:22px;">✨</span>
+            <span>3D Fotorealistik<br><span style="font-size:11px; color:#a78bfa; font-weight:400;">Gerçek mobilya · parke/taş zemin · ışık &amp; gölge · insan silueti</span></span>
+          </button>
         </div>
 
         <!-- Kat Planı Opsiyonları (vaziyet planında gizlenir) -->
@@ -2004,6 +2010,9 @@
     ],
   };
 
+  // 3D Fotorealistik ayrı sabit stil
+  const FP_3D_STYLE = { key: 'realistic_3d', icon: '✨', label: '3D Fotorealistik', desc: 'Gerçek mobilya · zemin doku · ışık · gölge' };
+
   function setFpType(btn) {
     document.querySelectorAll('.fp-type-btn').forEach(b => {
       b.style.borderColor = '#2a2a40';
@@ -2015,13 +2024,29 @@
     const type = btn.dataset.type;
     const styles = FP_STYLES[type] || FP_STYLES.floor;
     const grid = document.getElementById('fpStyleGrid');
-    grid.innerHTML = styles.map((s, i) =>
-      `<button class="fp-style-btn${i === 0 ? ' _active' : ''}" data-style="${s.key}" onclick="setFpStyle(this)"
+
+    // 2-kolon grid butonları
+    let html = styles.map((s, i) =>
+      `<button class="fp-style-btn" data-style="${s.key}" onclick="setFpStyle(this)"
         style="padding:10px 8px; border:1px solid ${i === 0 ? '#a78bfa' : '#2a2a40'}; border-radius:10px; background:${i === 0 ? 'rgba(167,139,250,0.12)' : 'transparent'}; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
         ${s.icon} ${s.label}<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">${s.desc}</span>
       </button>`
     ).join('');
 
+    // Kat planı tipinde 3D butonu ekle (tam genişlik)
+    if (type === 'floor') {
+      const s = FP_3D_STYLE;
+      html += `<button class="fp-style-btn" data-style="${s.key}" onclick="setFpStyle(this)"
+        style="grid-column:1/-1; padding:12px 14px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:13px; font-weight:700; text-align:left; line-height:1.5; display:flex; align-items:center; gap:10px;">
+        <span style="font-size:22px;">✨</span>
+        <span>
+          3D Fotorealistik
+          <br><span style="font-size:11px; color:#a78bfa; font-weight:400;">Gerçek mobilya · parke/taş zemin · ışık & gölge · insan silueti</span>
+        </span>
+      </button>`;
+    }
+
+    grid.innerHTML = html;
     selectedFpStyle = styles[0].key;
 
     // Kat tipi + duvar seçeneklerini vaziyet planında gizle
