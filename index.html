@@ -1106,7 +1106,8 @@
         <!-- Stil Seçici — plan tipine göre değişir -->
         <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">BOYAMA STİLİ</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;" id="fpStyleGrid">
-          <!-- Kat planı stilleri (varsayılan) -->
+          <!-- 2D bölümü -->
+          <div style="grid-column:1/-1; font-size:10px; color:#4a4a6a; font-weight:600; text-transform:uppercase; letter-spacing:1px; padding:2px 0 4px; border-bottom:1px solid #1e1e2e; margin-bottom:2px;">📐 2D Plan</div>
           <button class="fp-style-btn active" data-style="professional" onclick="setFpStyle(this)"
             style="padding:10px 8px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
             🏛️ Profesyonel<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Standart mimari renkler</span>
@@ -1123,11 +1124,17 @@
             style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
             🎨 Renk Kodlu<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Oda tipine göre canlı</span>
           </button>
-          <!-- 3D Fotorealistik — tam genişlik -->
+          <!-- 3D bölümü başlığı -->
+          <div style="grid-column:1/-1; font-size:10px; color:#4a4a6a; font-weight:600; text-transform:uppercase; letter-spacing:1px; padding:8px 0 4px; border-bottom:1px solid #1e1e2e; margin-bottom:2px;">🏗️ 3D Plan</div>
           <button class="fp-style-btn" data-style="realistic_3d" onclick="setFpStyle(this)"
-            style="grid-column:1/-1; padding:12px 14px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:13px; font-weight:700; text-align:left; line-height:1.5; display:flex; align-items:center; gap:10px;">
-            <span style="font-size:22px;">✨</span>
-            <span>3D Fotorealistik<br><span style="font-size:11px; color:#a78bfa; font-weight:400;">Gerçek mobilya · parke/taş zemin · ışık &amp; gölge · insan silueti</span></span>
+            style="padding:11px 12px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:700; text-align:left; line-height:1.4; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px;">✨</span>
+            <span>Fotorealistik<br><span style="font-size:10px; color:#a78bfa; font-weight:400;">Mobilya · parke · ışık · gölge</span></span>
+          </button>
+          <button class="fp-style-btn" data-style="depth_3d" onclick="setFpStyle(this)"
+            style="padding:11px 12px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:700; text-align:left; line-height:1.4; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px;">🏗️</span>
+            <span>3D Derinlik<br><span style="font-size:10px; color:#60a5fa; font-weight:400;">İzometrik · duvar yüksekliği</span></span>
           </button>
         </div>
 
@@ -2010,9 +2017,6 @@
     ],
   };
 
-  // 3D Fotorealistik ayrı sabit stil
-  const FP_3D_STYLE = { key: 'realistic_3d', icon: '✨', label: '3D Fotorealistik', desc: 'Gerçek mobilya · zemin doku · ışık · gölge' };
-
   function setFpType(btn) {
     document.querySelectorAll('.fp-type-btn').forEach(b => {
       b.style.borderColor = '#2a2a40';
@@ -2025,24 +2029,31 @@
     const styles = FP_STYLES[type] || FP_STYLES.floor;
     const grid = document.getElementById('fpStyleGrid');
 
-    // 2-kolon grid butonları
-    let html = styles.map((s, i) =>
+    // ─── 2D bölümü başlığı
+    let html = `<div style="grid-column:1/-1; font-size:10px; color:#4a4a6a; font-weight:600; text-transform:uppercase; letter-spacing:1px; padding:2px 0 4px; border-bottom:1px solid #1e1e2e; margin-bottom:2px;">📐 2D Plan</div>`;
+
+    // 2D stil butonları
+    html += styles.map((s, i) =>
       `<button class="fp-style-btn" data-style="${s.key}" onclick="setFpStyle(this)"
         style="padding:10px 8px; border:1px solid ${i === 0 ? '#a78bfa' : '#2a2a40'}; border-radius:10px; background:${i === 0 ? 'rgba(167,139,250,0.12)' : 'transparent'}; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
         ${s.icon} ${s.label}<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">${s.desc}</span>
       </button>`
     ).join('');
 
-    // Kat planı tipinde 3D butonu ekle (tam genişlik)
+    // Kat planı tipinde 3D butonları ekle
     if (type === 'floor') {
-      const s = FP_3D_STYLE;
-      html += `<button class="fp-style-btn" data-style="${s.key}" onclick="setFpStyle(this)"
-        style="grid-column:1/-1; padding:12px 14px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:13px; font-weight:700; text-align:left; line-height:1.5; display:flex; align-items:center; gap:10px;">
-        <span style="font-size:22px;">✨</span>
-        <span>
-          3D Fotorealistik
-          <br><span style="font-size:11px; color:#a78bfa; font-weight:400;">Gerçek mobilya · parke/taş zemin · ışık & gölge · insan silueti</span>
-        </span>
+      html += `<div style="grid-column:1/-1; font-size:10px; color:#4a4a6a; font-weight:600; text-transform:uppercase; letter-spacing:1px; padding:8px 0 4px; border-bottom:1px solid #1e1e2e; margin-bottom:2px;">🏗️ 3D Plan</div>`;
+
+      html += `<button class="fp-style-btn" data-style="realistic_3d" onclick="setFpStyle(this)"
+        style="padding:11px 12px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:700; text-align:left; line-height:1.4; display:flex; align-items:center; gap:8px;">
+        <span style="font-size:18px;">✨</span>
+        <span>Fotorealistik<br><span style="font-size:10px; color:#a78bfa; font-weight:400;">Mobilya · parke · ışık · gölge</span></span>
+      </button>`;
+
+      html += `<button class="fp-style-btn" data-style="depth_3d" onclick="setFpStyle(this)"
+        style="padding:11px 12px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:700; text-align:left; line-height:1.4; display:flex; align-items:center; gap:8px;">
+        <span style="font-size:18px;">🏗️</span>
+        <span>3D Derinlik<br><span style="font-size:10px; color:#60a5fa; font-weight:400;">İzometrik · duvar yüksekliği</span></span>
       </button>`;
     }
 
