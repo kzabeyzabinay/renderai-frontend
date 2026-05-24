@@ -1125,6 +1125,50 @@
           </button>
         </div>
 
+        <!-- Kat Planı Opsiyonları (vaziyet planında gizlenir) -->
+        <div id="fpFloorOpts">
+
+          <!-- Duvar Kesiti Rengi -->
+          <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; margin-top:4px;">DUVAR KESİTİ</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
+            <button class="fp-wall-btn active" data-wall="black" onclick="setFpWall(this)"
+              style="padding:9px 8px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
+              ⬛ Siyah
+            </button>
+            <button class="fp-wall-btn" data-wall="white" onclick="setFpWall(this)"
+              style="padding:9px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
+              ⬜ Beyaz
+            </button>
+          </div>
+
+          <!-- Yazı Seçeneği -->
+          <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">YAZI / BOYUTLANDIRMA</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
+            <button class="fp-text-btn active" data-remove="no" onclick="setFpText(this)"
+              style="padding:9px 8px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
+              ✏️ Koru
+            </button>
+            <button class="fp-text-btn" data-remove="yes" onclick="setFpText(this)"
+              style="padding:9px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
+              🚫 Kaldır
+            </button>
+          </div>
+
+          <!-- Kat Tipi -->
+          <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">KAT TİPİ</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;">
+            <button class="fp-floor-btn active" data-floor="ground" onclick="setFpFloor(this)"
+              style="padding:9px 8px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.4; transition:all 0.2s;">
+              🌿 Zemin Kat<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Peyzaj eklenir</span>
+            </button>
+            <button class="fp-floor-btn" data-floor="upper" onclick="setFpFloor(this)"
+              style="padding:9px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.4; transition:all 0.2s;">
+              🏢 Üst Kat<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Sadece iç mekan</span>
+            </button>
+          </div>
+
+        </div><!-- /fpFloorOpts -->
+
         <button class="render-btn" id="fpBtn" onclick="startFloorplan()">📐 Plan Renklendir</button>
         <div class="error-msg" id="fpError"></div>
       </div>
@@ -1885,6 +1929,36 @@
   // ─── 📐 KAT PLANI ─────────────────────────────────────────────────────────
   let fpFile = null;
   let selectedFpStyle = 'professional';
+  let selectedFpWall = 'black';
+  let fpRemoveText = 'no';
+  let selectedFpFloor = 'ground';
+
+  function setFpWall(btn) {
+    document.querySelectorAll('.fp-wall-btn').forEach(b => {
+      b.style.borderColor = '#2a2a40'; b.style.background = 'transparent';
+    });
+    btn.style.borderColor = '#a78bfa';
+    btn.style.background = 'rgba(167,139,250,0.12)';
+    selectedFpWall = btn.dataset.wall;
+  }
+
+  function setFpText(btn) {
+    document.querySelectorAll('.fp-text-btn').forEach(b => {
+      b.style.borderColor = '#2a2a40'; b.style.background = 'transparent';
+    });
+    btn.style.borderColor = '#a78bfa';
+    btn.style.background = 'rgba(167,139,250,0.12)';
+    fpRemoveText = btn.dataset.remove;
+  }
+
+  function setFpFloor(btn) {
+    document.querySelectorAll('.fp-floor-btn').forEach(b => {
+      b.style.borderColor = '#2a2a40'; b.style.background = 'transparent';
+    });
+    btn.style.borderColor = '#a78bfa';
+    btn.style.background = 'rgba(167,139,250,0.12)';
+    selectedFpFloor = btn.dataset.floor;
+  }
 
   function handleFpFile(file) {
     if (!file) return;
@@ -1950,6 +2024,10 @@
 
     selectedFpStyle = styles[0].key;
 
+    // Kat tipi + duvar seçeneklerini vaziyet planında gizle
+    const floorOpts = document.getElementById('fpFloorOpts');
+    if (floorOpts) floorOpts.style.display = type === 'site' ? 'none' : '';
+
     // Sonuç paneli başlığını güncelle
     const placeholder = document.getElementById('fpPlaceholder');
     if (placeholder) {
@@ -1990,6 +2068,9 @@
     const formData = new FormData();
     formData.append('image', fpFile);
     formData.append('style', selectedFpStyle);
+    formData.append('wall_color', selectedFpWall);
+    formData.append('remove_text', fpRemoveText);
+    formData.append('floor_type', selectedFpFloor);
 
     try {
       const startRes = await fetch(`${API}/floorplan/start`, { method: 'POST', body: formData });
