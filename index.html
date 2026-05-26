@@ -1141,6 +1141,27 @@
         <!-- Kat Planı Opsiyonları (vaziyet planında gizlenir) -->
         <div id="fpFloorOpts">
 
+          <!-- Parke Tonu -->
+          <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; margin-top:4px;">PARKE TONU</div>
+          <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+            <button class="fp-parquet-btn active" data-tone="light" onclick="setFpParquet(this)" title="Açık Meşe"
+              style="width:36px; height:36px; border-radius:8px; border:2px solid #a78bfa; cursor:pointer; background:#E8DFD0; position:relative; flex-shrink:0;" >
+            </button>
+            <button class="fp-parquet-btn" data-tone="honey" onclick="setFpParquet(this)" title="Sıcak Meşe"
+              style="width:36px; height:36px; border-radius:8px; border:2px solid #2a2a40; cursor:pointer; background:#C8923A; position:relative; flex-shrink:0;">
+            </button>
+            <button class="fp-parquet-btn" data-tone="walnut" onclick="setFpParquet(this)" title="Koyu Ceviz"
+              style="width:36px; height:36px; border-radius:8px; border:2px solid #2a2a40; cursor:pointer; background:#6B3E26; position:relative; flex-shrink:0;">
+            </button>
+            <button class="fp-parquet-btn" data-tone="grey" onclick="setFpParquet(this)" title="Nordic Gri"
+              style="width:36px; height:36px; border-radius:8px; border:2px solid #2a2a40; cursor:pointer; background:#B8B8B0; position:relative; flex-shrink:0;">
+            </button>
+            <button class="fp-parquet-btn" data-tone="antracite" onclick="setFpParquet(this)" title="Antrasit"
+              style="width:36px; height:36px; border-radius:8px; border:2px solid #2a2a40; cursor:pointer; background:#2E2E2E; position:relative; flex-shrink:0;">
+            </button>
+          </div>
+          <div id="fpParquetLabel" style="font-size:11px; color:#a78bfa; margin-bottom:14px; margin-top:-10px;">Açık Meşe — Scandinavian blonde</div>
+
           <!-- Duvar Kesiti Rengi -->
           <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; margin-top:4px;">DUVAR KESİTİ</div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
@@ -1945,6 +1966,28 @@
   let selectedFpWall = 'black';
   let fpRemoveText = 'no';
   let selectedFpFloor = 'ground';
+  let selectedFpParquet = 'light';
+
+  const FP_PARQUET_LABELS = {
+    light:     'Açık Meşe — Scandinavian blonde',
+    honey:     'Sıcak Meşe — golden amber',
+    walnut:    'Koyu Ceviz — deep chocolate',
+    grey:      'Nordic Gri — whitewashed cool',
+    antracite: 'Antrasit — smoked near-black',
+  };
+
+  function setFpParquet(btn) {
+    document.querySelectorAll('.fp-parquet-btn').forEach(b => {
+      b.style.borderColor = '#2a2a40';
+      b.style.outline = 'none';
+    });
+    btn.style.borderColor = '#a78bfa';
+    btn.style.outline = '2px solid rgba(167,139,250,0.4)';
+    btn.style.outlineOffset = '2px';
+    selectedFpParquet = btn.dataset.tone;
+    const lbl = document.getElementById('fpParquetLabel');
+    if (lbl) lbl.textContent = FP_PARQUET_LABELS[selectedFpParquet] || '';
+  }
 
   function setFpWall(btn) {
     document.querySelectorAll('.fp-wall-btn').forEach(b => {
@@ -2106,6 +2149,7 @@
     formData.append('style', selectedFpStyle);
     formData.append('wall_color', selectedFpWall);
     formData.append('remove_text', fpRemoveText);
+    formData.append('parquet_tone', selectedFpParquet);
     formData.append('floor_type', selectedFpFloor);
 
     try {
