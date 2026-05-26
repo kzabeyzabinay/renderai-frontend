@@ -1162,6 +1162,27 @@
           </div>
           <div id="fpParquetLabel" style="font-size:11px; color:#a78bfa; margin-bottom:14px; margin-top:-10px;">Açık Meşe — Scandinavian blonde</div>
 
+          <!-- Seramik Tonu -->
+          <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">SERAMİK TONU</div>
+          <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+            <button class="fp-ceramic-btn active" data-ceramic="white" onclick="setFpCeramic(this)" title="Beyaz Seramik"
+              style="width:36px; height:36px; border-radius:8px; border:2px solid #a78bfa; cursor:pointer; background:#F5F5F5; flex-shrink:0; box-shadow:inset 0 0 0 1px #ccc;">
+            </button>
+            <button class="fp-ceramic-btn" data-ceramic="beige_marble" onclick="setFpCeramic(this)" title="Bej Mermer"
+              style="width:36px; height:36px; border-radius:8px; border:2px solid #2a2a40; cursor:pointer; background:linear-gradient(135deg,#E8DCC8 50%,#D4C4A0 50%); flex-shrink:0;">
+            </button>
+            <button class="fp-ceramic-btn" data-ceramic="grey_stone" onclick="setFpCeramic(this)" title="Gri Taş"
+              style="width:36px; height:36px; border-radius:8px; border:2px solid #2a2a40; cursor:pointer; background:#9A9A9A; flex-shrink:0;">
+            </button>
+            <button class="fp-ceramic-btn" data-ceramic="antracite_tile" onclick="setFpCeramic(this)" title="Antrasit Karo"
+              style="width:36px; height:36px; border-radius:8px; border:2px solid #2a2a40; cursor:pointer; background:#383838; flex-shrink:0;">
+            </button>
+            <button class="fp-ceramic-btn" data-ceramic="terracotta" onclick="setFpCeramic(this)" title="Terracotta"
+              style="width:36px; height:36px; border-radius:8px; border:2px solid #2a2a40; cursor:pointer; background:#C4622A; flex-shrink:0;">
+            </button>
+          </div>
+          <div id="fpCeramicLabel" style="font-size:11px; color:#a78bfa; margin-bottom:14px; margin-top:-10px;">Beyaz Seramik — classic clean</div>
+
           <!-- Duvar Kesiti Rengi -->
           <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; margin-top:4px;">DUVAR KESİTİ</div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
@@ -1968,6 +1989,29 @@
   let selectedFpFloor = 'ground';
   let selectedFpParquet = 'light';
 
+  let selectedFpCeramic = 'white';
+
+  const FP_CERAMIC_LABELS = {
+    white:          'Beyaz Seramik — classic clean',
+    beige_marble:   'Bej Mermer — luxury spa',
+    grey_stone:     'Gri Taş — contemporary hotel',
+    antracite_tile: 'Antrasit Karo — dramatic premium',
+    terracotta:     'Terracotta — Mediterranean rustic',
+  };
+
+  function setFpCeramic(btn) {
+    document.querySelectorAll('.fp-ceramic-btn').forEach(b => {
+      b.style.borderColor = '#2a2a40';
+      b.style.outline = 'none';
+    });
+    btn.style.borderColor = '#a78bfa';
+    btn.style.outline = '2px solid rgba(167,139,250,0.4)';
+    btn.style.outlineOffset = '2px';
+    selectedFpCeramic = btn.dataset.ceramic;
+    const lbl = document.getElementById('fpCeramicLabel');
+    if (lbl) lbl.textContent = FP_CERAMIC_LABELS[selectedFpCeramic] || '';
+  }
+
   const FP_PARQUET_LABELS = {
     light:     'Açık Meşe — Scandinavian blonde',
     honey:     'Sıcak Meşe — golden amber',
@@ -2150,6 +2194,7 @@
     formData.append('wall_color', selectedFpWall);
     formData.append('remove_text', fpRemoveText);
     formData.append('parquet_tone', selectedFpParquet);
+    formData.append('ceramic_tone', selectedFpCeramic);
     formData.append('floor_type', selectedFpFloor);
 
     try {
