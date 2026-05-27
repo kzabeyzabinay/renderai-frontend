@@ -1108,21 +1108,13 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;" id="fpStyleGrid">
           <!-- 2D bölümü -->
           <div style="grid-column:1/-1; font-size:10px; color:#4a4a6a; font-weight:600; text-transform:uppercase; letter-spacing:1px; padding:2px 0 4px; border-bottom:1px solid #1e1e2e; margin-bottom:2px;">📐 2D Plan</div>
-          <button class="fp-style-btn active" data-style="professional" onclick="setFpStyle(this)"
+          <button class="fp-style-btn active" data-style="wall_paint" onclick="setFpStyle(this)"
             style="padding:10px 8px; border:1px solid #a78bfa; border-radius:10px; background:rgba(167,139,250,0.12); color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
-            🏛️ Profesyonel<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Standart mimari renkler</span>
+            🎨 Boyalı Sunum<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Duvar renkleri · hafif zemin tonu</span>
           </button>
-          <button class="fp-style-btn" data-style="modern" onclick="setFpStyle(this)"
+          <button class="fp-style-btn" data-style="function_map" onclick="setFpStyle(this)"
             style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
-            ◻️ Modern & Minimal<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Sade, açık tonlar</span>
-          </button>
-          <button class="fp-style-btn" data-style="warm" onclick="setFpStyle(this)"
-            style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
-            🌿 Sıcak & Toprak<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Doğal, toprak tonları</span>
-          </button>
-          <button class="fp-style-btn" data-style="vibrant" onclick="setFpStyle(this)"
-            style="padding:10px 8px; border:1px solid #2a2a40; border-radius:10px; background:transparent; color:#e8e8f0; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
-            🎨 Renk Kodlu<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Oda tipine göre canlı</span>
+            🗺️ Fonksiyon Haritası<br><span style="font-size:10px; color:#6b6b8a; font-weight:400;">Aynı işlev = aynı renk · lejant</span>
           </button>
           <!-- 3D bölümü başlığı -->
           <div style="grid-column:1/-1; font-size:10px; color:#4a4a6a; font-weight:600; text-transform:uppercase; letter-spacing:1px; padding:8px 0 4px; border-bottom:1px solid #1e1e2e; margin-bottom:2px;">🏗️ 3D Plan</div>
@@ -1983,7 +1975,7 @@
 
   // ─── 📐 KAT PLANI ─────────────────────────────────────────────────────────
   let fpFile = null;
-  let selectedFpStyle = 'professional';
+  let selectedFpStyle = 'wall_paint';
   let selectedFpWall = 'black';
   let fpRemoveText = 'no';
   let selectedFpFloor = 'ground';
@@ -2092,10 +2084,8 @@
 
   const FP_STYLES = {
     floor: [
-      { key: 'professional', icon: '🏛️', label: 'Profesyonel',    desc: 'Standart mimari renkler' },
-      { key: 'modern',       icon: '◻️', label: 'Modern & Minimal', desc: 'Sade, açık tonlar' },
-      { key: 'warm',         icon: '🌿', label: 'Sıcak & Toprak',  desc: 'Doğal, toprak tonları' },
-      { key: 'vibrant',      icon: '🎨', label: 'Renk Kodlu',      desc: 'Oda tipine göre canlı' },
+      { key: 'wall_paint',    icon: '🎨', label: 'Boyalı Sunum',       desc: 'Duvar renkleri · hafif zemin tonu' },
+      { key: 'function_map',  icon: '🗺️', label: 'Fonksiyon Haritası', desc: 'Aynı işlev = aynı renk · lejant' },
     ],
     site: [
       { key: 'vaziyet_professional', icon: '🏛️', label: 'Profesyonel',   desc: 'Gri tonlu standart vaziyet' },
