@@ -1104,6 +1104,7 @@
         </div>
 
         <!-- Stil Seçici — plan tipine göre değişir -->
+        <div id="fpStyleSection">
         <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">BOYAMA STİLİ</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;" id="fpStyleGrid">
           <!-- 2D bölümü -->
@@ -1129,6 +1130,7 @@
             <span>3D Derinlik<br><span style="font-size:10px; color:#60a5fa; font-weight:400;">İzometrik · duvar yüksekliği</span></span>
           </button>
         </div>
+        </div><!-- /fpStyleSection -->
 
         <!-- Kat Planı Opsiyonları (vaziyet planında gizlenir) -->
         <div id="fpFloorOpts">
@@ -2109,11 +2111,7 @@
       { key: 'wall_paint',    icon: '🎨', label: 'Boyalı Sunum',       desc: 'Tek ton gri zemin · çizgi tefriş' },
       { key: 'function_map',  icon: '🗺️', label: 'Fonksiyon Haritası', desc: 'Aynı işlev = aynı renk · lejant' },
     ],
-    site: [
-      { key: 'vaziyet_professional', icon: '🏛️', label: 'Profesyonel',   desc: 'Gri tonlu standart vaziyet' },
-      { key: 'vaziyet_modern',       icon: '◻️', label: 'Modern & Sade', desc: 'Minimal, açık tonlar' },
-      { key: 'vaziyet_vibrant',      icon: '🎨', label: 'Renk Kodlu',    desc: 'Bina/yol/park ayrımı' },
-    ],
+    site: [],
   };
 
   function setFpType(btn) {
@@ -2156,8 +2154,17 @@
       </button>`;
     }
 
-    grid.innerHTML = html;
-    selectedFpStyle = styles[0].key;
+    // Vaziyet planı → stil seçimi yok, otomatik profesyonel
+    const styleSection = document.getElementById('fpStyleSection');
+    if (type === 'site') {
+      grid.innerHTML = '';
+      if (styleSection) styleSection.style.display = 'none';
+      selectedFpStyle = 'vaziyet_professional';
+    } else {
+      if (styleSection) styleSection.style.display = '';
+      grid.innerHTML = html;
+      selectedFpStyle = styles[0].key;
+    }
 
     // Kat tipi + duvar seçeneklerini vaziyet planında gizle
     const floorOpts = document.getElementById('fpFloorOpts');
