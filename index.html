@@ -1132,16 +1132,11 @@
         </div>
         </div><!-- /fpStyleSection -->
 
-        <!-- Fonksiyon Haritası: Oda İsimleri -->
-        <div id="fpRoomLabelsSection" style="display:none; margin-bottom:16px;">
-          <div style="font-size:11px; color:#6b6b8a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">ODA İSİMLERİ</div>
-          <div style="font-size:11px; color:#4a4a6a; margin-bottom:8px; line-height:1.5;">
-            Her satıra bir oda adı yazın. Aynı isimler aynı rengi alır.
+        <!-- Fonksiyon Haritası: bilgi notu -->
+        <div id="fpFuncMapNote" style="display:none; margin-bottom:16px;">
+          <div style="background:#0d0d18; border:1px solid #2a2a40; border-radius:10px; padding:10px 12px; font-size:11px; color:#6b6b8a; line-height:1.6;">
+            💡 <span style="color:#a78bfa; font-weight:600;">İpucu:</span> Plan üzerine oda isimlerini yazmanız durumunda daha doğru sonuçlar elde edersiniz.
           </div>
-          <textarea id="fpRoomLabels"
-            placeholder="Örnek:&#10;SALON&#10;MUTFAK&#10;YATAK ODASI 1&#10;YATAK ODASI 2&#10;BANYO&#10;WC&#10;HOL"
-            style="width:100%; height:130px; background:#0d0d18; border:1px solid #2a2a40; border-radius:10px; color:#e8e8f0; font-size:12px; padding:10px; resize:vertical; font-family:'Inter',sans-serif; line-height:1.6; outline:none;"
-            onfocus="this.style.borderColor='#a78bfa'" onblur="this.style.borderColor='#2a2a40'"></textarea>
         </div>
 
         <!-- Kat Planı Opsiyonları (vaziyet planında gizlenir) -->
@@ -2116,9 +2111,9 @@
     btn.style.borderColor = '#a78bfa';
     btn.style.background = 'rgba(167,139,250,0.12)';
     selectedFpStyle = btn.dataset.style;
-    const roomLabelsSection = document.getElementById('fpRoomLabelsSection');
-    if (roomLabelsSection) {
-      roomLabelsSection.style.display = selectedFpStyle === 'function_map' ? '' : 'none';
+    const funcMapNote = document.getElementById('fpFuncMapNote');
+    if (funcMapNote) {
+      funcMapNote.style.display = selectedFpStyle === 'function_map' ? '' : 'none';
     }
   }
 
@@ -2231,8 +2226,6 @@
     formData.append('parquet_tone', selectedFpParquet);
     formData.append('ceramic_tone', selectedFpCeramic);
     formData.append('floor_type', selectedFpFloor);
-    const roomLabelsEl = document.getElementById('fpRoomLabels');
-    formData.append('room_labels', roomLabelsEl ? roomLabelsEl.value.trim() : '');
 
     try {
       const startRes = await fetch(`${API}/floorplan/start`, { method: 'POST', body: formData });
