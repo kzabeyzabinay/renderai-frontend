@@ -672,7 +672,7 @@
       <div class="preset-tabs" style="gap:5px;">
         <button class="preset-tab active" onclick="switchInteriorTab(this,'itab-light')">💡 Işık</button>
         <button class="preset-tab" onclick="switchInteriorTab(this,'itab-mood')">🌡️ Atmosfer</button>
-        <button class="preset-tab" onclick="switchInteriorTab(this,'itab-detail')">🪴 Detay</button>
+        <button class="preset-tab" onclick="switchInteriorTab(this,'itab-detail')">🏠 Malzeme</button>
       </div>
 
       <!-- IŞIK -->
@@ -700,12 +700,27 @@
 
       <!-- DETAY -->
       <div class="preset-content" id="itab-detail">
-        <div class="preset-chips" style="margin-top:8px;">
+        <div class="preset-group-label">Zemin Kaplaması</div>
+        <div class="preset-chips">
+          <button class="chip" data-prompt="FLOOR MATERIAL OVERRIDE: replace all floor surfaces with natural hardwood parquet flooring — warm oak wood planks in staggered herringbone or straight-lay pattern, visible wood grain texture, realistic wood knots and variation, natural wood warmth. NO ceramic, NO tile, NO marble on the floor — only wood parquet.">Parke 🪵</button>
+          <button class="chip" data-prompt="FLOOR MATERIAL OVERRIDE: replace all floor surfaces with large-format polished marble flooring — white Carrara or emperador marble slabs, visible natural veining, high-gloss polished reflective surface, elegant marble pattern. NO wood, NO ceramic on the floor — only polished marble.">Mermer Zemin ⬜</button>
+          <button class="chip" data-prompt="FLOOR MATERIAL OVERRIDE: replace all floor surfaces with large-format matte porcelain or ceramic tiles — neutral light grey or beige tones, fine grout lines, clean modern tile surface, matte non-reflective finish. NO wood, NO marble on the floor — only ceramic tile.">Seramik Zemin 🔲</button>
+          <button class="chip" data-prompt="FLOOR MATERIAL OVERRIDE: replace all floor surfaces with polished micro-cement or concrete screed flooring — seamless smooth concrete surface, warm grey tone, subtle texture, industrial-modern feel, no visible joints. NO wood, NO tile — only smooth concrete.">Mikro Çimento 🩶</button>
+        </div>
+        <div class="preset-group-label">Duvar Yüzeyi</div>
+        <div class="preset-chips">
+          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply smooth flat matte paint to all walls — clean painted plaster walls in a warm neutral tone (warm white, soft grey or light beige), perfectly smooth surface, no visible texture or pattern. Modern painted wall finish.">Düz Boya 🎨</button>
+          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply decorative wallpaper to the main accent wall — elegant geometric or subtle botanical pattern wallpaper, high-end interior wallpaper texture, designer wallpaper quality. Other walls remain neutral painted.">Duvar Kağıdı 🌿</button>
+          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply exposed raw concrete or polished micro-cement finish to walls — industrial grey concrete texture, visible concrete surface character, modern loft-style concrete wall. Other walls neutral.">Beton Duvar 🏗️</button>
+          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply natural stone cladding to the accent wall — travertine, limestone or slate stone panels, natural stone texture with visible joints, warm earthy stone tones. Other walls neutral painted.">Taş Kaplama 🪨</button>
+          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply natural wood panel cladding to the accent wall — warm oak or walnut wood slat panelling, linear vertical wood strips, warm grain texture, Scandinavian wood wall detail. Other walls neutral.">Ahşap Panel 🪵</button>
+        </div>
+        <div class="preset-group-label">Dekorasyon</div>
+        <div class="preset-chips">
           <button class="chip" data-prompt="abundant beautiful indoor plants throughout, large monstera and fiddle leaf fig, trailing pothos, small succulents, green living walls, lush interior garden feeling">Yeşil Bitkiler 🪴</button>
           <button class="chip" data-prompt="curated art pieces on walls, sculptural objects on shelves, designer decorative vases and ceramics, artfully arranged coffee table books, gallery-quality art display">Sanat & Dekor 🎨</button>
           <button class="chip" data-prompt="luxurious soft textiles, heavy linen or velvet curtains draping floor to ceiling, plush area rug, layered cushions and throw blankets, soft textile richness">Tekstil & Perdeler 🛋️</button>
           <button class="chip" data-prompt="books neatly arranged on shelves, stacked coffee table books, reading nook with lamp, intellectual homey feeling, well-read lived-in quality">Kitaplar & Raflar 📚</button>
-          <button class="chip" data-prompt="personal lifestyle items adding warmth, fresh cut flowers in vase, fruit bowl, personal photos in frames, homey authentic lived-in quality, real home feeling">Kişisel Objeler 🏮</button>
         </div>
       </div>
 
