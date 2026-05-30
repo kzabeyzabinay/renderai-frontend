@@ -17,12 +17,13 @@
     }
 
     header {
-      padding: 20px 40px;
+      padding: 0 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: #1A1A16;
       border-bottom: 1px solid #2A2820;
+      height: 56px;
     }
 
     .logo {
@@ -60,12 +61,12 @@
     }
 
     .main {
-      max-width: 1200px;
+      max-width: 1560px;
       margin: 0 auto;
-      padding: 0 20px 80px;
+      padding: 0 32px 80px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 28px;
+      grid-template-columns: 420px 1fr;
+      gap: 32px;
     }
 
     .panel {
@@ -531,18 +532,18 @@
 
     .enhance-card {
       padding: 16px 10px;
-      border: 1px solid #D8D2C8;
+      border: 1px solid #E0DAD4;
       border-radius: 12px;
-      background: #0d0d16;
+      background: #F2EDE6;
       cursor: pointer;
       transition: all 0.2s;
       text-align: center;
     }
-    .enhance-card:hover { border-color: #9A6558; background: rgba(167,139,250,0.06); }
+    .enhance-card:hover { border-color: #7A8B6A; background: rgba(122,139,106,0.08); }
     .enhance-card.active {
-      border-color: #9A6558;
-      background: rgba(154,101,88,0.12);
-      box-shadow: 0 0 0 1px rgba(167,139,250,0.3);
+      border-color: #7A8B6A;
+      background: rgba(122,139,106,0.15);
+      box-shadow: 0 0 0 1px rgba(122,139,106,0.3);
     }
 
     @media (max-width: 768px) {
@@ -572,7 +573,7 @@
 </section>
 
 <!-- Eski nav — kaldırıldı, header'a taşındı -->
-<div style="max-width:1200px; margin:0 auto 0; padding:0 20px;">
+<div style="max-width:1560px; margin:0 auto 0; padding:0 32px;">
   <div style="display:flex; gap:8px; border-bottom:1px solid #D8D2C8; margin-bottom:28px; display:none;">
   </div>
 </div>
@@ -887,7 +888,7 @@
 </main>
 
 <!-- Büyüt & Geliştir Bölümü -->
-<div id="section-upscale" style="display:none; max-width:1200px; margin:0 auto; padding:0 20px 80px;">
+<div id="section-upscale" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
 
     <!-- Sol: Ayarlar -->
@@ -952,7 +953,7 @@
 </div>
 
 <!-- ✨ AI Geliştir Bölümü -->
-<div id="section-enhance" style="display:none; max-width:1200px; margin:0 auto; padding:0 20px 80px;">
+<div id="section-enhance" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
 
     <!-- Sol: Yükle + Preset Seçim -->
@@ -1031,7 +1032,7 @@
 </div>
 
 <!-- 🎬 Video Bölümü -->
-<div id="section-video" style="display:none; max-width:1200px; margin:0 auto; padding:0 20px 80px;">
+<div id="section-video" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
 
     <!-- Sol: Görsel + Seçenekler -->
@@ -1119,7 +1120,7 @@
 </div>
 
 <!-- 📐 Kat Planı Bölümü -->
-<div id="section-floorplan" style="display:none; max-width:1200px; margin:0 auto; padding:0 20px 80px;">
+<div id="section-floorplan" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
 
     <!-- Sol: Yükleme + Plan Tipi + Stil -->
