@@ -604,20 +604,6 @@
         <button class="type-btn" id="typeExterior" onclick="setRenderType('exterior')">🏢 Dış Cephe</button>
       </div>
 
-      <!-- İç mekan oda tipi -->
-      <div id="roomSection">
-        <div style="font-size:11px; color:#6b6b8a; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Oda Tipi</div>
-        <div class="room-grid">
-          <button class="room-btn active" data-room="" onclick="setRoom(this, '')">Tümü</button>
-          <button class="room-btn" data-room="living room" onclick="setRoom(this, 'living room')">Salon</button>
-          <button class="room-btn" data-room="bedroom" onclick="setRoom(this, 'bedroom')">Yatak Odası</button>
-          <button class="room-btn" data-room="kitchen" onclick="setRoom(this, 'kitchen')">Mutfak</button>
-          <button class="room-btn" data-room="bathroom" onclick="setRoom(this, 'bathroom')">Banyo</button>
-          <button class="room-btn" data-room="dining room" onclick="setRoom(this, 'dining room')">Yemek Odası</button>
-          <button class="room-btn" data-room="home office" onclick="setRoom(this, 'home office')">Ofis</button>
-          <button class="room-btn" data-room="kids room" onclick="setRoom(this, 'kids room')">Çocuk Odası</button>
-        </div>
-      </div>
     </div>
 
     <!-- Render Modeli + Mod + Kalite -->
@@ -657,22 +643,79 @@
         Yapı çizgilerini koruyarak fotorealistik çıktı üretir.
       </div>
 
-      <!-- STİL -->
-      <div class="mini-label">Stil</div>
-      <div class="styles-grid" id="stylesGrid">
-        <button class="style-btn active" data-style="modern_interior">Modern İç Mekan</button>
-        <button class="style-btn" data-style="minimalist">Minimalist</button>
-        <button class="style-btn" data-style="luxury">Lüks & Premium</button>
-        <button class="style-btn" data-style="scandinavian">İskandinav</button>
-        <button class="style-btn" data-style="industrial">Endüstriyel</button>
-        <button class="style-btn" data-style="mediterranean">Akdeniz</button>
-        <button class="style-btn" data-style="japandi">Japandi</button>
-        <button class="style-btn" data-style="classic">Klasik & Şık</button>
+      <!-- STİL — İç Mekan -->
+      <div id="interiorStyleSection">
+        <div class="mini-label">Stil</div>
+        <div class="styles-grid" id="interiorStylesGrid">
+          <button class="style-btn active" data-style="modern_interior" onclick="selectStyle(this,'modern_interior')">Modern</button>
+          <button class="style-btn" data-style="minimalist" onclick="selectStyle(this,'minimalist')">Minimalist</button>
+          <button class="style-btn" data-style="luxury" onclick="selectStyle(this,'luxury')">Lüks & Premium</button>
+          <button class="style-btn" data-style="scandinavian" onclick="selectStyle(this,'scandinavian')">İskandinav</button>
+          <button class="style-btn" data-style="industrial" onclick="selectStyle(this,'industrial')">Endüstriyel</button>
+          <button class="style-btn" data-style="mediterranean" onclick="selectStyle(this,'mediterranean')">Akdeniz</button>
+          <button class="style-btn" data-style="japandi" onclick="selectStyle(this,'japandi')">Japandi</button>
+          <button class="style-btn" data-style="classic" onclick="selectStyle(this,'classic')">Klasik & Şık</button>
+        </div>
+      </div>
+
+      <!-- STİL — Dış Cephe -->
+      <div id="exteriorStyleSection" style="display:none;">
+        <div class="mini-label">Stil</div>
+        <div class="styles-grid" id="stylesGrid">
+        </div>
       </div>
     </div>
 
-    <!-- Creative Preset -->
-    <div class="panel">
+    <!-- İç Mekan Creative Preset -->
+    <div class="panel" id="interiorPresetPanel">
+      <h2>Creative Preset</h2>
+      <div class="preset-tabs" style="gap:5px;">
+        <button class="preset-tab active" onclick="switchInteriorTab(this,'itab-light')">💡 Işık</button>
+        <button class="preset-tab" onclick="switchInteriorTab(this,'itab-mood')">🌡️ Atmosfer</button>
+        <button class="preset-tab" onclick="switchInteriorTab(this,'itab-detail')">🪴 Detay</button>
+      </div>
+
+      <!-- IŞIK -->
+      <div class="preset-content active" id="itab-light">
+        <div class="preset-chips" style="margin-top:8px;">
+          <button class="chip" data-prompt="soft golden morning light streaming through large windows, long warm shadows on floor, fresh peaceful dawn atmosphere, dew light on surfaces, warm amber-gold morning glow filling the room">Sabah Işığı 🌅</button>
+          <button class="chip" data-prompt="bright clear natural daylight flooding interior, even clean neutral light, maximum clarity and detail, true-to-life colors, professional clean interior photography">Gün Işığı ☀️</button>
+          <button class="chip" data-prompt="warm afternoon golden hour light raking through windows at low angle, long diagonal golden light shafts across floor and walls, magical warm amber glow, dust particles visible in light beams">Altın Saat ✨</button>
+          <button class="chip" data-prompt="cozy warm evening ambiance, warm amber table and floor lamps on, soft pools of warm light, candles and warm accent lighting, intimate cozy evening atmosphere, warm 2700K light throughout">Akşam Lambası 🕯️</button>
+          <button class="chip" data-prompt="dramatic night interior scene, only warm artificial lighting sources active, deep shadows, strong light-dark contrast, moody atmospheric night interior, dark corners with accent lights">Gece 🌙</button>
+          <button class="chip" data-prompt="dramatic high-contrast studio lighting on interior, one strong directional light source creating bold shadows, architectural spotlight quality, dramatic chiaroscuro interior atmosphere">Dramatik 🎭</button>
+        </div>
+      </div>
+
+      <!-- ATMOSFER -->
+      <div class="preset-content" id="itab-mood">
+        <div class="preset-chips" style="margin-top:8px;">
+          <button class="chip" data-prompt="warm cozy hygge atmosphere, soft warm textiles and cushions, candles and warm lamps, natural wooden elements, inviting intimate feeling, Scandinavian hygge comfort">Sıcak & Samimi 🏡</button>
+          <button class="chip" data-prompt="bright airy minimal atmosphere, clean white walls, uncluttered surfaces, maximum natural light, fresh open feeling, zen minimal calm">Ferah & Minimal 🤍</button>
+          <button class="chip" data-prompt="sophisticated luxury atmosphere, premium materials, polished surfaces, elegant accessories, gallery-quality curated objects, high-end hotel lobby quality feeling">Sofistike & Lüks ✨</button>
+          <button class="chip" data-prompt="natural organic atmosphere, abundant indoor plants and greenery, natural wood and stone materials, earthy tones, biophilic design, connected to nature">Doğal & Organik 🌿</button>
+          <button class="chip" data-prompt="dark moody dramatic atmosphere, deep rich colors, heavy textures, dramatic shadows, jewel tones, opulent dark luxury, dramatic editorial quality">Dramatik & Koyu 🖤</button>
+        </div>
+      </div>
+
+      <!-- DETAY -->
+      <div class="preset-content" id="itab-detail">
+        <div class="preset-chips" style="margin-top:8px;">
+          <button class="chip" data-prompt="abundant beautiful indoor plants throughout, large monstera and fiddle leaf fig, trailing pothos, small succulents, green living walls, lush interior garden feeling">Yeşil Bitkiler 🪴</button>
+          <button class="chip" data-prompt="curated art pieces on walls, sculptural objects on shelves, designer decorative vases and ceramics, artfully arranged coffee table books, gallery-quality art display">Sanat & Dekor 🎨</button>
+          <button class="chip" data-prompt="luxurious soft textiles, heavy linen or velvet curtains draping floor to ceiling, plush area rug, layered cushions and throw blankets, soft textile richness">Tekstil & Perdeler 🛋️</button>
+          <button class="chip" data-prompt="books neatly arranged on shelves, stacked coffee table books, reading nook with lamp, intellectual homey feeling, well-read lived-in quality">Kitaplar & Raflar 📚</button>
+          <button class="chip" data-prompt="personal lifestyle items adding warmth, fresh cut flowers in vase, fruit bowl, personal photos in frames, homey authentic lived-in quality, real home feeling">Kişisel Objeler 🏮</button>
+        </div>
+      </div>
+
+      <div id="selectedChipsInterior" style="min-height:28px; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
+      <button class="render-btn" id="renderBtnInterior" onclick="startRender()" style="margin-top:16px;">✨ Render Oluştur</button>
+      <div class="error-msg" id="errorMsgInterior"></div>
+    </div>
+
+    <!-- Dış Cephe Creative Preset -->
+    <div class="panel" id="exteriorPresetPanel" style="display:none;">
       <h2>Creative Preset</h2>
 
       <!-- Kategori Sekmeleri — 2 satır -->
@@ -1334,8 +1377,9 @@
   }
 
   function renderChipTags() {
-    const container = document.getElementById('selectedChips');
-    container.innerHTML = Object.entries(selectedPresets).map(([prompt, label]) =>
+    const cId = renderType === 'interior' ? 'selectedChipsInterior' : 'selectedChips';
+    const container = document.getElementById(cId);
+    if (container) container.innerHTML = Object.entries(selectedPresets).map(([prompt, label]) =>
       `<span class="chip-tag">${label} <button onclick="removeChip('${prompt.replace(/'/g,"\\'")}', this)">×</button></span>`
     ).join('');
   }
@@ -1382,14 +1426,35 @@
     renderType = type;
     document.getElementById('typeInterior').classList.toggle('active', type === 'interior');
     document.getElementById('typeExterior').classList.toggle('active', type === 'exterior');
-    document.getElementById('roomSection').style.display = type === 'interior' ? 'block' : 'none';
 
-    const styles = type === 'interior' ? INTERIOR_STYLES : EXTERIOR_STYLES;
-    selectedStyle = styles[0].key;
-    const grid = document.getElementById('stylesGrid');
-    grid.innerHTML = styles.map((s, i) =>
-      `<button class="style-btn ${i === 0 ? 'active' : ''}" data-style="${s.key}" onclick="selectStyle(this, '${s.key}')">${s.label}</button>`
-    ).join('');
+    // Stil bölümleri
+    document.getElementById('interiorStyleSection').style.display = type === 'interior' ? '' : 'none';
+    document.getElementById('exteriorStyleSection').style.display  = type === 'exterior' ? '' : 'none';
+
+    // Preset panelleri
+    document.getElementById('interiorPresetPanel').style.display = type === 'interior' ? '' : 'none';
+    document.getElementById('exteriorPresetPanel').style.display  = type === 'exterior' ? '' : 'none';
+
+    if (type === 'interior') {
+      selectedStyle = 'modern_interior';
+      document.querySelectorAll('#interiorStylesGrid .style-btn').forEach((b, i) => {
+        b.classList.toggle('active', i === 0);
+      });
+    } else {
+      const styles = EXTERIOR_STYLES;
+      selectedStyle = styles[0].key;
+      const grid = document.getElementById('stylesGrid');
+      grid.innerHTML = styles.map((s, i) =>
+        `<button class="style-btn ${i === 0 ? 'active' : ''}" data-style="${s.key}" onclick="selectStyle(this, '${s.key}')">${s.label}</button>`
+      ).join('');
+    }
+  }
+
+  function switchInteriorTab(btn, tabId) {
+    document.querySelectorAll('#interiorPresetPanel .preset-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#interiorPresetPanel .preset-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
   }
 
   function selectStyle(btn, style) {
@@ -1446,13 +1511,15 @@
       return;
     }
 
-    const btn = document.getElementById('renderBtn');
+    const btnId  = renderType === 'interior' ? 'renderBtnInterior' : 'renderBtn';
+    const errId  = renderType === 'interior' ? 'errorMsgInterior'  : 'errorMsg';
+    const btn = document.getElementById(btnId);
     btn.disabled = true;
     document.getElementById('placeholder').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
     document.getElementById('resultImg').style.display = 'none';
     document.getElementById('downloadBtn').style.display = 'none';
-    document.getElementById('errorMsg').style.display = 'none';
+    document.getElementById(errId).style.display = 'none';
 
     const presetPrompt = buildPresetPrompt();
     const customText = (document.getElementById('customPrompt')?.value || '').trim();
@@ -1521,7 +1588,8 @@
   }
 
   function showError(msg) {
-    const el = document.getElementById('errorMsg');
+    const errId = renderType === 'interior' ? 'errorMsgInterior' : 'errorMsg';
+    const el = document.getElementById(errId);
     el.textContent = msg;
     el.style.display = 'block';
   }
