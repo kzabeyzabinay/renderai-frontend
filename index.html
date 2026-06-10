@@ -566,7 +566,35 @@
     <button class="main-nav-btn" id="nav-floorplan" onclick="switchMainSection('floorplan')">📐 Kat Planı</button>
     <button class="main-nav-btn" id="nav-works" onclick="switchMainSection('works')">🗂️ İşlerim</button>
   </div>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <span id="authEmail" style="display:none; font-size:12px; color:#ABA49C;"></span>
+    <button id="authLoginBtn" onclick="openAuthModal('login')"
+      style="padding:8px 18px; border:1px solid #9A6558; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;">Giriş Yap</button>
+    <button id="authLogoutBtn" onclick="authLogout()" style="display:none; padding:8px 14px; border:1px solid #3A352E; border-radius:10px; background:transparent; color:#ABA49C; font-size:12px; cursor:pointer;">Çıkış</button>
+  </div>
 </header>
+
+<!-- ─── GİRİŞ / KAYIT MODAL ─────────────────────────────────────────────── -->
+<div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(26,26,22,0.6); z-index:1100; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#FAFAF8; border-radius:18px; padding:32px; width:100%; max-width:380px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <h3 id="authTitle" style="margin:0; font-size:18px; color:#2A2520;">Giriş Yap</h3>
+      <button onclick="document.getElementById('authModal').style.display='none'" style="border:none; background:none; font-size:20px; color:#8A7E74; cursor:pointer;">✕</button>
+    </div>
+    <div style="display:flex; gap:6px; margin-bottom:18px; background:#E8E4DC; border-radius:10px; padding:4px;">
+      <button id="authTabLogin" onclick="setAuthMode('login')" style="flex:1; padding:8px; border:none; border-radius:8px; background:#FAFAF8; color:#2A2520; font-size:13px; font-weight:600; cursor:pointer;">Giriş</button>
+      <button id="authTabSignup" onclick="setAuthMode('signup')" style="flex:1; padding:8px; border:none; border-radius:8px; background:transparent; color:#8A7E74; font-size:13px; font-weight:600; cursor:pointer;">Kayıt Ol</button>
+    </div>
+    <input id="authEmailInput" type="email" placeholder="E-posta" autocomplete="email"
+      style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:10px; color:#2A2520;" />
+    <input id="authPassInput" type="password" placeholder="Şifre (en az 6 karakter)" autocomplete="current-password"
+      style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:14px; color:#2A2520;" />
+    <div id="authError" style="display:none; font-size:12px; color:#B5483A; margin-bottom:12px;"></div>
+    <div id="authInfo" style="display:none; font-size:12px; color:#7A8B6A; margin-bottom:12px;"></div>
+    <button id="authSubmitBtn" onclick="authSubmit()"
+      style="width:100%; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;">Giriş Yap</button>
+  </div>
+</div>
 
 <section class="hero">
   <h1>Çizimden Gerçeğe</h1>
@@ -1371,6 +1399,93 @@
 <script>
   const API = 'https://web-production-8c34d.up.railway.app';
 
+  // ─── ÜYELİK (Supabase Auth) ──────────────────────────────────────────────
+  let authMode = 'login';
+
+  function authHeaders() {
+    const t = localStorage.getItem('ra_token');
+    return t ? { 'Authorization': 'Bearer ' + t } : {};
+  }
+
+  function updateAuthUI() {
+    const email = localStorage.getItem('ra_email');
+    document.getElementById('authEmail').style.display = email ? 'inline' : 'none';
+    document.getElementById('authEmail').textContent = email || '';
+    document.getElementById('authLoginBtn').style.display = email ? 'none' : 'inline-block';
+    document.getElementById('authLogoutBtn').style.display = email ? 'inline-block' : 'none';
+  }
+
+  function openAuthModal(mode) {
+    setAuthMode(mode || 'login');
+    document.getElementById('authError').style.display = 'none';
+    document.getElementById('authInfo').style.display = 'none';
+    document.getElementById('authModal').style.display = 'flex';
+  }
+
+  function setAuthMode(mode) {
+    authMode = mode;
+    const isLogin = mode === 'login';
+    document.getElementById('authTitle').textContent = isLogin ? 'Giriş Yap' : 'Kayıt Ol';
+    document.getElementById('authSubmitBtn').textContent = isLogin ? 'Giriş Yap' : 'Kayıt Ol';
+    document.getElementById('authTabLogin').style.background = isLogin ? '#FAFAF8' : 'transparent';
+    document.getElementById('authTabLogin').style.color = isLogin ? '#2A2520' : '#8A7E74';
+    document.getElementById('authTabSignup').style.background = isLogin ? 'transparent' : '#FAFAF8';
+    document.getElementById('authTabSignup').style.color = isLogin ? '#8A7E74' : '#2A2520';
+  }
+
+  async function authSubmit() {
+    const email = document.getElementById('authEmailInput').value.trim();
+    const pass = document.getElementById('authPassInput').value;
+    const errEl = document.getElementById('authError');
+    const infoEl = document.getElementById('authInfo');
+    const btn = document.getElementById('authSubmitBtn');
+    errEl.style.display = 'none';
+    infoEl.style.display = 'none';
+
+    if (!email || !pass) {
+      errEl.textContent = 'E-posta ve şifre gerekli.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Bekleyin...';
+    try {
+      const res = await fetch(`${API}/auth/${authMode === 'login' ? 'login' : 'signup'}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: pass })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'İşlem başarısız.');
+
+      if (data.needs_confirmation) {
+        infoEl.textContent = '📧 Onay e-postası gönderildi — gelen kutunu kontrol et, sonra giriş yap.';
+        infoEl.style.display = 'block';
+        setAuthMode('login');
+      } else {
+        localStorage.setItem('ra_token', data.access_token);
+        localStorage.setItem('ra_email', data.email);
+        updateAuthUI();
+        document.getElementById('authModal').style.display = 'none';
+      }
+    } catch (e) {
+      errEl.textContent = e.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      setAuthMode(authMode);
+    }
+  }
+
+  function authLogout() {
+    localStorage.removeItem('ra_token');
+    localStorage.removeItem('ra_email');
+    updateAuthUI();
+  }
+
+  updateAuthUI();
+
   // Sayfa açılınca sunucuyu uyandır — kullanıcı ayarları seçerken hazır olur
   fetch(`${API}/`).catch(() => {});
 
@@ -1621,7 +1736,7 @@
     try {
       // Render başlat — hemen ID al
       document.querySelector('.loading p').innerHTML = 'Render başlatılıyor...<br><span style="font-size:12px;color:#ABA49C;">İşlem başlıyor</span>';
-      const startRes = await fetch(`${API}/render/start`, { method: 'POST', body: formData });
+      const startRes = await fetch(`${API}/render/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
 
@@ -1711,7 +1826,7 @@
 
     try {
       const filter = document.getElementById('worksFilter').value;
-      const res = await fetch(`${API}/renders?limit=${WORKS_PAGE}&offset=${worksOffset}${filter ? '&render_type=' + filter : ''}`);
+      const res = await fetch(`${API}/renders?limit=${WORKS_PAGE}&offset=${worksOffset}${filter ? '&render_type=' + filter : ''}`, { headers: authHeaders() });
       const data = await res.json();
       const items = data.renders || [];
 
@@ -1820,7 +1935,7 @@
     formData.append('scale', selectedScale);
 
     try {
-      const startRes = await fetch(`${API}/upscale/start`, { method: 'POST', body: formData });
+      const startRes = await fetch(`${API}/upscale/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
 
@@ -1978,7 +2093,7 @@
     formData.append('image', seasonsToSend);
 
     try {
-      const startRes = await fetch(`${API}/seasons/start`, { method: 'POST', body: formData });
+      const startRes = await fetch(`${API}/seasons/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
 
@@ -2081,7 +2196,7 @@
     formData.append('enhance_type', selectedEnhanceType);
 
     try {
-      const startRes = await fetch(`${API}/enhance/start`, { method: 'POST', body: formData });
+      const startRes = await fetch(`${API}/enhance/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
 
@@ -2191,7 +2306,7 @@
     formData.append('time_of_day', selectedVideoTime);
 
     try {
-      const startRes = await fetch(`${API}/video/start`, { method: 'POST', body: formData });
+      const startRes = await fetch(`${API}/video/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
 
@@ -2458,7 +2573,7 @@
     formData.append('floor_type', selectedFpFloor);
 
     try {
-      const startRes = await fetch(`${API}/floorplan/start`, { method: 'POST', body: formData });
+      const startRes = await fetch(`${API}/floorplan/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
 
