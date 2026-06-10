@@ -564,6 +564,7 @@
     <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')">✨ Geliştir</button>
     <button class="main-nav-btn" id="nav-video" onclick="switchMainSection('video')">🎬 Video</button>
     <button class="main-nav-btn" id="nav-floorplan" onclick="switchMainSection('floorplan')">📐 Kat Planı</button>
+    <button class="main-nav-btn" id="nav-works" onclick="switchMainSection('works')">🗂️ İşlerim</button>
   </div>
 </header>
 
@@ -1326,6 +1327,47 @@
   </div>
 </div>
 
+<!-- ─── İŞLERİM ──────────────────────────────────────────────────────────── -->
+<div id="section-works" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin:28px 0 20px;">
+    <div>
+      <h2 style="font-size:22px; font-weight:700; color:#2A2520; margin:0;">🗂️ İşlerim</h2>
+      <p style="font-size:13px; color:#8A7E74; margin:4px 0 0;">Yaptığın son çalışmalar — tıklayınca büyür</p>
+    </div>
+    <select id="worksFilter" onchange="loadWorks(true)"
+      style="padding:8px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; cursor:pointer;">
+      <option value="">Tümü</option>
+      <option value="gpt">Render</option>
+      <option value="exterior">Dış Cephe</option>
+      <option value="upscale">Büyüt</option>
+      <option value="enhance">Geliştir</option>
+      <option value="video">Video</option>
+      <option value="floorplan">Kat Planı</option>
+    </select>
+  </div>
+
+  <div id="worksGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:16px;"></div>
+
+  <div id="worksEmpty" style="display:none; text-align:center; padding:80px 20px; color:#8A7E74;">
+    <div style="font-size:40px; margin-bottom:12px;">🗂️</div>
+    <p>Henüz kaydedilmiş iş yok.<br>Render, kat planı veya video oluşturduğunda burada görünecek.</p>
+  </div>
+
+  <div id="worksLoading" style="display:none; text-align:center; padding:60px;">
+    <div class="spinner" style="margin:0 auto;"></div>
+  </div>
+
+  <div style="text-align:center; margin-top:24px;">
+    <button id="worksMoreBtn" onclick="loadWorks(false)" style="display:none; padding:10px 28px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; font-weight:600; cursor:pointer;">Daha Fazla Yükle</button>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="worksLightbox" onclick="this.style.display='none'"
+  style="display:none; position:fixed; inset:0; background:rgba(26,26,22,0.92); z-index:1000; align-items:center; justify-content:center; padding:40px; cursor:zoom-out;">
+  <div id="worksLightboxInner" style="max-width:90vw; max-height:85vh; text-align:center;"></div>
+</div>
+
 <script>
   const API = 'https://web-production-8c34d.up.railway.app';
 
@@ -1642,9 +1684,83 @@
     document.getElementById('section-enhance').style.display   = section === 'enhance'   ? 'block' : 'none';
     document.getElementById('section-video').style.display     = section === 'video'     ? 'block' : 'none';
     document.getElementById('section-floorplan').style.display = section === 'floorplan' ? 'block' : 'none';
-    ['render','upscale','enhance','video','floorplan'].forEach(s =>
+    document.getElementById('section-works').style.display     = section === 'works'     ? 'block' : 'none';
+    ['render','upscale','enhance','video','floorplan','works'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
+    if (section === 'works') loadWorks(true);
+  }
+
+  // ─── İŞLERİM ─────────────────────────────────────────────────────────────
+  let worksOffset = 0;
+  const WORKS_PAGE = 30;
+
+  const WORKS_LABELS = {
+    gpt: '🏢 Render', exterior: '🏗️ Dış Cephe', upscale: '🔍 Büyüt',
+    enhance: '✨ Geliştir', video: '🎬 Video', floorplan: '📐 Kat Planı'
+  };
+
+  async function loadWorks(reset) {
+    const grid = document.getElementById('worksGrid');
+    const empty = document.getElementById('worksEmpty');
+    const loading = document.getElementById('worksLoading');
+    const moreBtn = document.getElementById('worksMoreBtn');
+
+    if (reset) { worksOffset = 0; grid.innerHTML = ''; empty.style.display = 'none'; moreBtn.style.display = 'none'; }
+    loading.style.display = 'block';
+
+    try {
+      const filter = document.getElementById('worksFilter').value;
+      const res = await fetch(`${API}/renders?limit=${WORKS_PAGE}&offset=${worksOffset}${filter ? '&render_type=' + filter : ''}`);
+      const data = await res.json();
+      const items = data.renders || [];
+
+      loading.style.display = 'none';
+
+      if (worksOffset === 0 && items.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+
+      items.forEach(r => {
+        const isVideo = r.render_type === 'video' || (r.result_url || '').endsWith('.mp4');
+        const date = r.created_at ? new Date(r.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+        const label = WORKS_LABELS[r.render_type] || r.render_type || '';
+        const card = document.createElement('div');
+        card.style.cssText = 'background:#FAFAF8; border:1px solid #E0DAD0; border-radius:14px; overflow:hidden; cursor:pointer; transition:transform 0.15s, box-shadow 0.15s;';
+        card.onmouseenter = () => { card.style.transform = 'translateY(-2px)'; card.style.boxShadow = '0 6px 20px rgba(42,37,32,0.10)'; };
+        card.onmouseleave = () => { card.style.transform = 'none'; card.style.boxShadow = 'none'; };
+        card.innerHTML = `
+          <div style="aspect-ratio:4/3; background:#E8E4DC; overflow:hidden;">
+            ${isVideo
+              ? `<video src="${r.result_url}" muted preload="metadata" style="width:100%; height:100%; object-fit:cover;"></video>`
+              : `<img src="${r.result_url}" loading="lazy" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;color:#ABA49C;font-size:12px;\\'>Görsel yüklenemedi</div>'" />`}
+          </div>
+          <div style="padding:10px 12px; display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-size:12px; font-weight:600; color:#2A2520;">${label}${r.style ? ' · ' + String(r.style).slice(0, 24) : ''}</span>
+            <span style="font-size:11px; color:#ABA49C; white-space:nowrap; margin-left:8px;">${date}</span>
+          </div>`;
+        card.onclick = () => openWorksLightbox(r.result_url, isVideo);
+        grid.appendChild(card);
+      });
+
+      worksOffset += WORKS_PAGE;
+      // Sayfa doluysa devamı olabilir
+      moreBtn.style.display = (data.renders || []).length === WORKS_PAGE && worksOffset < 500 ? 'inline-block' : 'none';
+    } catch (e) {
+      loading.style.display = 'none';
+      if (worksOffset === 0) empty.style.display = 'block';
+    }
+  }
+
+  function openWorksLightbox(url, isVideo) {
+    const box = document.getElementById('worksLightbox');
+    const inner = document.getElementById('worksLightboxInner');
+    inner.innerHTML = isVideo
+      ? `<video src="${url}" controls autoplay loop style="max-width:100%; max-height:80vh; border-radius:12px;"></video>`
+      : `<img src="${url}" style="max-width:100%; max-height:80vh; border-radius:12px;" />`;
+    inner.innerHTML += `<div style="margin-top:14px;"><a href="${url}" download target="_blank" onclick="event.stopPropagation()" style="display:inline-block; padding:10px 24px; background:#9A6558; color:#FAFAF8; border-radius:10px; font-size:13px; font-weight:600; text-decoration:none;">⬇ İndir</a></div>`;
+    box.style.display = 'flex';
   }
 
   // ─── BÜYÜT & GELİŞTİR ────────────────────────────────────────────────────
