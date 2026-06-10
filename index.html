@@ -567,6 +567,7 @@
     <button class="main-nav-btn" id="nav-works" onclick="switchMainSection('works')">🗂️ İşlerim</button>
   </div>
   <div style="display:flex; gap:10px; align-items:center;">
+    <span id="creditBadge" style="display:none; font-size:12px; font-weight:700; color:#FAFAF8; background:#7A8B6A; padding:6px 12px; border-radius:20px;">⚡ —</span>
     <span id="authEmail" style="display:none; font-size:12px; color:#ABA49C;"></span>
     <button id="authLoginBtn" onclick="openAuthModal('login')"
       style="padding:8px 18px; border:1px solid #9A6558; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;">Giriş Yap</button>
@@ -1413,6 +1414,24 @@
     document.getElementById('authEmail').textContent = email || '';
     document.getElementById('authLoginBtn').style.display = email ? 'none' : 'inline-block';
     document.getElementById('authLogoutBtn').style.display = email ? 'inline-block' : 'none';
+    if (email) refreshCredits();
+    else document.getElementById('creditBadge').style.display = 'none';
+  }
+
+  async function refreshCredits() {
+    const badge = document.getElementById('creditBadge');
+    if (!localStorage.getItem('ra_token')) { badge.style.display = 'none'; return; }
+    try {
+      const res = await fetch(`${API}/me`, { headers: authHeaders() });
+      const data = await res.json();
+      if (data.logged_in && data.credits !== null && data.credits !== undefined) {
+        badge.textContent = `⚡ ${data.credits} kredi`;
+        badge.style.display = 'inline-block';
+      } else if (!data.logged_in) {
+        // Token süresi dolmuş — sessizce çıkış yap
+        authLogout();
+      }
+    } catch (e) { /* sunucu uyanıyor olabilir, sessiz geç */ }
   }
 
   function openAuthModal(mode) {
@@ -1739,6 +1758,7 @@
       const startRes = await fetch(`${API}/render/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
 
       const predictionId = startData.prediction_id;
       let elapsed = 0;
@@ -1938,6 +1958,7 @@
       const startRes = await fetch(`${API}/upscale/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
 
       const jobId = startData.prediction_id;
       let elapsed = 0;
@@ -2096,6 +2117,7 @@
       const startRes = await fetch(`${API}/seasons/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
 
       const jobId = startData.prediction_id;
       let elapsed = 0;
@@ -2199,6 +2221,7 @@
       const startRes = await fetch(`${API}/enhance/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
 
       const jobId = startData.prediction_id;
       let elapsed = 0;
@@ -2309,6 +2332,7 @@
       const startRes = await fetch(`${API}/video/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
 
       const jobId = startData.prediction_id;
       let elapsed = 0;
@@ -2576,6 +2600,7 @@
       const startRes = await fetch(`${API}/floorplan/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
 
       const jobId = startData.prediction_id;
       let elapsed = 0;
