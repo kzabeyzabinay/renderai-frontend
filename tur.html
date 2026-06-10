@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanal Tur — RenderAI</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI', system-ui, sans-serif; background:#1A1A16; color:#FAFAF8; height:100vh; overflow:hidden; }
+    #viewer { width:100vw; height:100vh; }
+    .topbar {
+      position:fixed; top:0; left:0; right:0; z-index:50;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 22px; background:linear-gradient(rgba(26,26,22,0.85), transparent);
+      pointer-events:none;
+    }
+    .topbar > * { pointer-events:auto; }
+    .brand { font-size:15px; font-weight:700; letter-spacing:0.5px; color:#FAFAF8; text-decoration:none; }
+    .brand span { color:#C89B8C; }
+    .title { font-size:13px; color:#D8D2C8; }
+    .scenes {
+      position:fixed; bottom:18px; left:50%; transform:translateX(-50%); z-index:50;
+      display:flex; gap:8px; flex-wrap:wrap; justify-content:center; max-width:92vw;
+    }
+    .scene-btn {
+      padding:9px 18px; border:1px solid rgba(250,250,248,0.25); border-radius:24px;
+      background:rgba(26,26,22,0.65); color:#FAFAF8; font-size:13px; cursor:pointer;
+      backdrop-filter:blur(6px); transition:all 0.2s;
+    }
+    .scene-btn:hover { background:rgba(154,101,88,0.7); }
+    .scene-btn.active { background:#9A6558; border-color:#9A6558; }
+    .center-msg {
+      position:fixed; inset:0; display:flex; flex-direction:column; align-items:center;
+      justify-content:center; gap:14px; text-align:center; padding:24px; z-index:60; background:#1A1A16;
+    }
+    .center-msg .icon { font-size:48px; }
+    .center-msg h2 { font-size:20px; font-weight:600; }
+    .center-msg p { font-size:14px; color:#ABA49C; max-width:420px; line-height:1.6; }
+    .center-msg a {
+      margin-top:8px; padding:12px 28px; background:#9A6558; color:#FAFAF8;
+      border-radius:10px; text-decoration:none; font-size:14px; font-weight:600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="/">Render<span>AI</span></a>
+  <div class="title" id="tourTitle"></div>
+</div>
+
+<div id="viewer"></div>
+<div class="scenes" id="sceneBtns"></div>
+
+<div class="center-msg" id="msgBox">
+  <div class="icon">🌐</div>
+  <h2 id="msgTitle">Tur yükleniyor...</h2>
+  <p id="msgText"></p>
+</div>
+
+<script>
+  const API = 'https://web-production-8c34d.up.railway.app';
+  const tourId = new URLSearchParams(location.search).get('id');
+
+  function showMsg(icon, title, text, withHome) {
+    document.getElementById('msgBox').style.display = 'flex';
+    document.querySelector('#msgBox .icon').textContent = icon;
+    document.getElementById('msgTitle').textContent = title;
+    document.getElementById('msgText').innerHTML = text;
+    if (withHome) {
+      const a = document.createElement('a');
+      a.href = '/';
+      a.textContent = 'RenderAI ile kendi turunu oluştur';
+      document.getElementById('msgBox').appendChild(a);
+    }
+  }
+
+  async function loadTour() {
+    if (!tourId) { showMsg('❓', 'Tur bulunamadı', 'Link eksik veya hatalı görünüyor.', true); return; }
+    try {
+      const res = await fetch(`${API}/tours/${tourId}`);
+      if (!res.ok) { showMsg('❓', 'Tur bulunamadı', 'Bu link geçersiz veya tur silinmiş olabilir.', true); return; }
+      const tour = await res.json();
+
+      if (tour.expired) {
+        showMsg('⏳', 'Bu turun süresi doldu',
+          'Turun yayın süresi sona ermiş. Tur sahibiyseniz RenderAI hesabınızdan yenileyebilirsiniz.', true);
+        return;
+      }
+
+      const panos = tour.panoramas || [];
+      if (!panos.length) { showMsg('❓', 'Tur boş', 'Bu turda henüz panorama yok.', true); return; }
+
+      document.getElementById('tourTitle').textContent = tour.title || '';
+      document.getElementById('msgBox').style.display = 'none';
+
+      const scenes = {};
+      panos.forEach((p, i) => {
+        scenes['s' + i] = { type: 'equirectangular', panorama: p.url, autoLoad: true };
+      });
+
+      const v = pannellum.viewer('viewer', {
+        default: { firstScene: 's0', autoLoad: true, autoRotate: -3, sceneFadeDuration: 800 },
+        scenes
+      });
+
+      if (panos.length > 1) {
+        const wrap = document.getElementById('sceneBtns');
+        panos.forEach((p, i) => {
+          const b = document.createElement('button');
+          b.className = 'scene-btn' + (i === 0 ? ' active' : '');
+          b.textContent = p.label || ('Sahne ' + (i + 1));
+          b.onclick = () => {
+            v.loadScene('s' + i);
+            document.querySelectorAll('.scene-btn').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+          };
+          wrap.appendChild(b);
+        });
+      }
+    } catch (e) {
+      showMsg('⚠️', 'Bağlantı hatası', 'Tur şu anda yüklenemiyor — birkaç saniye sonra sayfayı yenileyin.', false);
+    }
+  }
+
+  loadTour();
+</script>
+
+</body>
+</html>
