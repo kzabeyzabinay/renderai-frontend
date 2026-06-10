@@ -1435,6 +1435,37 @@
     <!-- Sol: Üretim -->
     <div>
       <div class="panel">
+        <h2>Panorama Kaynağı</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <button class="scale-btn active" id="panoSrc4wall" onclick="setPanoSource('4wall')">
+            <div style="font-size:14px; font-weight:700; color:#9A6558;">📷 4 Duvardan Oluştur</div>
+            <div style="font-size:11px; color:#8A7E74; margin-top:3px;">4 dik foto → AI birleştirir</div>
+          </button>
+          <button class="scale-btn" id="panoSrcReady" onclick="setPanoSource('ready')">
+            <div style="font-size:14px; font-weight:700; color:#7A8B6A;">🌐 Hazır 360 Yükle</div>
+            <div style="font-size:11px; color:#8A7E74; margin-top:3px;">Enscape vb. 360 render</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel" id="panoReadyPanel" style="display:none;">
+        <h2>Hazır 360 Panorama</h2>
+        <p style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
+          Enscape, Lumion vb. programdan aldığın <b>equirectangular 360</b> görseli yükle.
+          Direkt tura ekleyebilir ya da önce AI ile fotorealistik iyileştirebilirsin.</p>
+        <div class="upload-zone" style="padding:18px 12px;">
+          <input type="file" id="panoReadyInput" accept="image/*" />
+          <div style="font-size:24px;">🌐</div>
+          <p style="font-size:12px;">360 görseli seç / sürükle</p>
+        </div>
+        <img id="panoReadyPrev" class="preview-img" />
+        <label style="display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13px; color:#2A2520; cursor:pointer;">
+          <input type="checkbox" id="panoAiEnhance" style="width:16px; height:16px; accent-color:#9A6558;" />
+          ✨ AI ile fotorealistik iyileştir <span style="font-size:11px; color:#8A7E74;">(4 kredi — tasarım korunur, gerçekçilik artar)</span>
+        </label>
+      </div>
+
+      <div class="panel" id="pano4WallPanel">
         <h2>4 Duvar Görseli Yükle</h2>
         <p style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
           Odanın ortasında durup her duvara <b>dik bakarak</b> çekilmiş/render edilmiş 4 görsel yükle.
@@ -2113,6 +2144,40 @@
   let currentPanoUrl = null;
   let tourPanos = [];  // [{url, label}]
   const panoWalls = { front: null, right: null, back: null, left: null };
+  let panoSource = '4wall';
+  let panoReadyFile = null;
+
+  function setPanoSource(src) {
+    panoSource = src;
+    document.getElementById('panoSrc4wall').classList.toggle('active', src === '4wall');
+    document.getElementById('panoSrcReady').classList.toggle('active', src === 'ready');
+    document.getElementById('pano4WallPanel').style.display = src === '4wall' ? 'block' : 'none';
+    document.getElementById('panoReadyPanel').style.display = src === 'ready' ? 'block' : 'none';
+  }
+
+  document.getElementById('panoReadyInput').addEventListener('change', e => {
+    panoReadyFile = e.target.files[0] || null;
+    if (!panoReadyFile) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = document.getElementById('panoReadyPrev');
+      img.src = ev.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(panoReadyFile);
+  });
+
+  function showPanoResult(url) {
+    document.getElementById('panoLoading').style.display = 'none';
+    currentPanoUrl = url;
+    document.getElementById('panoDownloadBtn').href = url;
+    document.getElementById('panoViewerWrap').style.display = 'block';
+    if (panoViewerInstance) panoViewerInstance.destroy();
+    panoViewerInstance = pannellum.viewer('panoViewer', {
+      type: 'equirectangular', panorama: url,
+      autoLoad: true, autoRotate: -3
+    });
+  }
 
   [['panoFront','front','panoFrontPrev'], ['panoRight','right','panoRightPrev'],
    ['panoBack','back','panoBackPrev'], ['panoLeft','left','panoLeftPrev']].forEach(([inputId, key, prevId]) => {
@@ -2132,12 +2197,20 @@
   async function startPano() {
     const errEl = document.getElementById('panoError');
     errEl.style.display = 'none';
-    const missing = ['front','right','back','left'].filter(k => !panoWalls[k]);
-    if (missing.length) {
-      const tr = { front:'Ön', right:'Sağ', back:'Arka', left:'Sol' };
-      errEl.textContent = 'Hata: Eksik duvar görseli — ' + missing.map(k => tr[k]).join(', ');
-      errEl.style.display = 'block';
-      return;
+    if (panoSource === 'ready') {
+      if (!panoReadyFile) {
+        errEl.textContent = 'Hata: Önce 360 görselini yükle.';
+        errEl.style.display = 'block';
+        return;
+      }
+    } else {
+      const missing = ['front','right','back','left'].filter(k => !panoWalls[k]);
+      if (missing.length) {
+        const tr = { front:'Ön', right:'Sağ', back:'Arka', left:'Sol' };
+        errEl.textContent = 'Hata: Eksik duvar görseli — ' + missing.map(k => tr[k]).join(', ');
+        errEl.style.display = 'block';
+        return;
+      }
     }
 
     const btn = document.getElementById('panoBtn');
@@ -2148,12 +2221,30 @@
 
     try {
       const formData = new FormData();
-      for (const k of ['front','right','back','left']) {
-        formData.append(k, await resizeIfNeeded(panoWalls[k]));
+      let endpoint;
+      if (panoSource === 'ready') {
+        const aiEnhance = document.getElementById('panoAiEnhance').checked;
+        formData.append('image', await resizeIfNeeded(panoReadyFile, 4096));
+        if (!aiEnhance) {
+          // AI yok — direkt Storage'a yükle, anında sonuç
+          const upRes = await fetch(`${API}/pano/upload`, { method: 'POST', headers: authHeaders(), body: formData });
+          const upData = await upRes.json();
+          if (!upRes.ok) throw new Error(upData.detail || 'Yükleme başarısız');
+          showPanoResult(upData.url);
+          btn.disabled = false;
+          return;
+        }
+        formData.append('note', document.getElementById('panoNote').value.trim());
+        endpoint = '/pano/restyle';
+      } else {
+        for (const k of ['front','right','back','left']) {
+          formData.append(k, await resizeIfNeeded(panoWalls[k]));
+        }
+        formData.append('note', document.getElementById('panoNote').value.trim());
+        endpoint = '/pano/start';
       }
-      formData.append('note', document.getElementById('panoNote').value.trim());
 
-      const startRes = await fetch(`${API}/pano/start`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startRes = await fetch(`${API}${endpoint}`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
       refreshCredits();
@@ -2169,15 +2260,7 @@
             statusData.stage_label + '<br><span style="font-size:12px; color:#ABA49C;">360° sentez</span>';
         }
         if (statusData.status === 'succeeded') {
-          document.getElementById('panoLoading').style.display = 'none';
-          currentPanoUrl = statusData.render_url;
-          document.getElementById('panoDownloadBtn').href = currentPanoUrl;
-          document.getElementById('panoViewerWrap').style.display = 'block';
-          if (panoViewerInstance) panoViewerInstance.destroy();
-          panoViewerInstance = pannellum.viewer('panoViewer', {
-            type: 'equirectangular', panorama: currentPanoUrl,
-            autoLoad: true, autoRotate: -3
-          });
+          showPanoResult(statusData.render_url);
           break;
         }
         if (statusData.status === 'failed') {
