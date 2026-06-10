@@ -555,6 +555,8 @@
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
   <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
@@ -566,7 +568,7 @@
     <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')">✨ Geliştir</button>
     <button class="main-nav-btn" id="nav-video" onclick="switchMainSection('video')">🎬 Video</button>
     <button class="main-nav-btn" id="nav-floorplan" onclick="switchMainSection('floorplan')">📐 Kat Planı</button>
-    <button class="main-nav-btn" id="nav-place" onclick="switchMainSection('place')">🧩 Yerleştir</button>
+    <button class="main-nav-btn" id="nav-place" onclick="switchMainSection('place')">🧩 Yerleştir <span style="font-size:11px;opacity:0.8;">· 4 kredi</span></button>
     <button class="main-nav-btn" id="nav-pano" onclick="switchMainSection('pano')">🌐 360 Tur</button>
     <button class="main-nav-btn" id="nav-works" onclick="switchMainSection('works')">🗂️ İşlerim</button>
   </div>
@@ -756,7 +758,7 @@
       </div>
 
       <div id="selectedChipsInterior" style="min-height:28px; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
-      <button class="render-btn" id="renderBtnInterior" onclick="startRender()" style="margin-top:16px;">✨ Render Oluştur</button>
+      <button class="render-btn" id="renderBtnInterior" onclick="startRender()" style="margin-top:16px;">✨ Render Oluştur <span style="font-size:11px;opacity:0.8;">· 1 kredi</span></button>
       <div class="error-msg" id="errorMsgInterior"></div>
     </div>
 
@@ -899,7 +901,7 @@
       <!-- Seçili etiketler -->
       <div id="selectedChips" style="min-height:28px; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
 
-      <button class="render-btn" id="renderBtn" onclick="startRender()" style="margin-top:16px;">✨ Render Oluştur</button>
+      <button class="render-btn" id="renderBtn" onclick="startRender()" style="margin-top:16px;">✨ Render Oluştur <span style="font-size:11px;opacity:0.8;">· 1 kredi</span></button>
       <div class="error-msg" id="errorMsg"></div>
     </div>
   </div>
@@ -962,7 +964,7 @@
           <b style="color:#f59e0b;">8K</b> — GPT malzeme analizi → gerçekçi doku sentezi → 4x çözünürlük
         </div>
 
-        <button class="render-btn" id="upscaleBtn" onclick="startUpscale()">🔍 Büyüt & Geliştir</button>
+        <button class="render-btn" id="upscaleBtn" onclick="startUpscale()">🔍 Büyüt & Geliştir <span style="font-size:11px;opacity:0.8;">· 2K: 1 / 4K-8K: 2 kredi</span></button>
         <div class="error-msg" id="upscaleError"></div>
       </div>
     </div>
@@ -1041,7 +1043,7 @@
 
         </div>
 
-        <button class="render-btn" id="enhanceBtn" onclick="startEnhance()">✨ Uygula</button>
+        <button class="render-btn" id="enhanceBtn" onclick="startEnhance()">✨ Uygula <span style="font-size:11px;opacity:0.8;">· 1 kredi</span></button>
         <div class="error-msg" id="enhanceError"></div>
       </div>
     </div>
@@ -1129,7 +1131,7 @@
           </button>
         </div>
 
-        <button class="render-btn" id="videoBtn" onclick="startVideo()">🎬 Video Oluştur (~60-90 sn)</button>
+        <button class="render-btn" id="videoBtn" onclick="startVideo()">🎬 Video Oluştur <span style="font-size:11px;opacity:0.8;">· 8 kredi · ~60-90 sn</span></button>
         <div class="error-msg" id="videoError"></div>
       </div>
     </div>
@@ -1336,7 +1338,7 @@
 
         </div><!-- /fpFloorOpts -->
 
-        <button class="render-btn" id="fpBtn" onclick="startFloorplan()">📐 Plan Renklendir</button>
+        <button class="render-btn" id="fpBtn" onclick="startFloorplan()">📐 Plan Renklendir <span style="font-size:11px;opacity:0.8;">· 4 kredi</span></button>
         <div class="error-msg" id="fpError"></div>
       </div>
     </div>
@@ -1388,6 +1390,7 @@
           <p><strong id="placeSceneHint">Render veya oda fotoğrafı seçin</strong> veya sürükleyin</p>
         </div>
         <img id="placeScenePreview" class="preview-img" />
+        <div id="placeSceneExtraPrevs" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;"></div>
       </div>
 
       <div class="panel">
@@ -1400,11 +1403,19 @@
         <img id="placeItemPreview" class="preview-img" />
       </div>
 
+      <div class="panel" id="placeMapPanel" style="display:none;">
+        <h2>Konum İşaretle <span style="font-size:11px; color:#8A7E74; font-weight:400;">(isteğe bağlı)</span></h2>
+        <p style="font-size:12px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">
+          Arsanın yerini haritada tıklayarak işaretle — bölge bilgisi AI'a çevre bağlamı olarak iletilir.</p>
+        <div id="placeMap" style="width:100%; height:220px; border-radius:10px; border:1px solid #D8D2C8;"></div>
+        <div id="placeMapInfo" style="font-size:12px; color:#7A8B6A; margin-top:8px; display:none;"></div>
+      </div>
+
       <div class="panel">
         <h2>İsteğe Bağlı Talimat</h2>
         <input type="text" id="placeNote" placeholder="örn: yataktaki örtüyü de değiştir / binayı arsanın soluna yerleştir"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:16px;" />
-        <button class="render-btn" id="placeBtn" onclick="startPlace()">🧩 Yerleştir</button>
+        <button class="render-btn" id="placeBtn" onclick="startPlace()">🧩 Yerleştir <span style="font-size:11px;opacity:0.8;">· 4 kredi</span></button>
         <div class="error-msg" id="placeError"></div>
       </div>
     </div>
@@ -1452,7 +1463,7 @@
         <h2>Hazır 360 Panorama</h2>
         <p style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
           Enscape, Lumion vb. programdan aldığın <b>equirectangular 360</b> görseli yükle.
-          Tura eklenmek üzere yayına alınır <b>(15 kredi)</b> — istersen önce AI ile iyileştir.</p>
+          yükleme ücretsiz, tur linki oluşturma 15 kredi. İstersen önce AI ile iyileştir.</p>
         <div class="upload-zone" style="padding:18px 12px;">
           <input type="file" id="panoReadyInput" accept="image/*" />
           <div style="font-size:24px;">🌐</div>
@@ -1461,7 +1472,7 @@
         <img id="panoReadyPrev" class="preview-img" />
         <label style="display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13px; color:#2A2520; cursor:pointer;">
           <input type="checkbox" id="panoAiEnhance" style="width:16px; height:16px; accent-color:#9A6558;" />
-          ✨ AI ile fotorealistik iyileştir <span style="font-size:11px; color:#8A7E74;">(tasarım korunur, gerçekçilik artar)</span>
+          ✨ AI ile fotorealistik iyileştir <span style="font-size:11px; color:#8A7E74;">(4 kredi — tasarım korunur, gerçekçilik artar)</span>
         </label>
       </div>
 
@@ -1516,7 +1527,7 @@
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:12px;" />
         <input type="text" id="panoLabel" placeholder="Oda adı (turda görünür): örn. Salon"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:16px;" />
-        <button class="render-btn" id="panoBtn" onclick="startPano()">🌐 360° Panorama Oluştur</button>
+        <button class="render-btn" id="panoBtn" onclick="startPano()">🌐 360° Panorama Oluştur <span id="panoBtnCost" style="font-size:11px;opacity:0.8;">· 4 kredi</span></button>
         <div class="error-msg" id="panoError"></div>
       </div>
 
@@ -1525,7 +1536,7 @@
         <div id="tourPanoList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
         <input type="text" id="tourTitle" placeholder="Tur başlığı: örn. Villa Projesi"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
-        <button class="render-btn" onclick="createTour()">🔗 Tur Linki Oluştur</button>
+        <button class="render-btn" onclick="createTour()">🔗 Tur Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
         <div style="font-size:11px; color:#8A7E74; margin-top:8px;">Link 30 gün ücretsiz yayında kalır, sonrasında kredi ile yenilenir.</div>
         <div class="error-msg" id="tourError"></div>
         <div id="tourLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
@@ -2037,8 +2048,11 @@
 
   // ─── YERLEŞTİR ───────────────────────────────────────────────────────────
   let placeMode = 'product';
-  let placeSceneFile = null;
+  let placeSceneFiles = [];   // montajda coklu aci destegi
   let placeItemFile = null;
+  let placeMapObj = null;
+  let placeMapMarker = null;
+  let placeLocationText = '';
 
   function setPlaceMode(mode) {
     placeMode = mode;
@@ -2052,18 +2066,62 @@
     document.getElementById('placeNote').placeholder = isProduct
       ? 'örn: yatağı bu ürünle değiştir, halıya dokunma'
       : 'örn: binayı arsanın soluna yerleştir, ağaçları koru';
+    // Montajda cevreden birden fazla aci yuklenebilir
+    document.getElementById('placeSceneInput').multiple = !isProduct;
+    document.getElementById('placeSceneHint').textContent = isProduct
+      ? 'Render veya oda fotoğrafı seçin'
+      : 'Arsanın/caddenin fotoğrafları — birden fazla açı seçebilirsin (ilki ana açı)';
+    document.getElementById('placeMapPanel').style.display = isProduct ? 'none' : 'block';
+    if (!isProduct && !placeMapObj) initPlaceMap();
+  }
+
+  function initPlaceMap() {
+    placeMapObj = L.map('placeMap').setView([39.0, 35.0], 5); // Türkiye merkez
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(placeMapObj);
+    placeMapObj.on('click', async e => {
+      if (placeMapMarker) placeMapMarker.remove();
+      placeMapMarker = L.marker(e.latlng).addTo(placeMapObj);
+      const info = document.getElementById('placeMapInfo');
+      info.style.display = 'block';
+      info.textContent = '📍 Konum işaretlendi — bölge bilgisi alınıyor...';
+      placeLocationText = `coordinates ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+      try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${e.latlng.lat}&lon=${e.latlng.lng}&format=json&accept-language=tr`);
+        const d = await r.json();
+        if (d.display_name) {
+          placeLocationText = d.display_name;
+          info.textContent = '📍 ' + d.display_name;
+        }
+      } catch (_) {
+        info.textContent = '📍 Konum işaretlendi';
+      }
+    });
+    setTimeout(() => placeMapObj.invalidateSize(), 300);
   }
 
   document.getElementById('placeSceneInput').addEventListener('change', e => {
-    placeSceneFile = e.target.files[0];
-    if (!placeSceneFile) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const img = document.getElementById('placeScenePreview');
-      img.src = ev.target.result;
-      img.style.display = 'block';
-    };
-    reader.readAsDataURL(placeSceneFile);
+    placeSceneFiles = Array.from(e.target.files).slice(0, 6); // ana + 5 ek aci
+    const extraWrap = document.getElementById('placeSceneExtraPrevs');
+    extraWrap.innerHTML = '';
+    if (!placeSceneFiles.length) return;
+    placeSceneFiles.forEach((f, i) => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        if (i === 0) {
+          const img = document.getElementById('placeScenePreview');
+          img.src = ev.target.result;
+          img.style.display = 'block';
+        } else {
+          const t = document.createElement('img');
+          t.src = ev.target.result;
+          t.style.cssText = 'width:64px; height:44px; object-fit:cover; border-radius:6px; border:1px solid #D8D2C8;';
+          extraWrap.appendChild(t);
+        }
+      };
+      reader.readAsDataURL(f);
+    });
   });
 
   document.getElementById('placeItemInput').addEventListener('change', e => {
@@ -2081,7 +2139,7 @@
   async function startPlace() {
     const errEl = document.getElementById('placeError');
     errEl.style.display = 'none';
-    if (!placeSceneFile || !placeItemFile) {
+    if (!placeSceneFiles.length || !placeItemFile) {
       errEl.textContent = 'Hata: İki görsel de gerekli — sahne ve yerleştirilecek öğe.';
       errEl.style.display = 'block';
       return;
@@ -2094,13 +2152,18 @@
     document.getElementById('placeLoading').style.display = 'flex';
 
     try {
-      const sceneResized = await resizeIfNeeded(placeSceneFile);
-      const itemResized = await resizeIfNeeded(placeItemFile);
       const formData = new FormData();
-      formData.append('image', sceneResized);
-      formData.append('item', itemResized);
+      formData.append('image', await resizeIfNeeded(placeSceneFiles[0]));
+      for (const f of placeSceneFiles.slice(1)) {
+        formData.append('extras', await resizeIfNeeded(f));
+      }
+      formData.append('item', await resizeIfNeeded(placeItemFile));
       formData.append('mode', placeMode);
-      formData.append('note', document.getElementById('placeNote').value.trim());
+      let noteVal = document.getElementById('placeNote').value.trim();
+      if (placeMode === 'montage' && placeLocationText) {
+        noteVal += (noteVal ? ' ' : '') + `Site location context: ${placeLocationText}.`;
+      }
+      formData.append('note', noteVal);
 
       const startRes = await fetch(`${API}/place/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
@@ -2153,7 +2216,19 @@
     document.getElementById('panoSrcReady').classList.toggle('active', src === 'ready');
     document.getElementById('pano4WallPanel').style.display = src === '4wall' ? 'block' : 'none';
     document.getElementById('panoReadyPanel').style.display = src === 'ready' ? 'block' : 'none';
+    updatePanoBtnCost();
   }
+
+  function updatePanoBtnCost() {
+    const el = document.getElementById('panoBtnCost');
+    if (!el) return;
+    if (panoSource === 'ready' && !document.getElementById('panoAiEnhance').checked) {
+      el.textContent = '· ücretsiz (tur: 15 kredi)';
+    } else {
+      el.textContent = '· 4 kredi';
+    }
+  }
+  document.getElementById('panoAiEnhance').addEventListener('change', updatePanoBtnCost);
 
   document.getElementById('panoReadyInput').addEventListener('change', e => {
     panoReadyFile = e.target.files[0] || null;
