@@ -1490,6 +1490,34 @@
     });
   });
 
+  // ─── Görsel boyutlandırma (sunucuya göndermeden önce) ───────────────────────
+  async function resizeIfNeeded(file, maxDim = 2048) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const { width, height } = img;
+        URL.revokeObjectURL(img.src);
+        if (width <= maxDim && height <= maxDim) {
+          resolve(file); // Zaten küçük, dokunma
+          return;
+        }
+        const scale = Math.min(maxDim / width, maxDim / height);
+        const canvas = document.createElement('canvas');
+        canvas.width  = Math.round(width  * scale);
+        canvas.height = Math.round(height * scale);
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => {
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+        }, 'image/jpeg', 0.92);
+      };
+      img.onerror = () => resolve(file); // Hata olursa orijinali gönder
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
   // Görsel yükleme
   document.getElementById('fileInput').addEventListener('change', e => {
     selectedFile = e.target.files[0];
@@ -1537,8 +1565,9 @@
     const customText = (document.getElementById('customPrompt')?.value || '').trim();
     const combinedPrompt = [presetPrompt, customText].filter(Boolean).join(', ');
 
+    const imageToSend = await resizeIfNeeded(selectedFile);
     const formData = new FormData();
-    formData.append('image', selectedFile);
+    formData.append('image', imageToSend);
     formData.append('style', selectedStyle);
     formData.append('render_type', renderType);
     formData.append('room_type', selectedRoom);
@@ -1670,7 +1699,8 @@
     document.getElementById('upscaleError').style.display = 'none';
 
     const formData = new FormData();
-    formData.append('image', upscaleFile);
+    const upscaleToSend = await resizeIfNeeded(upscaleFile);
+    formData.append('image', upscaleToSend);
     formData.append('scale', selectedScale);
 
     try {
@@ -1828,7 +1858,8 @@
       'Mevsimler hazırlanıyor...<br><span style="font-size:12px;color:#ABA49C;">GPT + AI animasyon (4 mevsim × ~2 dk)</span>';
 
     const formData = new FormData();
-    formData.append('image', seasonsFile);
+    const seasonsToSend = await resizeIfNeeded(seasonsFile);
+    formData.append('image', seasonsToSend);
 
     try {
       const startRes = await fetch(`${API}/seasons/start`, { method: 'POST', body: formData });
@@ -1929,7 +1960,8 @@
     document.getElementById('enhanceError').style.display = 'none';
 
     const formData = new FormData();
-    formData.append('image', enhanceFile);
+    const enhanceToSend = await resizeIfNeeded(enhanceFile);
+    formData.append('image', enhanceToSend);
     formData.append('enhance_type', selectedEnhanceType);
 
     try {
@@ -2037,7 +2069,8 @@
     document.getElementById('videoError').style.display = 'none';
 
     const formData = new FormData();
-    formData.append('images', videoFiles[0]);
+    const videoToSend = await resizeIfNeeded(videoFiles[0]);
+    formData.append('images', videoToSend);
     formData.append('season', selectedVideoSeason);
     formData.append('time_of_day', selectedVideoTime);
 
@@ -2299,7 +2332,8 @@
     document.getElementById('fpError').style.display = 'none';
 
     const formData = new FormData();
-    formData.append('image', fpFile);
+    const fpToSend = await resizeIfNeeded(fpFile);
+    formData.append('image', fpToSend);
     formData.append('style', selectedFpStyle);
     formData.append('wall_color', selectedFpWall);
     formData.append('remove_text', fpRemoveText);
