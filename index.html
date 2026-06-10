@@ -564,6 +564,7 @@
     <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')">✨ Geliştir</button>
     <button class="main-nav-btn" id="nav-video" onclick="switchMainSection('video')">🎬 Video</button>
     <button class="main-nav-btn" id="nav-floorplan" onclick="switchMainSection('floorplan')">📐 Kat Planı</button>
+    <button class="main-nav-btn" id="nav-place" onclick="switchMainSection('place')">🧩 Yerleştir</button>
     <button class="main-nav-btn" id="nav-works" onclick="switchMainSection('works')">🗂️ İşlerim</button>
   </div>
   <div style="display:flex; gap:10px; align-items:center;">
@@ -1356,6 +1357,74 @@
   </div>
 </div>
 
+<!-- ─── YERLEŞTİR (Ürün + Dijital İkiz Montaj) ──────────────────────────── -->
+<div id="section-place" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+
+    <!-- Sol: Ayarlar -->
+    <div>
+      <div class="panel">
+        <h2>Mod Seçin</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:6px;">
+          <button class="scale-btn active" id="placeModeProduct" onclick="setPlaceMode('product')">
+            <div style="font-size:15px; font-weight:700; color:#9A6558;">🛋️ Ürün Yerleştir</div>
+            <div style="font-size:11px; color:#8A7E74; margin-top:3px;">Mobilya/ürünü iç mekana koy</div>
+          </button>
+          <button class="scale-btn" id="placeModeMontage" onclick="setPlaceMode('montage')">
+            <div style="font-size:15px; font-weight:700; color:#7A8B6A;">🏗️ Dijital İkiz</div>
+            <div style="font-size:11px; color:#8A7E74; margin-top:3px;">Projeyi gerçek ortama monte et</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 id="placeSceneTitle">1 — İç Mekan Görseli</h2>
+        <div class="upload-zone" id="placeSceneZone">
+          <input type="file" id="placeSceneInput" accept="image/*" />
+          <div class="upload-icon">🖼️</div>
+          <p><strong id="placeSceneHint">Render veya oda fotoğrafı seçin</strong> veya sürükleyin</p>
+        </div>
+        <img id="placeScenePreview" class="preview-img" />
+      </div>
+
+      <div class="panel">
+        <h2 id="placeItemTitle">2 — Yerleştirilecek Ürün</h2>
+        <div class="upload-zone" id="placeItemZone">
+          <input type="file" id="placeItemInput" accept="image/*" />
+          <div class="upload-icon">📦</div>
+          <p><strong id="placeItemHint">Ürün fotoğrafı seçin</strong> veya sürükleyin</p>
+        </div>
+        <img id="placeItemPreview" class="preview-img" />
+      </div>
+
+      <div class="panel">
+        <h2>İsteğe Bağlı Talimat</h2>
+        <input type="text" id="placeNote" placeholder="örn: yataktaki örtüyü de değiştir / binayı arsanın soluna yerleştir"
+          style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:16px;" />
+        <button class="render-btn" id="placeBtn" onclick="startPlace()">🧩 Yerleştir</button>
+        <div class="error-msg" id="placeError"></div>
+      </div>
+    </div>
+
+    <!-- Sağ: Sonuç -->
+    <div class="panel result-panel">
+      <div class="result-placeholder" id="placePlaceholder">
+        <div class="icon">🧩</div>
+        <p>Entegre edilmiş görsel burada görünecek</p>
+      </div>
+      <div class="loading" id="placeLoading" style="display:none;">
+        <div class="spinner"></div>
+        <p>AI yerleştiriyor...<br><span style="font-size:12px; color:#ABA49C;">Perspektif, ışık ve gölgeler eşleştiriliyor (~30-60 sn)</span></p>
+      </div>
+      <div id="placeResultContainer" style="display:none; width:100%; text-align:center;">
+        <img id="placeResultImg" class="result-img" style="display:block; max-width:100%;" />
+        <a id="placeDownloadBtn" class="download-btn" download="renderai_place.png" style="margin-top:12px;">⬇ İndir (PNG)</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ─── İŞLERİM ──────────────────────────────────────────────────────────── -->
 <div id="section-works" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div style="display:flex; align-items:center; justify-content:space-between; margin:28px 0 20px;">
@@ -1372,6 +1441,7 @@
       <option value="enhance">Geliştir</option>
       <option value="video">Video</option>
       <option value="floorplan">Kat Planı</option>
+      <option value="place">Yerleştirme</option>
     </select>
   </div>
 
@@ -1819,11 +1889,116 @@
     document.getElementById('section-enhance').style.display   = section === 'enhance'   ? 'block' : 'none';
     document.getElementById('section-video').style.display     = section === 'video'     ? 'block' : 'none';
     document.getElementById('section-floorplan').style.display = section === 'floorplan' ? 'block' : 'none';
+    document.getElementById('section-place').style.display     = section === 'place'     ? 'block' : 'none';
     document.getElementById('section-works').style.display     = section === 'works'     ? 'block' : 'none';
-    ['render','upscale','enhance','video','floorplan','works'].forEach(s =>
+    ['render','upscale','enhance','video','floorplan','place','works'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
     if (section === 'works') loadWorks(true);
+  }
+
+  // ─── YERLEŞTİR ───────────────────────────────────────────────────────────
+  let placeMode = 'product';
+  let placeSceneFile = null;
+  let placeItemFile = null;
+
+  function setPlaceMode(mode) {
+    placeMode = mode;
+    document.getElementById('placeModeProduct').classList.toggle('active', mode === 'product');
+    document.getElementById('placeModeMontage').classList.toggle('active', mode === 'montage');
+    const isProduct = mode === 'product';
+    document.getElementById('placeSceneTitle').textContent = isProduct ? '1 — İç Mekan Görseli' : '1 — Arsa / Ortam Fotoğrafı';
+    document.getElementById('placeSceneHint').textContent  = isProduct ? 'Render veya oda fotoğrafı seçin' : 'Arsanın/caddenin gerçek fotoğrafını seçin';
+    document.getElementById('placeItemTitle').textContent  = isProduct ? '2 — Yerleştirilecek Ürün' : '2 — Proje Görseli';
+    document.getElementById('placeItemHint').textContent   = isProduct ? 'Ürün fotoğrafı seçin' : 'Projenin render/cephe görselini seçin';
+    document.getElementById('placeNote').placeholder = isProduct
+      ? 'örn: yatağı bu ürünle değiştir, halıya dokunma'
+      : 'örn: binayı arsanın soluna yerleştir, ağaçları koru';
+  }
+
+  document.getElementById('placeSceneInput').addEventListener('change', e => {
+    placeSceneFile = e.target.files[0];
+    if (!placeSceneFile) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = document.getElementById('placeScenePreview');
+      img.src = ev.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(placeSceneFile);
+  });
+
+  document.getElementById('placeItemInput').addEventListener('change', e => {
+    placeItemFile = e.target.files[0];
+    if (!placeItemFile) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = document.getElementById('placeItemPreview');
+      img.src = ev.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(placeItemFile);
+  });
+
+  async function startPlace() {
+    const errEl = document.getElementById('placeError');
+    errEl.style.display = 'none';
+    if (!placeSceneFile || !placeItemFile) {
+      errEl.textContent = 'Hata: İki görsel de gerekli — sahne ve yerleştirilecek öğe.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const btn = document.getElementById('placeBtn');
+    btn.disabled = true;
+    document.getElementById('placePlaceholder').style.display = 'none';
+    document.getElementById('placeResultContainer').style.display = 'none';
+    document.getElementById('placeLoading').style.display = 'flex';
+
+    try {
+      const sceneResized = await resizeIfNeeded(placeSceneFile);
+      const itemResized = await resizeIfNeeded(placeItemFile);
+      const formData = new FormData();
+      formData.append('image', sceneResized);
+      formData.append('item', itemResized);
+      formData.append('mode', placeMode);
+      formData.append('note', document.getElementById('placeNote').value.trim());
+
+      const startRes = await fetch(`${API}/place/start`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
+
+      const jobId = startData.prediction_id;
+      while (true) {
+        await new Promise(r => setTimeout(r, 2500));
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+
+        if (statusData.stage_label) {
+          document.querySelector('#placeLoading p').innerHTML =
+            statusData.stage_label + '<br><span style="font-size:12px; color:#ABA49C;">Perspektif ve ışık eşleştiriliyor</span>';
+        }
+        if (statusData.status === 'succeeded') {
+          document.getElementById('placeLoading').style.display = 'none';
+          const img = document.getElementById('placeResultImg');
+          img.src = statusData.render_url;
+          document.getElementById('placeDownloadBtn').href = statusData.render_url;
+          document.getElementById('placeResultContainer').style.display = 'block';
+          break;
+        }
+        if (statusData.status === 'failed') {
+          throw new Error(statusData.error || 'Yerleştirme başarısız');
+        }
+      }
+    } catch (e) {
+      document.getElementById('placeLoading').style.display = 'none';
+      document.getElementById('placePlaceholder').style.display = 'flex';
+      errEl.textContent = 'Hata: ' + e.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   // ─── İŞLERİM ─────────────────────────────────────────────────────────────
@@ -1832,7 +2007,8 @@
 
   const WORKS_LABELS = {
     gpt: '🏢 Render', exterior: '🏗️ Dış Cephe', upscale: '🔍 Büyüt',
-    enhance: '✨ Geliştir', video: '🎬 Video', floorplan: '📐 Kat Planı'
+    enhance: '✨ Geliştir', video: '🎬 Video', floorplan: '📐 Kat Planı',
+    place: '🧩 Yerleştirme'
   };
 
   async function loadWorks(reset) {
