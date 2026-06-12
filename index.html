@@ -1409,6 +1409,13 @@
         <p style="font-size:12px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">
           Tek tıkla konum işaretle, ya da <b>Parsel Çiz</b>'i açıp arsanın köşelerine tıklayarak sınırı çiz.
           Parseli çizdikten sonra uydu görüntüsünü doğrudan sahne yapabilirsin — arsa fotoğrafı çekmene gerek kalmaz.</p>
+        <div style="display:flex; gap:8px; margin-bottom:8px;">
+          <input type="text" id="placeSearchInput" placeholder="Adres / mahalle / şehir ara..."
+            onkeydown="if(event.key==='Enter'){event.preventDefault();searchPlaceMap();}"
+            style="flex:1; box-sizing:border-box; padding:9px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:13px; color:#2A2520;" />
+          <button type="button" onclick="searchPlaceMap()"
+            style="padding:9px 14px; border:none; border-radius:8px; background:#9A6558; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer;">🔍 Ara</button>
+        </div>
         <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
           <button type="button" id="placeLayerBtn" onclick="togglePlaceLayer()"
             style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520; cursor:pointer;">🗺️ Haritaya Geç</button>
@@ -2120,9 +2127,14 @@
     placeOsmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap', maxZoom: 19
     });
-    placeSatLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: '© Esri', maxZoom: 19
-    });
+    // Uydu görünümü: görüntü + yol/sokak isimleri + yer adları (etiketler sadece haritada, AI sahnesine girmez)
+    placeSatLayer = L.layerGroup([
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '© Esri', maxZoom: 19
+      }),
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }),
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 })
+    ]);
     placeSatLayer.addTo(placeMapObj);
     placeMapObj.on('click', async e => {
       if (placeDrawOn) { addParcelPoint(e.latlng); return; }
@@ -2144,6 +2156,26 @@
       }
     });
     setTimeout(() => placeMapObj.invalidateSize(), 300);
+  }
+
+  async function searchPlaceMap() {
+    const q = document.getElementById('placeSearchInput').value.trim();
+    if (!q || !placeMapObj) return;
+    const info = document.getElementById('placeMapInfo');
+    info.style.display = 'block';
+    info.textContent = '🔍 Aranıyor...';
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1&accept-language=tr`);
+      const d = await r.json();
+      if (d.length) {
+        placeMapObj.setView([+d[0].lat, +d[0].lon], 17);
+        info.textContent = '📍 ' + d[0].display_name + ' — yakınlaş, sonra parseli çiz veya konumu tıkla.';
+      } else {
+        info.textContent = '⚠ Sonuç bulunamadı — "mahalle, ilçe, şehir" gibi daha açık yazmayı dene.';
+      }
+    } catch (_) {
+      info.textContent = '⚠ Arama şu an çalışmadı — birkaç saniye sonra tekrar dene.';
+    }
   }
 
   function togglePlaceLayer() {
