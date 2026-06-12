@@ -2093,7 +2093,7 @@
     document.getElementById('placeSceneTitle').textContent = isProduct ? '1 — İç Mekan Görseli' : '1 — Arsa / Ortam Fotoğrafı';
     document.getElementById('placeSceneHint').textContent  = isProduct ? 'Render veya oda fotoğrafı seçin' : 'Arsanın/caddenin gerçek fotoğrafını seçin';
     document.getElementById('placeItemTitle').textContent  = isProduct ? '2 — Yerleştirilecek Ürün' : '2 — Proje Görselleri';
-    document.getElementById('placeItemHint').textContent   = isProduct ? 'Ürün fotoğrafı seçin' : 'Projenin render/cephe görselleri — birden fazla açı seçebilirsin (ilki ana görsel)';
+    document.getElementById('placeItemHint').textContent   = isProduct ? 'Ürün fotoğrafı seçin' : 'Projenin render/cephe görselleri — tek tek ya da çoklu ekle (en fazla 6: 4 cephe + 2 kuşbakışı). Küçük resme tıkla → ana görsel olur, × ile kaldır';
     document.getElementById('placeNote').placeholder = isProduct
       ? 'örn: yatağı bu ürünle değiştir, halıya dokunma'
       : 'örn: binayı arsanın soluna yerleştir, ağaçları koru';
@@ -2303,40 +2303,66 @@
     });
   });
 
-  document.getElementById('placeItemInput').addEventListener('change', e => {
-    placeItemFiles = Array.from(e.target.files).slice(0, 5); // ana + 4 ek proje gorseli
+  function renderPlaceItemPrevs() {
     placeItemFile = placeItemFiles[0] || null;
+    const mainImg = document.getElementById('placeItemPreview');
     const extraWrap = document.getElementById('placeItemExtraPrevs');
     extraWrap.innerHTML = '';
-    if (!placeItemFile) return;
+    if (!placeItemFile) { mainImg.style.display = 'none'; return; }
     placeItemFiles.forEach((f, i) => {
       const reader = new FileReader();
       reader.onload = ev => {
         if (i === 0) {
-          const img = document.getElementById('placeItemPreview');
-          img.src = ev.target.result;
-          img.style.display = 'block';
+          mainImg.src = ev.target.result;
+          mainImg.style.display = 'block';
+          mainImg.title = 'Ana görsel (ön cephe) — bu açıdan montajlanır';
         } else {
+          const wrap = document.createElement('span');
+          wrap.style.cssText = 'position:relative; display:inline-block;';
           const t = document.createElement('img');
           t.src = ev.target.result;
-          t.style.cssText = 'width:64px; height:44px; object-fit:cover; border-radius:6px; border:1px solid #D8D2C8;';
-          extraWrap.appendChild(t);
+          t.title = 'Ana görsel yapmak için tıkla';
+          t.style.cssText = 'width:64px; height:44px; object-fit:cover; border-radius:6px; border:1px solid #D8D2C8; cursor:pointer;';
+          t.onclick = () => { placeItemFiles.unshift(placeItemFiles.splice(i, 1)[0]); renderPlaceItemPrevs(); };
+          const x = document.createElement('span');
+          x.textContent = '×';
+          x.title = 'Kaldır';
+          x.style.cssText = 'position:absolute; top:-6px; right:-6px; width:16px; height:16px; line-height:15px; text-align:center; background:#9A6558; color:#fff; border-radius:50%; font-size:12px; cursor:pointer;';
+          x.onclick = () => { placeItemFiles.splice(i, 1); renderPlaceItemPrevs(); };
+          wrap.appendChild(t); wrap.appendChild(x);
+          extraWrap.appendChild(wrap);
         }
       };
       reader.readAsDataURL(f);
     });
+  }
+
+  document.getElementById('placeItemInput').addEventListener('change', e => {
+    const secilenler = Array.from(e.target.files);
+    if (placeMode === 'montage') {
+      // Yeni secim oncekileri silmez, uzerine ekler — yukle/kapat/yukle ile sirayi kendin kur
+      placeItemFiles = placeItemFiles.concat(secilenler).slice(0, 6); // ana + 5 ek (4 cephe + 2 kusbakisi)
+    } else {
+      placeItemFiles = secilenler.slice(0, 1);
+    }
+    e.target.value = ''; // ayni dosya tekrar secilebilsin
+    renderPlaceItemPrevs();
   });
 
   async function startPlace() {
     const errEl = document.getElementById('placeError');
     errEl.style.display = 'none';
     // Montajda uydu sahnesi varsa ana sahne odur; yuklenen fotograflar ek aci olur
+    // Parsel cizilmis ama sahne yoksa uydu sahnesi otomatik uretilir — arsa fotografi zorunlu degil
+    if (placeMode === 'montage' && !placeSatSceneFile && !placeSceneFiles.length && placeParcelPts.length >= 3) {
+      await useSatelliteScene();
+    }
     const useSat = placeMode === 'montage' && placeSatSceneFile;
     let sceneList = placeSceneFiles;
     if (useSat) sceneList = [placeSatSceneFile, ...placeSceneFiles];
     if (!sceneList.length || !placeItemFile) {
       errEl.textContent = (placeMode === 'montage' && !sceneList.length)
-        ? 'Hata: Sahne gerekli — arsa fotoğrafı yükle ya da haritada parsel çizip "Uydu Görüntüsünü Sahne Yap" de.'
+        ? 'Hata: Sahne gerekli — haritada parseli çiz (uydu sahnesi otomatik kullanılır) ya da arsa fotoğrafı yükle.'
         : 'Hata: İki görsel de gerekli — sahne ve yerleştirilecek öğe.';
       errEl.style.display = 'block';
       return;
