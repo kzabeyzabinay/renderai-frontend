@@ -66,6 +66,29 @@
       0%, 100% { box-shadow:0 0 0 0 rgba(154,101,88,0.5); }
       50% { box-shadow:0 0 0 7px rgba(154,101,88,0); }
     }
+    /* sahne geçiş noktası — yuvarlak beyaz nokta */
+    .spot-dot {
+      width:18px; height:18px; border-radius:50%;
+      background:#FFFFFF; cursor:pointer;
+      animation:spotPulse 2s ease-in-out infinite;
+    }
+    @keyframes spotPulse {
+      0%, 100% { box-shadow:0 0 0 5px rgba(255,255,255,0.25), 0 2px 8px rgba(0,0,0,0.45); }
+      50% { box-shadow:0 0 0 11px rgba(255,255,255,0.10), 0 2px 8px rgba(0,0,0,0.45); }
+    }
+    /* telefon boyutları — tüm overlay'ler ekrana oranlı küçülür */
+    @media (max-width: 640px) {
+      .topbar { padding:10px 14px; }
+      .brand { font-size:13px; }
+      .title { font-size:11px; max-width:38vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .logo-badge { max-height:30px; max-width:100px; }
+      .scenes { bottom:12px; gap:6px; }
+      .scene-btn { padding:7px 13px; font-size:11px; }
+      .plan-mini { width:132px; bottom:62px; }
+      .spot-dot { width:14px; height:14px; }
+      .plan-dot { width:9px; height:9px; }
+      .plan-dot.active { width:12px; height:12px; }
+    }
   </style>
 </head>
 <body>
@@ -132,13 +155,19 @@
 
       const scenes = {};
       panos.forEach((p, i) => {
-        scenes['s' + i] = {
+        const s = {
           type: 'equirectangular', panorama: p.url, autoLoad: true,
           hotSpots: (p.hotspots || []).filter(h => idToScene[h.target]).map(h => ({
             pitch: h.pitch, yaw: h.yaw, type: 'scene',
-            text: h.targetLabel || '', sceneId: idToScene[h.target]
+            text: h.targetLabel || '', sceneId: idToScene[h.target],
+            cssClass: 'spot-dot'
           }))
         };
+        // editörde kaydedilen açılış açısı
+        if (p.initYaw != null) s.yaw = p.initYaw;
+        if (p.initPitch != null) s.pitch = p.initPitch;
+        if (p.initHfov != null) s.hfov = p.initHfov;
+        scenes['s' + i] = s;
       });
 
       const v = pannellum.viewer('viewer', {

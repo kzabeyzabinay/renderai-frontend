@@ -552,6 +552,13 @@
       .hero h1 { font-size: 32px; }
       .room-grid { grid-template-columns: repeat(3, 1fr); }
     }
+
+    /* 360 tur — geçiş noktası önizlemesi (turdakiyle aynı yuvarlak beyaz nokta) */
+    .spot-dot {
+      width:18px; height:18px; border-radius:50%;
+      background:#FFFFFF; cursor:pointer;
+      box-shadow:0 0 0 5px rgba(255,255,255,0.25), 0 2px 8px rgba(0,0,0,0.45);
+    }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
   <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
@@ -1501,7 +1508,7 @@
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <button class="render-btn" id="panoAddBtn" onclick="addUploadToTour()" style="margin-top:0; background:#7A8B6A;">➕ Tura Ekle <span style="font-size:11px;opacity:0.8;">· ücretsiz</span></button>
-          <button class="render-btn" id="panoGptBtn" onclick="startPanoGpt()" style="margin-top:0;">✨ Fotorealistik Render <span style="font-size:11px;opacity:0.8;">· 4 kredi</span></button>
+          <button class="render-btn" id="panoGptBtn" onclick="startPanoGpt()" style="margin-top:0;">✨ Fotorealistik Render <span style="font-size:11px;opacity:0.8;">· 5 kredi</span></button>
         </div>
         <div class="error-msg" id="panoError"></div>
       </div>
@@ -1546,6 +1553,12 @@
           <select id="hotspotTargetSel" style="flex:1; padding:8px 10px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520;"></select>
           <button onclick="confirmHotspot()" style="padding:8px 14px; border:none; border-radius:8px; background:#7A8B6A; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer;">Ekle</button>
           <button onclick="cancelHotspot()" style="padding:8px 12px; border:none; border-radius:8px; background:none; color:#B5483A; font-size:12px; cursor:pointer;">Vazgeç</button>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:10px; padding:10px; background:#E8E4DC; border-radius:10px;">
+          <span style="font-size:12px; color:#2A2520; font-weight:600;">🧭 Açılış açısı:</span>
+          <span id="initViewStatus" style="flex:1; font-size:11px; color:#8A7E74; line-height:1.4;"></span>
+          <button onclick="setInitView()" style="padding:8px 14px; border:none; border-radius:8px; background:#7A8B6A; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;">Bu Açıyı Kaydet</button>
+          <button id="initViewClearBtn" onclick="clearInitView()" style="display:none; padding:8px 12px; border:none; border-radius:8px; background:none; color:#B5483A; font-size:12px; cursor:pointer;">✕</button>
         </div>
         <div id="hotspotList" style="display:flex; flex-direction:column; gap:6px; margin-top:10px;"></div>
       </div>
@@ -2717,10 +2730,11 @@
         (sel ? '#DDE3D5; outline:2px solid #7A8B6A;' : '#E8E4DC;');
       row.onclick = () => openHotspotEditor(i);
       const hsCount = (p.hotspots || []).length;
-      const badges = (hsCount ? ' · 📍' + hsCount : '') + (p.planX != null ? ' · 🗺️' : '');
+      const badges = (hsCount ? ' · 📍' + hsCount : '') + (p.planX != null ? ' · 🗺️' : '') + (p.initYaw != null ? ' · 🧭' : '');
       row.innerHTML = `
         <img src="${p.url}" style="width:54px; height:28px; object-fit:cover; border-radius:5px;" />
         <span style="flex:1; font-size:13px; color:#2A2520; font-weight:600;">${p.label}<span style="font-size:11px; color:#8A7E74; font-weight:400;">${badges}</span></span>
+        <button onclick="event.stopPropagation(); renameTourPano(${i})" title="Sahne adını düzenle" style="border:none; background:none; color:#8A7E74; cursor:pointer; font-size:13px;">✏️</button>
         <button onclick="event.stopPropagation(); removeTourPano(${i})" style="border:none; background:none; color:#B5483A; cursor:pointer; font-size:14px;">✕</button>`;
       wrap.appendChild(row);
     });
@@ -2737,6 +2751,7 @@
     renderTourList();
     rebuildHotspotViewer();
     renderHotspotList();
+    updateInitViewUI();
   }
 
   function rebuildHotspotViewer() {
@@ -2745,9 +2760,60 @@
     if (hotspotViewerInstance) hotspotViewerInstance.destroy();
     hotspotViewerInstance = pannellum.viewer('hotspotViewer', {
       type: 'equirectangular', panorama: p.url, autoLoad: true,
-      hotSpots: (p.hotspots || []).map(h => ({ pitch: h.pitch, yaw: h.yaw, type: 'info', text: '→ ' + h.targetLabel }))
+      yaw: p.initYaw != null ? p.initYaw : 0,
+      pitch: p.initPitch != null ? p.initPitch : 0,
+      hfov: p.initHfov != null ? p.initHfov : 100,
+      hotSpots: (p.hotspots || []).map(h => ({ pitch: h.pitch, yaw: h.yaw, type: 'info', text: '→ ' + h.targetLabel, cssClass: 'spot-dot' }))
     });
     hotspotViewerInstance.on('mousedown', onHotspotViewerClick);
+  }
+
+  // ── Sahne adını düzenle — geçiş etiketleri de güncellenir ──
+  function renameTourPano(i) {
+    const p = tourPanos[i];
+    const name = prompt('Sahne adı:', p.label);
+    if (name == null) return;
+    const label = name.trim();
+    if (!label || label === p.label) return;
+    p.label = label;
+    // bu sahneyi hedefleyen geçiş noktalarının etiketini güncelle
+    tourPanos.forEach(t => (t.hotspots || []).forEach(h => { if (h.target === p.id) h.targetLabel = label; }));
+    if (selectedSceneIdx === i) document.getElementById('hotspotSceneName').textContent = label;
+    if (selectedSceneIdx >= 0) {
+      renderHotspotList();
+      // açık önizlemedeki geçiş tooltip'leri yeniden adlandırılan sahneyi gösteriyorsa tazele
+      if ((tourPanos[selectedSceneIdx].hotspots || []).some(h => h.target === p.id)) rebuildHotspotViewer();
+    }
+    renderTourList();
+  }
+
+  // ── Açılış açısı — turda sahnenin ilk göründüğü yön ──
+  function updateInitViewUI() {
+    const p = tourPanos[selectedSceneIdx];
+    if (!p) return;
+    const set = p.initYaw != null;
+    document.getElementById('initViewStatus').textContent = set
+      ? '✓ kayıtlı — turda sahne bu açıyla açılır'
+      : 'Panoramayı istediğin yöne çevirip kaydet.';
+    document.getElementById('initViewClearBtn').style.display = set ? 'block' : 'none';
+  }
+
+  function setInitView() {
+    const p = tourPanos[selectedSceneIdx];
+    if (!p || !hotspotViewerInstance) return;
+    p.initYaw = Math.round(hotspotViewerInstance.getYaw() * 10) / 10;
+    p.initPitch = Math.round(hotspotViewerInstance.getPitch() * 10) / 10;
+    p.initHfov = Math.round(hotspotViewerInstance.getHfov() * 10) / 10;
+    updateInitViewUI();
+    renderTourList();
+  }
+
+  function clearInitView() {
+    const p = tourPanos[selectedSceneIdx];
+    if (!p) return;
+    delete p.initYaw; delete p.initPitch; delete p.initHfov;
+    updateInitViewUI();
+    renderTourList();
   }
 
   function onHotspotViewerClick(e) {
