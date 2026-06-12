@@ -1401,14 +1401,28 @@
           <p><strong id="placeItemHint">Ürün fotoğrafı seçin</strong> veya sürükleyin</p>
         </div>
         <img id="placeItemPreview" class="preview-img" />
+        <div id="placeItemExtraPrevs" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;"></div>
       </div>
 
       <div class="panel" id="placeMapPanel" style="display:none;">
-        <h2>Konum İşaretle <span style="font-size:11px; color:#8A7E74; font-weight:400;">(isteğe bağlı)</span></h2>
+        <h2>Konum & Parsel <span style="font-size:11px; color:#8A7E74; font-weight:400;">(isteğe bağlı)</span></h2>
         <p style="font-size:12px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">
-          Arsanın yerini haritada tıklayarak işaretle — bölge bilgisi AI'a çevre bağlamı olarak iletilir.</p>
-        <div id="placeMap" style="width:100%; height:220px; border-radius:10px; border:1px solid #D8D2C8;"></div>
+          Tek tıkla konum işaretle, ya da <b>Parsel Çiz</b>'i açıp arsanın köşelerine tıklayarak sınırı çiz.
+          Parseli çizdikten sonra uydu görüntüsünü doğrudan sahne yapabilirsin — arsa fotoğrafı çekmene gerek kalmaz.</p>
+        <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+          <button type="button" id="placeLayerBtn" onclick="togglePlaceLayer()"
+            style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520; cursor:pointer;">🗺️ Haritaya Geç</button>
+          <button type="button" id="placeDrawBtn" onclick="togglePlaceDraw()"
+            style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520; cursor:pointer;">📐 Parsel Çiz</button>
+          <button type="button" onclick="clearPlaceParcel()"
+            style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#B5483A; cursor:pointer;">✕ Temizle</button>
+        </div>
+        <div id="placeMap" style="width:100%; height:260px; border-radius:10px; border:1px solid #D8D2C8;"></div>
         <div id="placeMapInfo" style="font-size:12px; color:#7A8B6A; margin-top:8px; display:none;"></div>
+        <button type="button" id="placeSatBtn" onclick="useSatelliteScene()"
+          style="display:none; width:100%; margin-top:10px; padding:11px; border:none; border-radius:10px; background:#7A8B6A; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;">🛰️ Uydu Görüntüsünü Sahne Yap</button>
+        <div id="placeSatInfo" style="font-size:12px; color:#7A8B6A; margin-top:6px; display:none;"></div>
+        <img id="placeSatPreview" class="preview-img" />
       </div>
 
       <div class="panel">
@@ -1417,6 +1431,26 @@
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:16px;" />
         <button class="render-btn" id="placeBtn" onclick="startPlace()">🧩 Yerleştir <span style="font-size:11px;opacity:0.8;">· 4 kredi</span></button>
         <div class="error-msg" id="placeError"></div>
+      </div>
+
+      <div class="panel" id="placePresentPanel" style="display:none;">
+        <h2>🔗 Proje Sunum Linki</h2>
+        <p style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
+          Montajların + harita + 360 tek linkte: açan kişi uydu haritada parseli görür, montaj görsellerini inceler,
+          360'ta binanın önünde gezinir. Link 30 gün yayında kalır, sonrasında kredi ile yenilenir.</p>
+        <div id="presentItemList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+        <input type="text" id="presentTitle" placeholder="Sunum başlığı: örn. Villa Projesi — Bodrum"
+          style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
+        <button class="render-btn" onclick="createPresentation()">🔗 Sunum Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
+        <div class="error-msg" id="presentError"></div>
+        <div id="presentLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
+          <div style="font-size:11px; color:#7A8B6A; font-weight:700; margin-bottom:6px;">✓ SUNUM YAYINDA</div>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="presentLinkInput" readonly
+              style="flex:1; padding:10px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520;" />
+            <button onclick="copyPresentLink()" style="padding:10px 16px; border:none; border-radius:8px; background:#9A6558; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer;">Kopyala</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2050,9 +2084,13 @@
   let placeMode = 'product';
   let placeSceneFiles = [];   // montajda coklu aci destegi
   let placeItemFile = null;
+  let placeItemFiles = [];    // montajda coklu proje gorseli (ilki ana)
   let placeMapObj = null;
   let placeMapMarker = null;
   let placeLocationText = '';
+  let placeSatLayer = null, placeOsmLayer = null, placeSatOn = true;
+  let placeDrawOn = false, placeParcelPts = [], placeParcelPoly = null;
+  let placeSatSceneFile = null;  // uydu goruntusunden uretilen sahne
 
   function setPlaceMode(mode) {
     placeMode = mode;
@@ -2061,26 +2099,33 @@
     const isProduct = mode === 'product';
     document.getElementById('placeSceneTitle').textContent = isProduct ? '1 — İç Mekan Görseli' : '1 — Arsa / Ortam Fotoğrafı';
     document.getElementById('placeSceneHint').textContent  = isProduct ? 'Render veya oda fotoğrafı seçin' : 'Arsanın/caddenin gerçek fotoğrafını seçin';
-    document.getElementById('placeItemTitle').textContent  = isProduct ? '2 — Yerleştirilecek Ürün' : '2 — Proje Görseli';
-    document.getElementById('placeItemHint').textContent   = isProduct ? 'Ürün fotoğrafı seçin' : 'Projenin render/cephe görselini seçin';
+    document.getElementById('placeItemTitle').textContent  = isProduct ? '2 — Yerleştirilecek Ürün' : '2 — Proje Görselleri';
+    document.getElementById('placeItemHint').textContent   = isProduct ? 'Ürün fotoğrafı seçin' : 'Projenin render/cephe görselleri — birden fazla açı seçebilirsin (ilki ana görsel)';
     document.getElementById('placeNote').placeholder = isProduct
       ? 'örn: yatağı bu ürünle değiştir, halıya dokunma'
       : 'örn: binayı arsanın soluna yerleştir, ağaçları koru';
-    // Montajda cevreden birden fazla aci yuklenebilir
+    // Montajda cevreden ve projeden birden fazla gorsel yuklenebilir
     document.getElementById('placeSceneInput').multiple = !isProduct;
+    document.getElementById('placeItemInput').multiple = !isProduct;
     document.getElementById('placeSceneHint').textContent = isProduct
       ? 'Render veya oda fotoğrafı seçin'
       : 'Arsanın/caddenin fotoğrafları — birden fazla açı seçebilirsin (ilki ana açı)';
     document.getElementById('placeMapPanel').style.display = isProduct ? 'none' : 'block';
+    document.getElementById('placePresentPanel').style.display = (!isProduct && placeResults.length) ? 'block' : 'none';
     if (!isProduct && !placeMapObj) initPlaceMap();
   }
 
   function initPlaceMap() {
     placeMapObj = L.map('placeMap').setView([39.0, 35.0], 5); // Türkiye merkez
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(placeMapObj);
+    placeOsmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap', maxZoom: 19
+    });
+    placeSatLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '© Esri', maxZoom: 19
+    });
+    placeSatLayer.addTo(placeMapObj);
     placeMapObj.on('click', async e => {
+      if (placeDrawOn) { addParcelPoint(e.latlng); return; }
       if (placeMapMarker) placeMapMarker.remove();
       placeMapMarker = L.marker(e.latlng).addTo(placeMapObj);
       const info = document.getElementById('placeMapInfo');
@@ -2099,6 +2144,122 @@
       }
     });
     setTimeout(() => placeMapObj.invalidateSize(), 300);
+  }
+
+  function togglePlaceLayer() {
+    placeSatOn = !placeSatOn;
+    if (placeSatOn) {
+      placeMapObj.removeLayer(placeOsmLayer); placeSatLayer.addTo(placeMapObj);
+      document.getElementById('placeLayerBtn').textContent = '🗺️ Haritaya Geç';
+    } else {
+      placeMapObj.removeLayer(placeSatLayer); placeOsmLayer.addTo(placeMapObj);
+      document.getElementById('placeLayerBtn').textContent = '🛰️ Uyduya Geç';
+    }
+  }
+
+  function togglePlaceDraw() {
+    placeDrawOn = !placeDrawOn;
+    const btn = document.getElementById('placeDrawBtn');
+    btn.style.background = placeDrawOn ? '#9A6558' : '#fff';
+    btn.style.color = placeDrawOn ? '#FAFAF8' : '#2A2520';
+    const info = document.getElementById('placeMapInfo');
+    if (placeDrawOn) {
+      info.style.display = 'block';
+      info.textContent = '📐 Parsel çizimi açık — arsanın köşelerine sırayla tıkla (en az 3 nokta).';
+    }
+  }
+
+  function addParcelPoint(latlng) {
+    placeParcelPts.push(latlng);
+    if (placeParcelPoly) placeParcelPoly.remove();
+    placeParcelPoly = L.polygon(placeParcelPts, { color: '#FF2D2D', weight: 3, fillOpacity: 0.12 }).addTo(placeMapObj);
+    const info = document.getElementById('placeMapInfo');
+    info.style.display = 'block';
+    info.textContent = `📐 ${placeParcelPts.length} köşe işaretlendi` + (placeParcelPts.length >= 3 ? ' — parsel hazır.' : ' — devam et (en az 3).');
+    document.getElementById('placeSatBtn').style.display = placeParcelPts.length >= 3 ? 'block' : 'none';
+    if (placeParcelPts.length >= 3 && !placeLocationText) {
+      const c = placeParcelPoly.getBounds().getCenter();
+      placeLocationText = `coordinates ${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`;
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${c.lat}&lon=${c.lng}&format=json&accept-language=tr`)
+        .then(r => r.json()).then(d => { if (d.display_name) placeLocationText = d.display_name; }).catch(() => {});
+    }
+  }
+
+  function clearPlaceParcel() {
+    placeParcelPts = [];
+    if (placeParcelPoly) { placeParcelPoly.remove(); placeParcelPoly = null; }
+    if (placeMapMarker) { placeMapMarker.remove(); placeMapMarker = null; }
+    placeLocationText = '';
+    placeSatSceneFile = null;
+    document.getElementById('placeSatBtn').style.display = 'none';
+    document.getElementById('placeSatInfo').style.display = 'none';
+    document.getElementById('placeSatPreview').style.display = 'none';
+    document.getElementById('placeMapInfo').style.display = 'none';
+  }
+
+  // Uydu karolarini canvas'ta birlestirip parsel sinirini kirmizi cizer → sahne gorseli
+  async function useSatelliteScene() {
+    if (placeParcelPts.length < 3) return;
+    const satInfo = document.getElementById('placeSatInfo');
+    satInfo.style.display = 'block';
+    satInfo.textContent = '🛰️ Uydu görüntüsü hazırlanıyor...';
+    try {
+      const lon2t = (lon, z) => (lon + 180) / 360 * Math.pow(2, z);
+      const lat2t = (lat, z) => { const r = lat * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * Math.pow(2, z); };
+      const b = L.latLngBounds(placeParcelPts).pad(0.7);
+      let z = 19;
+      while (z > 14) {
+        if ((lon2t(b.getEast(), z) - lon2t(b.getWest(), z)) <= 5 &&
+            (lat2t(b.getSouth(), z) - lat2t(b.getNorth(), z)) <= 5) break;
+        z--;
+      }
+      const x0 = Math.floor(lon2t(b.getWest(), z)), x1 = Math.floor(lon2t(b.getEast(), z));
+      const y0 = Math.floor(lat2t(b.getNorth(), z)), y1 = Math.floor(lat2t(b.getSouth(), z));
+      const canvas = document.createElement('canvas');
+      canvas.width = (x1 - x0 + 1) * 256;
+      canvas.height = (y1 - y0 + 1) * 256;
+      const ctx = canvas.getContext('2d');
+      const jobs = [];
+      for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) {
+        jobs.push(new Promise((res, rej) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => { ctx.drawImage(img, (x - x0) * 256, (y - y0) * 256); res(); };
+          img.onerror = () => rej(new Error('karo indirilemedi'));
+          img.src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+        }));
+      }
+      await Promise.all(jobs);
+      // Parsel sinirini kirmizi ciz (AI bu sinira yerlestirir, sonucta cizgiyi siler)
+      ctx.strokeStyle = '#FF2D2D';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      placeParcelPts.forEach((p, i) => {
+        const px = (lon2t(p.lng, z) - x0) * 256;
+        const py = (lat2t(p.lat, z) - y0) * 256;
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      });
+      ctx.closePath();
+      ctx.stroke();
+      // Yalnizca parsel cevresini kirp
+      const cx0 = Math.max(0, Math.floor((lon2t(b.getWest(), z) - x0) * 256));
+      const cy0 = Math.max(0, Math.floor((lat2t(b.getNorth(), z) - y0) * 256));
+      const cw = Math.min(canvas.width - cx0, Math.ceil((lon2t(b.getEast(), z) - lon2t(b.getWest(), z)) * 256));
+      const ch = Math.min(canvas.height - cy0, Math.ceil((lat2t(b.getSouth(), z) - lat2t(b.getNorth(), z)) * 256));
+      const crop = document.createElement('canvas');
+      crop.width = cw; crop.height = ch;
+      crop.getContext('2d').drawImage(canvas, cx0, cy0, cw, ch, 0, 0, cw, ch);
+      const blob = await new Promise(res => crop.toBlob(res, 'image/png'));
+      if (!blob) throw new Error('görüntü oluşturulamadı');
+      placeSatSceneFile = new File([blob], 'satellite_scene.png', { type: 'image/png' });
+      const prev = document.getElementById('placeSatPreview');
+      prev.src = URL.createObjectURL(blob);
+      prev.style.display = 'block';
+      satInfo.textContent = '✓ Uydu sahnesi hazır — "Yerleştir" dediğinde bina, çizdiğin parsele kuşbakışı monte edilecek. Arsa fotoğrafı da yüklersen ek açı olarak kullanılır.';
+    } catch (e) {
+      placeSatSceneFile = null;
+      satInfo.textContent = '⚠ Uydu görüntüsü alınamadı (' + e.message + ') — arsa fotoğrafı yüklemeyi dene.';
+    }
   }
 
   document.getElementById('placeSceneInput').addEventListener('change', e => {
@@ -2125,22 +2286,40 @@
   });
 
   document.getElementById('placeItemInput').addEventListener('change', e => {
-    placeItemFile = e.target.files[0];
+    placeItemFiles = Array.from(e.target.files).slice(0, 5); // ana + 4 ek proje gorseli
+    placeItemFile = placeItemFiles[0] || null;
+    const extraWrap = document.getElementById('placeItemExtraPrevs');
+    extraWrap.innerHTML = '';
     if (!placeItemFile) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const img = document.getElementById('placeItemPreview');
-      img.src = ev.target.result;
-      img.style.display = 'block';
-    };
-    reader.readAsDataURL(placeItemFile);
+    placeItemFiles.forEach((f, i) => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        if (i === 0) {
+          const img = document.getElementById('placeItemPreview');
+          img.src = ev.target.result;
+          img.style.display = 'block';
+        } else {
+          const t = document.createElement('img');
+          t.src = ev.target.result;
+          t.style.cssText = 'width:64px; height:44px; object-fit:cover; border-radius:6px; border:1px solid #D8D2C8;';
+          extraWrap.appendChild(t);
+        }
+      };
+      reader.readAsDataURL(f);
+    });
   });
 
   async function startPlace() {
     const errEl = document.getElementById('placeError');
     errEl.style.display = 'none';
-    if (!placeSceneFiles.length || !placeItemFile) {
-      errEl.textContent = 'Hata: İki görsel de gerekli — sahne ve yerleştirilecek öğe.';
+    // Montajda uydu sahnesi varsa ana sahne odur; yuklenen fotograflar ek aci olur
+    const useSat = placeMode === 'montage' && placeSatSceneFile;
+    let sceneList = placeSceneFiles;
+    if (useSat) sceneList = [placeSatSceneFile, ...placeSceneFiles];
+    if (!sceneList.length || !placeItemFile) {
+      errEl.textContent = (placeMode === 'montage' && !sceneList.length)
+        ? 'Hata: Sahne gerekli — arsa fotoğrafı yükle ya da haritada parsel çizip "Uydu Görüntüsünü Sahne Yap" de.'
+        : 'Hata: İki görsel de gerekli — sahne ve yerleştirilecek öğe.';
       errEl.style.display = 'block';
       return;
     }
@@ -2153,12 +2332,18 @@
 
     try {
       const formData = new FormData();
-      formData.append('image', await resizeIfNeeded(placeSceneFiles[0]));
-      for (const f of placeSceneFiles.slice(1)) {
+      formData.append('image', await resizeIfNeeded(sceneList[0]));
+      for (const f of sceneList.slice(1)) {
         formData.append('extras', await resizeIfNeeded(f));
       }
       formData.append('item', await resizeIfNeeded(placeItemFile));
+      if (placeMode === 'montage') {
+        for (const f of placeItemFiles.slice(1)) {
+          formData.append('item_extras', await resizeIfNeeded(f));
+        }
+      }
       formData.append('mode', placeMode);
+      formData.append('scene_kind', useSat ? 'satellite' : 'photo');
       let noteVal = document.getElementById('placeNote').value.trim();
       if (placeMode === 'montage' && placeLocationText) {
         noteVal += (noteVal ? ' ' : '') + `Site location context: ${placeLocationText}.`;
@@ -2186,6 +2371,9 @@
           img.src = statusData.render_url;
           document.getElementById('placeDownloadBtn').href = statusData.render_url;
           document.getElementById('placeResultContainer').style.display = 'block';
+          if (placeMode === 'montage') {
+            addPlaceResult(statusData.render_url, statusData.storage_url || '');
+          }
           break;
         }
         if (statusData.status === 'failed') {
@@ -2200,6 +2388,134 @@
     } finally {
       btn.disabled = false;
     }
+  }
+
+  // ─── PROJE SUNUM LİNKİ ───────────────────────────────────────────────────
+  let placeResults = [];  // {kind:'image'|'pano', dataUrl, url(storage), label, busy}
+
+  function addPlaceResult(dataUrl, storageUrl) {
+    placeResults.push({ kind: 'image', dataUrl, url: storageUrl, label: 'Montaj ' + (placeResults.filter(r => r.kind === 'image').length + 1) });
+    renderPresentList();
+    document.getElementById('placePresentPanel').style.display = 'block';
+  }
+
+  function removePlaceResult(i) {
+    placeResults.splice(i, 1);
+    renderPresentList();
+  }
+
+  function renderPresentList() {
+    const wrap = document.getElementById('presentItemList');
+    wrap.innerHTML = '';
+    placeResults.forEach((r, i) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; gap:10px; padding:8px 10px; background:#E8E4DC; border-radius:8px;';
+      const icon = r.kind === 'pano' ? '🌐 ' : '';
+      const warn = r.url ? '' : ' <span style="color:#B5483A; font-size:11px;">(kalıcı kayıt yok — linke eklenemez)</span>';
+      let actions = '';
+      if (r.kind === 'image') {
+        actions = r.busy
+          ? '<span style="font-size:12px; color:#8A7E74;">360 üretiliyor...</span>'
+          : `<button onclick="genPlacePano(${i})" style="border:none; border-radius:7px; background:#7A8B6A; color:#FAFAF8; padding:7px 10px; font-size:11px; font-weight:600; cursor:pointer;">🌐 360 Üret · 4 kr</button>`;
+      }
+      row.innerHTML = `
+        <img src="${r.dataUrl || r.url}" style="width:54px; height:34px; object-fit:cover; border-radius:5px;" />
+        <span style="flex:1; font-size:13px; color:#2A2520; font-weight:600;">${icon}${r.label}${warn}</span>
+        ${actions}
+        <button onclick="removePlaceResult(${i})" style="border:none; background:none; color:#B5483A; cursor:pointer; font-size:14px;">✕</button>`;
+      wrap.appendChild(row);
+    });
+  }
+
+  async function genPlacePano(i) {
+    const r = placeResults[i];
+    if (!r || r.busy) return;
+    const errEl = document.getElementById('presentError');
+    errEl.style.display = 'none';
+    r.busy = true;
+    renderPresentList();
+    try {
+      const src = r.dataUrl || r.url;
+      const blob = await (await fetch(src)).blob();
+      const formData = new FormData();
+      formData.append('image', new File([blob], 'montage.png', { type: blob.type || 'image/png' }));
+      formData.append('note', document.getElementById('placeNote').value.trim());
+      const startRes = await fetch(`${API}/place/pano360/start`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
+      const jobId = startData.prediction_id;
+      while (true) {
+        await new Promise(res => setTimeout(res, 2500));
+        const sRes = await fetch(`${API}/render/status/${jobId}`);
+        const sData = await sRes.json();
+        if (sData.status === 'succeeded') {
+          placeResults.push({ kind: 'pano', dataUrl: '', url: sData.storage_url || (sData.render_url.startsWith('http') ? sData.render_url : ''), label: r.label + ' — 360°' });
+          break;
+        }
+        if (sData.status === 'failed') throw new Error(sData.error || '360 üretilemedi');
+      }
+    } catch (e) {
+      errEl.textContent = 'Hata: ' + e.message;
+      errEl.style.display = 'block';
+    } finally {
+      r.busy = false;
+      renderPresentList();
+    }
+  }
+
+  async function createPresentation() {
+    const errEl = document.getElementById('presentError');
+    errEl.style.display = 'none';
+    if (!localStorage.getItem('ra_token')) {
+      errEl.textContent = 'Sunum linki oluşturmak için giriş yapmalısın.';
+      errEl.style.display = 'block';
+      openAuthModal('login');
+      return;
+    }
+    const images = placeResults.filter(r => r.kind === 'image' && r.url).map(r => ({ url: r.url, label: r.label }));
+    const panos = placeResults.filter(r => r.kind === 'pano' && r.url).map(r => ({ url: r.url, label: r.label }));
+    if (!images.length && !panos.length) {
+      errEl.textContent = 'Linke eklenebilecek kalıcı kayıtlı montaj yok — yeni bir montaj üret.';
+      errEl.style.display = 'block';
+      return;
+    }
+    const mapData = {};
+    if (placeParcelPts.length >= 3) {
+      mapData.polygon = placeParcelPts.map(p => [p.lat, p.lng]);
+      const c = placeParcelPoly.getBounds().getCenter();
+      mapData.center = [c.lat, c.lng];
+      mapData.zoom = 17;
+    } else if (placeMapMarker) {
+      const ll = placeMapMarker.getLatLng();
+      mapData.center = [ll.lat, ll.lng];
+      mapData.zoom = 16;
+    }
+    if (placeLocationText) mapData.address = placeLocationText;
+    try {
+      const res = await fetch(`${API}/presentations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({
+          title: document.getElementById('presentTitle').value.trim(),
+          map: mapData, images, panos
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Sunum oluşturulamadı');
+      refreshCredits();
+      document.getElementById('presentLinkInput').value = `${location.origin}/sunum.html?id=${data.presentation_id}`;
+      document.getElementById('presentLinkBox').style.display = 'block';
+    } catch (e) {
+      errEl.textContent = 'Hata: ' + e.message;
+      errEl.style.display = 'block';
+    }
+  }
+
+  function copyPresentLink() {
+    const input = document.getElementById('presentLinkInput');
+    input.select();
+    navigator.clipboard.writeText(input.value).catch(() => document.execCommand('copy'));
   }
 
   // ─── 360 TUR ─────────────────────────────────────────────────────────────

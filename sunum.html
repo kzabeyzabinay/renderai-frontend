@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proje Sunumu — RenderAI</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI', system-ui, sans-serif; background:#1A1A16; color:#FAFAF8; height:100vh; overflow:hidden; }
+    #map { position:fixed; inset:0; z-index:1; background:#1A1A16; }
+    .topbar {
+      position:fixed; top:0; left:0; right:0; z-index:50;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 22px; background:linear-gradient(rgba(26,26,22,0.85), transparent);
+      pointer-events:none;
+    }
+    .topbar > * { pointer-events:auto; }
+    .brand { font-size:15px; font-weight:700; letter-spacing:0.5px; color:#FAFAF8; text-decoration:none; text-shadow:0 1px 4px rgba(0,0,0,0.6); }
+    .brand span { color:#C89B8C; }
+    .title { font-size:13px; color:#FAFAF8; text-shadow:0 1px 4px rgba(0,0,0,0.6); }
+    .addr {
+      position:fixed; top:52px; left:0; right:0; z-index:50; text-align:center;
+      font-size:12px; color:#D8D2C8; text-shadow:0 1px 4px rgba(0,0,0,0.8); padding:0 20px;
+      pointer-events:none;
+    }
+    .gallery {
+      position:fixed; bottom:0; left:0; right:0; z-index:50;
+      padding:14px 16px 16px; background:linear-gradient(transparent, rgba(26,26,22,0.92));
+      display:flex; gap:10px; overflow-x:auto; align-items:flex-end;
+    }
+    .gallery::-webkit-scrollbar { display:none; }
+    .card {
+      flex:0 0 auto; cursor:pointer; border-radius:10px; overflow:hidden;
+      border:2px solid rgba(250,250,248,0.3); background:#1A1A16; transition:transform 0.15s, border-color 0.15s;
+      position:relative;
+    }
+    .card:hover { transform:translateY(-4px); border-color:#C89B8C; }
+    .card img { width:150px; height:96px; object-fit:cover; display:block; }
+    .card .lbl {
+      position:absolute; left:0; right:0; bottom:0; padding:4px 8px; font-size:11px;
+      background:linear-gradient(transparent, rgba(0,0,0,0.75)); color:#FAFAF8;
+    }
+    .pano-btn {
+      flex:0 0 auto; align-self:center; padding:13px 22px; border:none; border-radius:24px;
+      background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;
+      box-shadow:0 4px 14px rgba(0,0,0,0.4); white-space:nowrap;
+    }
+    .pano-btn:hover { background:#B5786A; }
+    .overlay {
+      position:fixed; inset:0; z-index:100; background:rgba(26,26,22,0.97);
+      display:none; align-items:center; justify-content:center;
+    }
+    .overlay.open { display:flex; }
+    .overlay img { max-width:94vw; max-height:88vh; border-radius:10px; }
+    #panoOverlayViewer { width:100vw; height:100vh; }
+    .close-btn {
+      position:fixed; top:14px; right:16px; z-index:120; width:40px; height:40px;
+      border:none; border-radius:50%; background:rgba(0,0,0,0.55); color:#FAFAF8;
+      font-size:18px; cursor:pointer;
+    }
+    .nav-btn {
+      position:fixed; top:50%; transform:translateY(-50%); z-index:120; width:44px; height:44px;
+      border:none; border-radius:50%; background:rgba(0,0,0,0.55); color:#FAFAF8;
+      font-size:20px; cursor:pointer;
+    }
+    .pano-scenes {
+      position:fixed; bottom:18px; left:50%; transform:translateX(-50%); z-index:120;
+      display:flex; gap:8px; flex-wrap:wrap; justify-content:center; max-width:92vw;
+    }
+    .pano-scenes button {
+      padding:9px 18px; border:1px solid rgba(250,250,248,0.25); border-radius:24px;
+      background:rgba(26,26,22,0.65); color:#FAFAF8; font-size:13px; cursor:pointer;
+    }
+    .pano-scenes button.active { background:#9A6558; border-color:#9A6558; }
+    .center-msg {
+      position:fixed; inset:0; display:flex; flex-direction:column; align-items:center;
+      justify-content:center; gap:14px; text-align:center; padding:24px; z-index:200; background:#1A1A16;
+    }
+    .center-msg .icon { font-size:48px; }
+    .center-msg h2 { font-size:20px; font-weight:600; }
+    .center-msg p { font-size:14px; color:#ABA49C; max-width:420px; line-height:1.6; }
+    .center-msg a {
+      margin-top:8px; padding:12px 28px; background:#9A6558; color:#FAFAF8;
+      border-radius:10px; text-decoration:none; font-size:14px; font-weight:600;
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div class="topbar">
+  <a class="brand" href="/">Render<span>AI</span></a>
+  <div class="title" id="presTitle"></div>
+</div>
+<div class="addr" id="presAddr"></div>
+
+<div class="gallery" id="gallery"></div>
+
+<div class="overlay" id="imgOverlay">
+  <button class="close-btn" onclick="closeImg()">✕</button>
+  <button class="nav-btn" style="left:14px;" onclick="navImg(-1)">‹</button>
+  <button class="nav-btn" style="right:14px;" onclick="navImg(1)">›</button>
+  <img id="overlayImg" />
+</div>
+
+<div class="overlay" id="panoOverlay">
+  <button class="close-btn" onclick="closePano()">✕</button>
+  <div id="panoOverlayViewer"></div>
+  <div class="pano-scenes" id="panoScenes"></div>
+</div>
+
+<div class="center-msg" id="msgBox">
+  <div class="icon">🏗️</div>
+  <h2 id="msgTitle">Sunum yükleniyor...</h2>
+  <p id="msgText"></p>
+</div>
+
+<script>
+  const API = 'https://web-production-8c34d.up.railway.app';
+  const presId = new URLSearchParams(location.search).get('id');
+  let images = [], panos = [], imgIdx = 0, panoViewer = null;
+
+  function showMsg(icon, title, text, withHome) {
+    document.getElementById('msgBox').style.display = 'flex';
+    document.querySelector('#msgBox .icon').textContent = icon;
+    document.getElementById('msgTitle').textContent = title;
+    document.getElementById('msgText').innerHTML = text;
+    if (withHome) {
+      const a = document.createElement('a');
+      a.href = '/';
+      a.textContent = 'RenderAI ile kendi sunumunu oluştur';
+      document.getElementById('msgBox').appendChild(a);
+    }
+  }
+
+  function openImg(i) {
+    imgIdx = i;
+    document.getElementById('overlayImg').src = images[i].url;
+    document.getElementById('imgOverlay').classList.add('open');
+  }
+  function closeImg() { document.getElementById('imgOverlay').classList.remove('open'); }
+  function navImg(d) {
+    imgIdx = (imgIdx + d + images.length) % images.length;
+    document.getElementById('overlayImg').src = images[imgIdx].url;
+  }
+
+  function openPano(start) {
+    document.getElementById('panoOverlay').classList.add('open');
+    if (panoViewer) { panoViewer.destroy(); panoViewer = null; }
+    const scenes = {};
+    panos.forEach((p, i) => {
+      scenes['p' + i] = { type: 'equirectangular', panorama: p.url, autoLoad: true };
+    });
+    panoViewer = pannellum.viewer('panoOverlayViewer', {
+      default: { firstScene: 'p' + (start || 0), autoLoad: true, autoRotate: -3,
+                 sceneFadeDuration: 800, orientationOnByDefault: false },
+      scenes
+    });
+    const wrap = document.getElementById('panoScenes');
+    wrap.innerHTML = '';
+    if (panos.length > 1) {
+      panos.forEach((p, i) => {
+        const b = document.createElement('button');
+        b.className = i === (start || 0) ? 'active' : '';
+        b.textContent = p.label || ('360 — ' + (i + 1));
+        b.onclick = () => {
+          panoViewer.loadScene('p' + i);
+          wrap.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+          b.classList.add('active');
+        };
+        wrap.appendChild(b);
+      });
+    }
+  }
+  function closePano() {
+    document.getElementById('panoOverlay').classList.remove('open');
+    if (panoViewer) { panoViewer.destroy(); panoViewer = null; }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeImg(); closePano(); }
+    if (document.getElementById('imgOverlay').classList.contains('open')) {
+      if (e.key === 'ArrowLeft') navImg(-1);
+      if (e.key === 'ArrowRight') navImg(1);
+    }
+  });
+
+  async function loadPresentation() {
+    if (!presId) { showMsg('❓', 'Sunum bulunamadı', 'Link eksik veya hatalı görünüyor.', true); return; }
+    try {
+      const res = await fetch(`${API}/tours/${presId}`);
+      if (!res.ok) { showMsg('❓', 'Sunum bulunamadı', 'Bu link geçersiz veya sunum silinmiş olabilir.', true); return; }
+      const data = await res.json();
+
+      if (data.expired) {
+        showMsg('⏳', 'Bu sunumun süresi doldu',
+          'Yayın süresi sona ermiş. Sunum sahibiyseniz RenderAI hesabınızdan yenileyebilirsiniz.', true);
+        return;
+      }
+
+      const payload = (data.panoramas || [])[0];
+      if (!payload || payload.kind !== 'presentation') {
+        // Normal tur linki — tur görüntüleyicisine yönlendir
+        location.replace(`/tur.html?id=${presId}`);
+        return;
+      }
+
+      images = payload.images || [];
+      panos = payload.panos || [];
+      const mapData = payload.map || {};
+
+      document.getElementById('presTitle').textContent = data.title || '';
+      if (mapData.address) document.getElementById('presAddr').textContent = '📍 ' + mapData.address;
+      document.getElementById('msgBox').style.display = 'none';
+
+      // ── Uydu harita + parsel ──
+      const map = L.map('map', { zoomControl: true });
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '© Esri', maxZoom: 19
+      }).addTo(map);
+      if (mapData.polygon && mapData.polygon.length >= 3) {
+        const poly = L.polygon(mapData.polygon, { color: '#C89B8C', weight: 3, fillColor: '#9A6558', fillOpacity: 0.25 }).addTo(map);
+        map.fitBounds(poly.getBounds().pad(0.5));
+        poly.bindTooltip(data.title || 'Proje parseli', { permanent: false, direction: 'top' });
+      } else if (mapData.center) {
+        L.marker(mapData.center).addTo(map);
+        map.setView(mapData.center, mapData.zoom || 16);
+      } else {
+        map.setView([39.0, 35.0], 6);
+      }
+
+      // ── Galeri ──
+      const gal = document.getElementById('gallery');
+      if (panos.length) {
+        const pb = document.createElement('button');
+        pb.className = 'pano-btn';
+        pb.textContent = '🌐 360° Gez';
+        pb.onclick = () => openPano(0);
+        gal.appendChild(pb);
+      }
+      images.forEach((im, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<img src="${im.url}" loading="lazy" /><div class="lbl">${im.label || ('Görsel ' + (i + 1))}</div>`;
+        card.onclick = () => openImg(i);
+        gal.appendChild(card);
+      });
+    } catch (e) {
+      showMsg('⚠️', 'Bağlantı hatası', 'Sunum şu anda yüklenemiyor — birkaç saniye sonra sayfayı yenileyin.', false);
+    }
+  }
+
+  loadPresentation();
+</script>
+
+</body>
+</html>
