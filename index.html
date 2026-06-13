@@ -552,6 +552,13 @@
       .hero h1 { font-size: 32px; }
       .room-grid { grid-template-columns: repeat(3, 1fr); }
     }
+
+    /* 360 tur — geçiş noktası önizlemesi (turdakiyle aynı yuvarlak beyaz nokta) */
+    .spot-dot {
+      width:18px; height:18px; border-radius:50%;
+      background:#FFFFFF; cursor:pointer;
+      box-shadow:0 0 0 5px rgba(255,255,255,0.25), 0 2px 8px rgba(0,0,0,0.45);
+    }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
   <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
@@ -664,17 +671,15 @@
 
       <!-- RENDER MODELİ -->
       <div class="mini-label">Render Modeli</div>
-      <div class="render-model-grid" style="grid-template-columns: repeat(3,1fr);">
-        <button class="rm-btn active" id="rm-balance" onclick="setRenderModel('balance')">⚡ Balance</button>
-        <button class="rm-btn" id="rm-clay" onclick="setRenderModel('clay')">🧱 Clay</button>
-        <button class="rm-btn" id="rm-gpt" onclick="setRenderModel('gpt')" style="border-color:#10b981; color:#10b981;">
+      <div class="render-model-grid" style="grid-template-columns: 1fr;">
+        <button class="rm-btn active" id="rm-gpt" onclick="setRenderModel('gpt')" style="border-color:#10b981; color:#10b981;">
           🤖 GPT
         </button>
       </div>
 
       <!-- Model açıklaması -->
       <div id="modelDesc" style="font-size:11px; color:#5a5a7a; padding:8px 10px; background:#E8E4DC; border-radius:8px; border:1px solid #D8D2C8; margin-bottom:14px; line-height:1.5;">
-        Yapı çizgilerini koruyarak fotorealistik çıktı üretir.
+        🤖 GPT-Image-2 — en yüksek kalite, en detaylı sonuç. Sunum ve müşteri için.
       </div>
 
       <!-- STİL — İç Mekan -->
@@ -1402,14 +1407,35 @@
           <p><strong id="placeItemHint">Ürün fotoğrafı seçin</strong> veya sürükleyin</p>
         </div>
         <img id="placeItemPreview" class="preview-img" />
+        <div id="placeItemExtraPrevs" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;"></div>
       </div>
 
       <div class="panel" id="placeMapPanel" style="display:none;">
-        <h2>Konum İşaretle <span style="font-size:11px; color:#8A7E74; font-weight:400;">(isteğe bağlı)</span></h2>
+        <h2>Konum & Parsel <span style="font-size:11px; color:#8A7E74; font-weight:400;">(isteğe bağlı)</span></h2>
         <p style="font-size:12px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">
-          Arsanın yerini haritada tıklayarak işaretle — bölge bilgisi AI'a çevre bağlamı olarak iletilir.</p>
-        <div id="placeMap" style="width:100%; height:220px; border-radius:10px; border:1px solid #D8D2C8;"></div>
+          Tek tıkla konum işaretle, ya da <b>Parsel Çiz</b>'i açıp arsanın köşelerine tıklayarak sınırı çiz.
+          Parseli çizdikten sonra uydu görüntüsünü doğrudan sahne yapabilirsin — arsa fotoğrafı çekmene gerek kalmaz.</p>
+        <div style="display:flex; gap:8px; margin-bottom:8px;">
+          <input type="text" id="placeSearchInput" placeholder="Adres / mahalle / şehir ara..."
+            onkeydown="if(event.key==='Enter'){event.preventDefault();searchPlaceMap();}"
+            style="flex:1; box-sizing:border-box; padding:9px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:13px; color:#2A2520;" />
+          <button type="button" onclick="searchPlaceMap()"
+            style="padding:9px 14px; border:none; border-radius:8px; background:#9A6558; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer;">🔍 Ara</button>
+        </div>
+        <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+          <button type="button" id="placeLayerBtn" onclick="togglePlaceLayer()"
+            style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520; cursor:pointer;">🗺️ Haritaya Geç</button>
+          <button type="button" id="placeDrawBtn" onclick="togglePlaceDraw()"
+            style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520; cursor:pointer;">📐 Parsel Çiz</button>
+          <button type="button" onclick="clearPlaceParcel()"
+            style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#B5483A; cursor:pointer;">✕ Temizle</button>
+        </div>
+        <div id="placeMap" style="width:100%; height:260px; border-radius:10px; border:1px solid #D8D2C8;"></div>
         <div id="placeMapInfo" style="font-size:12px; color:#7A8B6A; margin-top:8px; display:none;"></div>
+        <button type="button" id="placeSatBtn" onclick="useSatelliteScene()"
+          style="display:none; width:100%; margin-top:10px; padding:11px; border:none; border-radius:10px; background:#7A8B6A; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;">🛰️ Uydu Görüntüsünü Sahne Yap</button>
+        <div id="placeSatInfo" style="font-size:12px; color:#7A8B6A; margin-top:6px; display:none;"></div>
+        <img id="placeSatPreview" class="preview-img" />
       </div>
 
       <div class="panel">
@@ -1418,6 +1444,26 @@
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:16px;" />
         <button class="render-btn" id="placeBtn" onclick="startPlace()">🧩 Yerleştir <span style="font-size:11px;opacity:0.8;">· 4 kredi</span></button>
         <div class="error-msg" id="placeError"></div>
+      </div>
+
+      <div class="panel" id="placePresentPanel" style="display:none;">
+        <h2>🔗 Proje Sunum Linki</h2>
+        <p style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
+          Montajların + harita + 360 tek linkte: açan kişi uydu haritada parseli görür, montaj görsellerini inceler,
+          360'ta binanın önünde gezinir. Link 30 gün yayında kalır, sonrasında kredi ile yenilenir.</p>
+        <div id="presentItemList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+        <input type="text" id="presentTitle" placeholder="Sunum başlığı: örn. Villa Projesi — Bodrum"
+          style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
+        <button class="render-btn" onclick="createPresentation()">🔗 Sunum Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
+        <div class="error-msg" id="presentError"></div>
+        <div id="presentLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
+          <div style="font-size:11px; color:#7A8B6A; font-weight:700; margin-bottom:6px;">✓ SUNUM YAYINDA</div>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="presentLinkInput" readonly
+              style="flex:1; padding:10px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520;" />
+            <button onclick="copyPresentLink()" style="padding:10px 16px; border:none; border-radius:8px; background:#9A6558; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer;">Kopyala</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1528,100 +1574,115 @@
 <div id="section-pano" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
 
-    <!-- Sol: Üretim -->
+    <!-- Sol: Panorama yükleme + GPT render -->
     <div>
       <div class="panel">
-        <h2>Panorama Kaynağı</h2>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <button class="scale-btn active" id="panoSrc4wall" onclick="setPanoSource('4wall')">
-            <div style="font-size:14px; font-weight:700; color:#9A6558;">📷 4 Duvardan Oluştur</div>
-            <div style="font-size:11px; color:#8A7E74; margin-top:3px;">4 dik foto → AI birleştirir</div>
-          </button>
-          <button class="scale-btn" id="panoSrcReady" onclick="setPanoSource('ready')">
-            <div style="font-size:14px; font-weight:700; color:#7A8B6A;">🌐 Hazır 360 Yükle</div>
-            <div style="font-size:11px; color:#8A7E74; margin-top:3px;">Enscape vb. 360 render</div>
-          </button>
-        </div>
-      </div>
-
-      <div class="panel" id="panoReadyPanel" style="display:none;">
-        <h2>Hazır 360 Panorama</h2>
+        <h2>🌐 360 Panorama Yükle</h2>
         <p style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
-          Enscape, Lumion vb. programdan aldığın <b>equirectangular 360</b> görseli yükle.
-          yükleme ücretsiz, tur linki oluşturma 15 kredi. İstersen önce AI ile iyileştir.</p>
+          Kendi <b>equirectangular 360</b> panoramanı yükle (2:1 oran — Enscape, Lumion, 360 kamera vb.).
+          Doğrudan tura ekleyebilir ya da önce GPT ile fotorealistik render alabilirsin.</p>
         <div class="upload-zone" style="padding:18px 12px;">
           <input type="file" id="panoReadyInput" accept="image/*" />
           <div style="font-size:24px;">🌐</div>
-          <p style="font-size:12px;">360 görseli seç / sürükle</p>
+          <p style="font-size:12px;">360 panorama seç / sürükle</p>
         </div>
         <img id="panoReadyPrev" class="preview-img" />
-        <label style="display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13px; color:#2A2520; cursor:pointer;">
-          <input type="checkbox" id="panoAiEnhance" style="width:16px; height:16px; accent-color:#9A6558;" />
-          ✨ AI ile fotorealistik iyileştir <span style="font-size:11px; color:#8A7E74;">(4 kredi — tasarım korunur, gerçekçilik artar)</span>
-        </label>
-      </div>
-
-      <div class="panel" id="pano4WallPanel">
-        <h2>4 Duvar Görseli Yükle</h2>
-        <p style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
-          Odanın ortasında durup her duvara <b>dik bakarak</b> çekilmiş/render edilmiş 4 görsel yükle.
-          Sistem bunları birleştirip 360° panorama yapar — tavan ve zemin otomatik tamamlanır.</p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <div>
-            <div style="font-size:11px; font-weight:700; color:#9A6558; margin-bottom:4px;">1 · ÖN DUVAR</div>
-            <div class="upload-zone" style="padding:14px 10px;">
-              <input type="file" id="panoFront" accept="image/*" />
-              <div style="font-size:20px;">⬆️</div>
-              <p style="font-size:11px;">Seç / sürükle</p>
-            </div>
-            <img id="panoFrontPrev" class="preview-img" style="max-height:80px;" />
-          </div>
-          <div>
-            <div style="font-size:11px; font-weight:700; color:#9A6558; margin-bottom:4px;">2 · SAĞ DUVAR</div>
-            <div class="upload-zone" style="padding:14px 10px;">
-              <input type="file" id="panoRight" accept="image/*" />
-              <div style="font-size:20px;">➡️</div>
-              <p style="font-size:11px;">Seç / sürükle</p>
-            </div>
-            <img id="panoRightPrev" class="preview-img" style="max-height:80px;" />
-          </div>
-          <div>
-            <div style="font-size:11px; font-weight:700; color:#9A6558; margin-bottom:4px;">3 · ARKA DUVAR</div>
-            <div class="upload-zone" style="padding:14px 10px;">
-              <input type="file" id="panoBack" accept="image/*" />
-              <div style="font-size:20px;">⬇️</div>
-              <p style="font-size:11px;">Seç / sürükle</p>
-            </div>
-            <img id="panoBackPrev" class="preview-img" style="max-height:80px;" />
-          </div>
-          <div>
-            <div style="font-size:11px; font-weight:700; color:#9A6558; margin-bottom:4px;">4 · SOL DUVAR</div>
-            <div class="upload-zone" style="padding:14px 10px;">
-              <input type="file" id="panoLeft" accept="image/*" />
-              <div style="font-size:20px;">⬅️</div>
-              <p style="font-size:11px;">Seç / sürükle</p>
-            </div>
-            <img id="panoLeftPrev" class="preview-img" style="max-height:80px;" />
-          </div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h2>İsteğe Bağlı Not</h2>
-        <input type="text" id="panoNote" placeholder="örn: geniş salon, akşam ışığı"
-          style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:12px;" />
         <input type="text" id="panoLabel" placeholder="Oda adı (turda görünür): örn. Salon"
-          style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:16px;" />
-        <button class="render-btn" id="panoBtn" onclick="startPano()">🌐 360° Panorama Oluştur <span id="panoBtnCost" style="font-size:11px;opacity:0.8;">· 4 kredi</span></button>
+          style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin:12px 0;" />
+        <input type="text" id="panoNote" placeholder="İsteğe bağlı not: örn. akşam ışığı"
+          style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <button class="render-btn" id="panoAddBtn" onclick="addUploadToTour()" style="margin-top:0; background:#7A8B6A;">➕ Tura Ekle <span style="font-size:11px;opacity:0.8;">· ücretsiz</span></button>
+          <button class="render-btn" id="panoGptBtn" onclick="startPanoGpt()" style="margin-top:0;">✨ Fotorealistik Render <span style="font-size:11px;opacity:0.8;">· 6 kredi</span></button>
+        </div>
         <div class="error-msg" id="panoError"></div>
       </div>
 
-      <div class="panel" id="tourPanel" style="display:none;">
-        <h2>Sanal Tur Oluştur</h2>
-        <div id="tourPanoList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+      <!-- GPT sonucu — butonların altında -->
+      <div class="panel" id="panoResultPanel" style="display:none;">
+        <h2>✨ Fotorealistik Sonuç</h2>
+        <div class="loading" id="panoLoading" style="display:none; padding:30px;">
+          <div class="spinner"></div>
+          <p>360° GPT render üretiliyor...<br><span style="font-size:12px; color:#ABA49C;">~60-90 saniye</span></p>
+        </div>
+        <div id="panoViewerWrap" style="display:none; width:100%;">
+          <div id="panoViewer" style="width:100%; height:340px; border-radius:10px; overflow:hidden;"></div>
+          <div style="padding:14px 0 2px; text-align:center;">
+            <button onclick="addPanoToTour()" style="padding:11px 26px; border:none; border-radius:10px; background:#7A8B6A; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;">➕ Tura Ekle</button>
+            <a id="panoDownloadBtn" class="download-btn" download="renderai_360.jpg" style="margin-left:8px;">⬇ İndir</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sağ: Tur paneli -->
+    <div>
+      <div class="panel">
+        <h2>🗂️ Tur Sahneleri</h2>
+        <div id="tourEmptyHint" style="font-size:12px; color:#8A7E74; line-height:1.5;">
+          Henüz sahne yok — soldan panorama yükleyip <b>Tura Ekle</b> ile başla.
+          Eklenen odaya tıklayınca geçiş noktalarını ayarlayabilirsin.</div>
+        <div id="tourPanoList" style="display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
+
+      <!-- Hotspot editörü -->
+      <div class="panel" id="hotspotPanel" style="display:none;">
+        <h2>📍 Geçiş Noktaları — <span id="hotspotSceneName" style="color:#9A6558;"></span></h2>
+        <div id="hotspotViewer" style="width:100%; height:300px; border-radius:10px; overflow:hidden;"></div>
+        <button id="hotspotAddBtn" onclick="toggleHotspotMode()"
+          style="margin-top:12px; padding:10px 18px; border:1px solid #9A6558; border-radius:10px; background:#FAFAF8; color:#9A6558; font-size:13px; font-weight:600; cursor:pointer;">📍 Geçiş Noktası Ekle</button>
+        <div id="hotspotHint" style="font-size:11px; color:#8A7E74; margin-top:8px; line-height:1.5;">
+          Butona bas, sonra panoramada kapının/geçidin olduğu yere tıkla — hedef odayı seç.</div>
+        <div id="hotspotTargetBox" style="display:none; align-items:center; gap:8px; margin-top:10px; padding:10px; background:#E8E4DC; border-radius:10px;">
+          <span style="font-size:12px; color:#2A2520; font-weight:600;">Hedef oda:</span>
+          <select id="hotspotTargetSel" style="flex:1; padding:8px 10px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520;"></select>
+          <button onclick="confirmHotspot()" style="padding:8px 14px; border:none; border-radius:8px; background:#7A8B6A; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer;">Ekle</button>
+          <button onclick="cancelHotspot()" style="padding:8px 12px; border:none; border-radius:8px; background:none; color:#B5483A; font-size:12px; cursor:pointer;">Vazgeç</button>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:10px; padding:10px; background:#E8E4DC; border-radius:10px;">
+          <span style="font-size:12px; color:#2A2520; font-weight:600;">🧭 Açılış açısı:</span>
+          <span id="initViewStatus" style="flex:1; font-size:11px; color:#8A7E74; line-height:1.4;"></span>
+          <button onclick="setInitView()" style="padding:8px 14px; border:none; border-radius:8px; background:#7A8B6A; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;">Bu Açıyı Kaydet</button>
+          <button id="initViewClearBtn" onclick="clearInitView()" style="display:none; padding:8px 12px; border:none; border-radius:8px; background:none; color:#B5483A; font-size:12px; cursor:pointer;">✕</button>
+        </div>
+        <div id="hotspotList" style="display:flex; flex-direction:column; gap:6px; margin-top:10px;"></div>
+      </div>
+
+      <!-- Plan + Logo -->
+      <div class="panel">
+        <h2>🗺️ Kat Planı & Firma Logosu <span style="font-size:11px; color:#8A7E74; font-weight:400;">(isteğe bağlı — turda sağ köşede)</span></h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <div style="font-size:11px; font-weight:700; color:#9A6558; margin-bottom:4px;">KAT PLANI</div>
+            <div class="upload-zone" style="padding:14px 10px;">
+              <input type="file" id="tourPlanInput" accept="image/*" />
+              <div style="font-size:20px;">🗺️</div>
+              <p style="font-size:11px;">Seç / sürükle</p>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px; font-weight:700; color:#9A6558; margin-bottom:4px;">FİRMA LOGOSU</div>
+            <div class="upload-zone" style="padding:14px 10px;">
+              <input type="file" id="tourLogoInput" accept="image/*" />
+              <div style="font-size:20px;">🏷️</div>
+              <p style="font-size:11px;">Seç / sürükle</p>
+            </div>
+            <img id="tourLogoPrev" class="preview-img" style="max-height:60px;" />
+          </div>
+        </div>
+        <div id="planWrap" style="display:none; position:relative; margin-top:12px; cursor:crosshair; border:1px solid #D8D2C8; border-radius:10px; overflow:hidden;">
+          <img id="tourPlanPrev" style="width:100%; display:block;" />
+        </div>
+        <div id="planHint" style="display:none; font-size:11px; color:#8A7E74; margin-top:6px; line-height:1.5;">
+          Listeden bir oda seç, sonra plana tıkla → odanın yeri işaretlenir. Turda gezerken aktif oda planda yanar.</div>
+        <div class="error-msg" id="assetError"></div>
+      </div>
+
+      <!-- Tur oluştur — panelin altında -->
+      <div class="panel">
         <input type="text" id="tourTitle" placeholder="Tur başlığı: örn. Villa Projesi"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
-        <button class="render-btn" onclick="createTour()">🔗 Tur Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
+        <button class="render-btn" onclick="createTour()">🔗 360 Tur Oluştur <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
         <div style="font-size:11px; color:#8A7E74; margin-top:8px;">Link 30 gün ücretsiz yayında kalır, sonrasında kredi ile yenilenir.</div>
         <div class="error-msg" id="tourError"></div>
         <div id="tourLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
@@ -1631,25 +1692,6 @@
               style="flex:1; padding:10px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520;" />
             <button onclick="copyTourLink()" style="padding:10px 16px; border:none; border-radius:8px; background:#9A6558; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer;">Kopyala</button>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sağ: 360 Önizleme -->
-    <div class="panel result-panel" style="padding:0; overflow:hidden;">
-      <div class="result-placeholder" id="panoPlaceholder" style="padding:40px;">
-        <div class="icon">🌐</div>
-        <p>360° panoraman burada döndürülebilir şekilde görünecek</p>
-      </div>
-      <div class="loading" id="panoLoading" style="display:none; padding:40px;">
-        <div class="spinner"></div>
-        <p>360° panorama üretiliyor...<br><span style="font-size:12px; color:#ABA49C;">Sahne analizi + panorama sentezi (~1 dk)</span></p>
-      </div>
-      <div id="panoViewerWrap" style="display:none; width:100%;">
-        <div id="panoViewer" style="width:100%; height:480px;"></div>
-        <div style="padding:14px; text-align:center;">
-          <button onclick="addPanoToTour()" style="padding:11px 26px; border:none; border-radius:10px; background:#7A8B6A; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;">➕ Tura Ekle</button>
-          <a id="panoDownloadBtn" class="download-btn" download="renderai_360.png" style="margin-left:8px;">⬇ İndir</a>
         </div>
       </div>
     </div>
@@ -1818,13 +1860,11 @@
   let selectedPresets = {}; // { prompt_text: label }
 
   // Yeni render ayarları
-  let selectedRenderModel = 'balance';
+  let selectedRenderModel = 'gpt';
   let selectedMode = 'advanced';
   let selectedQuality = 'auto';
 
   const MODEL_DESCRIPTIONS = {
-    balance:  '⚡ Hızlı ve güvenilir — yapı korunarak fotorealistik render. Standart seçim.',
-    clay:     '🧱 Saf form çalışması — tüm yüzeyler mat beyaz. Malzeme kararı verilmeden önce ideal.',
     gpt:      '🤖 GPT-Image-2 — en yüksek kalite, en detaylı sonuç. Sunum ve müşteri için.',
   };
 
@@ -2136,9 +2176,13 @@
   let placeMode = 'product';
   let placeSceneFiles = [];   // montajda coklu aci destegi
   let placeItemFile = null;
+  let placeItemFiles = [];    // montajda coklu proje gorseli (ilki ana)
   let placeMapObj = null;
   let placeMapMarker = null;
   let placeLocationText = '';
+  let placeSatLayer = null, placeOsmLayer = null, placeSatOn = true;
+  let placeDrawOn = false, placeParcelPts = [], placeParcelPoly = null;
+  let placeSatSceneFile = null;  // uydu goruntusunden uretilen sahne
 
   function setPlaceMode(mode) {
     placeMode = mode;
@@ -2147,26 +2191,38 @@
     const isProduct = mode === 'product';
     document.getElementById('placeSceneTitle').textContent = isProduct ? '1 — İç Mekan Görseli' : '1 — Arsa / Ortam Fotoğrafı';
     document.getElementById('placeSceneHint').textContent  = isProduct ? 'Render veya oda fotoğrafı seçin' : 'Arsanın/caddenin gerçek fotoğrafını seçin';
-    document.getElementById('placeItemTitle').textContent  = isProduct ? '2 — Yerleştirilecek Ürün' : '2 — Proje Görseli';
-    document.getElementById('placeItemHint').textContent   = isProduct ? 'Ürün fotoğrafı seçin' : 'Projenin render/cephe görselini seçin';
+    document.getElementById('placeItemTitle').textContent  = isProduct ? '2 — Yerleştirilecek Ürün' : '2 — Proje Görselleri';
+    document.getElementById('placeItemHint').textContent   = isProduct ? 'Ürün fotoğrafı seçin' : 'Projenin render/cephe görselleri — tek tek ya da çoklu ekle (en fazla 6: 4 cephe + 2 kuşbakışı). Küçük resme tıkla → ana görsel olur, × ile kaldır';
     document.getElementById('placeNote').placeholder = isProduct
       ? 'örn: yatağı bu ürünle değiştir, halıya dokunma'
       : 'örn: binayı arsanın soluna yerleştir, ağaçları koru';
-    // Montajda cevreden birden fazla aci yuklenebilir
+    // Montajda cevreden ve projeden birden fazla gorsel yuklenebilir
     document.getElementById('placeSceneInput').multiple = !isProduct;
+    document.getElementById('placeItemInput').multiple = !isProduct;
     document.getElementById('placeSceneHint').textContent = isProduct
       ? 'Render veya oda fotoğrafı seçin'
       : 'Arsanın/caddenin fotoğrafları — birden fazla açı seçebilirsin (ilki ana açı)';
     document.getElementById('placeMapPanel').style.display = isProduct ? 'none' : 'block';
+    document.getElementById('placePresentPanel').style.display = (!isProduct && placeResults.length) ? 'block' : 'none';
     if (!isProduct && !placeMapObj) initPlaceMap();
   }
 
   function initPlaceMap() {
     placeMapObj = L.map('placeMap').setView([39.0, 35.0], 5); // Türkiye merkez
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(placeMapObj);
+    placeOsmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap', maxZoom: 19
+    });
+    // Uydu görünümü: görüntü + yol/sokak isimleri + yer adları (etiketler sadece haritada, AI sahnesine girmez)
+    placeSatLayer = L.layerGroup([
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '© Esri', maxZoom: 19
+      }),
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }),
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 })
+    ]);
+    placeSatLayer.addTo(placeMapObj);
     placeMapObj.on('click', async e => {
+      if (placeDrawOn) { addParcelPoint(e.latlng); return; }
       if (placeMapMarker) placeMapMarker.remove();
       placeMapMarker = L.marker(e.latlng).addTo(placeMapObj);
       const info = document.getElementById('placeMapInfo');
@@ -2185,6 +2241,142 @@
       }
     });
     setTimeout(() => placeMapObj.invalidateSize(), 300);
+  }
+
+  async function searchPlaceMap() {
+    const q = document.getElementById('placeSearchInput').value.trim();
+    if (!q || !placeMapObj) return;
+    const info = document.getElementById('placeMapInfo');
+    info.style.display = 'block';
+    info.textContent = '🔍 Aranıyor...';
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1&accept-language=tr`);
+      const d = await r.json();
+      if (d.length) {
+        placeMapObj.setView([+d[0].lat, +d[0].lon], 17);
+        info.textContent = '📍 ' + d[0].display_name + ' — yakınlaş, sonra parseli çiz veya konumu tıkla.';
+      } else {
+        info.textContent = '⚠ Sonuç bulunamadı — "mahalle, ilçe, şehir" gibi daha açık yazmayı dene.';
+      }
+    } catch (_) {
+      info.textContent = '⚠ Arama şu an çalışmadı — birkaç saniye sonra tekrar dene.';
+    }
+  }
+
+  function togglePlaceLayer() {
+    placeSatOn = !placeSatOn;
+    if (placeSatOn) {
+      placeMapObj.removeLayer(placeOsmLayer); placeSatLayer.addTo(placeMapObj);
+      document.getElementById('placeLayerBtn').textContent = '🗺️ Haritaya Geç';
+    } else {
+      placeMapObj.removeLayer(placeSatLayer); placeOsmLayer.addTo(placeMapObj);
+      document.getElementById('placeLayerBtn').textContent = '🛰️ Uyduya Geç';
+    }
+  }
+
+  function togglePlaceDraw() {
+    placeDrawOn = !placeDrawOn;
+    const btn = document.getElementById('placeDrawBtn');
+    btn.style.background = placeDrawOn ? '#9A6558' : '#fff';
+    btn.style.color = placeDrawOn ? '#FAFAF8' : '#2A2520';
+    const info = document.getElementById('placeMapInfo');
+    if (placeDrawOn) {
+      info.style.display = 'block';
+      info.textContent = '📐 Parsel çizimi açık — arsanın köşelerine sırayla tıkla (en az 3 nokta).';
+    }
+  }
+
+  function addParcelPoint(latlng) {
+    placeParcelPts.push(latlng);
+    if (placeParcelPoly) placeParcelPoly.remove();
+    placeParcelPoly = L.polygon(placeParcelPts, { color: '#FF2D2D', weight: 3, fillOpacity: 0.12 }).addTo(placeMapObj);
+    const info = document.getElementById('placeMapInfo');
+    info.style.display = 'block';
+    info.textContent = `📐 ${placeParcelPts.length} köşe işaretlendi` + (placeParcelPts.length >= 3 ? ' — parsel hazır.' : ' — devam et (en az 3).');
+    document.getElementById('placeSatBtn').style.display = placeParcelPts.length >= 3 ? 'block' : 'none';
+    if (placeParcelPts.length >= 3 && !placeLocationText) {
+      const c = placeParcelPoly.getBounds().getCenter();
+      placeLocationText = `coordinates ${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`;
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${c.lat}&lon=${c.lng}&format=json&accept-language=tr`)
+        .then(r => r.json()).then(d => { if (d.display_name) placeLocationText = d.display_name; }).catch(() => {});
+    }
+  }
+
+  function clearPlaceParcel() {
+    placeParcelPts = [];
+    if (placeParcelPoly) { placeParcelPoly.remove(); placeParcelPoly = null; }
+    if (placeMapMarker) { placeMapMarker.remove(); placeMapMarker = null; }
+    placeLocationText = '';
+    placeSatSceneFile = null;
+    document.getElementById('placeSatBtn').style.display = 'none';
+    document.getElementById('placeSatInfo').style.display = 'none';
+    document.getElementById('placeSatPreview').style.display = 'none';
+    document.getElementById('placeMapInfo').style.display = 'none';
+  }
+
+  // Uydu karolarini canvas'ta birlestirip parsel sinirini kirmizi cizer → sahne gorseli
+  async function useSatelliteScene() {
+    if (placeParcelPts.length < 3) return;
+    const satInfo = document.getElementById('placeSatInfo');
+    satInfo.style.display = 'block';
+    satInfo.textContent = '🛰️ Uydu görüntüsü hazırlanıyor...';
+    try {
+      const lon2t = (lon, z) => (lon + 180) / 360 * Math.pow(2, z);
+      const lat2t = (lat, z) => { const r = lat * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * Math.pow(2, z); };
+      const b = L.latLngBounds(placeParcelPts).pad(0.7);
+      let z = 19;
+      while (z > 14) {
+        if ((lon2t(b.getEast(), z) - lon2t(b.getWest(), z)) <= 5 &&
+            (lat2t(b.getSouth(), z) - lat2t(b.getNorth(), z)) <= 5) break;
+        z--;
+      }
+      const x0 = Math.floor(lon2t(b.getWest(), z)), x1 = Math.floor(lon2t(b.getEast(), z));
+      const y0 = Math.floor(lat2t(b.getNorth(), z)), y1 = Math.floor(lat2t(b.getSouth(), z));
+      const canvas = document.createElement('canvas');
+      canvas.width = (x1 - x0 + 1) * 256;
+      canvas.height = (y1 - y0 + 1) * 256;
+      const ctx = canvas.getContext('2d');
+      const jobs = [];
+      for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) {
+        jobs.push(new Promise((res, rej) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => { ctx.drawImage(img, (x - x0) * 256, (y - y0) * 256); res(); };
+          img.onerror = () => rej(new Error('karo indirilemedi'));
+          img.src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+        }));
+      }
+      await Promise.all(jobs);
+      // Parsel sinirini kirmizi ciz (AI bu sinira yerlestirir, sonucta cizgiyi siler)
+      ctx.strokeStyle = '#FF2D2D';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      placeParcelPts.forEach((p, i) => {
+        const px = (lon2t(p.lng, z) - x0) * 256;
+        const py = (lat2t(p.lat, z) - y0) * 256;
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      });
+      ctx.closePath();
+      ctx.stroke();
+      // Yalnizca parsel cevresini kirp
+      const cx0 = Math.max(0, Math.floor((lon2t(b.getWest(), z) - x0) * 256));
+      const cy0 = Math.max(0, Math.floor((lat2t(b.getNorth(), z) - y0) * 256));
+      const cw = Math.min(canvas.width - cx0, Math.ceil((lon2t(b.getEast(), z) - lon2t(b.getWest(), z)) * 256));
+      const ch = Math.min(canvas.height - cy0, Math.ceil((lat2t(b.getSouth(), z) - lat2t(b.getNorth(), z)) * 256));
+      const crop = document.createElement('canvas');
+      crop.width = cw; crop.height = ch;
+      crop.getContext('2d').drawImage(canvas, cx0, cy0, cw, ch, 0, 0, cw, ch);
+      const blob = await new Promise(res => crop.toBlob(res, 'image/png'));
+      if (!blob) throw new Error('görüntü oluşturulamadı');
+      placeSatSceneFile = new File([blob], 'satellite_scene.png', { type: 'image/png' });
+      const prev = document.getElementById('placeSatPreview');
+      prev.src = URL.createObjectURL(blob);
+      prev.style.display = 'block';
+      satInfo.textContent = '✓ Uydu sahnesi hazır — "Yerleştir" dediğinde bina, çizdiğin parsele kuşbakışı monte edilecek. Arsa fotoğrafı da yüklersen ek açı olarak kullanılır.';
+    } catch (e) {
+      placeSatSceneFile = null;
+      satInfo.textContent = '⚠ Uydu görüntüsü alınamadı (' + e.message + ') — arsa fotoğrafı yüklemeyi dene.';
+    }
   }
 
   document.getElementById('placeSceneInput').addEventListener('change', e => {
@@ -2210,23 +2402,67 @@
     });
   });
 
+  function renderPlaceItemPrevs() {
+    placeItemFile = placeItemFiles[0] || null;
+    const mainImg = document.getElementById('placeItemPreview');
+    const extraWrap = document.getElementById('placeItemExtraPrevs');
+    extraWrap.innerHTML = '';
+    if (!placeItemFile) { mainImg.style.display = 'none'; return; }
+    placeItemFiles.forEach((f, i) => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        if (i === 0) {
+          mainImg.src = ev.target.result;
+          mainImg.style.display = 'block';
+          mainImg.title = 'Ana görsel (ön cephe) — bu açıdan montajlanır';
+        } else {
+          const wrap = document.createElement('span');
+          wrap.style.cssText = 'position:relative; display:inline-block;';
+          const t = document.createElement('img');
+          t.src = ev.target.result;
+          t.title = 'Ana görsel yapmak için tıkla';
+          t.style.cssText = 'width:64px; height:44px; object-fit:cover; border-radius:6px; border:1px solid #D8D2C8; cursor:pointer;';
+          t.onclick = () => { placeItemFiles.unshift(placeItemFiles.splice(i, 1)[0]); renderPlaceItemPrevs(); };
+          const x = document.createElement('span');
+          x.textContent = '×';
+          x.title = 'Kaldır';
+          x.style.cssText = 'position:absolute; top:-6px; right:-6px; width:16px; height:16px; line-height:15px; text-align:center; background:#9A6558; color:#fff; border-radius:50%; font-size:12px; cursor:pointer;';
+          x.onclick = () => { placeItemFiles.splice(i, 1); renderPlaceItemPrevs(); };
+          wrap.appendChild(t); wrap.appendChild(x);
+          extraWrap.appendChild(wrap);
+        }
+      };
+      reader.readAsDataURL(f);
+    });
+  }
+
   document.getElementById('placeItemInput').addEventListener('change', e => {
-    placeItemFile = e.target.files[0];
-    if (!placeItemFile) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const img = document.getElementById('placeItemPreview');
-      img.src = ev.target.result;
-      img.style.display = 'block';
-    };
-    reader.readAsDataURL(placeItemFile);
+    const secilenler = Array.from(e.target.files);
+    if (placeMode === 'montage') {
+      // Yeni secim oncekileri silmez, uzerine ekler — yukle/kapat/yukle ile sirayi kendin kur
+      placeItemFiles = placeItemFiles.concat(secilenler).slice(0, 6); // ana + 5 ek (4 cephe + 2 kusbakisi)
+    } else {
+      placeItemFiles = secilenler.slice(0, 1);
+    }
+    e.target.value = ''; // ayni dosya tekrar secilebilsin
+    renderPlaceItemPrevs();
   });
 
   async function startPlace() {
     const errEl = document.getElementById('placeError');
     errEl.style.display = 'none';
-    if (!placeSceneFiles.length || !placeItemFile) {
-      errEl.textContent = 'Hata: İki görsel de gerekli — sahne ve yerleştirilecek öğe.';
+    // Montajda uydu sahnesi varsa ana sahne odur; yuklenen fotograflar ek aci olur
+    // Parsel cizilmis ama sahne yoksa uydu sahnesi otomatik uretilir — arsa fotografi zorunlu degil
+    if (placeMode === 'montage' && !placeSatSceneFile && !placeSceneFiles.length && placeParcelPts.length >= 3) {
+      await useSatelliteScene();
+    }
+    const useSat = placeMode === 'montage' && placeSatSceneFile;
+    let sceneList = placeSceneFiles;
+    if (useSat) sceneList = [placeSatSceneFile, ...placeSceneFiles];
+    if (!sceneList.length || !placeItemFile) {
+      errEl.textContent = (placeMode === 'montage' && !sceneList.length)
+        ? 'Hata: Sahne gerekli — haritada parseli çiz (uydu sahnesi otomatik kullanılır) ya da arsa fotoğrafı yükle.'
+        : 'Hata: İki görsel de gerekli — sahne ve yerleştirilecek öğe.';
       errEl.style.display = 'block';
       return;
     }
@@ -2239,12 +2475,18 @@
 
     try {
       const formData = new FormData();
-      formData.append('image', await resizeIfNeeded(placeSceneFiles[0]));
-      for (const f of placeSceneFiles.slice(1)) {
+      formData.append('image', await resizeIfNeeded(sceneList[0]));
+      for (const f of sceneList.slice(1)) {
         formData.append('extras', await resizeIfNeeded(f));
       }
       formData.append('item', await resizeIfNeeded(placeItemFile));
+      if (placeMode === 'montage') {
+        for (const f of placeItemFiles.slice(1)) {
+          formData.append('item_extras', await resizeIfNeeded(f));
+        }
+      }
       formData.append('mode', placeMode);
+      formData.append('scene_kind', useSat ? 'satellite' : 'photo');
       let noteVal = document.getElementById('placeNote').value.trim();
       if (placeMode === 'montage' && placeLocationText) {
         noteVal += (noteVal ? ' ' : '') + `Site location context: ${placeLocationText}.`;
@@ -2272,6 +2514,9 @@
           img.src = statusData.render_url;
           document.getElementById('placeDownloadBtn').href = statusData.render_url;
           document.getElementById('placeResultContainer').style.display = 'block';
+          if (placeMode === 'montage') {
+            addPlaceResult(statusData.render_url, statusData.storage_url || '');
+          }
           break;
         }
         if (statusData.status === 'failed') {
@@ -2462,33 +2707,146 @@
     navigator.clipboard.writeText(input.value).catch(() => document.execCommand('copy'));
   }
 
+  // ─── PROJE SUNUM LİNKİ ───────────────────────────────────────────────────
+  let placeResults = [];  // {kind:'image'|'pano', dataUrl, url(storage), label, busy}
+
+  function addPlaceResult(dataUrl, storageUrl) {
+    placeResults.push({ kind: 'image', dataUrl, url: storageUrl, label: 'Montaj ' + (placeResults.filter(r => r.kind === 'image').length + 1) });
+    renderPresentList();
+    document.getElementById('placePresentPanel').style.display = 'block';
+  }
+
+  function removePlaceResult(i) {
+    placeResults.splice(i, 1);
+    renderPresentList();
+  }
+
+  function renderPresentList() {
+    const wrap = document.getElementById('presentItemList');
+    wrap.innerHTML = '';
+    placeResults.forEach((r, i) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; gap:10px; padding:8px 10px; background:#E8E4DC; border-radius:8px;';
+      const icon = r.kind === 'pano' ? '🌐 ' : '';
+      const warn = r.url ? '' : ' <span style="color:#B5483A; font-size:11px;">(kalıcı kayıt yok — linke eklenemez)</span>';
+      let actions = '';
+      if (r.kind === 'image') {
+        actions = r.busy
+          ? '<span style="font-size:12px; color:#8A7E74;">360 üretiliyor...</span>'
+          : `<button onclick="genPlacePano(${i})" style="border:none; border-radius:7px; background:#7A8B6A; color:#FAFAF8; padding:7px 10px; font-size:11px; font-weight:600; cursor:pointer;">🌐 360 Üret · 4 kr</button>`;
+      }
+      row.innerHTML = `
+        <img src="${r.dataUrl || r.url}" style="width:54px; height:34px; object-fit:cover; border-radius:5px;" />
+        <span style="flex:1; font-size:13px; color:#2A2520; font-weight:600;">${icon}${r.label}${warn}</span>
+        ${actions}
+        <button onclick="removePlaceResult(${i})" style="border:none; background:none; color:#B5483A; cursor:pointer; font-size:14px;">✕</button>`;
+      wrap.appendChild(row);
+    });
+  }
+
+  async function genPlacePano(i) {
+    const r = placeResults[i];
+    if (!r || r.busy) return;
+    const errEl = document.getElementById('presentError');
+    errEl.style.display = 'none';
+    r.busy = true;
+    renderPresentList();
+    try {
+      const src = r.dataUrl || r.url;
+      const blob = await (await fetch(src)).blob();
+      const formData = new FormData();
+      formData.append('image', new File([blob], 'montage.png', { type: blob.type || 'image/png' }));
+      formData.append('note', document.getElementById('placeNote').value.trim());
+      const startRes = await fetch(`${API}/place/pano360/start`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
+      const jobId = startData.prediction_id;
+      while (true) {
+        await new Promise(res => setTimeout(res, 2500));
+        const sRes = await fetch(`${API}/render/status/${jobId}`);
+        const sData = await sRes.json();
+        if (sData.status === 'succeeded') {
+          placeResults.push({ kind: 'pano', dataUrl: '', url: sData.storage_url || (sData.render_url.startsWith('http') ? sData.render_url : ''), label: r.label + ' — 360°' });
+          break;
+        }
+        if (sData.status === 'failed') throw new Error(sData.error || '360 üretilemedi');
+      }
+    } catch (e) {
+      errEl.textContent = 'Hata: ' + e.message;
+      errEl.style.display = 'block';
+    } finally {
+      r.busy = false;
+      renderPresentList();
+    }
+  }
+
+  async function createPresentation() {
+    const errEl = document.getElementById('presentError');
+    errEl.style.display = 'none';
+    if (!localStorage.getItem('ra_token')) {
+      errEl.textContent = 'Sunum linki oluşturmak için giriş yapmalısın.';
+      errEl.style.display = 'block';
+      openAuthModal('login');
+      return;
+    }
+    const images = placeResults.filter(r => r.kind === 'image' && r.url).map(r => ({ url: r.url, label: r.label }));
+    const panos = placeResults.filter(r => r.kind === 'pano' && r.url).map(r => ({ url: r.url, label: r.label }));
+    if (!images.length && !panos.length) {
+      errEl.textContent = 'Linke eklenebilecek kalıcı kayıtlı montaj yok — yeni bir montaj üret.';
+      errEl.style.display = 'block';
+      return;
+    }
+    const mapData = {};
+    if (placeParcelPts.length >= 3) {
+      mapData.polygon = placeParcelPts.map(p => [p.lat, p.lng]);
+      const c = placeParcelPoly.getBounds().getCenter();
+      mapData.center = [c.lat, c.lng];
+      mapData.zoom = 17;
+    } else if (placeMapMarker) {
+      const ll = placeMapMarker.getLatLng();
+      mapData.center = [ll.lat, ll.lng];
+      mapData.zoom = 16;
+    }
+    if (placeLocationText) mapData.address = placeLocationText;
+    try {
+      const res = await fetch(`${API}/presentations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({
+          title: document.getElementById('presentTitle').value.trim(),
+          map: mapData, images, panos
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Sunum oluşturulamadı');
+      refreshCredits();
+      document.getElementById('presentLinkInput').value = `${location.origin}/sunum.html?id=${data.presentation_id}`;
+      document.getElementById('presentLinkBox').style.display = 'block';
+    } catch (e) {
+      errEl.textContent = 'Hata: ' + e.message;
+      errEl.style.display = 'block';
+    }
+  }
+
+  function copyPresentLink() {
+    const input = document.getElementById('presentLinkInput');
+    input.select();
+    navigator.clipboard.writeText(input.value).catch(() => document.execCommand('copy'));
+  }
+
+
   // ─── 360 TUR ─────────────────────────────────────────────────────────────
   let panoViewerInstance = null;
   let currentPanoUrl = null;
-  let tourPanos = [];  // [{url, label}]
-  const panoWalls = { front: null, right: null, back: null, left: null };
-  let panoSource = '4wall';
+  let tourPanos = [];  // [{id, url, label, hotspots:[{pitch,yaw,target,targetLabel}], planX, planY}]
   let panoReadyFile = null;
-
-  function setPanoSource(src) {
-    panoSource = src;
-    document.getElementById('panoSrc4wall').classList.toggle('active', src === '4wall');
-    document.getElementById('panoSrcReady').classList.toggle('active', src === 'ready');
-    document.getElementById('pano4WallPanel').style.display = src === '4wall' ? 'block' : 'none';
-    document.getElementById('panoReadyPanel').style.display = src === 'ready' ? 'block' : 'none';
-    updatePanoBtnCost();
-  }
-
-  function updatePanoBtnCost() {
-    const el = document.getElementById('panoBtnCost');
-    if (!el) return;
-    if (panoSource === 'ready' && !document.getElementById('panoAiEnhance').checked) {
-      el.textContent = '· ücretsiz (tur: 15 kredi)';
-    } else {
-      el.textContent = '· 4 kredi';
-    }
-  }
-  document.getElementById('panoAiEnhance').addEventListener('change', updatePanoBtnCost);
+  let tourPlanUrl = '';
+  let tourLogoUrl = '';
+  let selectedSceneIdx = -1;
+  let hotspotViewerInstance = null;
+  let hotspotAddMode = false;
+  let pendingHotspot = null;  // {pitch, yaw}
 
   document.getElementById('panoReadyInput').addEventListener('change', e => {
     panoReadyFile = e.target.files[0] || null;
@@ -2502,84 +2860,58 @@
     reader.readAsDataURL(panoReadyFile);
   });
 
-  function showPanoResult(url) {
-    document.getElementById('panoLoading').style.display = 'none';
-    currentPanoUrl = url;
-    document.getElementById('panoDownloadBtn').href = url;
-    document.getElementById('panoViewerWrap').style.display = 'block';
-    if (panoViewerInstance) panoViewerInstance.destroy();
-    panoViewerInstance = pannellum.viewer('panoViewer', {
-      type: 'equirectangular', panorama: url,
-      autoLoad: true, autoRotate: -3
-    });
+  function panoErr(msg) {
+    const errEl = document.getElementById('panoError');
+    errEl.textContent = msg ? 'Hata: ' + msg : '';
+    errEl.style.display = msg ? 'block' : 'none';
   }
 
-  [['panoFront','front','panoFrontPrev'], ['panoRight','right','panoRightPrev'],
-   ['panoBack','back','panoBackPrev'], ['panoLeft','left','panoLeftPrev']].forEach(([inputId, key, prevId]) => {
-    document.getElementById(inputId).addEventListener('change', e => {
-      panoWalls[key] = e.target.files[0] || null;
-      if (!panoWalls[key]) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const img = document.getElementById(prevId);
-        img.src = ev.target.result;
-        img.style.display = 'block';
-      };
-      reader.readAsDataURL(panoWalls[key]);
-    });
-  });
+  function pushTourPano(url) {
+    const label = document.getElementById('panoLabel').value.trim() || ('Sahne ' + (tourPanos.length + 1));
+    tourPanos.push({ id: 'p' + Date.now() + '_' + tourPanos.length, url, label, hotspots: [] });
+    document.getElementById('panoLabel').value = '';
+    renderTourList();
+  }
 
-  async function startPano() {
-    const errEl = document.getElementById('panoError');
-    errEl.style.display = 'none';
-    if (panoSource === 'ready') {
-      if (!panoReadyFile) {
-        errEl.textContent = 'Hata: Önce 360 görselini yükle.';
-        errEl.style.display = 'block';
-        return;
-      }
-    } else {
-      const missing = ['front','right','back','left'].filter(k => !panoWalls[k]);
-      if (missing.length) {
-        const tr = { front:'Ön', right:'Sağ', back:'Arka', left:'Sol' };
-        errEl.textContent = 'Hata: Eksik duvar görseli — ' + missing.map(k => tr[k]).join(', ');
-        errEl.style.display = 'block';
-        return;
-      }
-    }
-
-    const btn = document.getElementById('panoBtn');
+  // ➕ Tura Ekle — yüklenen panoramayı doğrudan tura al (ücretsiz)
+  async function addUploadToTour() {
+    panoErr('');
+    if (!panoReadyFile) { panoErr('Önce 360 panoramanı yükle.'); return; }
+    const btn = document.getElementById('panoAddBtn');
+    const orig = btn.innerHTML;
     btn.disabled = true;
-    document.getElementById('panoPlaceholder').style.display = 'none';
+    btn.innerHTML = '⏳ Yükleniyor...';
+    try {
+      const formData = new FormData();
+      formData.append('image', await resizeIfNeeded(panoReadyFile, 4096));
+      const res = await fetch(`${API}/pano/upload`, { method: 'POST', headers: authHeaders(), body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Yükleme başarısız');
+      pushTourPano(data.url);
+    } catch (e) {
+      panoErr(e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = orig;
+    }
+  }
+
+  // ✨ Fotorealistik Render — GPT Image, sonuç 2:1 equirectangular
+  async function startPanoGpt() {
+    panoErr('');
+    if (!panoReadyFile) { panoErr('Önce 360 panoramanı yükle.'); return; }
+    const btn = document.getElementById('panoGptBtn');
+    btn.disabled = true;
+    document.getElementById('panoResultPanel').style.display = 'block';
     document.getElementById('panoViewerWrap').style.display = 'none';
     document.getElementById('panoLoading').style.display = 'flex';
 
     try {
       const formData = new FormData();
-      let endpoint;
-      if (panoSource === 'ready') {
-        const aiEnhance = document.getElementById('panoAiEnhance').checked;
-        formData.append('image', await resizeIfNeeded(panoReadyFile, 4096));
-        if (!aiEnhance) {
-          // AI yok — direkt Storage'a yükle, anında sonuç
-          const upRes = await fetch(`${API}/pano/upload`, { method: 'POST', headers: authHeaders(), body: formData });
-          const upData = await upRes.json();
-          if (!upRes.ok) throw new Error(upData.detail || 'Yükleme başarısız');
-          showPanoResult(upData.url);
-          btn.disabled = false;
-          return;
-        }
-        formData.append('note', document.getElementById('panoNote').value.trim());
-        endpoint = '/pano/restyle';
-      } else {
-        for (const k of ['front','right','back','left']) {
-          formData.append(k, await resizeIfNeeded(panoWalls[k]));
-        }
-        formData.append('note', document.getElementById('panoNote').value.trim());
-        endpoint = '/pano/start';
-      }
+      formData.append('image', await resizeIfNeeded(panoReadyFile, 4096));
+      formData.append('note', document.getElementById('panoNote').value.trim());
 
-      const startRes = await fetch(`${API}${endpoint}`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startRes = await fetch(`${API}/pano/gpt`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
       refreshCredits();
@@ -2592,57 +2924,322 @@
 
         if (statusData.stage_label) {
           document.querySelector('#panoLoading p').innerHTML =
-            statusData.stage_label + '<br><span style="font-size:12px; color:#ABA49C;">360° sentez</span>';
+            statusData.stage_label + '<br><span style="font-size:12px; color:#ABA49C;">360° GPT render</span>';
         }
         if (statusData.status === 'succeeded') {
           showPanoResult(statusData.render_url);
           break;
         }
         if (statusData.status === 'failed') {
-          throw new Error(statusData.error || 'Panorama üretilemedi');
+          throw new Error(statusData.error || 'Render üretilemedi');
         }
       }
     } catch (e) {
       document.getElementById('panoLoading').style.display = 'none';
-      document.getElementById('panoPlaceholder').style.display = 'flex';
-      errEl.textContent = 'Hata: ' + e.message;
-      errEl.style.display = 'block';
+      document.getElementById('panoResultPanel').style.display = 'none';
+      panoErr(e.message);
     } finally {
       btn.disabled = false;
     }
   }
 
+  function showPanoResult(url) {
+    document.getElementById('panoLoading').style.display = 'none';
+    currentPanoUrl = url;
+    document.getElementById('panoDownloadBtn').href = url;
+    document.getElementById('panoViewerWrap').style.display = 'block';
+    if (panoViewerInstance) panoViewerInstance.destroy();
+    panoViewerInstance = pannellum.viewer('panoViewer', {
+      type: 'equirectangular', panorama: url,
+      autoLoad: true, autoRotate: -3
+    });
+  }
+
+  // GPT sonucunu beğenince tura ekle
   function addPanoToTour() {
     if (!currentPanoUrl) return;
     if (!currentPanoUrl.startsWith('http')) {
-      const errEl = document.getElementById('tourError');
-      document.getElementById('tourPanel').style.display = 'block';
-      errEl.textContent = 'Bu panorama kalıcı depoya kaydedilemedi — tura eklenemez. Tekrar üretmeyi dene.';
-      errEl.style.display = 'block';
+      panoErr('Bu panorama kalıcı depoya kaydedilemedi — tura eklenemez. Tekrar üretmeyi dene.');
       return;
     }
-    const label = document.getElementById('panoLabel').value.trim() || ('Sahne ' + (tourPanos.length + 1));
-    tourPanos.push({ url: currentPanoUrl, label });
-    renderTourList();
-    document.getElementById('tourPanel').style.display = 'block';
+    pushTourPano(currentPanoUrl);
   }
 
   function removeTourPano(i) {
+    const removedId = tourPanos[i].id;
     tourPanos.splice(i, 1);
+    // silinen sahneye işaret eden geçiş noktalarını temizle
+    tourPanos.forEach(p => { p.hotspots = (p.hotspots || []).filter(h => h.target !== removedId); });
+    if (selectedSceneIdx === i) {
+      selectedSceneIdx = -1;
+      document.getElementById('hotspotPanel').style.display = 'none';
+    } else if (selectedSceneIdx > i) {
+      selectedSceneIdx--;
+    }
     renderTourList();
+    if (selectedSceneIdx >= 0) renderHotspotList();
   }
 
   function renderTourList() {
     const wrap = document.getElementById('tourPanoList');
+    document.getElementById('tourEmptyHint').style.display = tourPanos.length ? 'none' : 'block';
     wrap.innerHTML = '';
     tourPanos.forEach((p, i) => {
+      const sel = i === selectedSceneIdx;
       const row = document.createElement('div');
-      row.style.cssText = 'display:flex; align-items:center; gap:10px; padding:8px 10px; background:#E8E4DC; border-radius:8px;';
+      row.style.cssText = 'display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; background:' +
+        (sel ? '#DDE3D5; outline:2px solid #7A8B6A;' : '#E8E4DC;');
+      row.onclick = () => openHotspotEditor(i);
+      const hsCount = (p.hotspots || []).length;
+      const badges = (hsCount ? ' · 📍' + hsCount : '') + (p.planX != null ? ' · 🗺️' : '') + (p.initYaw != null ? ' · 🧭' : '');
       row.innerHTML = `
         <img src="${p.url}" style="width:54px; height:28px; object-fit:cover; border-radius:5px;" />
-        <span style="flex:1; font-size:13px; color:#2A2520; font-weight:600;">${p.label}</span>
-        <button onclick="removeTourPano(${i})" style="border:none; background:none; color:#B5483A; cursor:pointer; font-size:14px;">✕</button>`;
+        <span style="flex:1; font-size:13px; color:#2A2520; font-weight:600;">${p.label}<span style="font-size:11px; color:#8A7E74; font-weight:400;">${badges}</span></span>
+        <button onclick="event.stopPropagation(); renameTourPano(${i})" title="Sahne adını düzenle" style="border:none; background:none; color:#8A7E74; cursor:pointer; font-size:13px;">✏️</button>
+        <button onclick="event.stopPropagation(); removeTourPano(${i})" style="border:none; background:none; color:#B5483A; cursor:pointer; font-size:14px;">✕</button>`;
       wrap.appendChild(row);
+    });
+    renderPlanDots();
+  }
+
+  // ── Hotspot editörü — geçişler panoramada tıklanarak ayarlanır ──
+  function openHotspotEditor(i) {
+    selectedSceneIdx = i;
+    document.getElementById('hotspotPanel').style.display = 'block';
+    document.getElementById('hotspotSceneName').textContent = tourPanos[i].label;
+    setHotspotMode(false);
+    cancelHotspot();
+    renderTourList();
+    rebuildHotspotViewer();
+    renderHotspotList();
+    updateInitViewUI();
+  }
+
+  function rebuildHotspotViewer() {
+    const p = tourPanos[selectedSceneIdx];
+    if (!p) return;
+    if (hotspotViewerInstance) hotspotViewerInstance.destroy();
+    hotspotViewerInstance = pannellum.viewer('hotspotViewer', {
+      type: 'equirectangular', panorama: p.url, autoLoad: true,
+      yaw: p.initYaw != null ? p.initYaw : 0,
+      pitch: p.initPitch != null ? p.initPitch : 0,
+      hfov: p.initHfov != null ? p.initHfov : 100,
+      hotSpots: (p.hotspots || []).map(h => ({ pitch: h.pitch, yaw: h.yaw, type: 'info', text: '→ ' + h.targetLabel, cssClass: 'spot-dot' }))
+    });
+    hotspotViewerInstance.on('mousedown', onHotspotViewerClick);
+  }
+
+  // ── Sahne adını düzenle — geçiş etiketleri de güncellenir ──
+  function renameTourPano(i) {
+    const p = tourPanos[i];
+    const name = prompt('Sahne adı:', p.label);
+    if (name == null) return;
+    const label = name.trim();
+    if (!label || label === p.label) return;
+    p.label = label;
+    // bu sahneyi hedefleyen geçiş noktalarının etiketini güncelle
+    tourPanos.forEach(t => (t.hotspots || []).forEach(h => { if (h.target === p.id) h.targetLabel = label; }));
+    if (selectedSceneIdx === i) document.getElementById('hotspotSceneName').textContent = label;
+    if (selectedSceneIdx >= 0) {
+      renderHotspotList();
+      // açık önizlemedeki geçiş tooltip'leri yeniden adlandırılan sahneyi gösteriyorsa tazele
+      if ((tourPanos[selectedSceneIdx].hotspots || []).some(h => h.target === p.id)) rebuildHotspotViewer();
+    }
+    renderTourList();
+  }
+
+  // ── Açılış açısı — turda sahnenin ilk göründüğü yön ──
+  function updateInitViewUI() {
+    const p = tourPanos[selectedSceneIdx];
+    if (!p) return;
+    const set = p.initYaw != null;
+    document.getElementById('initViewStatus').textContent = set
+      ? '✓ kayıtlı — turda sahne bu açıyla açılır'
+      : 'Panoramayı istediğin yöne çevirip kaydet.';
+    document.getElementById('initViewClearBtn').style.display = set ? 'block' : 'none';
+  }
+
+  function setInitView() {
+    const p = tourPanos[selectedSceneIdx];
+    if (!p || !hotspotViewerInstance) return;
+    p.initYaw = Math.round(hotspotViewerInstance.getYaw() * 10) / 10;
+    p.initPitch = Math.round(hotspotViewerInstance.getPitch() * 10) / 10;
+    p.initHfov = Math.round(hotspotViewerInstance.getHfov() * 10) / 10;
+    updateInitViewUI();
+    renderTourList();
+  }
+
+  function clearInitView() {
+    const p = tourPanos[selectedSceneIdx];
+    if (!p) return;
+    delete p.initYaw; delete p.initPitch; delete p.initHfov;
+    updateInitViewUI();
+    renderTourList();
+  }
+
+  function onHotspotViewerClick(e) {
+    if (!hotspotAddMode || !hotspotViewerInstance) return;
+    const coords = hotspotViewerInstance.mouseEventToCoords(e);
+    pendingHotspot = { pitch: coords[0], yaw: coords[1] };
+    const sel = document.getElementById('hotspotTargetSel');
+    sel.innerHTML = '';
+    tourPanos.forEach((p, i) => {
+      if (i === selectedSceneIdx) return;
+      const o = document.createElement('option');
+      o.value = p.id;
+      o.textContent = p.label;
+      sel.appendChild(o);
+    });
+    document.getElementById('hotspotTargetBox').style.display = 'flex';
+  }
+
+  function setHotspotMode(on) {
+    hotspotAddMode = on;
+    const btn = document.getElementById('hotspotAddBtn');
+    btn.style.background = on ? '#9A6558' : '#FAFAF8';
+    btn.style.color = on ? '#FAFAF8' : '#9A6558';
+    document.getElementById('hotspotHint').textContent = on
+      ? '🎯 Şimdi yukarıdaki panoramada kapının/geçidin olduğu yere tıkla.'
+      : 'Butona bas, sonra panoramada kapının/geçidin olduğu yere tıkla — hedef odayı seç.';
+  }
+
+  function toggleHotspotMode() {
+    if (tourPanos.length < 2) {
+      document.getElementById('hotspotHint').textContent = '⚠️ Geçiş eklemek için turda en az 2 sahne olmalı.';
+      return;
+    }
+    setHotspotMode(!hotspotAddMode);
+    if (!hotspotAddMode) cancelHotspot();
+  }
+
+  function confirmHotspot() {
+    const p = tourPanos[selectedSceneIdx];
+    const sel = document.getElementById('hotspotTargetSel');
+    if (!p || !pendingHotspot || !sel.value) return;
+    const target = tourPanos.find(t => t.id === sel.value);
+    if (!target) return;
+    p.hotspots = p.hotspots || [];
+    p.hotspots.push({ pitch: pendingHotspot.pitch, yaw: pendingHotspot.yaw, target: target.id, targetLabel: target.label });
+    cancelHotspot();
+    setHotspotMode(false);
+    rebuildHotspotViewer();
+    renderHotspotList();
+    renderTourList();
+  }
+
+  function cancelHotspot() {
+    pendingHotspot = null;
+    document.getElementById('hotspotTargetBox').style.display = 'none';
+  }
+
+  function removeHotspot(j) {
+    const p = tourPanos[selectedSceneIdx];
+    if (!p) return;
+    p.hotspots.splice(j, 1);
+    rebuildHotspotViewer();
+    renderHotspotList();
+    renderTourList();
+  }
+
+  function renderHotspotList() {
+    const p = tourPanos[selectedSceneIdx];
+    const wrap = document.getElementById('hotspotList');
+    wrap.innerHTML = '';
+    if (!p) return;
+    (p.hotspots || []).forEach((h, j) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; gap:8px; padding:6px 10px; background:#E8E4DC; border-radius:8px; font-size:12px; color:#2A2520;';
+      row.innerHTML = `<span style="flex:1;">📍 ${p.label} → <b>${h.targetLabel}</b></span>
+        <button onclick="removeHotspot(${j})" style="border:none; background:none; color:#B5483A; cursor:pointer; font-size:13px;">✕</button>`;
+      wrap.appendChild(row);
+    });
+  }
+
+  // ── Kat planı + logo (turda sağ köşe overlay'leri) ──
+  function assetErr(msg) {
+    const errEl = document.getElementById('assetError');
+    errEl.textContent = msg ? 'Hata: ' + msg : '';
+    errEl.style.display = msg ? 'block' : 'none';
+  }
+
+  async function uploadTourAsset(file, maxDim) {
+    if (!localStorage.getItem('ra_token')) {
+      openAuthModal('login');
+      throw new Error('Plan/logo yüklemek için giriş yapmalısın.');
+    }
+    const formData = new FormData();
+    formData.append('image', await resizeIfNeeded(file, maxDim));
+    const res = await fetch(`${API}/tours/asset`, { method: 'POST', headers: authHeaders(), body: formData });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Yükleme başarısız');
+    return data.url;
+  }
+
+  document.getElementById('tourPlanInput').addEventListener('change', async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    assetErr('');
+    const reader = new FileReader();
+    reader.onload = ev => {
+      document.getElementById('tourPlanPrev').src = ev.target.result;
+      document.getElementById('planWrap').style.display = 'block';
+      document.getElementById('planHint').style.display = 'block';
+      renderPlanDots();
+    };
+    reader.readAsDataURL(f);
+    try {
+      tourPlanUrl = await uploadTourAsset(f, 2048);
+    } catch (err) {
+      tourPlanUrl = '';
+      assetErr(err.message);
+    }
+  });
+
+  document.getElementById('tourLogoInput').addEventListener('change', async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    assetErr('');
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = document.getElementById('tourLogoPrev');
+      img.src = ev.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(f);
+    try {
+      tourLogoUrl = await uploadTourAsset(f, 1024);
+    } catch (err) {
+      tourLogoUrl = '';
+      assetErr(err.message);
+    }
+  });
+
+  document.getElementById('planWrap').addEventListener('click', e => {
+    if (selectedSceneIdx < 0) {
+      document.getElementById('planHint').textContent = '⚠️ Önce yukarıdaki sahne listesinden bir oda seç, sonra plana tıkla.';
+      return;
+    }
+    const rect = document.getElementById('tourPlanPrev').getBoundingClientRect();
+    tourPanos[selectedSceneIdx].planX = Math.round(((e.clientX - rect.left) / rect.width) * 1000) / 10;
+    tourPanos[selectedSceneIdx].planY = Math.round(((e.clientY - rect.top) / rect.height) * 1000) / 10;
+    document.getElementById('planHint').textContent =
+      `✓ "${tourPanos[selectedSceneIdx].label}" planda işaretlendi. Başka oda için listeden seçip tekrar tıkla.`;
+    renderTourList();
+  });
+
+  function renderPlanDots() {
+    const wrap = document.getElementById('planWrap');
+    if (!wrap) return;
+    wrap.querySelectorAll('.plan-dot').forEach(d => d.remove());
+    tourPanos.forEach((p, i) => {
+      if (p.planX == null) return;
+      const dot = document.createElement('div');
+      dot.className = 'plan-dot';
+      dot.title = p.label;
+      dot.style.cssText = `position:absolute; left:${p.planX}%; top:${p.planY}%; transform:translate(-50%,-50%);` +
+        `width:14px; height:14px; border-radius:50%; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,0.4);` +
+        `background:${i === selectedSceneIdx ? '#9A6558' : '#7A8B6A'}; pointer-events:none;`;
+      wrap.appendChild(dot);
     });
   }
 
@@ -2666,7 +3263,8 @@
         headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({
           title: document.getElementById('tourTitle').value.trim(),
-          panoramas: tourPanos
+          panoramas: tourPanos,
+          meta: { plan_url: tourPlanUrl, logo_url: tourLogoUrl }
         })
       });
       const data = await res.json();
