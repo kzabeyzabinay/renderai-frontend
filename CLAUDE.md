@@ -15,6 +15,8 @@ Backend API: https://web-production-8c34d.up.railway.app
 4. **Geliştir** — enhance (startEnhance())
 5. **Mevsimler** — seasons (startSeasons())
 6. **Video** — animate (startVideo())
+7. **Yerleştir** — ürün yerleştirme + dijital ikiz montaj (startPlace(), çift görsel: image+item)
+8. **İşlerim** — Supabase galerisi (loadWorks())
 
 ## Kritik fonksiyon
 `resizeIfNeeded(file, maxDim=2048)` — Canvas API ile büyük görseli yüklemeden önce küçült.
