@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seçiminizi Yapın — RenderAI</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI', system-ui, sans-serif; background:#E8E4DC; color:#2A2520; min-height:100vh; }
+    .topbar {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:16px 24px; background:#1A1A16;
+    }
+    .brand { font-size:16px; font-weight:700; letter-spacing:0.5px; color:#FAFAF8; text-decoration:none; }
+    .brand span { color:#C89B8C; }
+    .wrap { max-width:1100px; margin:0 auto; padding:28px 20px 60px; }
+    .head { text-align:center; margin-bottom:8px; }
+    .head h1 { font-size:24px; font-weight:700; }
+    .head p { font-size:14px; color:#8A7E74; margin-top:6px; }
+    .selected-banner {
+      display:none; max-width:680px; margin:14px auto 0; padding:12px 18px;
+      background:#7A8B6A; color:#FAFAF8; border-radius:12px; text-align:center;
+      font-size:14px; font-weight:600;
+    }
+    .grid {
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+      gap:20px; margin-top:26px;
+    }
+    .card {
+      background:#FAFAF8; border:2px solid #E0DAD0; border-radius:16px; overflow:hidden;
+      transition:border-color 0.2s, transform 0.15s; display:flex; flex-direction:column;
+    }
+    .card.chosen { border-color:#7A8B6A; }
+    .card img { width:100%; aspect-ratio:4/3; object-fit:cover; cursor:zoom-in; background:#E8E4DC; }
+    .card .body { padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
+    .card .lbl { font-size:15px; font-weight:700; }
+    .card button {
+      padding:12px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8;
+      font-size:14px; font-weight:700; cursor:pointer; transition:opacity 0.2s;
+    }
+    .card button:hover { opacity:0.9; }
+    .card.chosen button { background:#7A8B6A; }
+    .card .chosen-tag {
+      display:none; font-size:13px; font-weight:700; color:#7A8B6A; text-align:center;
+    }
+    .card.chosen .chosen-tag { display:block; }
+    .card.chosen button { display:none; }
+    .center-msg { text-align:center; padding:80px 20px; }
+    .center-msg .icon { font-size:48px; }
+    .center-msg h2 { font-size:20px; margin:14px 0 8px; }
+    .center-msg p { font-size:14px; color:#8A7E74; }
+    .center-msg a {
+      display:inline-block; margin-top:16px; padding:12px 28px; background:#9A6558;
+      color:#FAFAF8; border-radius:10px; text-decoration:none; font-size:14px; font-weight:600;
+    }
+    .lightbox {
+      display:none; position:fixed; inset:0; background:rgba(26,26,22,0.92); z-index:100;
+      align-items:center; justify-content:center; padding:30px; cursor:zoom-out;
+    }
+    .lightbox img { max-width:94vw; max-height:90vh; border-radius:12px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="/">Render<span>AI</span></a>
+  <span style="font-size:12px; color:#ABA49C;">Müşteri Onay Sayfası</span>
+</div>
+
+<div class="wrap">
+  <div id="content"></div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" /></div>
+
+<script>
+  const API = 'https://web-production-8c34d.up.railway.app';
+  const decisionId = new URLSearchParams(location.search).get('id');
+
+  function msg(icon, title, text, withHome) {
+    document.getElementById('content').innerHTML =
+      `<div class="center-msg"><div class="icon">${icon}</div><h2>${title}</h2><p>${text}</p>` +
+      (withHome ? `<a href="/">RenderAI ile kendi karar linkini oluştur</a>` : '') + `</div>`;
+  }
+
+  function zoom(url) {
+    document.getElementById('lightboxImg').src = url;
+    document.getElementById('lightbox').style.display = 'flex';
+  }
+
+  async function load() {
+    if (!decisionId) { msg('❓', 'Link bulunamadı', 'Bağlantı eksik veya hatalı.', true); return; }
+    try {
+      const res = await fetch(`${API}/decisions/${decisionId}`);
+      if (!res.ok) { msg('❓', 'Bulunamadı', 'Bu link geçersiz veya silinmiş olabilir.', true); return; }
+      const d = await res.json();
+      if (d.expired) { msg('⏳', 'Süresi doldu', 'Bu karar linkinin süresi sona ermiş.', true); return; }
+      render(d);
+    } catch (e) {
+      msg('⚠️', 'Bağlantı hatası', 'Sayfa şu anda yüklenemiyor, birazdan tekrar deneyin.', false);
+    }
+  }
+
+  function render(d) {
+    const opts = d.options || [];
+    if (!opts.length) { msg('📭', 'Seçenek yok', 'Bu linke henüz varyasyon eklenmemiş.', true); return; }
+    const sel = d.selected_label;
+
+    let html = `<div class="head"><h1>${d.title || 'Seçiminizi Yapın'}</h1>
+      <p>Aşağıdaki seçeneklerden beğendiğinizi onaylayın. Seçiminiz mimarınıza iletilecektir.</p></div>`;
+    html += `<div class="selected-banner" id="selBanner"></div>`;
+    html += `<div class="grid">`;
+    opts.forEach((o, i) => {
+      const isChosen = sel && o.label === sel;
+      html += `<div class="card ${isChosen ? 'chosen' : ''}" id="card-${i}">
+        <img src="${o.url}" onclick="zoom('${o.url}')" />
+        <div class="body">
+          <span class="lbl">${o.label || ('Seçenek ' + (i+1))}</span>
+          <span class="chosen-tag">✓ Seçiminiz</span>
+          <button onclick="choose('${encodeURIComponent(o.label)}', ${i})">Bunu Seçiyorum</button>
+        </div></div>`;
+    });
+    html += `</div>`;
+    document.getElementById('content').innerHTML = html;
+    if (sel) showBanner(sel);
+  }
+
+  function showBanner(label) {
+    const b = document.getElementById('selBanner');
+    if (b) { b.style.display = 'block'; b.textContent = `✓ Seçiminiz kaydedildi: ${label}`; }
+  }
+
+  async function choose(labelEnc, idx) {
+    const label = decodeURIComponent(labelEnc);
+    try {
+      const res = await fetch(`${API}/decisions/${decisionId}/select`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Seçim kaydedilemedi');
+      document.querySelectorAll('.card').forEach(c => c.classList.remove('chosen'));
+      document.getElementById('card-' + idx).classList.add('chosen');
+      showBanner(label);
+    } catch (e) {
+      alert('Hata: ' + e.message);
+    }
+  }
+
+  load();
+</script>
+
+</body>
+</html>

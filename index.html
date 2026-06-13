@@ -570,6 +570,7 @@
     <button class="main-nav-btn" id="nav-floorplan" onclick="switchMainSection('floorplan')">📐 Kat Planı</button>
     <button class="main-nav-btn" id="nav-place" onclick="switchMainSection('place')">🧩 Yerleştir <span style="font-size:11px;opacity:0.8;">· 4 kredi</span></button>
     <button class="main-nav-btn" id="nav-pano" onclick="switchMainSection('pano')">🌐 360 Tur</button>
+    <button class="main-nav-btn" id="nav-decision" onclick="switchMainSection('decision')">✅ Karar Linki</button>
     <button class="main-nav-btn" id="nav-works" onclick="switchMainSection('works')">🗂️ İşlerim</button>
   </div>
   <div style="display:flex; gap:10px; align-items:center;">
@@ -1439,6 +1440,90 @@
   </div>
 </div>
 
+<!-- ─── MÜŞTERİ KARAR LİNKİ ──────────────────────────────────────────────── -->
+<div id="section-decision" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
+  <div style="background:#FAFAF8; border:1px solid #E0DAD0; border-radius:14px; padding:16px 20px; margin:18px 0; font-size:13px; color:#5A5249; line-height:1.6;">
+    <b style="color:#9A6558;">Nasıl çalışır?</b> Bir render yükle → farklı malzeme/renk varyasyonları üret (örn. ceviz parke, gri parke) → beğendiklerini müşteri linkine ekle → linki müşterine gönder. Müşteri linkte beğendiğini <b>"Bunu Seçiyorum"</b> ile işaretler, sen de hangisini seçtiğini anında görürsün.
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+
+    <!-- Sol: Varyasyon üretimi -->
+    <div>
+      <div class="panel">
+        <h2>1 — Render Yükle</h2>
+        <div class="upload-zone" id="decSceneZone">
+          <input type="file" id="decSceneInput" accept="image/*" />
+          <div class="upload-icon">🖼️</div>
+          <p><strong>Render veya mekan görseli seçin</strong> veya sürükleyin</p>
+        </div>
+        <img id="decScenePreview" class="preview-img" />
+      </div>
+
+      <div class="panel">
+        <h2>2 — Varyasyon Talimatı</h2>
+        <input type="text" id="decNote" placeholder="örn: parkeyi ceviz rengine çevir, duvar rengini değiştirme"
+          style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:12px;" />
+        <div style="font-size:11px; font-weight:700; color:#8A7E74; margin-bottom:6px;">ÖRNEK GÖRSEL (isteğe bağlı)</div>
+        <div class="upload-zone" id="decItemZone" style="padding:14px 12px;">
+          <input type="file" id="decItemInput" accept="image/*" />
+          <div style="font-size:22px;">📦</div>
+          <p style="font-size:12px;">Malzeme/ürün örneği (parke, kumaş, mobilya...)</p>
+        </div>
+        <img id="decItemPreview" class="preview-img" style="max-height:90px;" />
+        <button class="render-btn" id="decVariantBtn" onclick="startVariant()" style="margin-top:14px;">🎨 Varyasyon Üret <span style="font-size:11px;opacity:0.8;">· 4 kredi</span></button>
+        <div class="error-msg" id="decError"></div>
+      </div>
+
+      <!-- Üretilen varyasyon önizleme -->
+      <div class="panel result-panel" id="decResultPanel" style="display:none;">
+        <div class="loading" id="decLoading" style="display:none;">
+          <div class="spinner"></div>
+          <p>Varyasyon üretiliyor...<br><span style="font-size:12px; color:#ABA49C;">Sadece istenen değişiklik uygulanıyor (~30-60 sn)</span></p>
+        </div>
+        <div id="decVariantResult" style="display:none; width:100%; text-align:center;">
+          <img id="decVariantImg" style="max-width:100%; border-radius:10px; display:block;" />
+          <input type="text" id="decVariantLabel" placeholder="Bu varyasyona ad ver: örn. Ceviz Parke"
+            style="width:100%; box-sizing:border-box; padding:11px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-top:12px;" />
+          <button onclick="addVariantToLink()" style="width:100%; margin-top:10px; padding:12px; border:none; border-radius:10px; background:#7A8B6A; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;">➕ Müşteri Linkine Ekle</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sağ: Toplanan varyasyonlar + link -->
+    <div>
+      <div class="panel">
+        <h2>Müşteriye Sunulacak Seçenekler <span id="decCount" style="font-size:12px; color:#8A7E74; font-weight:400;"></span></h2>
+        <div id="decOptionsList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:8px;"></div>
+        <div id="decOptionsEmpty" style="text-align:center; padding:40px 20px; color:#ABA49C; font-size:13px;">
+          Henüz seçenek eklenmedi.<br>Solda varyasyon üretip "Müşteri Linkine Ekle" ile buraya taşı.
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Karar Linki Oluştur</h2>
+        <input type="text" id="decTitle" placeholder="Link başlığı: örn. Salon Zemin Seçimi"
+          style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
+        <button class="render-btn" onclick="createDecision()">🔗 Karar Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
+        <div style="font-size:11px; color:#8A7E74; margin-top:8px;">En az 2 seçenek gerekir. Link 30 gün canlı kalır.</div>
+        <div class="error-msg" id="decLinkError"></div>
+
+        <div id="decLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
+          <div style="font-size:11px; color:#7A8B6A; font-weight:700; margin-bottom:6px;">✓ KARAR LİNKİ HAZIR</div>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="decLinkInput" readonly
+              style="flex:1; padding:10px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520;" />
+            <button onclick="copyDecisionLink()" style="padding:10px 16px; border:none; border-radius:8px; background:#9A6558; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer;">Kopyala</button>
+          </div>
+          <div id="decLiveStatus" style="margin-top:12px; padding:10px 12px; border-radius:8px; background:#FAFAF8; border:1px dashed #D8D2C8; font-size:13px; color:#8A7E74;">
+            ⏳ Müşteri henüz seçim yapmadı — bu kutu otomatik güncellenir.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ─── 360 TUR ──────────────────────────────────────────────────────────── -->
 <div id="section-pano" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
@@ -2039,8 +2124,9 @@
     document.getElementById('section-floorplan').style.display = section === 'floorplan' ? 'block' : 'none';
     document.getElementById('section-place').style.display     = section === 'place'     ? 'block' : 'none';
     document.getElementById('section-pano').style.display      = section === 'pano'      ? 'block' : 'none';
+    document.getElementById('section-decision').style.display  = section === 'decision' ? 'block' : 'none';
     document.getElementById('section-works').style.display     = section === 'works'     ? 'block' : 'none';
-    ['render','upscale','enhance','video','floorplan','place','pano','works'].forEach(s =>
+    ['render','upscale','enhance','video','floorplan','place','pano','decision','works'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
     if (section === 'works') loadWorks(true);
@@ -2200,6 +2286,180 @@
     } finally {
       btn.disabled = false;
     }
+  }
+
+  // ─── MÜŞTERİ KARAR LİNKİ ─────────────────────────────────────────────────
+  let decSceneFile = null;
+  let decItemFile = null;
+  let decCurrentVariantUrl = null;
+  let decOptions = [];          // [{url, label}]
+  let decPollTimer = null;
+
+  document.getElementById('decSceneInput').addEventListener('change', e => {
+    decSceneFile = e.target.files[0] || null;
+    if (!decSceneFile) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = document.getElementById('decScenePreview');
+      img.src = ev.target.result; img.style.display = 'block';
+    };
+    reader.readAsDataURL(decSceneFile);
+  });
+
+  document.getElementById('decItemInput').addEventListener('change', e => {
+    decItemFile = e.target.files[0] || null;
+    if (!decItemFile) { document.getElementById('decItemPreview').style.display = 'none'; return; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = document.getElementById('decItemPreview');
+      img.src = ev.target.result; img.style.display = 'block';
+    };
+    reader.readAsDataURL(decItemFile);
+  });
+
+  async function startVariant() {
+    const errEl = document.getElementById('decError');
+    errEl.style.display = 'none';
+    if (!decSceneFile) {
+      errEl.textContent = 'Hata: Önce bir render yükle.';
+      errEl.style.display = 'block'; return;
+    }
+    const note = document.getElementById('decNote').value.trim();
+    if (!note && !decItemFile) {
+      errEl.textContent = 'Hata: Bir değişiklik yaz veya örnek görsel yükle.';
+      errEl.style.display = 'block'; return;
+    }
+
+    const btn = document.getElementById('decVariantBtn');
+    btn.disabled = true;
+    document.getElementById('decResultPanel').style.display = 'block';
+    document.getElementById('decVariantResult').style.display = 'none';
+    document.getElementById('decLoading').style.display = 'flex';
+
+    try {
+      const formData = new FormData();
+      formData.append('image', await resizeIfNeeded(decSceneFile));
+      if (decItemFile) formData.append('item', await resizeIfNeeded(decItemFile));
+      formData.append('note', note);
+
+      const startRes = await fetch(`${API}/decision/variant`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
+
+      const jobId = startData.prediction_id;
+      while (true) {
+        await new Promise(r => setTimeout(r, 2500));
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+        if (statusData.status === 'succeeded') {
+          document.getElementById('decLoading').style.display = 'none';
+          decCurrentVariantUrl = statusData.render_url;
+          document.getElementById('decVariantImg').src = decCurrentVariantUrl;
+          document.getElementById('decVariantResult').style.display = 'block';
+          document.getElementById('decVariantLabel').value = '';
+          break;
+        }
+        if (statusData.status === 'failed') throw new Error(statusData.error || 'Varyasyon başarısız');
+      }
+    } catch (e) {
+      document.getElementById('decLoading').style.display = 'none';
+      errEl.textContent = 'Hata: ' + e.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function addVariantToLink() {
+    const errEl = document.getElementById('decError');
+    errEl.style.display = 'none';
+    if (!decCurrentVariantUrl) return;
+    if (!decCurrentVariantUrl.startsWith('http')) {
+      errEl.textContent = 'Bu varyasyon kalıcı depoya kaydedilemedi — linke eklenemez. Tekrar üret.';
+      errEl.style.display = 'block'; return;
+    }
+    const label = document.getElementById('decVariantLabel').value.trim() || ('Seçenek ' + (decOptions.length + 1));
+    decOptions.push({ url: decCurrentVariantUrl, label });
+    renderDecOptions();
+    document.getElementById('decResultPanel').style.display = 'none';
+    decCurrentVariantUrl = null;
+  }
+
+  function removeDecOption(i) { decOptions.splice(i, 1); renderDecOptions(); }
+
+  function renderDecOptions() {
+    const wrap = document.getElementById('decOptionsList');
+    const empty = document.getElementById('decOptionsEmpty');
+    const count = document.getElementById('decCount');
+    wrap.innerHTML = '';
+    empty.style.display = decOptions.length ? 'none' : 'block';
+    count.textContent = decOptions.length ? `(${decOptions.length})` : '';
+    decOptions.forEach((o, i) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; gap:10px; padding:8px 10px; background:#E8E4DC; border-radius:8px;';
+      row.innerHTML = `
+        <img src="${o.url}" style="width:60px; height:44px; object-fit:cover; border-radius:6px;" />
+        <span style="flex:1; font-size:13px; color:#2A2520; font-weight:600;">${o.label}</span>
+        <button onclick="removeDecOption(${i})" style="border:none; background:none; color:#B5483A; cursor:pointer; font-size:14px;">✕</button>`;
+      wrap.appendChild(row);
+    });
+  }
+
+  async function createDecision() {
+    const errEl = document.getElementById('decLinkError');
+    errEl.style.display = 'none';
+    if (!localStorage.getItem('ra_token')) {
+      errEl.textContent = 'Karar linki oluşturmak için giriş yapmalısın.';
+      errEl.style.display = 'block'; openAuthModal('login'); return;
+    }
+    if (decOptions.length < 2) {
+      errEl.textContent = 'En az 2 seçenek ekle (müşteri seçim yapabilsin).';
+      errEl.style.display = 'block'; return;
+    }
+    try {
+      const res = await fetch(`${API}/decisions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ title: document.getElementById('decTitle').value.trim(), options: decOptions })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Karar linki oluşturulamadı');
+      refreshCredits();
+      const link = `${location.origin}/karar.html?id=${data.decision_id}`;
+      document.getElementById('decLinkInput').value = link;
+      document.getElementById('decLinkBox').style.display = 'block';
+      startDecisionPolling(data.decision_id);
+    } catch (e) {
+      errEl.textContent = 'Hata: ' + e.message;
+      errEl.style.display = 'block';
+    }
+  }
+
+  function startDecisionPolling(id) {
+    if (decPollTimer) clearInterval(decPollTimer);
+    const check = async () => {
+      try {
+        const res = await fetch(`${API}/decisions/${id}`);
+        const d = await res.json();
+        const box = document.getElementById('decLiveStatus');
+        if (d.selected_label) {
+          box.style.background = '#7A8B6A';
+          box.style.color = '#FAFAF8';
+          box.style.borderColor = '#7A8B6A';
+          box.innerHTML = `✓ Müşteri seçti: <b>${d.selected_label}</b>`;
+          if (decPollTimer) clearInterval(decPollTimer);
+        }
+      } catch (_) {}
+    };
+    check();
+    decPollTimer = setInterval(check, 8000);
+  }
+
+  function copyDecisionLink() {
+    const input = document.getElementById('decLinkInput');
+    input.select();
+    navigator.clipboard.writeText(input.value).catch(() => document.execCommand('copy'));
   }
 
   // ─── 360 TUR ─────────────────────────────────────────────────────────────
