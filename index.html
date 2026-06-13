@@ -571,6 +571,7 @@
   <div class="logo">RenderAI</div>
   <div style="display:flex; gap:8px; align-items:center;">
     <button class="main-nav-btn active" id="nav-render" onclick="switchMainSection('render')">🏢 Render</button>
+    <button class="main-nav-btn" id="nav-staging" onclick="switchMainSection('staging')">🛋️ Sanal Mobilyalama <span style="font-size:11px;opacity:0.8;">· 3 kredi</span></button>
     <button class="main-nav-btn" id="nav-upscale" onclick="switchMainSection('upscale')">🔍 Büyüt</button>
     <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')">✨ Geliştir</button>
     <button class="main-nav-btn" id="nav-video" onclick="switchMainSection('video')">🎬 Video</button>
@@ -1067,6 +1068,85 @@
       <div style="width:100%; text-align:center;">
         <img id="enhanceResultImg" class="result-img" style="display:none;" />
         <a id="enhanceDownloadBtn" class="download-btn" download="enhanced.png" style="display:none;">⬇ İndir</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 🛋️ Sanal Mobilyalama Bölümü -->
+<div id="section-staging" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+
+    <!-- Sol: Yükle + Ayarlar -->
+    <div>
+      <div class="panel">
+        <h2>BOŞ ODA FOTOĞRAFI</h2>
+        <div class="upload-zone" id="stagingUploadZone">
+          <input type="file" id="stagingFileInput" accept="image/*" />
+          <div class="upload-icon" id="stagingIcon">🛋️</div>
+          <p class="upload-text">Boş dairenin oda fotoğrafını seçin veya sürükleyin</p>
+          <p class="upload-sub">Boş ya da yarı boş oda — mimari korunur, mobilya eklenir</p>
+          <img id="stagingPreview" class="preview-img" />
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>ODA TİPİ</h2>
+        <div class="styles-grid" id="stagingRoomGrid">
+          <button class="style-btn active" data-room="living room" onclick="setStagingRoom(this,'living room')">Oturma Odası</button>
+          <button class="style-btn" data-room="bedroom" onclick="setStagingRoom(this,'bedroom')">Yatak Odası</button>
+          <button class="style-btn" data-room="kitchen" onclick="setStagingRoom(this,'kitchen')">Mutfak</button>
+          <button class="style-btn" data-room="dining room" onclick="setStagingRoom(this,'dining room')">Yemek Odası</button>
+          <button class="style-btn" data-room="children's room" onclick="setStagingRoom(this,&quot;children's room&quot;)">Çocuk Odası</button>
+          <button class="style-btn" data-room="home office" onclick="setStagingRoom(this,'home office')">Ofis</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>MOBİLYA STİLİ</h2>
+        <div class="styles-grid" id="stagingStyleGrid">
+          <button class="style-btn active" data-style="modern_interior" onclick="setStagingStyle(this,'modern_interior')">Modern</button>
+          <button class="style-btn" data-style="minimalist" onclick="setStagingStyle(this,'minimalist')">Minimalist</button>
+          <button class="style-btn" data-style="luxury" onclick="setStagingStyle(this,'luxury')">Lüks & Premium</button>
+          <button class="style-btn" data-style="scandinavian" onclick="setStagingStyle(this,'scandinavian')">İskandinav</button>
+          <button class="style-btn" data-style="industrial" onclick="setStagingStyle(this,'industrial')">Endüstriyel</button>
+          <button class="style-btn" data-style="mediterranean" onclick="setStagingStyle(this,'mediterranean')">Akdeniz</button>
+          <button class="style-btn" data-style="japandi" onclick="setStagingStyle(this,'japandi')">Japandi</button>
+          <button class="style-btn" data-style="classic" onclick="setStagingStyle(this,'classic')">Klasik & Şık</button>
+        </div>
+
+        <div style="margin-top:16px;">
+          <div class="mini-label">Mod</div>
+          <div class="mini-toggle">
+            <button class="mini-btn active" id="stagingModeAdvanced" onclick="setStagingMode('advanced')">Realistik</button>
+            <button class="mini-btn" id="stagingModeCreative" onclick="setStagingMode('creative')">Yaratıcı</button>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;">
+          <input type="text" id="stagingNote" placeholder="örn: gri kanepe, ahşap yemek masası ekle (opsiyonel)"
+                 style="width:100%; padding:10px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#FAFAF8; font-size:13px; box-sizing:border-box;" />
+        </div>
+
+        <button class="render-btn" id="stagingBtn" onclick="startStaging()" style="margin-top:16px;">🛋️ Mobilyala <span style="font-size:11px;opacity:0.8;">· 3 kredi</span></button>
+        <div class="error-msg" id="stagingError"></div>
+      </div>
+    </div>
+
+    <!-- Sağ: Sonuç -->
+    <div class="panel result-panel" id="stagingResultPanel">
+      <div class="result-placeholder" id="stagingPlaceholder">
+        <div class="icon">🛋️</div>
+        <p>Mobilyalı oda burada görünecek</p>
+      </div>
+      <div class="loading" id="stagingLoading" style="display:none;">
+        <div class="spinner"></div>
+        <p>Oda mobilyalanıyor...<br><span style="font-size:12px; color:#ABA49C;">gpt-image-2 işliyor</span></p>
+      </div>
+      <div style="width:100%; text-align:center;">
+        <img id="stagingResultImg" class="result-img" style="display:none;" />
+        <a id="stagingDownloadBtn" class="download-btn" download="mobilyali-oda.png" style="display:none;">⬇ İndir</a>
       </div>
     </div>
 
@@ -2158,6 +2238,7 @@
   // ─── ANA SEKME NAVIGASYONU ────────────────────────────────────────────────
   function switchMainSection(section) {
     document.getElementById('section-render').style.display    = section === 'render'    ? 'grid'  : 'none';
+    document.getElementById('section-staging').style.display   = section === 'staging'   ? 'block' : 'none';
     document.getElementById('section-upscale').style.display   = section === 'upscale'   ? 'block' : 'none';
     document.getElementById('section-enhance').style.display   = section === 'enhance'   ? 'block' : 'none';
     document.getElementById('section-video').style.display     = section === 'video'     ? 'block' : 'none';
@@ -2166,7 +2247,7 @@
     document.getElementById('section-pano').style.display      = section === 'pano'      ? 'block' : 'none';
     document.getElementById('section-decision').style.display  = section === 'decision' ? 'block' : 'none';
     document.getElementById('section-works').style.display     = section === 'works'     ? 'block' : 'none';
-    ['render','upscale','enhance','video','floorplan','place','pano','decision','works'].forEach(s =>
+    ['render','staging','upscale','enhance','video','floorplan','place','pano','decision','works'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
     if (section === 'works') loadWorks(true);
@@ -3717,6 +3798,121 @@
       document.getElementById('enhancePlaceholder').style.display = 'block';
       document.getElementById('enhanceError').textContent = 'Hata: ' + err.message;
       document.getElementById('enhanceError').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ─── 🛋️ SANAL MOBİLYALAMA ────────────────────────────────────────────────
+  let stagingFile = null;
+  let stagingRoom = 'living room';
+  let stagingStyle = 'modern_interior';
+  let stagingMode = 'advanced';
+
+  function setStagingRoom(btn, room) {
+    stagingRoom = room;
+    document.querySelectorAll('#stagingRoomGrid .style-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  function setStagingStyle(btn, style) {
+    stagingStyle = style;
+    document.querySelectorAll('#stagingStyleGrid .style-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  function setStagingMode(mode) {
+    stagingMode = mode;
+    document.getElementById('stagingModeAdvanced').classList.toggle('active', mode === 'advanced');
+    document.getElementById('stagingModeCreative').classList.toggle('active', mode === 'creative');
+  }
+
+  document.getElementById('stagingFileInput').addEventListener('change', e => {
+    stagingFile = e.target.files[0];
+    if (!stagingFile) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const preview = document.getElementById('stagingPreview');
+      preview.src = ev.target.result;
+      preview.style.display = 'block';
+      document.querySelector('#stagingUploadZone').style.padding = '12px';
+      document.getElementById('stagingIcon').style.display = 'none';
+    };
+    reader.readAsDataURL(stagingFile);
+  });
+
+  const stagingZone = document.getElementById('stagingUploadZone');
+  stagingZone.addEventListener('dragover', e => { e.preventDefault(); stagingZone.classList.add('drag-over'); });
+  stagingZone.addEventListener('dragleave', () => stagingZone.classList.remove('drag-over'));
+  stagingZone.addEventListener('drop', e => {
+    e.preventDefault();
+    stagingZone.classList.remove('drag-over');
+    stagingFile = e.dataTransfer.files[0];
+    document.getElementById('stagingFileInput').files = e.dataTransfer.files;
+    document.getElementById('stagingFileInput').dispatchEvent(new Event('change'));
+  });
+
+  async function startStaging() {
+    if (!stagingFile) {
+      document.getElementById('stagingError').textContent = 'Lütfen önce bir oda fotoğrafı yükleyin.';
+      document.getElementById('stagingError').style.display = 'block';
+      return;
+    }
+    const btn = document.getElementById('stagingBtn');
+    btn.disabled = true;
+    document.getElementById('stagingPlaceholder').style.display = 'none';
+    document.getElementById('stagingLoading').style.display = 'block';
+    document.getElementById('stagingResultImg').style.display = 'none';
+    document.getElementById('stagingDownloadBtn').style.display = 'none';
+    document.getElementById('stagingError').style.display = 'none';
+
+    const formData = new FormData();
+    const imageToSend = await resizeIfNeeded(stagingFile);
+    formData.append('image', imageToSend);
+    formData.append('room_type', stagingRoom);
+    formData.append('style', stagingStyle);
+    formData.append('mode', stagingMode);
+    formData.append('custom_prompt', (document.getElementById('stagingNote')?.value || '').trim());
+
+    try {
+      const startRes = await fetch(`${API}/staging/start`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
+
+      const jobId = startData.prediction_id;
+      let elapsed = 0;
+
+      while (true) {
+        await new Promise(r => setTimeout(r, 4000));
+        elapsed += 4;
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+
+        if (statusData.stage_label) {
+          document.querySelector('#stagingLoading p').innerHTML =
+            `${statusData.stage_label}<br><span style="font-size:12px;color:#ABA49C;">${elapsed}sn geçti</span>`;
+        }
+
+        if (statusData.status === 'succeeded') {
+          const img = document.getElementById('stagingResultImg');
+          img.src = statusData.render_url;
+          img.style.display = 'block';
+          img.onload = () => {
+            document.getElementById('stagingLoading').style.display = 'none';
+            const dl = document.getElementById('stagingDownloadBtn');
+            dl.href = statusData.render_url;
+            dl.style.display = 'inline-block';
+          };
+          break;
+        } else if (statusData.status === 'failed') {
+          throw new Error(statusData.error || 'Mobilyalama başarısız');
+        }
+        if (elapsed > 300) throw new Error('5 dakika aşıldı, lütfen tekrar deneyin');
+      }
+    } catch (err) {
+      document.getElementById('stagingLoading').style.display = 'none';
+      document.getElementById('stagingPlaceholder').style.display = 'block';
+      document.getElementById('stagingError').textContent = 'Hata: ' + err.message;
+      document.getElementById('stagingError').style.display = 'block';
     } finally {
       btn.disabled = false;
     }
