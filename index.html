@@ -564,6 +564,7 @@
   <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 </head>
 <body>
 
@@ -572,6 +573,7 @@
   <div style="display:flex; gap:8px; align-items:center;">
     <button class="main-nav-btn active" id="nav-render" onclick="switchMainSection('render')">🏢 Render</button>
     <button class="main-nav-btn" id="nav-staging" onclick="switchMainSection('staging')">🛋️ Sanal Mobilyalama <span style="font-size:11px;opacity:0.8;">· 3 kredi</span></button>
+    <button class="main-nav-btn" id="nav-model3d" onclick="switchMainSection('model3d')">🧊 3D Model <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
     <button class="main-nav-btn" id="nav-upscale" onclick="switchMainSection('upscale')">🔍 Büyüt</button>
     <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')">✨ Geliştir</button>
     <button class="main-nav-btn" id="nav-video" onclick="switchMainSection('video')">🎬 Video</button>
@@ -1153,6 +1155,60 @@
   </div>
 </div>
 
+<!-- 🧊 Görselden 3D Model Bölümü -->
+<div id="section-model3d" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+
+    <!-- Sol: Yükle + Bilgi -->
+    <div>
+      <div class="panel">
+        <h2>GÖRSEL YÜKLE</h2>
+        <div class="upload-zone" id="model3dUploadZone">
+          <input type="file" id="model3dFileInput" accept="image/*" />
+          <div class="upload-icon" id="model3dIcon">🧊</div>
+          <p class="upload-text">Tek bir objenin fotoğrafını seçin veya sürükleyin</p>
+          <p class="upload-sub">Koltuk, mobilya, ürün ya da bina dış kütlesi</p>
+          <img id="model3dPreview" class="preview-img" />
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>3D MODEL OLUŞTUR</h2>
+        <p style="font-size:12px; color:#8A7E74; margin-bottom:14px; line-height:1.6;">
+          Görselinizi döndürülebilir 3D modele (GLB) çevirir — Trellis ile işlenir.
+        </p>
+        <div style="font-size:11px; color:#8A7E74; padding:10px 12px; background:#E8E4DC; border-radius:8px; border:1px solid #D8D2C8; margin-bottom:16px; line-height:1.5;">
+          ⚠️ En iyi sonuç <strong>tek obje</strong> içindir (koltuk, ürün, bina dış kütlesi).
+          Komple iç mekan sahnesinde model kabaca kalır. İşlem ~1-2 dakika sürer.
+        </div>
+        <button class="render-btn" id="model3dBtn" onclick="startModel3d()">🧊 Modeli Oluştur <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
+        <div class="error-msg" id="model3dError"></div>
+      </div>
+    </div>
+
+    <!-- Sağ: 3D Sonuç -->
+    <div class="panel result-panel" id="model3dResultPanel">
+      <div class="result-placeholder" id="model3dPlaceholder">
+        <div class="icon">🧊</div>
+        <p>3D model burada görünecek — fareyle döndürebilirsiniz</p>
+      </div>
+      <div class="loading" id="model3dLoading" style="display:none;">
+        <div class="spinner"></div>
+        <p>3D model oluşturuluyor...<br><span style="font-size:12px; color:#ABA49C;">Trellis işliyor</span></p>
+      </div>
+      <div style="width:100%; text-align:center;">
+        <model-viewer id="model3dViewer"
+          style="display:none; width:100%; height:460px; background:#1A1A16; border-radius:12px;"
+          camera-controls auto-rotate touch-action="pan-y" shadow-intensity="1"
+          exposure="1" ar ar-modes="webxr scene-viewer quick-look">
+        </model-viewer>
+        <a id="model3dDownloadBtn" class="download-btn" download="model.glb" style="display:none;">⬇ GLB İndir</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- 🎬 Video Bölümü -->
 <div id="section-video" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
@@ -1583,6 +1639,7 @@
           <p><strong>Render veya mekan görseli seçin</strong> veya sürükleyin</p>
         </div>
         <img id="decScenePreview" class="preview-img" />
+        <button id="decAddOriginalBtn" onclick="addOriginalToLink()" style="display:none; width:100%; margin-top:10px; padding:11px; border:1px solid #9A6558; border-radius:10px; background:#FAFAF8; color:#9A6558; font-size:13px; font-weight:700; cursor:pointer;">➕ Orijinali (ham render) linke ekle</button>
       </div>
 
       <div class="panel">
@@ -2239,6 +2296,7 @@
   function switchMainSection(section) {
     document.getElementById('section-render').style.display    = section === 'render'    ? 'grid'  : 'none';
     document.getElementById('section-staging').style.display   = section === 'staging'   ? 'block' : 'none';
+    document.getElementById('section-model3d').style.display   = section === 'model3d'   ? 'block' : 'none';
     document.getElementById('section-upscale').style.display   = section === 'upscale'   ? 'block' : 'none';
     document.getElementById('section-enhance').style.display   = section === 'enhance'   ? 'block' : 'none';
     document.getElementById('section-video').style.display     = section === 'video'     ? 'block' : 'none';
@@ -2247,7 +2305,7 @@
     document.getElementById('section-pano').style.display      = section === 'pano'      ? 'block' : 'none';
     document.getElementById('section-decision').style.display  = section === 'decision' ? 'block' : 'none';
     document.getElementById('section-works').style.display     = section === 'works'     ? 'block' : 'none';
-    ['render','staging','upscale','enhance','video','floorplan','place','pano','decision','works'].forEach(s =>
+    ['render','staging','model3d','upscale','enhance','video','floorplan','place','pano','decision','works'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
     if (section === 'works') loadWorks(true);
@@ -2623,6 +2681,7 @@
 
   document.getElementById('decSceneInput').addEventListener('change', e => {
     decSceneFile = e.target.files[0] || null;
+    document.getElementById('decAddOriginalBtn').style.display = decSceneFile ? 'block' : 'none';
     if (!decSceneFile) return;
     const reader = new FileReader();
     reader.onload = ev => {
@@ -2631,6 +2690,32 @@
     };
     reader.readAsDataURL(decSceneFile);
   });
+
+  async function addOriginalToLink() {
+    const errEl = document.getElementById('decError');
+    errEl.style.display = 'none';
+    if (!decSceneFile) {
+      errEl.textContent = 'Hata: Önce bir render yükle.';
+      errEl.style.display = 'block'; return;
+    }
+    const btn = document.getElementById('decAddOriginalBtn');
+    const oldTxt = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Yükleniyor...';
+    try {
+      const formData = new FormData();
+      formData.append('image', await resizeIfNeeded(decSceneFile));
+      const res = await fetch(`${API}/tours/asset`, { method: 'POST', headers: authHeaders(), body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Yükleme başarısız');
+      decOptions.push({ url: data.url, label: 'Mevcut Hali' });
+      renderDecOptions();
+    } catch (e) {
+      errEl.textContent = 'Hata: ' + e.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = oldTxt;
+    }
+  }
 
   document.getElementById('decItemInput').addEventListener('change', e => {
     decItemFile = e.target.files[0] || null;
@@ -3913,6 +3998,96 @@
       document.getElementById('stagingPlaceholder').style.display = 'block';
       document.getElementById('stagingError').textContent = 'Hata: ' + err.message;
       document.getElementById('stagingError').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ─── 🧊 GÖRSELDEN 3D MODEL ────────────────────────────────────────────────
+  let model3dFile = null;
+
+  document.getElementById('model3dFileInput').addEventListener('change', e => {
+    model3dFile = e.target.files[0];
+    if (!model3dFile) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const preview = document.getElementById('model3dPreview');
+      preview.src = ev.target.result;
+      preview.style.display = 'block';
+      document.querySelector('#model3dUploadZone').style.padding = '12px';
+      document.getElementById('model3dIcon').style.display = 'none';
+    };
+    reader.readAsDataURL(model3dFile);
+  });
+
+  const model3dZone = document.getElementById('model3dUploadZone');
+  model3dZone.addEventListener('dragover', e => { e.preventDefault(); model3dZone.classList.add('drag-over'); });
+  model3dZone.addEventListener('dragleave', () => model3dZone.classList.remove('drag-over'));
+  model3dZone.addEventListener('drop', e => {
+    e.preventDefault();
+    model3dZone.classList.remove('drag-over');
+    model3dFile = e.dataTransfer.files[0];
+    document.getElementById('model3dFileInput').files = e.dataTransfer.files;
+    document.getElementById('model3dFileInput').dispatchEvent(new Event('change'));
+  });
+
+  async function startModel3d() {
+    if (!model3dFile) {
+      document.getElementById('model3dError').textContent = 'Lütfen önce bir görsel yükleyin.';
+      document.getElementById('model3dError').style.display = 'block';
+      return;
+    }
+    const btn = document.getElementById('model3dBtn');
+    btn.disabled = true;
+    document.getElementById('model3dPlaceholder').style.display = 'none';
+    document.getElementById('model3dLoading').style.display = 'block';
+    document.getElementById('model3dViewer').style.display = 'none';
+    document.getElementById('model3dDownloadBtn').style.display = 'none';
+    document.getElementById('model3dError').style.display = 'none';
+
+    const formData = new FormData();
+    const imageToSend = await resizeIfNeeded(model3dFile);
+    formData.append('image', imageToSend);
+
+    try {
+      const startRes = await fetch(`${API}/model3d/start`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
+
+      const jobId = startData.prediction_id;
+      let elapsed = 0;
+
+      while (true) {
+        await new Promise(r => setTimeout(r, 4000));
+        elapsed += 4;
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+
+        if (statusData.stage_label) {
+          document.querySelector('#model3dLoading p').innerHTML =
+            `${statusData.stage_label}<br><span style="font-size:12px;color:#ABA49C;">${elapsed}sn geçti</span>`;
+        }
+
+        if (statusData.status === 'succeeded') {
+          const viewer = document.getElementById('model3dViewer');
+          viewer.src = statusData.render_url;
+          viewer.style.display = 'block';
+          document.getElementById('model3dLoading').style.display = 'none';
+          const dl = document.getElementById('model3dDownloadBtn');
+          dl.href = statusData.render_url;
+          dl.style.display = 'inline-block';
+          break;
+        } else if (statusData.status === 'failed') {
+          throw new Error(statusData.error || '3D model başarısız');
+        }
+        if (elapsed > 420) throw new Error('7 dakika aşıldı, lütfen tekrar deneyin');
+      }
+    } catch (err) {
+      document.getElementById('model3dLoading').style.display = 'none';
+      document.getElementById('model3dPlaceholder').style.display = 'block';
+      document.getElementById('model3dError').textContent = 'Hata: ' + err.message;
+      document.getElementById('model3dError').style.display = 'block';
     } finally {
       btn.disabled = false;
     }
