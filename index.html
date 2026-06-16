@@ -2125,7 +2125,8 @@
   }
 
   function selectStyle(btn, style) {
-    document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+    // Sadece Render sekmesinin stil grid'lerini sıfırla — staging grid'lerine dokunma
+    document.querySelectorAll('#interiorStylesGrid .style-btn, #stylesGrid .style-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedStyle = style;
   }
@@ -2136,10 +2137,10 @@
     selectedRoom = room;
   }
 
-  // Stil seçimi (initial)
-  document.querySelectorAll('.style-btn').forEach(btn => {
+  // Stil seçimi (initial) — yalnız Render sekmesinin stil grid'leri; staging kendi handler'larını kullanır
+  document.querySelectorAll('#interiorStylesGrid .style-btn, #stylesGrid .style-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#interiorStylesGrid .style-btn, #stylesGrid .style-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       selectedStyle = btn.dataset.style;
     });
