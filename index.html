@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RenderAI — Mimari Render Platformu</title>
+  <title>BynAi — Mimari Render Platformu</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -569,7 +569,7 @@
 <body>
 
 <header>
-  <div class="logo">RenderAI</div>
+  <div class="logo">BynAi</div>
   <div style="display:flex; gap:8px; align-items:center;">
     <button class="main-nav-btn active" id="nav-render" onclick="switchMainSection('render')">🏢 Render</button>
     <button class="main-nav-btn" id="nav-staging" onclick="switchMainSection('staging')">🛋️ Sanal Mobilyalama</button>
@@ -584,6 +584,8 @@
     <button class="main-nav-btn" id="nav-works" onclick="switchMainSection('works')">🗂️ İşlerim</button>
   </div>
   <div style="display:flex; gap:10px; align-items:center;">
+    <button id="pricingBtn" onclick="openPricingModal()"
+      style="padding:8px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:13px; font-weight:700; cursor:pointer;">💎 Paketler</button>
     <span id="creditBadge" style="display:none; font-size:12px; font-weight:700; color:#FAFAF8; background:#7A8B6A; padding:6px 12px; border-radius:20px;">⚡ —</span>
     <span id="authEmail" style="display:none; font-size:12px; color:#ABA49C;"></span>
     <button id="authLoginBtn" onclick="openAuthModal('login')"
@@ -611,13 +613,76 @@
     <div id="authInfo" style="display:none; font-size:12px; color:#7A8B6A; margin-bottom:12px;"></div>
     <button id="authSubmitBtn" onclick="authSubmit()"
       style="width:100%; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;">Giriş Yap</button>
+    <p style="font-size:11px; color:#8A7E74; text-align:center; margin:12px 0 0; line-height:1.6;">
+      Kayıt olarak / giriş yaparak
+      <a href="terms.html" target="_blank" style="color:#9A6558;">Kullanıcı Sözleşmesi</a> ve
+      <a href="privacy.html" target="_blank" style="color:#9A6558;">Gizlilik Politikası</a>'nı kabul edersiniz.
+    </p>
   </div>
 </div>
 
-<section class="hero">
-  <h1>Çizimden Gerçeğe</h1>
-  <p>Mimari çizimlerinizi saniyeler içinde fotorealistik render'a dönüştürün.</p>
-</section>
+<!-- ─── PAKETLER / ÖDEME MODAL ──────────────────────────────────────────── -->
+<div id="pricingModal" style="display:none; position:fixed; inset:0; background:rgba(26,26,22,0.6); z-index:1100; align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto;">
+  <div style="background:#FAFAF8; border-radius:18px; padding:32px; width:100%; max-width:1000px; box-shadow:0 20px 60px rgba(0,0,0,0.3); margin:auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <h3 style="margin:0; font-size:22px; color:#2A2520;">💎 Üyelik Paketleri</h3>
+      <button onclick="document.getElementById('pricingModal').style.display='none'" style="border:none; background:none; font-size:22px; color:#8A7E74; cursor:pointer;">✕</button>
+    </div>
+    <p style="font-size:13px; color:#8A7E74; margin:0 0 22px; line-height:1.6;">Aylık abonelik al, her ay kredin yenilensin. Ödeme güvenli şekilde Lemon Squeezy üzerinden alınır.</p>
+
+    <!-- ABONELİKLER -->
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:26px;">
+      <!-- Başlangıç -->
+      <div style="border:1px solid #E0DAD0; border-radius:14px; padding:22px; background:#fff; display:flex; flex-direction:column;">
+        <div style="font-size:15px; font-weight:700; color:#2A2520;">Başlangıç</div>
+        <div style="font-size:30px; font-weight:800; color:#2A2520; margin:8px 0 2px;">$29<span style="font-size:13px; color:#8A7E74; font-weight:500;">/ay</span></div>
+        <div style="font-size:13px; color:#7A8B6A; font-weight:700; margin-bottom:14px;">300 kredi / ay</div>
+        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;">✓ Tüm render araçları<br>✓ Aylık 300 kredi<br>✓ Ticari kullanım</div>
+        <button onclick="goCheckout('sub_starter')" style="margin-top:16px; width:100%; padding:12px; border:1px solid #9A6558; border-radius:10px; background:transparent; color:#9A6558; font-size:14px; font-weight:700; cursor:pointer;">Seç</button>
+      </div>
+      <!-- Pro (En Popüler) -->
+      <div style="border:2px solid #9A6558; border-radius:14px; padding:22px; background:#fff; display:flex; flex-direction:column; position:relative;">
+        <div style="position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:#9A6558; color:#FAFAF8; font-size:10px; font-weight:700; padding:3px 12px; border-radius:20px; letter-spacing:0.5px;">EN POPÜLER</div>
+        <div style="font-size:15px; font-weight:700; color:#2A2520;">Pro</div>
+        <div style="font-size:30px; font-weight:800; color:#2A2520; margin:8px 0 2px;">$79<span style="font-size:13px; color:#8A7E74; font-weight:500;">/ay</span></div>
+        <div style="font-size:13px; color:#7A8B6A; font-weight:700; margin-bottom:14px;">1000 kredi / ay</div>
+        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;">✓ Başlangıç'taki her şey<br>✓ Aylık 1000 kredi<br>✓ Kredi başına daha ucuz<br>✓ Öncelikli işlem</div>
+        <button onclick="goCheckout('sub_pro')" style="margin-top:16px; width:100%; padding:12px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;">Seç</button>
+      </div>
+      <!-- Stüdyo -->
+      <div style="border:1px solid #E0DAD0; border-radius:14px; padding:22px; background:#fff; display:flex; flex-direction:column;">
+        <div style="font-size:15px; font-weight:700; color:#2A2520;">Stüdyo</div>
+        <div style="font-size:30px; font-weight:800; color:#2A2520; margin:8px 0 2px;">$129<span style="font-size:13px; color:#8A7E74; font-weight:500;">/ay</span></div>
+        <div style="font-size:13px; color:#7A8B6A; font-weight:700; margin-bottom:14px;">2000 kredi / ay</div>
+        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;">✓ Pro'daki her şey<br>✓ Aylık 2000 kredi<br>✓ En düşük kredi maliyeti<br>✓ Ajans/stüdyo için ideal</div>
+        <button onclick="goCheckout('sub_studio')" style="margin-top:16px; width:100%; padding:12px; border:1px solid #9A6558; border-radius:10px; background:transparent; color:#9A6558; font-size:14px; font-weight:700; cursor:pointer;">Seç</button>
+      </div>
+    </div>
+
+    <!-- EK KREDİ PAKETLERİ -->
+    <div style="font-size:13px; font-weight:700; color:#2A2520; margin-bottom:6px;">Ek Kredi Paketleri <span style="font-size:11px; color:#8A7E74; font-weight:400;">(tek seferlik — aktif abonelere)</span></div>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px;">
+      <div style="border:1px solid #E0DAD0; border-radius:12px; padding:14px; background:#fff; display:flex; align-items:center; justify-content:space-between;">
+        <div><div style="font-size:13px; font-weight:700; color:#2A2520;">Mini</div><div style="font-size:12px; color:#7A8B6A;">80 kredi · $9</div></div>
+        <button onclick="goCheckout('pack_mini')" style="padding:8px 14px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:700; cursor:pointer;">Al</button>
+      </div>
+      <div style="border:1px solid #E0DAD0; border-radius:12px; padding:14px; background:#fff; display:flex; align-items:center; justify-content:space-between;">
+        <div><div style="font-size:13px; font-weight:700; color:#2A2520;">Orta</div><div style="font-size:12px; color:#7A8B6A;">250 kredi · $24</div></div>
+        <button onclick="goCheckout('pack_medium')" style="padding:8px 14px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:700; cursor:pointer;">Al</button>
+      </div>
+      <div style="border:1px solid #E0DAD0; border-radius:12px; padding:14px; background:#fff; display:flex; align-items:center; justify-content:space-between;">
+        <div><div style="font-size:13px; font-weight:700; color:#2A2520;">Büyük</div><div style="font-size:12px; color:#7A8B6A;">600 kredi · $49</div></div>
+        <button onclick="goCheckout('pack_large')" style="padding:8px 14px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:700; cursor:pointer;">Al</button>
+      </div>
+    </div>
+
+    <p style="font-size:11px; color:#8A7E74; text-align:center; margin:22px 0 0; line-height:1.7;">
+      Satın alarak <a href="terms.html" target="_blank" style="color:#9A6558;">Kullanıcı Sözleşmesi</a>,
+      <a href="privacy.html" target="_blank" style="color:#9A6558;">Gizlilik Politikası</a> ve
+      <a href="refund.html" target="_blank" style="color:#9A6558;">İade & Mesafeli Satış</a> şartlarını kabul edersiniz.
+    </p>
+  </div>
+</div>
 
 <!-- Eski nav — kaldırıldı, header'a taşındı -->
 <div style="max-width:1560px; margin:0 auto 0; padding:0 32px;">
@@ -1938,8 +2003,54 @@
   <div id="worksLightboxInner" style="max-width:90vw; max-height:85vh; text-align:center;"></div>
 </div>
 
+<!-- ─── FOOTER ──────────────────────────────────────────────────────────── -->
+<footer style="border-top:1px solid #D8D2C8; margin-top:40px; padding:28px 32px; text-align:center;">
+  <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap; margin-bottom:12px;">
+    <a href="terms.html" style="color:#8A7E74; font-size:13px; text-decoration:none;">Kullanıcı Sözleşmesi</a>
+    <a href="privacy.html" style="color:#8A7E74; font-size:13px; text-decoration:none;">Gizlilik Politikası</a>
+    <a href="refund.html" style="color:#8A7E74; font-size:13px; text-decoration:none;">İade & Mesafeli Satış</a>
+    <a href="#" onclick="openPricingModal();return false;" style="color:#8A7E74; font-size:13px; text-decoration:none;">Paketler</a>
+  </div>
+  <div style="font-size:12px; color:#ABA49C;">© 2026 RenderAI · Tüm hakları saklıdır · İletişim: <a href="mailto:[E-POSTA]" style="color:#8A7E74;">[E-POSTA]</a></div>
+</footer>
+
 <script>
   const API = 'https://web-production-8c34d.up.railway.app';
+
+  // ─── LEMON SQUEEZY CHECKOUT CONFIG ───────────────────────────────────────
+  // LS panelinde ürünleri oluşturduktan sonra her ürünün "Share / Buy link"
+  // (checkout) URL'sini buraya yapıştır. user_id + e-posta otomatik eklenir →
+  // webhook krediyi doğru kullanıcıya yazar. Boş ("") bırakılan paket "Yakında".
+  const LS_CHECKOUT = {
+    sub_starter: "",   // Başlangıç — $29 / 300 kredi / ay (abonelik)
+    sub_pro:     "",   // Pro       — $79 / 1000 kredi / ay (abonelik)
+    sub_studio:  "",   // Stüdyo    — $129 / 2000 kredi / ay (abonelik)
+    pack_mini:   "",   // Mini      — $9 / 80 kredi (tek seferlik)
+    pack_medium: "",   // Orta      — $24 / 250 kredi (tek seferlik)
+    pack_large:  "",   // Büyük     — $49 / 600 kredi (tek seferlik)
+  };
+
+  function openPricingModal() {
+    document.getElementById('pricingModal').style.display = 'flex';
+  }
+
+  function goCheckout(key) {
+    const url = LS_CHECKOUT[key];
+    if (!url) { alert('Bu paket yakında aktif olacak.'); return; }
+    const token = localStorage.getItem('ra_token');
+    const uid = localStorage.getItem('ra_uid');
+    if (!token || !uid) {
+      // Önce giriş gerekli — krediyi doğru hesaba yazabilmek için
+      document.getElementById('pricingModal').style.display = 'none';
+      alert('Satın almadan önce giriş yapmalısın.');
+      openAuthModal('login');
+      return;
+    }
+    const email = localStorage.getItem('ra_email') || '';
+    const sep = url.includes('?') ? '&' : '?';
+    const full = `${url}${sep}checkout[custom][user_id]=${encodeURIComponent(uid)}&checkout[email]=${encodeURIComponent(email)}`;
+    window.open(full, '_blank');
+  }
 
   // ─── ÜYELİK (Supabase Auth) ──────────────────────────────────────────────
   let authMode = 'login';
@@ -1966,6 +2077,7 @@
       const res = await fetch(`${API}/me`, { headers: authHeaders() });
       const data = await res.json();
       if (data.logged_in && data.credits !== null && data.credits !== undefined) {
+        if (data.user_id) localStorage.setItem('ra_uid', data.user_id);
         badge.textContent = `⚡ ${data.credits} kredi`;
         badge.style.display = 'inline-block';
       } else if (!data.logged_in) {
@@ -2026,6 +2138,7 @@
       } else {
         localStorage.setItem('ra_token', data.access_token);
         localStorage.setItem('ra_email', data.email);
+        if (data.user_id) localStorage.setItem('ra_uid', data.user_id);
         updateAuthUI();
         document.getElementById('authModal').style.display = 'none';
       }
@@ -2041,6 +2154,7 @@
   function authLogout() {
     localStorage.removeItem('ra_token');
     localStorage.removeItem('ra_email');
+    localStorage.removeItem('ra_uid');
     updateAuthUI();
   }
 
