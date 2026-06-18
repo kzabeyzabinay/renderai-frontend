@@ -572,13 +572,13 @@
   <div class="logo">RenderAI</div>
   <div style="display:flex; gap:8px; align-items:center;">
     <button class="main-nav-btn active" id="nav-render" onclick="switchMainSection('render')">🏢 Render</button>
-    <button class="main-nav-btn" id="nav-staging" onclick="switchMainSection('staging')">🛋️ Sanal Mobilyalama <span style="font-size:11px;opacity:0.8;">· 6 kredi</span></button>
-    <button class="main-nav-btn" id="nav-model3d" onclick="switchMainSection('model3d')">🧊 3D Model <span style="font-size:11px;opacity:0.8;">· 40 kredi</span></button>
+    <button class="main-nav-btn" id="nav-staging" onclick="switchMainSection('staging')">🛋️ Sanal Mobilyalama</button>
+    <button class="main-nav-btn" id="nav-model3d" onclick="switchMainSection('model3d')">🧊 3D Model</button>
     <button class="main-nav-btn" id="nav-upscale" onclick="switchMainSection('upscale')">🔍 Büyüt</button>
     <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')">✨ Geliştir</button>
     <button class="main-nav-btn" id="nav-video" onclick="switchMainSection('video')">🎬 Video</button>
     <button class="main-nav-btn" id="nav-floorplan" onclick="switchMainSection('floorplan')">📐 Kat Planı</button>
-    <button class="main-nav-btn" id="nav-place" onclick="switchMainSection('place')">🧩 Yerleştir <span style="font-size:11px;opacity:0.8;">· 8 kredi</span></button>
+    <button class="main-nav-btn" id="nav-place" onclick="switchMainSection('place')">🧩 Yerleştir</button>
     <button class="main-nav-btn" id="nav-pano" onclick="switchMainSection('pano')">🌐 360 Tur</button>
     <button class="main-nav-btn" id="nav-decision" onclick="switchMainSection('decision')">✅ Karar Linki</button>
     <button class="main-nav-btn" id="nav-works" onclick="switchMainSection('works')">🗂️ İşlerim</button>
@@ -812,7 +812,7 @@
       <!-- 4. GÖKYÜZÜ -->
       <div class="preset-content" id="tab-sky">
         <div class="preset-chips" style="margin-top:8px;">
-          <button class="chip" data-prompt="perfectly clear deep azure blue sky, not a single cloud, pure vivid blue, ideal photography conditions, maximum contrast with building">Temiz Gökyüzü</button>
+          <button class="chip" data-prompt="clear sky in a soft natural light blue tone, gentle gradient from a paler blue near the horizon to a soft calm blue above, subtle realistic atmospheric haze, no clouds, no harsh oversaturated or electric blue, true-to-life gentle clear sky">Temiz Gökyüzü</button>
           <button class="chip" data-prompt="dramatic large cumulus cloud formations, billowing white and grey clouds with dark undersides, dynamic turbulent sky, interesting varied cloud texture, dramatic light breaks through clouds">Bulutlu Gökyüzü</button>
           <button class="chip" data-prompt="spectacular sunset sky, blazing vivid orange red pink and magenta gradient from glowing horizon upward, dramatic fiery sunset colors, warm golden light washing everything, atmospheric glow and haze, breathtaking sunset moment">Günbatımı 🌅</button>
           <button class="chip" data-prompt="deep twilight night blue sky, dark blue-black gradient, few bright stars visible, deep atmospheric night sky color, mysterious deep blue tone">Gece Mavisi 🌃</button>
@@ -915,6 +915,14 @@
     <div style="width:100%; text-align:center;">
       <img id="resultImg" class="result-img" />
       <a id="downloadBtn" class="download-btn" download="render.png">⬇ İndir</a>
+    </div>
+    <!-- Render'ı promptla düzenle: oluşan renderı tekrar geliştir -->
+    <div id="renderEditBox" style="display:none; width:100%; margin-top:18px; padding-top:18px; border-top:1px solid #E0DAD0; text-align:left;">
+      <div class="mini-label" style="margin-bottom:8px;">✏️ Bu render'ı düzenle</div>
+      <textarea id="renderEditPrompt" rows="3" placeholder="Örn: zemini ahşap parke yap · duvarı antrasit boya · gökyüzünü gün batımı yap · yazıları kaldır" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; font-family:inherit; resize:vertical; line-height:1.5;"></textarea>
+      <p style="font-size:11px; color:#8A7E74; margin:6px 0 10px; line-height:1.5;">Yazdığın değişiklik uygulanır, sahnenin geri kalanı (açı, mobilya, ışık) birebir korunur.</p>
+      <button class="render-btn" id="renderEditBtn" onclick="startRenderEdit()">✨ Geliştir <span style="font-size:11px;opacity:0.8;">· 6 kredi</span></button>
+      <div class="error-msg" id="renderEditError"></div>
     </div>
   </div>
 </main>
@@ -1509,14 +1517,15 @@
 
     <!-- Sol: Ayarlar -->
     <div>
-      <div class="panel">
+      <!-- Dijital İkiz şimdilik gizli — tek mod kaldığı için mod seçim paneli de gizlendi; geliştirilince geri açılacak -->
+      <div class="panel" style="display:none;">
         <h2>Mod Seçin</h2>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:6px;">
+        <div style="display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:6px;">
           <button class="scale-btn active" id="placeModeProduct" onclick="setPlaceMode('product')">
             <div style="font-size:15px; font-weight:700; color:#9A6558;">🛋️ Ürün Yerleştir</div>
             <div style="font-size:11px; color:#8A7E74; margin-top:3px;">Mobilya/ürünü iç mekana koy</div>
           </button>
-          <button class="scale-btn" id="placeModeMontage" onclick="setPlaceMode('montage')">
+          <button class="scale-btn" id="placeModeMontage" onclick="setPlaceMode('montage')" style="display:none;">
             <div style="font-size:15px; font-weight:700; color:#7A8B6A;">🏗️ Dijital İkiz</div>
             <div style="font-size:11px; color:#8A7E74; margin-top:3px;">Projeyi gerçek ortama monte et</div>
           </button>
@@ -2201,6 +2210,8 @@
     document.getElementById('fileInput').dispatchEvent(new Event('change'));
   });
 
+  let lastRenderUrl = '';
+
   async function startRender() {
     if (!selectedFile) {
       showError('Lütfen önce bir görsel yükleyin.');
@@ -2215,6 +2226,7 @@
     document.getElementById('loading').style.display = 'block';
     document.getElementById('resultImg').style.display = 'none';
     document.getElementById('downloadBtn').style.display = 'none';
+    document.getElementById('renderEditBox').style.display = 'none';
     document.getElementById(errId).style.display = 'none';
 
     const presetPrompt = buildPresetPrompt();
@@ -2261,6 +2273,10 @@
             const dl = document.getElementById('downloadBtn');
             dl.href = statusData.render_url;
             dl.style.display = 'inline-block';
+            lastRenderUrl = statusData.render_url;
+            document.getElementById('renderEditPrompt').value = '';
+            document.getElementById('renderEditError').style.display = 'none';
+            document.getElementById('renderEditBox').style.display = 'block';
           };
           break;
         } else if (statusData.status === 'failed') {
@@ -2280,6 +2296,81 @@
       document.getElementById('loading').style.display = 'none';
       document.getElementById('placeholder').style.display = 'block';
       showError('Hata: ' + err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ─── RENDER'I PROMPTLA DÜZENLE (oluşan renderı tekrar geliştir) ────────────
+  async function startRenderEdit() {
+    const prompt = document.getElementById('renderEditPrompt').value.trim();
+    const errEl = document.getElementById('renderEditError');
+    errEl.style.display = 'none';
+    if (!lastRenderUrl) { errEl.textContent = 'Önce bir render oluştur.'; errEl.style.display = 'block'; return; }
+    if (!prompt) { errEl.textContent = 'Lütfen yapmak istediğin değişikliği yaz.'; errEl.style.display = 'block'; return; }
+
+    const btn = document.getElementById('renderEditBtn');
+    btn.disabled = true;
+    document.getElementById('resultImg').style.display = 'none';
+    document.getElementById('downloadBtn').style.display = 'none';
+    document.getElementById('renderEditBox').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    document.querySelector('.loading p').innerHTML = 'Geliştirme uygulanıyor...<br><span style="font-size:12px;color:#ABA49C;">AI görüntü işliyor</span>';
+
+    try {
+      // Mevcut renderı dosyaya çevirip Özel (custom) geliştirme pipeline'ına gönder
+      const blob = await (await fetch(lastRenderUrl)).blob();
+      const file = new File([blob], 'render.png', { type: blob.type || 'image/png' });
+      const imageToSend = await resizeIfNeeded(file);
+      const formData = new FormData();
+      formData.append('image', imageToSend);
+      formData.append('enhance_type', 'custom');
+      formData.append('prompt', prompt);
+
+      const startRes = await fetch(`${API}/enhance/start`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
+
+      const jobId = startData.prediction_id;
+      let elapsed = 0;
+      while (true) {
+        await new Promise(r => setTimeout(r, 4000));
+        elapsed += 4;
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+
+        if (statusData.stage_label) {
+          document.querySelector('.loading p').innerHTML =
+            `${statusData.stage_label} — ${elapsed}sn<br><span style="font-size:12px;color:#ABA49C;">AI görüntü işliyor</span>`;
+        }
+
+        if (statusData.status === 'succeeded') {
+          const img = document.getElementById('resultImg');
+          img.src = statusData.render_url;
+          img.style.display = 'block';
+          img.onload = () => {
+            document.getElementById('loading').style.display = 'none';
+            const dl = document.getElementById('downloadBtn');
+            dl.href = statusData.render_url;
+            dl.style.display = 'inline-block';
+            lastRenderUrl = statusData.render_url;
+            document.getElementById('renderEditPrompt').value = '';
+            document.getElementById('renderEditBox').style.display = 'block';
+          };
+          break;
+        } else if (statusData.status === 'failed') {
+          throw new Error(statusData.error || 'Geliştirme başarısız');
+        }
+        if (elapsed > 300) throw new Error('5 dakika aşıldı, lütfen tekrar deneyin');
+      }
+    } catch (err) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('resultImg').style.display = 'block';
+      document.getElementById('downloadBtn').style.display = 'inline-block';
+      document.getElementById('renderEditBox').style.display = 'block';
+      errEl.textContent = 'Hata: ' + err.message;
+      errEl.style.display = 'block';
     } finally {
       btn.disabled = false;
     }
