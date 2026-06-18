@@ -754,7 +754,7 @@
       </div>
 
       <div id="selectedChipsInterior" style="min-height:28px; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
-      <button class="render-btn" id="renderBtnInterior" onclick="startRender()" style="margin-top:16px;">✨ Render Oluştur <span style="font-size:11px;opacity:0.8;">· 4 kredi</span></button>
+      <button class="render-btn" id="renderBtnInterior" onclick="startRender()" style="margin-top:16px;">✨ Render Oluştur <span style="font-size:11px;opacity:0.8;">· 10 kredi</span></button>
       <div class="error-msg" id="errorMsgInterior"></div>
     </div>
 
@@ -897,7 +897,7 @@
       <!-- Seçili etiketler -->
       <div id="selectedChips" style="min-height:28px; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
 
-      <button class="render-btn" id="renderBtn" onclick="startRender()" style="margin-top:16px;">✨ Render Oluştur <span style="font-size:11px;opacity:0.8;">· 4 kredi</span></button>
+      <button class="render-btn" id="renderBtn" onclick="startRender()" style="margin-top:16px;">✨ Render Oluştur <span style="font-size:11px;opacity:0.8;">· 10 kredi</span></button>
       <div class="error-msg" id="errorMsg"></div>
     </div>
   </div>
@@ -921,7 +921,7 @@
       <div class="mini-label" style="margin-bottom:8px;">✏️ Bu render'ı düzenle</div>
       <textarea id="renderEditPrompt" rows="3" placeholder="Örn: zemini ahşap parke yap · duvarı antrasit boya · gökyüzünü gün batımı yap · yazıları kaldır" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; font-family:inherit; resize:vertical; line-height:1.5;"></textarea>
       <p style="font-size:11px; color:#8A7E74; margin:6px 0 10px; line-height:1.5;">Yazdığın değişiklik uygulanır, sahnenin geri kalanı (açı, mobilya, ışık) birebir korunur.</p>
-      <button class="render-btn" id="renderEditBtn" onclick="startRenderEdit()">✨ Geliştir <span style="font-size:11px;opacity:0.8;">· 6 kredi</span></button>
+      <button class="render-btn" id="renderEditBtn" onclick="startRenderEdit()">✨ Geliştir <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
       <div class="error-msg" id="renderEditError"></div>
     </div>
   </div>
@@ -968,7 +968,7 @@
           <b style="color:#f59e0b;">8K</b> — Malzeme analizi → gerçekçi doku sentezi → 4x çözünürlük
         </div>
 
-        <button class="render-btn" id="upscaleBtn" onclick="startUpscale()">🔍 Büyüt & Geliştir <span style="font-size:11px;opacity:0.8;">· 2K: 2 / 4K-8K: 4 kredi</span></button>
+        <button class="render-btn" id="upscaleBtn" onclick="startUpscale()">🔍 Büyüt & Geliştir <span style="font-size:11px;opacity:0.8;">· 2K: 5 / 4K-8K: 10 kredi</span></button>
         <div class="error-msg" id="upscaleError"></div>
       </div>
     </div>
@@ -1059,7 +1059,7 @@
           <p style="font-size:11px; color:#8A7E74; margin-top:6px; line-height:1.5;">Yazdığın değişiklik uygulanır, sahnenin geri kalanı (açı, mobilya, ışık) birebir korunur.</p>
         </div>
 
-        <button class="render-btn" id="enhanceBtn" onclick="startEnhance()">✨ Uygula <span style="font-size:11px;opacity:0.8;">· 6 kredi</span></button>
+        <button class="render-btn" id="enhanceBtn" onclick="startEnhance()">✨ Uygula <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
         <div class="error-msg" id="enhanceError"></div>
       </div>
     </div>
@@ -1138,7 +1138,7 @@
                  style="width:100%; padding:10px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#FAFAF8; font-size:13px; box-sizing:border-box;" />
         </div>
 
-        <button class="render-btn" id="stagingBtn" onclick="startStaging()" style="margin-top:16px;">🛋️ Mobilyala <span style="font-size:11px;opacity:0.8;">· 6 kredi</span></button>
+        <button class="render-btn" id="stagingBtn" onclick="startStaging()" style="margin-top:16px;">🛋️ Mobilyala <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
         <div class="error-msg" id="stagingError"></div>
       </div>
     </div>
@@ -1188,7 +1188,7 @@
           ⚠️ En iyi sonuç <strong>tek obje</strong> içindir (koltuk, ürün, bina dış kütlesi).
           Komple iç mekan sahnesinde model kabaca kalır. İşlem ~1-2 dakika sürer.
         </div>
-        <button class="render-btn" id="model3dBtn" onclick="startModel3d()">🧊 Modeli Oluştur <span style="font-size:11px;opacity:0.8;">· 40 kredi</span></button>
+        <button class="render-btn" id="model3dBtn" onclick="startModel3d()">🧊 Modeli Oluştur <span style="font-size:11px;opacity:0.8;">· 100 kredi</span></button>
         <div class="error-msg" id="model3dError"></div>
       </div>
     </div>
@@ -1280,7 +1280,7 @@
           </button>
         </div>
 
-        <button class="render-btn" id="videoBtn" onclick="startVideo()">🎬 Video Oluştur <span style="font-size:11px;opacity:0.8;">· 15 kredi · ~60-90 sn</span></button>
+        <button class="render-btn" id="videoBtn" onclick="startVideo()">🎬 Video Oluştur <span style="font-size:11px;opacity:0.8;">· 40 kredi · ~60-90 sn</span></button>
         <div class="error-msg" id="videoError"></div>
       </div>
     </div>
@@ -1487,7 +1487,7 @@
 
         </div><!-- /fpFloorOpts -->
 
-        <button class="render-btn" id="fpBtn" onclick="startFloorplan()">📐 Plan Renklendir <span style="font-size:11px;opacity:0.8;">· 8 kredi</span></button>
+        <button class="render-btn" id="fpBtn" onclick="startFloorplan()">📐 Plan Renklendir <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
         <div class="error-msg" id="fpError"></div>
       </div>
     </div>
@@ -1586,7 +1586,7 @@
         <h2>İsteğe Bağlı Talimat</h2>
         <input type="text" id="placeNote" placeholder="örn: yataktaki örtüyü de değiştir / binayı arsanın soluna yerleştir"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:16px;" />
-        <button class="render-btn" id="placeBtn" onclick="startPlace()">🧩 Yerleştir <span style="font-size:11px;opacity:0.8;">· 8 kredi</span></button>
+        <button class="render-btn" id="placeBtn" onclick="startPlace()">🧩 Yerleştir <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
         <div class="error-msg" id="placeError"></div>
       </div>
 
@@ -1598,7 +1598,7 @@
         <div id="presentItemList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
         <input type="text" id="presentTitle" placeholder="Sunum başlığı: örn. Villa Projesi — Bodrum"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
-        <button class="render-btn" onclick="createPresentation()">🔗 Sunum Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 30 kredi</span></button>
+        <button class="render-btn" onclick="createPresentation()">🔗 Sunum Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 75 kredi</span></button>
         <div class="error-msg" id="presentError"></div>
         <div id="presentLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
           <div style="font-size:11px; color:#7A8B6A; font-weight:700; margin-bottom:6px;">✓ SUNUM YAYINDA</div>
@@ -1661,7 +1661,7 @@
           <p style="font-size:12px;">Malzeme/ürün örneği (parke, kumaş, mobilya...)</p>
         </div>
         <img id="decItemPreview" class="preview-img" style="max-height:90px;" />
-        <button class="render-btn" id="decVariantBtn" onclick="startVariant()" style="margin-top:14px;">🎨 Varyasyon Üret <span style="font-size:11px;opacity:0.8;">· 8 kredi</span></button>
+        <button class="render-btn" id="decVariantBtn" onclick="startVariant()" style="margin-top:14px;">🎨 Varyasyon Üret <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
         <div class="error-msg" id="decError"></div>
       </div>
 
@@ -1694,7 +1694,7 @@
         <h2>Karar Linki Oluştur</h2>
         <input type="text" id="decTitle" placeholder="Link başlığı: örn. Salon Zemin Seçimi"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
-        <button class="render-btn" onclick="createDecision()">🔗 Karar Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 30 kredi</span></button>
+        <button class="render-btn" onclick="createDecision()">🔗 Karar Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 75 kredi</span></button>
         <div style="font-size:11px; color:#8A7E74; margin-top:8px;">En az 2 seçenek gerekir. Link 30 gün canlı kalır.</div>
         <div class="error-msg" id="decLinkError"></div>
 
@@ -1738,7 +1738,7 @@
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <button class="render-btn" id="panoAddBtn" onclick="addUploadToTour()" style="margin-top:0; background:#7A8B6A;">➕ Tura Ekle <span style="font-size:11px;opacity:0.8;">· ücretsiz</span></button>
-          <button class="render-btn" id="panoGptBtn" onclick="startPanoGpt()" style="margin-top:0;">✨ Fotorealistik Render <span style="font-size:11px;opacity:0.8;">· 12 kredi</span></button>
+          <button class="render-btn" id="panoGptBtn" onclick="startPanoGpt()" style="margin-top:0;">✨ Fotorealistik Render <span style="font-size:11px;opacity:0.8;">· 30 kredi</span></button>
         </div>
         <div class="error-msg" id="panoError"></div>
       </div>
@@ -1827,7 +1827,7 @@
       <div class="panel">
         <input type="text" id="tourTitle" placeholder="Tur başlığı: örn. Villa Projesi"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
-        <button class="render-btn" onclick="createTour()">🔗 360 Tur Oluştur <span style="font-size:11px;opacity:0.8;">· 30 kredi</span></button>
+        <button class="render-btn" onclick="createTour()">🔗 360 Tur Oluştur <span style="font-size:11px;opacity:0.8;">· 75 kredi</span></button>
         <div style="font-size:11px; color:#8A7E74; margin-top:8px;">Link 30 gün ücretsiz yayında kalır, sonrasında kredi ile yenilenir.</div>
         <div class="error-msg" id="tourError"></div>
         <div id="tourLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
@@ -2030,6 +2030,13 @@
     selectedQuality = q;
     document.getElementById('qualityAuto').classList.toggle('active', q === 'auto');
     document.getElementById('qualityHigh').classList.toggle('active', q === 'high');
+    // Yüksek kalite render 15, Oto 10 kredi — buton etiketlerini güncelle
+    const lbl = '· ' + (q === 'high' ? 15 : 10) + ' kredi';
+    ['renderBtnInterior', 'renderBtn'].forEach(id => {
+      const b = document.getElementById(id);
+      const s = b && b.querySelector('span');
+      if (s) s.textContent = lbl;
+    });
   }
 
   function switchPresetTab(btn, tabId) {
