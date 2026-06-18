@@ -585,8 +585,8 @@
   </div>
   <div style="display:flex; gap:10px; align-items:center;">
     <button id="pricingBtn" onclick="openPricingModal()"
-      style="padding:8px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:13px; font-weight:700; cursor:pointer;">💎 Paketler</button>
-    <span id="creditBadge" style="display:none; font-size:12px; font-weight:700; color:#FAFAF8; background:#7A8B6A; padding:6px 12px; border-radius:20px;">⚡ —</span>
+      style="padding:8px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:13px; font-weight:700; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9 3 6.5 8 12 21 17.5 8 15 3"/></svg> Paketler</button>
+    <span id="creditBadge" style="display:none; font-size:12px; font-weight:700; color:#FAFAF8; background:#7A8B6A; padding:6px 12px; border-radius:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M13 3 4 14h6l-1 7 9-11h-6l1-7Z"/></svg> —</span>
     <span id="authEmail" style="display:none; font-size:12px; color:#ABA49C;"></span>
     <button id="authLoginBtn" onclick="openAuthModal('login')"
       style="padding:8px 18px; border:1px solid #9A6558; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;">Giriş Yap</button>
@@ -599,7 +599,7 @@
   <div style="background:#FAFAF8; border-radius:18px; padding:32px; width:100%; max-width:380px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
       <h3 id="authTitle" style="margin:0; font-size:18px; color:#2A2520;">Giriş Yap</h3>
-      <button onclick="document.getElementById('authModal').style.display='none'" style="border:none; background:none; font-size:20px; color:#8A7E74; cursor:pointer;">✕</button>
+      <button onclick="document.getElementById('authModal').style.display='none'" style="border:none; background:none; font-size:20px; color:#8A7E74; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div style="display:flex; gap:6px; margin-bottom:18px; background:#E8E4DC; border-radius:10px; padding:4px;">
       <button id="authTabLogin" onclick="setAuthMode('login')" style="flex:1; padding:8px; border:none; border-radius:8px; background:#FAFAF8; color:#2A2520; font-size:13px; font-weight:600; cursor:pointer;">Giriş</button>
@@ -625,8 +625,8 @@
 <div id="pricingModal" style="display:none; position:fixed; inset:0; background:rgba(26,26,22,0.6); z-index:1100; align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto;">
   <div style="background:#FAFAF8; border-radius:18px; padding:32px; width:100%; max-width:1000px; box-shadow:0 20px 60px rgba(0,0,0,0.3); margin:auto;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-      <h3 style="margin:0; font-size:22px; color:#2A2520;">💎 Üyelik Paketleri</h3>
-      <button onclick="document.getElementById('pricingModal').style.display='none'" style="border:none; background:none; font-size:22px; color:#8A7E74; cursor:pointer;">✕</button>
+      <h3 style="margin:0; font-size:22px; color:#2A2520;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9 3 6.5 8 12 21 17.5 8 15 3"/></svg> Üyelik Paketleri</h3>
+      <button onclick="document.getElementById('pricingModal').style.display='none'" style="border:none; background:none; font-size:22px; color:#8A7E74; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <p style="font-size:13px; color:#8A7E74; margin:0 0 22px; line-height:1.6;">Aylık abonelik al, her ay kredin yenilensin. Ödeme güvenli şekilde Lemon Squeezy üzerinden alınır.</p>
 
@@ -637,7 +637,7 @@
         <div style="font-size:15px; font-weight:700; color:#2A2520;">Başlangıç</div>
         <div style="font-size:30px; font-weight:800; color:#2A2520; margin:8px 0 2px;">$29<span style="font-size:13px; color:#8A7E74; font-weight:500;">/ay</span></div>
         <div style="font-size:13px; color:#7A8B6A; font-weight:700; margin-bottom:14px;">300 kredi / ay</div>
-        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;">✓ Tüm render araçları<br>✓ Aylık 300 kredi<br>✓ Ticari kullanım</div>
+        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Tüm render araçları<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Aylık 300 kredi<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Ticari kullanım</div>
         <button onclick="goCheckout('sub_starter')" style="margin-top:16px; width:100%; padding:12px; border:1px solid #9A6558; border-radius:10px; background:transparent; color:#9A6558; font-size:14px; font-weight:700; cursor:pointer;">Seç</button>
       </div>
       <!-- Pro (En Popüler) -->
@@ -646,7 +646,7 @@
         <div style="font-size:15px; font-weight:700; color:#2A2520;">Pro</div>
         <div style="font-size:30px; font-weight:800; color:#2A2520; margin:8px 0 2px;">$79<span style="font-size:13px; color:#8A7E74; font-weight:500;">/ay</span></div>
         <div style="font-size:13px; color:#7A8B6A; font-weight:700; margin-bottom:14px;">1000 kredi / ay</div>
-        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;">✓ Başlangıç'taki her şey<br>✓ Aylık 1000 kredi<br>✓ Kredi başına daha ucuz<br>✓ Öncelikli işlem</div>
+        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Başlangıç'taki her şey<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Aylık 1000 kredi<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Kredi başına daha ucuz<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Öncelikli işlem</div>
         <button onclick="goCheckout('sub_pro')" style="margin-top:16px; width:100%; padding:12px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;">Seç</button>
       </div>
       <!-- Stüdyo -->
@@ -654,7 +654,7 @@
         <div style="font-size:15px; font-weight:700; color:#2A2520;">Stüdyo</div>
         <div style="font-size:30px; font-weight:800; color:#2A2520; margin:8px 0 2px;">$129<span style="font-size:13px; color:#8A7E74; font-weight:500;">/ay</span></div>
         <div style="font-size:13px; color:#7A8B6A; font-weight:700; margin-bottom:14px;">2000 kredi / ay</div>
-        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;">✓ Pro'daki her şey<br>✓ Aylık 2000 kredi<br>✓ En düşük kredi maliyeti<br>✓ Ajans/stüdyo için ideal</div>
+        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Pro'daki her şey<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Aylık 2000 kredi<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> En düşük kredi maliyeti<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Ajans/stüdyo için ideal</div>
         <button onclick="goCheckout('sub_studio')" style="margin-top:16px; width:100%; padding:12px; border:1px solid #9A6558; border-radius:10px; background:transparent; color:#9A6558; font-size:14px; font-weight:700; cursor:pointer;">Seç</button>
       </div>
     </div>
@@ -698,7 +698,7 @@
       <h2>Görsel Yükle</h2>
       <div class="upload-zone" id="uploadZone">
         <input type="file" id="fileInput" accept="image/*" />
-        <div class="upload-icon">🏛️</div>
+        <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 9 12 4l9 5M5 9v8M9 9v8M15 9v8M19 9v8M3 21h18"/></svg></div>
         <p><strong>Görsel seçin</strong> veya sürükleyin</p>
         <p style="margin-top:6px; font-size:11px;">PNG, JPG — 3D model, perspektif eskiz, kat planı</p>
       </div>
@@ -709,8 +709,8 @@
     <div class="panel">
       <h2>Render Tipi</h2>
       <div class="type-toggle">
-        <button class="type-btn active" id="typeInterior" onclick="setRenderType('interior')">🏠 İç Mekan</button>
-        <button class="type-btn" id="typeExterior" onclick="setRenderType('exterior')">🏢 Dış Cephe</button>
+        <button class="type-btn active" id="typeInterior" onclick="setRenderType('interior')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="m3 11 9-7 9 7M5 10v10h14V10"/></svg> İç Mekan</button>
+        <button class="type-btn" id="typeExterior" onclick="setRenderType('exterior')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21h18"/><path d="M6 21V4h8v17"/><path d="M14 21V9h4v12"/><path d="M9 8h2M9 12h2M9 16h2"/></svg> Dış Cephe</button>
       </div>
 
     </div>
@@ -764,31 +764,31 @@
     <div class="panel" id="interiorPresetPanel">
       <h2>Creative Preset</h2>
       <div class="preset-tabs" style="gap:5px;">
-        <button class="preset-tab active" onclick="switchInteriorTab(this,'itab-light')">💡 Işık</button>
-        <button class="preset-tab" onclick="switchInteriorTab(this,'itab-mood')">🌡️ Atmosfer</button>
-        <button class="preset-tab" onclick="switchInteriorTab(this,'itab-detail')">🏠 Malzeme</button>
+        <button class="preset-tab active" onclick="switchInteriorTab(this,'itab-light')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3 11c.5.4 1 1 1 2h4c0-1 .5-1.6 1-2a6 6 0 0 0-3-11Z"/></svg> Işık</button>
+        <button class="preset-tab" onclick="switchInteriorTab(this,'itab-mood')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4a2 2 0 0 1 2 2v8a4 4 0 1 1-4 0V6a2 2 0 0 1 2-2Z"/></svg> Atmosfer</button>
+        <button class="preset-tab" onclick="switchInteriorTab(this,'itab-detail')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="m3 11 9-7 9 7M5 10v10h14V10"/></svg> Malzeme</button>
       </div>
 
       <!-- IŞIK -->
       <div class="preset-content active" id="itab-light">
         <div class="preset-chips" style="margin-top:8px;">
-          <button class="chip" data-prompt="soft golden morning light streaming through large windows, long warm shadows on floor, fresh peaceful dawn atmosphere, dew light on surfaces, warm amber-gold morning glow filling the room">Sabah Işığı 🌅</button>
-          <button class="chip" data-prompt="bright clear natural daylight flooding interior, even clean neutral light, maximum clarity and detail, true-to-life colors, professional clean interior photography">Gün Işığı ☀️</button>
-          <button class="chip" data-prompt="warm afternoon golden hour light raking through windows at low angle, long diagonal golden light shafts across floor and walls, magical warm amber glow, dust particles visible in light beams">Altın Saat ✨</button>
-          <button class="chip" data-prompt="cozy warm evening ambiance, warm amber table and floor lamps on, soft pools of warm light, candles and warm accent lighting, intimate cozy evening atmosphere, warm 2700K light throughout">Akşam Lambası 🕯️</button>
-          <button class="chip" data-prompt="dramatic night interior scene, only warm artificial lighting sources active, deep shadows, strong light-dark contrast, moody atmospheric night interior, dark corners with accent lights">Gece 🌙</button>
-          <button class="chip" data-prompt="dramatic high-contrast studio lighting on interior, one strong directional light source creating bold shadows, architectural spotlight quality, dramatic chiaroscuro interior atmosphere">Dramatik 🎭</button>
+          <button class="chip" data-prompt="soft golden morning light streaming through large windows, long warm shadows on floor, fresh peaceful dawn atmosphere, dew light on surfaces, warm amber-gold morning glow filling the room">Sabah Işığı <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 18h18M6 18a6 6 0 0 1 12 0M12 3v4M5 9l2 2M19 9l-2 2M2 14h2M20 14h2"/></svg></button>
+          <button class="chip" data-prompt="bright clear natural daylight flooding interior, even clean neutral light, maximum clarity and detail, true-to-life colors, professional clean interior photography">Gün Işığı <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></button>
+          <button class="chip" data-prompt="warm afternoon golden hour light raking through windows at low angle, long diagonal golden light shafts across floor and walls, magical warm amber glow, dust particles visible in light beams">Altın Saat <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg></button>
+          <button class="chip" data-prompt="cozy warm evening ambiance, warm amber table and floor lamps on, soft pools of warm light, candles and warm accent lighting, intimate cozy evening atmosphere, warm 2700K light throughout">Akşam Lambası <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M10 8h4v10h-4zM12 8V5M12 5c1-1 1-2 0-3 0 1.5-1.5 2 0 3Z"/></svg></button>
+          <button class="chip" data-prompt="dramatic night interior scene, only warm artificial lighting sources active, deep shadows, strong light-dark contrast, moody atmospheric night interior, dark corners with accent lights">Gece <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M20 14a8 8 0 1 1-9.5-9.5A6 6 0 0 0 20 14Z"/></svg></button>
+          <button class="chip" data-prompt="dramatic high-contrast studio lighting on interior, one strong directional light source creating bold shadows, architectural spotlight quality, dramatic chiaroscuro interior atmosphere">Dramatik <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 5h7v5a3.5 3.5 0 0 1-7 0V5ZM13 8h7v3a3.5 3.5 0 0 1-7 0V8M6 8c1 1 2 1 3 0M15 10c1 1 2 1 3 0"/></svg></button>
         </div>
       </div>
 
       <!-- ATMOSFER -->
       <div class="preset-content" id="itab-mood">
         <div class="preset-chips" style="margin-top:8px;">
-          <button class="chip" data-prompt="warm cozy hygge atmosphere, soft warm textiles and cushions, candles and warm lamps, natural wooden elements, inviting intimate feeling, Scandinavian hygge comfort">Sıcak & Samimi 🏡</button>
-          <button class="chip" data-prompt="bright airy minimal atmosphere, clean white walls, uncluttered surfaces, maximum natural light, fresh open feeling, zen minimal calm">Ferah & Minimal 🤍</button>
-          <button class="chip" data-prompt="sophisticated luxury atmosphere, premium materials, polished surfaces, elegant accessories, gallery-quality curated objects, high-end hotel lobby quality feeling">Sofistike & Lüks ✨</button>
-          <button class="chip" data-prompt="natural organic atmosphere, abundant indoor plants and greenery, natural wood and stone materials, earthy tones, biophilic design, connected to nature">Doğal & Organik 🌿</button>
-          <button class="chip" data-prompt="dark moody dramatic atmosphere, deep rich colors, heavy textures, dramatic shadows, jewel tones, opulent dark luxury, dramatic editorial quality">Dramatik & Koyu 🖤</button>
+          <button class="chip" data-prompt="warm cozy hygge atmosphere, soft warm textiles and cushions, candles and warm lamps, natural wooden elements, inviting intimate feeling, Scandinavian hygge comfort">Sıcak & Samimi <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="m3 11 9-7 9 7M5 10v10h14V10"/><path d="M9 21v-5h6v5"/></svg></button>
+          <button class="chip" data-prompt="bright airy minimal atmosphere, clean white walls, uncluttered surfaces, maximum natural light, fresh open feeling, zen minimal calm">Ferah & Minimal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 20s-7-4.5-7-9a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 4.5-7 9-7 9Z"/></svg></button>
+          <button class="chip" data-prompt="sophisticated luxury atmosphere, premium materials, polished surfaces, elegant accessories, gallery-quality curated objects, high-end hotel lobby quality feeling">Sofistike & Lüks <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg></button>
+          <button class="chip" data-prompt="natural organic atmosphere, abundant indoor plants and greenery, natural wood and stone materials, earthy tones, biophilic design, connected to nature">Doğal & Organik <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 20C4 10 12 4 20 4c0 8-6 16-16 16ZM5 19c4-6 8-9 13-11"/></svg></button>
+          <button class="chip" data-prompt="dark moody dramatic atmosphere, deep rich colors, heavy textures, dramatic shadows, jewel tones, opulent dark luxury, dramatic editorial quality">Dramatik & Koyu <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 20s-7-4.5-7-9a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 4.5-7 9-7 9Z"/></svg></button>
         </div>
       </div>
 
@@ -796,30 +796,30 @@
       <div class="preset-content" id="itab-detail">
         <div class="preset-group-label">Zemin Kaplaması</div>
         <div class="preset-chips">
-          <button class="chip" data-prompt="FLOOR MATERIAL OVERRIDE: replace all floor surfaces with natural hardwood parquet flooring — warm oak wood planks in staggered herringbone or straight-lay pattern, visible wood grain texture, realistic wood knots and variation, natural wood warmth. NO ceramic, NO tile, NO marble on the floor — only wood parquet.">Parke 🪵</button>
-          <button class="chip" data-prompt="FLOOR MATERIAL OVERRIDE: replace all floor surfaces with large-format polished marble flooring — white Carrara or emperador marble slabs, visible natural veining, high-gloss polished reflective surface, elegant marble pattern. NO wood, NO ceramic on the floor — only polished marble.">Mermer Zemin ⬜</button>
-          <button class="chip" data-prompt="FLOOR MATERIAL OVERRIDE: replace all floor surfaces with large-format matte porcelain or ceramic tiles — neutral light grey or beige tones, fine grout lines, clean modern tile surface, matte non-reflective finish. NO wood, NO marble on the floor — only ceramic tile.">Seramik Zemin 🔲</button>
-          <button class="chip" data-prompt="FLOOR MATERIAL OVERRIDE: replace all floor surfaces with polished micro-cement or concrete screed flooring — seamless smooth concrete surface, warm grey tone, subtle texture, industrial-modern feel, no visible joints. NO wood, NO tile — only smooth concrete.">Mikro Çimento 🩶</button>
+          <button class="chip" data-prompt="FLOOR MATERIAL OVERRIDE: replace all floor surfaces with natural hardwood parquet flooring — warm oak wood planks in staggered herringbone or straight-lay pattern, visible wood grain texture, realistic wood knots and variation, natural wood warmth. NO ceramic, NO tile, NO marble on the floor — only wood parquet.">Parke <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><ellipse cx="6" cy="12" rx="2" ry="4"/><path d="M6 8h11a4 4 0 0 1 0 8H6"/><ellipse cx="6" cy="12" rx="1" ry="2"/></svg></button>
+          <button class="chip" data-prompt="FLOOR MATERIAL OVERRIDE: replace all floor surfaces with large-format polished marble flooring — white Carrara or emperador marble slabs, visible natural veining, high-gloss polished reflective surface, elegant marble pattern. NO wood, NO ceramic on the floor — only polished marble.">Mermer Zemin <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></button>
+          <button class="chip" data-prompt="FLOOR MATERIAL OVERRIDE: replace all floor surfaces with large-format matte porcelain or ceramic tiles — neutral light grey or beige tones, fine grout lines, clean modern tile surface, matte non-reflective finish. NO wood, NO marble on the floor — only ceramic tile.">Seramik Zemin <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="4" y="4" width="16" height="16" rx="3"/></svg></button>
+          <button class="chip" data-prompt="FLOOR MATERIAL OVERRIDE: replace all floor surfaces with polished micro-cement or concrete screed flooring — seamless smooth concrete surface, warm grey tone, subtle texture, industrial-modern feel, no visible joints. NO wood, NO tile — only smooth concrete.">Mikro Çimento <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 20s-7-4.5-7-9a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 4.5-7 9-7 9Z"/></svg></button>
         </div>
         <div class="preset-group-label">Duvar Yüzeyi</div>
         <div class="preset-chips">
-          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply smooth flat matte paint to all walls — clean painted plaster walls in a warm neutral tone (warm white, soft grey or light beige), perfectly smooth surface, no visible texture or pattern. Modern painted wall finish.">Düz Boya 🎨</button>
-          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply decorative wallpaper to the main accent wall — elegant geometric or subtle botanical pattern wallpaper, high-end interior wallpaper texture, designer wallpaper quality. Other walls remain neutral painted.">Duvar Kağıdı 🌿</button>
-          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply exposed raw concrete or polished micro-cement finish to walls — industrial grey concrete texture, visible concrete surface character, modern loft-style concrete wall. Other walls neutral.">Beton Duvar 🏗️</button>
-          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply natural stone cladding to the accent wall — travertine, limestone or slate stone panels, natural stone texture with visible joints, warm earthy stone tones. Other walls neutral painted.">Taş Kaplama 🪨</button>
-          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply natural wood panel cladding to the accent wall — warm oak or walnut wood slat panelling, linear vertical wood strips, warm grain texture, Scandinavian wood wall detail. Other walls neutral.">Ahşap Panel 🪵</button>
+          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply smooth flat matte paint to all walls — clean painted plaster walls in a warm neutral tone (warm white, soft grey or light beige), perfectly smooth surface, no visible texture or pattern. Modern painted wall finish.">Düz Boya <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3a9 9 0 0 0 0 18c1.4 0 2-1 2-2s-.6-1.4 0-2 1.5-.5 2.5-.5A4.5 4.5 0 0 0 21 12 9 9 0 0 0 12 3Z"/><circle cx="7.5" cy="11" r=".8"/><circle cx="9.5" cy="7.5" r=".8"/><circle cx="14.5" cy="7.5" r=".8"/></svg></button>
+          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply decorative wallpaper to the main accent wall — elegant geometric or subtle botanical pattern wallpaper, high-end interior wallpaper texture, designer wallpaper quality. Other walls remain neutral painted.">Duvar Kağıdı <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 20C4 10 12 4 20 4c0 8-6 16-16 16ZM5 19c4-6 8-9 13-11"/></svg></button>
+          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply exposed raw concrete or polished micro-cement finish to walls — industrial grey concrete texture, visible concrete surface character, modern loft-style concrete wall. Other walls neutral.">Beton Duvar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21h18M5 21V8l9-3v16M14 21V10l5-2v13M8 11h3M8 15h3"/></svg></button>
+          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply natural stone cladding to the accent wall — travertine, limestone or slate stone panels, natural stone texture with visible joints, warm earthy stone tones. Other walls neutral painted.">Taş Kaplama <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 16 9 7l5 3 4-2 2 8-8 3-8-3Z"/></svg></button>
+          <button class="chip" data-prompt="WALL FINISH OVERRIDE: apply natural wood panel cladding to the accent wall — warm oak or walnut wood slat panelling, linear vertical wood strips, warm grain texture, Scandinavian wood wall detail. Other walls neutral.">Ahşap Panel <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><ellipse cx="6" cy="12" rx="2" ry="4"/><path d="M6 8h11a4 4 0 0 1 0 8H6"/><ellipse cx="6" cy="12" rx="1" ry="2"/></svg></button>
         </div>
         <div class="preset-group-label">Dekorasyon</div>
         <div class="preset-chips">
-          <button class="chip" data-prompt="abundant beautiful indoor plants throughout, large monstera and fiddle leaf fig, trailing pothos, small succulents, green living walls, lush interior garden feeling">Yeşil Bitkiler 🪴</button>
-          <button class="chip" data-prompt="curated art pieces on walls, sculptural objects on shelves, designer decorative vases and ceramics, artfully arranged coffee table books, gallery-quality art display">Sanat & Dekor 🎨</button>
-          <button class="chip" data-prompt="luxurious soft textiles, heavy linen or velvet curtains draping floor to ceiling, plush area rug, layered cushions and throw blankets, soft textile richness">Tekstil & Perdeler 🛋️</button>
-          <button class="chip" data-prompt="books neatly arranged on shelves, stacked coffee table books, reading nook with lamp, intellectual homey feeling, well-read lived-in quality">Kitaplar & Raflar 📚</button>
+          <button class="chip" data-prompt="abundant beautiful indoor plants throughout, large monstera and fiddle leaf fig, trailing pothos, small succulents, green living walls, lush interior garden feeling">Yeşil Bitkiler <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M7 14h10l-1 6H8zM12 14c0-4 3-6 6-6-1 4-3 6-6 6M12 14c0-3-2-5-5-5 0 3 2 5 5 5"/></svg></button>
+          <button class="chip" data-prompt="curated art pieces on walls, sculptural objects on shelves, designer decorative vases and ceramics, artfully arranged coffee table books, gallery-quality art display">Sanat & Dekor <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3a9 9 0 0 0 0 18c1.4 0 2-1 2-2s-.6-1.4 0-2 1.5-.5 2.5-.5A4.5 4.5 0 0 0 21 12 9 9 0 0 0 12 3Z"/><circle cx="7.5" cy="11" r=".8"/><circle cx="9.5" cy="7.5" r=".8"/><circle cx="14.5" cy="7.5" r=".8"/></svg></button>
+          <button class="chip" data-prompt="luxurious soft textiles, heavy linen or velvet curtains draping floor to ceiling, plush area rug, layered cushions and throw blankets, soft textile richness">Tekstil & Perdeler <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 10V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 19v2M19 19v2"/></svg></button>
+          <button class="chip" data-prompt="books neatly arranged on shelves, stacked coffee table books, reading nook with lamp, intellectual homey feeling, well-read lived-in quality">Kitaplar & Raflar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 4h5v16H5zM10 4h5l-1 16-4-1zM15 5l4 1-2 15-3-1"/></svg></button>
         </div>
       </div>
 
       <div id="selectedChipsInterior" style="min-height:28px; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
-      <button class="render-btn" id="renderBtnInterior" onclick="startRender()" style="margin-top:16px;">✨ Render Oluştur <span style="font-size:11px;opacity:0.8;">· 10 kredi</span></button>
+      <button class="render-btn" id="renderBtnInterior" onclick="startRender()" style="margin-top:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Render Oluştur <span style="font-size:11px;opacity:0.8;">· 10 kredi</span></button>
       <div class="error-msg" id="errorMsgInterior"></div>
     </div>
 
@@ -829,48 +829,48 @@
 
       <!-- Kategori Sekmeleri — 2 satır -->
       <div class="preset-tabs" style="gap:5px;">
-        <button class="preset-tab active" onclick="switchPresetTab(this,'tab-season')">🌿 Mevsim</button>
-        <button class="preset-tab" onclick="switchPresetTab(this,'tab-time')">🕐 Zaman</button>
-        <button class="preset-tab" onclick="switchPresetTab(this,'tab-weather')">☁️ Hava</button>
-        <button class="preset-tab" onclick="switchPresetTab(this,'tab-sky')">🌅 Gökyüzü</button>
-        <button class="preset-tab" onclick="switchPresetTab(this,'tab-light')">💡 Işık</button>
-        <button class="preset-tab" onclick="switchPresetTab(this,'tab-env')">🌆 Çevre</button>
-        <button class="preset-tab" onclick="switchPresetTab(this,'tab-mood')">🎬 Görüntü</button>
-        <button class="preset-tab" onclick="switchPresetTab(this,'tab-mat')">🏗 Malzeme</button>
+        <button class="preset-tab active" onclick="switchPresetTab(this,'tab-season')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 20C4 10 12 4 20 4c0 8-6 16-16 16ZM5 19c4-6 8-9 13-11"/></svg> Mevsim</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-time')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Zaman</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-weather')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.5-1A4 4 0 0 1 17 18H7Z"/></svg> Hava</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-sky')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 18h18M6 18a6 6 0 0 1 12 0M12 3v4M5 9l2 2M19 9l-2 2M2 14h2M20 14h2"/></svg> Gökyüzü</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-light')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3 11c.5.4 1 1 1 2h4c0-1 .5-1.6 1-2a6 6 0 0 0-3-11Z"/></svg> Işık</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-env')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21V10l5-3v14M8 21V5l6 3v13M14 21v-9l6-3v12"/><circle cx="18" cy="6" r="2"/></svg> Çevre</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-mood')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 6 3.5-6 3.5Z"/></svg> Görüntü</button>
+        <button class="preset-tab" onclick="switchPresetTab(this,'tab-mat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21h18M5 21V8l9-3v16M14 21V10l5-2v13M8 11h3M8 15h3"/></svg> Malzeme</button>
       </div>
 
       <!-- 1. MEVSİM -->
       <div class="preset-content active" id="tab-season">
         <div class="preset-chips" style="margin-top:8px;">
-          <button class="chip" data-prompt="vibrant summer season, lush deep green mature tree canopy, peak vegetation density, vibrant green manicured lawn, warm bright sunlight, rich saturated colors, summer heat shimmer">Yaz ☀️</button>
-          <button class="chip" data-prompt="spring season, cherry blossom and flowering ornamental trees, fresh bright lime green new foliage, colorful flower beds in bloom, clean crisp spring air, gentle spring light">İlkbahar 🌸</button>
-          <button class="chip" data-prompt="autumn fall season, orange amber red and golden yellow foliage on all trees, fallen colorful leaves on ground and pathways, warm golden harvest light, rich warm color palette">Sonbahar 🍂</button>
-          <button class="chip" data-prompt="winter season, pristine white snow blanketing ground roof surfaces and tree branches, bare dark skeletal tree branches with frost, crisp cold winter light, soft grey overcast winter sky, cold blue-white tones">Kış ❄️</button>
+          <button class="chip" data-prompt="vibrant summer season, lush deep green mature tree canopy, peak vegetation density, vibrant green manicured lawn, warm bright sunlight, rich saturated colors, summer heat shimmer">Yaz <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></button>
+          <button class="chip" data-prompt="spring season, cherry blossom and flowering ornamental trees, fresh bright lime green new foliage, colorful flower beds in bloom, clean crisp spring air, gentle spring light">İlkbahar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="2.5"/><path d="M12 4a3 3 0 0 1 0 5M12 20a3 3 0 0 1 0-5M4 12a3 3 0 0 1 5 0M20 12a3 3 0 0 1-5 0"/></svg></button>
+          <button class="chip" data-prompt="autumn fall season, orange amber red and golden yellow foliage on all trees, fallen colorful leaves on ground and pathways, warm golden harvest light, rich warm color palette">Sonbahar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3c4 2 6 6 0 12-6-6-4-10 0-12ZM12 9v10"/></svg></button>
+          <button class="chip" data-prompt="winter season, pristine white snow blanketing ground roof surfaces and tree branches, bare dark skeletal tree branches with frost, crisp cold winter light, soft grey overcast winter sky, cold blue-white tones">Kış <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 2v20M3 7l18 10M21 7 3 17M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3"/></svg></button>
         </div>
       </div>
 
       <!-- 2. ZAMAN -->
       <div class="preset-content" id="tab-time">
         <div class="preset-chips" style="margin-top:8px;">
-          <button class="chip" data-prompt="early morning sunrise, soft warm amber-pink low angle light from the east, long delicate gentle shadows, dew drops on grass and leaves, peaceful quiet dawn atmosphere, fresh morning air">Sabah 🌄</button>
+          <button class="chip" data-prompt="early morning sunrise, soft warm amber-pink low angle light from the east, long delicate gentle shadows, dew drops on grass and leaves, peaceful quiet dawn atmosphere, fresh morning air">Sabah <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 18h18M6 18a6 6 0 0 1 12 0M12 3v4M5 9l2 2M19 9l-2 2"/></svg></button>
           <button class="chip" data-prompt="midday noon, bright overhead direct sunlight, short crisp shadows directly below objects, high color saturation, maximum clarity, clear blue sky, energetic bright atmosphere">Öğlen</button>
           <button class="chip" data-prompt="late afternoon 3-5pm, warm side lighting from western sun at 40 degree angle, soft warm golden tones washing facade, defined medium-length diagonal shadows, pleasant relaxed afternoon warmth, sky still bright blue">Öğleden Sonra</button>
-          <button class="chip" data-prompt="golden hour photography, magical warm amber-orange sunlight at 15 degree very low angle just before sunset, long romantic dramatic shadows, volumetric light rays, subtle lens flare, cinematic magic hour lighting, warm glow on all surfaces">Altın Saat ✨</button>
-          <button class="chip" data-prompt="akşamüstü early evening, sun at 10 degree angle touching horizon, extremely warm deep orange-red light, very long dramatic shadows across ground, sky turning warm orange and pink at horizon, building facade bathed in deep warm orange glow">Akşamüstü 🌇</button>
-          <button class="chip" data-prompt="dusk photography, sun just below horizon, dramatic warm vibrant sky with vivid pink magenta orange and golden tones, warm glowing pink and amber light washing over building facade, romantic colorful dusk sky gradient, building lights beginning to turn on">Dusk 🌸</button>
-          <button class="chip" data-prompt="blue hour photography, deep blue indigo twilight sky 20 minutes after sunset, all building exterior architectural spot lights fully on, warm amber glowing windows contrasting with cool blue sky, surfaces reflecting deep blue sky tone, cinematic cool-warm contrast">Mavi Saat 🌆</button>
-          <button class="chip" data-prompt="full night scene, deep blue-black starry sky, building dramatically illuminated by warm exterior architectural spotlights and uplighting, all windows warmly glowing amber, ambient city light glow on horizon, beautiful night photography">Gece 🌙</button>
+          <button class="chip" data-prompt="golden hour photography, magical warm amber-orange sunlight at 15 degree very low angle just before sunset, long romantic dramatic shadows, volumetric light rays, subtle lens flare, cinematic magic hour lighting, warm glow on all surfaces">Altın Saat <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg></button>
+          <button class="chip" data-prompt="akşamüstü early evening, sun at 10 degree angle touching horizon, extremely warm deep orange-red light, very long dramatic shadows across ground, sky turning warm orange and pink at horizon, building facade bathed in deep warm orange glow">Akşamüstü <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 18h18M6 18a6 6 0 0 1 12 0M12 7V3M5 11 7 9M19 11l-2-2"/></svg></button>
+          <button class="chip" data-prompt="dusk photography, sun just below horizon, dramatic warm vibrant sky with vivid pink magenta orange and golden tones, warm glowing pink and amber light washing over building facade, romantic colorful dusk sky gradient, building lights beginning to turn on">Dusk <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="2.5"/><path d="M12 4a3 3 0 0 1 0 5M12 20a3 3 0 0 1 0-5M4 12a3 3 0 0 1 5 0M20 12a3 3 0 0 1-5 0"/></svg></button>
+          <button class="chip" data-prompt="blue hour photography, deep blue indigo twilight sky 20 minutes after sunset, all building exterior architectural spot lights fully on, warm amber glowing windows contrasting with cool blue sky, surfaces reflecting deep blue sky tone, cinematic cool-warm contrast">Mavi Saat <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21V10l5-3v14M8 21V5l6 3v13M14 21v-9l6-3v12"/><circle cx="18" cy="6" r="2"/></svg></button>
+          <button class="chip" data-prompt="full night scene, deep blue-black starry sky, building dramatically illuminated by warm exterior architectural spotlights and uplighting, all windows warmly glowing amber, ambient city light glow on horizon, beautiful night photography">Gece <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M20 14a8 8 0 1 1-9.5-9.5A6 6 0 0 0 20 14Z"/></svg></button>
         </div>
       </div>
 
       <!-- 3. HAVA DURUMU -->
       <div class="preset-content" id="tab-weather">
         <div class="preset-chips" style="margin-top:8px;">
-          <button class="chip" data-prompt="perfect sunny clear weather, strong bright direct sunlight, crisp sharp precise shadows, vivid saturated colors, excellent visibility, energetic bright atmosphere">Güneşli ☀️</button>
-          <button class="chip" data-prompt="misty foggy morning, soft white atmospheric fog in middle distance, volumetric light rays piercing beautifully through mist, ethereal dreamy soft quality, gentle diffused light, mysterious atmosphere">Sisli 🌫️</button>
-          <button class="chip" data-prompt="overcast cloudy weather, thick cloud cover creating perfectly diffused soft even light, no harsh direct shadows, soft grey and white sky, studio-quality even illumination, calm peaceful weather">Bulutlu ⛅</button>
-          <button class="chip" data-prompt="rain weather, heavy rain falling visibly in air, wet glistening surfaces on ground and building, puddles with ripples and reflections, streaks of rain on glass, dark wet asphalt, fresh petrichor atmosphere">Yağmurlu 🌧️</button>
-          <button class="chip" data-prompt="heavy snowfall, large snowflakes visibly falling in air, thick white snow accumulating on all horizontal surfaces rooftop ledges and branches, grey white winter sky, everything blanketed in white, magical winter snowfall">Karlı 🌨️</button>
+          <button class="chip" data-prompt="perfect sunny clear weather, strong bright direct sunlight, crisp sharp precise shadows, vivid saturated colors, excellent visibility, energetic bright atmosphere">Güneşli <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></button>
+          <button class="chip" data-prompt="misty foggy morning, soft white atmospheric fog in middle distance, volumetric light rays piercing beautifully through mist, ethereal dreamy soft quality, gentle diffused light, mysterious atmosphere">Sisli <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 8h18M5 12h14M4 16h16M7 20h10"/></svg></button>
+          <button class="chip" data-prompt="overcast cloudy weather, thick cloud cover creating perfectly diffused soft even light, no harsh direct shadows, soft grey and white sky, studio-quality even illumination, calm peaceful weather">Bulutlu <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M8 5a3 3 0 0 1 4.5 1.5M5 8 4 7M9 3v1M14 5l1-1"/><path d="M7 19a3.5 3.5 0 0 1 0-7 4 4 0 0 1 7.5-1A3.5 3.5 0 0 1 16 19H7Z"/></svg></button>
+          <button class="chip" data-prompt="rain weather, heavy rain falling visibly in air, wet glistening surfaces on ground and building, puddles with ripples and reflections, streaks of rain on glass, dark wet asphalt, fresh petrichor atmosphere">Yağmurlu <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M7 16a4 4 0 0 1 0-8 5 5 0 0 1 9.5-1A4 4 0 0 1 17 16M8 19l-1 2M12 19l-1 2M16 19l-1 2"/></svg></button>
+          <button class="chip" data-prompt="heavy snowfall, large snowflakes visibly falling in air, thick white snow accumulating on all horizontal surfaces rooftop ledges and branches, grey white winter sky, everything blanketed in white, magical winter snowfall">Karlı <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M7 15a4 4 0 0 1 0-8 5 5 0 0 1 9.5-1A4 4 0 0 1 17 15M8 19h.1M12 20h.1M16 19h.1"/></svg></button>
         </div>
       </div>
 
@@ -879,8 +879,8 @@
         <div class="preset-chips" style="margin-top:8px;">
           <button class="chip" data-prompt="clear sky in a soft natural light blue tone, gentle gradient from a paler blue near the horizon to a soft calm blue above, subtle realistic atmospheric haze, no clouds, no harsh oversaturated or electric blue, true-to-life gentle clear sky">Temiz Gökyüzü</button>
           <button class="chip" data-prompt="dramatic large cumulus cloud formations, billowing white and grey clouds with dark undersides, dynamic turbulent sky, interesting varied cloud texture, dramatic light breaks through clouds">Bulutlu Gökyüzü</button>
-          <button class="chip" data-prompt="spectacular sunset sky, blazing vivid orange red pink and magenta gradient from glowing horizon upward, dramatic fiery sunset colors, warm golden light washing everything, atmospheric glow and haze, breathtaking sunset moment">Günbatımı 🌅</button>
-          <button class="chip" data-prompt="deep twilight night blue sky, dark blue-black gradient, few bright stars visible, deep atmospheric night sky color, mysterious deep blue tone">Gece Mavisi 🌃</button>
+          <button class="chip" data-prompt="spectacular sunset sky, blazing vivid orange red pink and magenta gradient from glowing horizon upward, dramatic fiery sunset colors, warm golden light washing everything, atmospheric glow and haze, breathtaking sunset moment">Günbatımı <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 18h18M6 18a6 6 0 0 1 12 0M12 3v4M5 9l2 2M19 9l-2 2M2 14h2M20 14h2"/></svg></button>
+          <button class="chip" data-prompt="deep twilight night blue sky, dark blue-black gradient, few bright stars visible, deep atmospheric night sky color, mysterious deep blue tone">Gece Mavisi <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21V10l5-3v14M8 21V5l6 3v13M14 21v-9l6-3v12"/><circle cx="6" cy="5" r="1.5"/></svg></button>
           <button class="chip" data-prompt="bright white near-white overcast sky, soft diffused white cloud cover, minimal tonal variation, clean bright neutral background sky, even soft light from above">Beyazımsı Gökyüzü</button>
         </div>
       </div>
@@ -898,9 +898,9 @@
         </div>
         <div class="preset-group-label">Işık Tonu</div>
         <div class="preset-chips">
-          <button class="chip" data-prompt="warm amber light tone, 2700K warm white color temperature, golden warm amber tones throughout, incandescent warmth">Amber 🟠</button>
+          <button class="chip" data-prompt="warm amber light tone, 2700K warm white color temperature, golden warm amber tones throughout, incandescent warmth">Amber <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="8"/></svg></button>
           <button class="chip" data-prompt="OVERRIDE: replace all lighting with pure neutral white light, 5000K perfectly balanced white illumination, absolutely zero warm yellow or amber color cast on any surface, clinically clean white light throughout the entire scene, no warmth anywhere">Beyaz Işık</button>
-          <button class="chip" data-prompt="vibrant neon colored accent lighting, saturated colored LED neon glow, urban neon sign atmosphere, colorful vibrant neon light">Neon 🌈</button>
+          <button class="chip" data-prompt="vibrant neon colored accent lighting, saturated colored LED neon glow, urban neon sign atmosphere, colorful vibrant neon light">Neon <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 18a9 9 0 0 1 18 0M6 18a6 6 0 0 1 12 0M9 18a3 3 0 0 1 6 0"/></svg></button>
           <button class="chip" data-prompt="dramatic red accent lighting, deep crimson red light tone, passionate dramatic red illumination, theatrical red light wash">Kırmızı</button>
           <button class="chip" data-prompt="warm yellow-orange light, classic warm sodium lamp color, traditional warm street light yellow-amber tone, vintage warm glow">Sarı</button>
           <button class="chip" data-prompt="cool daylight balanced light, 6500K cool white daylight temperature, bright crisp daylight color, clear clean cool illumination">Günışığı</button>
@@ -910,27 +910,27 @@
       <!-- 6. ÇEVRE ATMOSFERİ -->
       <div class="preset-content" id="tab-env">
         <div class="preset-chips" style="margin-top:8px;">
-          <button class="chip" data-prompt="busy urban traffic environment, multiple moving cars on road, pedestrians walking on sidewalk, city rush hour activity, dynamic urban movement and life">Kalabalık Şehir 🚗</button>
+          <button class="chip" data-prompt="busy urban traffic environment, multiple moving cars on road, pedestrians walking on sidewalk, city rush hour activity, dynamic urban movement and life">Kalabalık Şehir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 17v2H3v-2M21 17v2h-2v-2M3 13l2-5h14l2 5v4H3z"/><circle cx="7.5" cy="17" r="1.5"/><circle cx="16.5" cy="17" r="1.5"/></svg></button>
           <button class="chip" data-prompt="serene calm peaceful environment, completely empty street and surroundings, no people or vehicles, quiet still residential setting, tranquil undisturbed atmosphere">Sakin & Huzurlu</button>
-          <button class="chip" data-prompt="village countryside rural setting, unpaved dirt roads, agricultural fields and farmland, rural landscape, rustic village surroundings, pastoral environment">Köy 🌾</button>
-          <button class="chip" data-prompt="dense urban city neighborhood, other buildings and city infrastructure visible in background, metropolitan urban context, busy city environment">Şehir 🏙️</button>
-          <button class="chip" data-prompt="exclusive luxury villa neighborhood, other high-end private residences nearby, manicured private street, gated luxury community, prestigious residential area">Villa Bölgesi 🏡</button>
-          <button class="chip" data-prompt="dense apartment residential neighborhood, multiple apartment blocks surrounding, urban residential density, typical city apartment district">Apartman Çevresi 🏢</button>
+          <button class="chip" data-prompt="village countryside rural setting, unpaved dirt roads, agricultural fields and farmland, rural landscape, rustic village surroundings, pastoral environment">Köy <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 21V8M12 8c-2-1-3-3-3-5 2 0 3 2 3 4M12 8c2-1 3-3 3-5-2 0-3 2-3 4M12 13c-2-1-3-2-3-4 2 0 3 1 3 3M12 13c2-1 3-2 3-4-2 0-3 1-3 3"/></svg></button>
+          <button class="chip" data-prompt="dense urban city neighborhood, other buildings and city infrastructure visible in background, metropolitan urban context, busy city environment">Şehir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21V9l5-3v15M8 21V4l6 3v14M14 21v-8l6-3v11M3 21h18"/></svg></button>
+          <button class="chip" data-prompt="exclusive luxury villa neighborhood, other high-end private residences nearby, manicured private street, gated luxury community, prestigious residential area">Villa Bölgesi <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="m3 11 9-7 9 7M5 10v10h14V10"/><path d="M9 21v-5h6v5"/></svg></button>
+          <button class="chip" data-prompt="dense apartment residential neighborhood, multiple apartment blocks surrounding, urban residential density, typical city apartment district">Apartman Çevresi <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21h18"/><path d="M6 21V4h8v17"/><path d="M14 21V9h4v12"/><path d="M9 8h2M9 12h2M9 16h2"/></svg></button>
           <button class="chip" data-prompt="public urban plaza and civic space, wide pedestrian area, public seating and landscaping, urban design elements, people enjoying public space">Kamusal Alan</button>
-          <button class="chip" data-prompt="public park recreational setting, park benches and lamp posts, families and people walking, mature park trees and grass, recreational green urban space">Park 🌳</button>
-          <button class="chip" data-prompt="seafront coastal waterfront location, ocean sea visible in background or foreground, beach promenade, coastal palm trees, sea breeze Mediterranean atmosphere">Deniz Kenarı 🌊</button>
-          <button class="chip" data-prompt="dramatic mountain alpine setting, mountain peaks and ridges visible in background, alpine landscape, mountain forest, high altitude atmosphere, fresh mountain air">Dağ ⛰️</button>
+          <button class="chip" data-prompt="public park recreational setting, park benches and lamp posts, families and people walking, mature park trees and grass, recreational green urban space">Park <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 14a5 5 0 1 1 4.5-8 4 4 0 0 1-.5 8M12 14v7M9 21h6"/></svg></button>
+          <button class="chip" data-prompt="seafront coastal waterfront location, ocean sea visible in background or foreground, beach promenade, coastal palm trees, sea breeze Mediterranean atmosphere">Deniz Kenarı <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 8c3-3 6 3 9 0s6-3 9 0M3 14c3-3 6 3 9 0s6-3 9 0M3 20c3-3 6 3 9 0s6-3 9 0"/></svg></button>
+          <button class="chip" data-prompt="dramatic mountain alpine setting, mountain peaks and ridges visible in background, alpine landscape, mountain forest, high altitude atmosphere, fresh mountain air">Dağ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="m3 19 6-10 4 6 2-3 6 7H3Z"/></svg></button>
         </div>
       </div>
 
       <!-- 7. GÖRÜNTÜ ATMOSFERİ -->
       <div class="preset-content" id="tab-mood">
         <div class="preset-chips" style="margin-top:8px;">
-          <button class="chip" data-prompt="cinematic photography style, anamorphic widescreen lens quality, rich filmic color grade, movie scene production quality, dramatic cinematic framing and composition, Hollywood film aesthetic">Sinematik 🎬</button>
+          <button class="chip" data-prompt="cinematic photography style, anamorphic widescreen lens quality, rich filmic color grade, movie scene production quality, dramatic cinematic framing and composition, Hollywood film aesthetic">Sinematik <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 6 3.5-6 3.5Z"/></svg></button>
           <button class="chip" data-prompt="clean photorealistic documentary photography, no artistic filters or color grading, true to life accurate colors, professional clean architectural photography, objective realistic presentation">Gerçekçi & Temiz</button>
-          <button class="chip" data-prompt="architectural sketch illustration style, hand-drawn pencil and ink sketch aesthetic, architectural rendering illustration, artistic line work, sketch render style">Eskiz ✏️</button>
+          <button class="chip" data-prompt="architectural sketch illustration style, hand-drawn pencil and ink sketch aesthetic, architectural rendering illustration, artistic line work, sketch render style">Eskiz <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 20h4L18 10l-4-4L4 16v4Z"/><path d="M13 5l4 4"/></svg></button>
           <button class="chip" data-prompt="editorial magazine architecture photography, award-winning composition, Dezeen Architectural Digest magazine cover quality, perfectly framed professional shot">Editöryal</button>
-          <button class="chip" data-prompt="aerial drone photography, bird's eye view from above at 45-60 degree angle, wide establishing aerial shot, full building and surroundings visible from above">Drone 🚁</button>
+          <button class="chip" data-prompt="aerial drone photography, bird's eye view from above at 45-60 degree angle, wide establishing aerial shot, full building and surroundings visible from above">Drone <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 7h16M12 7v3M7 10h10l-1 4H8zM10 18h6M13 14v4"/></svg></button>
         </div>
       </div>
 
@@ -943,26 +943,26 @@
           <button class="chip" data-prompt="apply photorealistic architectural ceramic tile cladding, match the exact color from the 3D model, precision ceramic surface with fine grout joints, high-end architectural porcelain facade material">Mekanik Seramik</button>
           <button class="chip" data-prompt="apply photorealistic smooth plaster and paint finish to building surfaces, match the exact color visible in the 3D model, clean flat smooth rendered stucco surface with subtle texture and imperfection">Sıvalı Boya</button>
           <button class="chip" data-prompt="apply photorealistic natural wood cladding, match the color tone and warmth of wood visible in the 3D model, realistic wood grain texture, natural timber with visible grain variation and warmth">Ahşap</button>
-          <button class="chip" data-prompt="remove any logos, text labels, brand names, signage or written text from all building surfaces and facade, replace with clean smooth surface matching surrounding material">Logo / İsim Kaldır ✕</button>
+          <button class="chip" data-prompt="remove any logos, text labels, brand names, signage or written text from all building surfaces and facade, replace with clean smooth surface matching surrounding material">Logo / İsim Kaldır <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>
         <div class="preset-group-label">Peyzaj Öğeleri</div>
         <div class="preset-chips">
-          <button class="chip" data-prompt="natural lake with perfectly calm mirror-like reflective water surface, reeds and water plants at edge, lake shore landscape">Göl 🏞️</button>
-          <button class="chip" data-prompt="ocean sea with deep blue water, gentle waves, coastal atmosphere, sea foam at shore, vast open water view">Deniz 🌊</button>
-          <button class="chip" data-prompt="luxury swimming pool with crystal clear turquoise-blue water, precise pool edge, underwater lighting visible, wet pool deck surround">Havuz 🏊</button>
-          <button class="chip" data-prompt="natural hardwood timber deck terrace, warm teak or ipe wood deck boards, outdoor lounge furniture, seamless indoor-outdoor connection">Deck 🪵</button>
+          <button class="chip" data-prompt="natural lake with perfectly calm mirror-like reflective water surface, reeds and water plants at edge, lake shore landscape">Göl <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.3"/><path d="m3 17 5-5 4 3 3-3 6 5"/></svg></button>
+          <button class="chip" data-prompt="ocean sea with deep blue water, gentle waves, coastal atmosphere, sea foam at shore, vast open water view">Deniz <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 8c3-3 6 3 9 0s6-3 9 0M3 14c3-3 6 3 9 0s6-3 9 0M3 20c3-3 6 3 9 0s6-3 9 0"/></svg></button>
+          <button class="chip" data-prompt="luxury swimming pool with crystal clear turquoise-blue water, precise pool edge, underwater lighting visible, wet pool deck surround">Havuz <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="16" cy="7" r="2"/><path d="M3 16c2 0 2 1.5 4 1.5S9 16 11 16s2 1.5 4 1.5 2-1.5 4-1.5M6 13l4-2-2-2 4-1"/></svg></button>
+          <button class="chip" data-prompt="natural hardwood timber deck terrace, warm teak or ipe wood deck boards, outdoor lounge furniture, seamless indoor-outdoor connection">Deck <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><ellipse cx="6" cy="12" rx="2" ry="4"/><path d="M6 8h11a4 4 0 0 1 0 8H6"/><ellipse cx="6" cy="12" rx="1" ry="2"/></svg></button>
           <button class="chip" data-prompt="stone paved garden walkway path, natural stone stepping path through landscape, garden pedestrian circulation, neat path edges with plants">Yürüyüş Yolu</button>
           <button class="chip" data-prompt="clean fresh asphalt road surface in foreground, new smooth dark tarmac, clear road markings, well-maintained urban road">Asfalt</button>
-          <button class="chip" data-prompt="perfectly manicured emerald green lawn, golf-course quality short cut grass, lush healthy even turf, pristine green ground cover">Temiz Çim 🌿</button>
-          <button class="chip" data-prompt="colorful ornamental flower beds in full bloom, seasonal flowering plants in borders, bright vivid flower colors, well-tended garden flower display">Çiçekler 🌺</button>
-          <button class="chip" data-prompt="large mature deciduous trees with full canopy, established shade trees, tree canopy providing dappled shade, mature landscaping with tall trees">Ağaçlar 🌳</button>
+          <button class="chip" data-prompt="perfectly manicured emerald green lawn, golf-course quality short cut grass, lush healthy even turf, pristine green ground cover">Temiz Çim <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 20C4 10 12 4 20 4c0 8-6 16-16 16ZM5 19c4-6 8-9 13-11"/></svg></button>
+          <button class="chip" data-prompt="colorful ornamental flower beds in full bloom, seasonal flowering plants in borders, bright vivid flower colors, well-tended garden flower display">Çiçekler <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="2.5"/><path d="M12 4a3 3 0 0 1 0 5M12 20a3 3 0 0 1 0-5M4 12a3 3 0 0 1 5 0M20 12a3 3 0 0 1-5 0"/></svg></button>
+          <button class="chip" data-prompt="large mature deciduous trees with full canopy, established shade trees, tree canopy providing dappled shade, mature landscaping with tall trees">Ağaçlar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 14a5 5 0 1 1 4.5-8 4 4 0 0 1-.5 8M12 14v7M9 21h6"/></svg></button>
         </div>
       </div>
 
       <!-- Seçili etiketler -->
       <div id="selectedChips" style="min-height:28px; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
 
-      <button class="render-btn" id="renderBtn" onclick="startRender()" style="margin-top:16px;">✨ Render Oluştur <span style="font-size:11px;opacity:0.8;">· 10 kredi</span></button>
+      <button class="render-btn" id="renderBtn" onclick="startRender()" style="margin-top:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Render Oluştur <span style="font-size:11px;opacity:0.8;">· 10 kredi</span></button>
       <div class="error-msg" id="errorMsg"></div>
     </div>
   </div>
@@ -970,7 +970,7 @@
   <!-- Sağ Panel: Sonuç -->
   <div class="panel result-panel" id="resultPanel">
     <div class="result-placeholder" id="placeholder">
-      <div class="icon">✨</div>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg></div>
       <p>Render sonucu burada görünecek</p>
     </div>
     <div class="loading" id="loading">
@@ -979,14 +979,14 @@
     </div>
     <div style="width:100%; text-align:center;">
       <img id="resultImg" class="result-img" />
-      <a id="downloadBtn" class="download-btn" download="render.png">⬇ İndir</a>
+      <a id="downloadBtn" class="download-btn" download="render.png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> İndir</a>
     </div>
     <!-- Render'ı promptla düzenle: oluşan renderı tekrar geliştir -->
     <div id="renderEditBox" style="display:none; width:100%; margin-top:18px; padding-top:18px; border-top:1px solid #E0DAD0; text-align:left;">
-      <div class="mini-label" style="margin-bottom:8px;">✏️ Bu render'ı düzenle</div>
+      <div class="mini-label" style="margin-bottom:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 20h4L18 10l-4-4L4 16v4Z"/><path d="M13 5l4 4"/></svg> Bu render'ı düzenle</div>
       <textarea id="renderEditPrompt" rows="3" placeholder="Örn: zemini ahşap parke yap · duvarı antrasit boya · gökyüzünü gün batımı yap · yazıları kaldır" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; font-family:inherit; resize:vertical; line-height:1.5;"></textarea>
       <p style="font-size:11px; color:#8A7E74; margin:6px 0 10px; line-height:1.5;">Yazdığın değişiklik uygulanır, sahnenin geri kalanı (açı, mobilya, ışık) birebir korunur.</p>
-      <button class="render-btn" id="renderEditBtn" onclick="startRenderEdit()">✨ Geliştir <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
+      <button class="render-btn" id="renderEditBtn" onclick="startRenderEdit()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Geliştir <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
       <div class="error-msg" id="renderEditError"></div>
     </div>
   </div>
@@ -1002,7 +1002,7 @@
         <h2>Görsel Yükle</h2>
         <div class="upload-zone" id="upscaleUploadZone">
           <input type="file" id="upscaleFileInput" accept="image/*" />
-          <div class="upload-icon" id="upscaleIcon">🔍</div>
+          <div class="upload-icon" id="upscaleIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.4-3.4"/></svg></div>
           <p><strong>Render görselinizi seçin</strong> veya sürükleyin</p>
           <p style="margin-top:6px; font-size:11px; color:#ABA49C;">Render çıktısı, fotoğraf veya herhangi bir görsel</p>
         </div>
@@ -1033,7 +1033,7 @@
           <b style="color:#f59e0b;">8K</b> — Malzeme analizi → gerçekçi doku sentezi → 4x çözünürlük
         </div>
 
-        <button class="render-btn" id="upscaleBtn" onclick="startUpscale()">🔍 Büyüt & Geliştir <span style="font-size:11px;opacity:0.8;">· 2K: 5 / 4K-8K: 10 kredi</span></button>
+        <button class="render-btn" id="upscaleBtn" onclick="startUpscale()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.4-3.4"/></svg> Büyüt & Geliştir <span style="font-size:11px;opacity:0.8;">· 2K: 5 / 4K-8K: 10 kredi</span></button>
         <div class="error-msg" id="upscaleError"></div>
       </div>
     </div>
@@ -1041,7 +1041,7 @@
     <!-- Sağ: Sonuç -->
     <div class="panel result-panel" id="upscaleResultPanel">
       <div class="result-placeholder" id="upscalePlaceholder">
-        <div class="icon">🔍</div>
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.4-3.4"/></svg></div>
         <p>Büyütülmüş görsel burada görünecek</p>
       </div>
       <div class="loading" id="upscaleLoading">
@@ -1050,7 +1050,7 @@
       </div>
       <div style="width:100%; text-align:center;">
         <img id="upscaleResultImg" class="result-img" />
-        <a id="upscaleDownloadBtn" class="download-btn" download="upscaled.png">⬇ İndir</a>
+        <a id="upscaleDownloadBtn" class="download-btn" download="upscaled.png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> İndir</a>
       </div>
     </div>
 
@@ -1067,7 +1067,7 @@
         <h2>GÖRSEL YÜKLE</h2>
         <div class="upload-zone" id="enhanceUploadZone">
           <input type="file" id="enhanceFileInput" accept="image/*" />
-          <div class="upload-icon" id="enhanceIcon">✨</div>
+          <div class="upload-icon" id="enhanceIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg></div>
           <p class="upload-text">Render görselinizi seçin veya sürükleyin</p>
           <p class="upload-sub">Render çıktısı, fotoğraf veya herhangi bir görsel</p>
           <img id="enhancePreview" class="preview-img" />
@@ -1081,37 +1081,37 @@
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
 
           <div class="enhance-card active" id="ecard-entourage" onclick="setEnhanceType('entourage')">
-            <div style="font-size:28px; margin-bottom:6px;">👥</div>
+            <div style="font-size:28px; margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 6a3 3 0 0 1 0 6M21 20a6 6 0 0 0-5-5.9"/></svg></div>
             <div style="font-size:13px; font-weight:600; color:#2A2520;">AI Entourage</div>
             <div style="font-size:10px; color:#8A7E74; margin-top:4px; line-height:1.4;">İnsan · Araç · Bitki ekler</div>
           </div>
 
           <div class="enhance-card" id="ecard-illumination" onclick="setEnhanceType('illumination')">
-            <div style="font-size:28px; margin-bottom:6px;">☀️</div>
+            <div style="font-size:28px; margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></div>
             <div style="font-size:13px; font-weight:600; color:#2A2520;">Illumination+</div>
             <div style="font-size:10px; color:#8A7E74; margin-top:4px; line-height:1.4;">Işık · Gölge · Derinlik</div>
           </div>
 
           <div class="enhance-card" id="ecard-realistic" onclick="setEnhanceType('realistic')">
-            <div style="font-size:28px; margin-bottom:6px;">📸</div>
+            <div style="font-size:28px; margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg></div>
             <div style="font-size:13px; font-weight:600; color:#2A2520;">Realistic+</div>
             <div style="font-size:10px; color:#8A7E74; margin-top:4px; line-height:1.4;">Fotorealizm · Atmosfer</div>
           </div>
 
           <div class="enhance-card" id="ecard-detail" onclick="setEnhanceType('detail')">
-            <div style="font-size:28px; margin-bottom:6px;">🔬</div>
+            <div style="font-size:28px; margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 4l3 3-4 4-3-3zM6 14h6M5 20h14M9 20a5 5 0 0 0 7-7"/></svg></div>
             <div style="font-size:13px; font-weight:600; color:#2A2520;">Detail+</div>
             <div style="font-size:10px; color:#8A7E74; margin-top:4px; line-height:1.4;">Doku · Malzeme derinliği</div>
           </div>
 
           <div class="enhance-card" id="ecard-color" onclick="setEnhanceType('color')">
-            <div style="font-size:28px; margin-bottom:6px;">🎨</div>
+            <div style="font-size:28px; margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3a9 9 0 0 0 0 18c1.4 0 2-1 2-2s-.6-1.4 0-2 1.5-.5 2.5-.5A4.5 4.5 0 0 0 21 12 9 9 0 0 0 12 3Z"/><circle cx="7.5" cy="11" r=".8"/><circle cx="9.5" cy="7.5" r=".8"/><circle cx="14.5" cy="7.5" r=".8"/></svg></div>
             <div style="font-size:13px; font-weight:600; color:#2A2520;">Color+</div>
             <div style="font-size:10px; color:#8A7E74; margin-top:4px; line-height:1.4;">Renk grading · Kontrast</div>
           </div>
 
           <div class="enhance-card" id="ecard-custom" onclick="setEnhanceType('custom')">
-            <div style="font-size:28px; margin-bottom:6px;">✏️</div>
+            <div style="font-size:28px; margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 20h4L18 10l-4-4L4 16v4Z"/><path d="M13 5l4 4"/></svg></div>
             <div style="font-size:13px; font-weight:600; color:#2A2520;">Özel</div>
             <div style="font-size:10px; color:#8A7E74; margin-top:4px; line-height:1.4;">Kendi promptun</div>
           </div>
@@ -1124,7 +1124,7 @@
           <p style="font-size:11px; color:#8A7E74; margin-top:6px; line-height:1.5;">Yazdığın değişiklik uygulanır, sahnenin geri kalanı (açı, mobilya, ışık) birebir korunur.</p>
         </div>
 
-        <button class="render-btn" id="enhanceBtn" onclick="startEnhance()">✨ Uygula <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
+        <button class="render-btn" id="enhanceBtn" onclick="startEnhance()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Uygula <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
         <div class="error-msg" id="enhanceError"></div>
       </div>
     </div>
@@ -1132,7 +1132,7 @@
     <!-- Sağ: Sonuç -->
     <div class="panel result-panel" id="enhanceResultPanel">
       <div class="result-placeholder" id="enhancePlaceholder">
-        <div class="icon">✨</div>
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg></div>
         <p>Geliştirilmiş görsel burada görünecek</p>
       </div>
       <div class="loading" id="enhanceLoading" style="display:none;">
@@ -1141,7 +1141,7 @@
       </div>
       <div style="width:100%; text-align:center;">
         <img id="enhanceResultImg" class="result-img" style="display:none;" />
-        <a id="enhanceDownloadBtn" class="download-btn" download="enhanced.png" style="display:none;">⬇ İndir</a>
+        <a id="enhanceDownloadBtn" class="download-btn" download="enhanced.png" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> İndir</a>
       </div>
     </div>
 
@@ -1158,7 +1158,7 @@
         <h2>BOŞ ODA FOTOĞRAFI</h2>
         <div class="upload-zone" id="stagingUploadZone">
           <input type="file" id="stagingFileInput" accept="image/*" />
-          <div class="upload-icon" id="stagingIcon">🛋️</div>
+          <div class="upload-icon" id="stagingIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 10V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 19v2M19 19v2"/></svg></div>
           <p class="upload-text">Boş dairenin oda fotoğrafını seçin veya sürükleyin</p>
           <p class="upload-sub">Boş ya da yarı boş oda — mimari korunur, mobilya eklenir</p>
           <img id="stagingPreview" class="preview-img" />
@@ -1203,7 +1203,7 @@
                  style="width:100%; padding:10px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#FAFAF8; font-size:13px; box-sizing:border-box;" />
         </div>
 
-        <button class="render-btn" id="stagingBtn" onclick="startStaging()" style="margin-top:16px;">🛋️ Mobilyala <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
+        <button class="render-btn" id="stagingBtn" onclick="startStaging()" style="margin-top:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 10V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 19v2M19 19v2"/></svg> Mobilyala <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
         <div class="error-msg" id="stagingError"></div>
       </div>
     </div>
@@ -1211,7 +1211,7 @@
     <!-- Sağ: Sonuç -->
     <div class="panel result-panel" id="stagingResultPanel">
       <div class="result-placeholder" id="stagingPlaceholder">
-        <div class="icon">🛋️</div>
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 10V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 19v2M19 19v2"/></svg></div>
         <p>Mobilyalı oda burada görünecek</p>
       </div>
       <div class="loading" id="stagingLoading" style="display:none;">
@@ -1220,7 +1220,7 @@
       </div>
       <div style="width:100%; text-align:center;">
         <img id="stagingResultImg" class="result-img" style="display:none;" />
-        <a id="stagingDownloadBtn" class="download-btn" download="mobilyali-oda.png" style="display:none;">⬇ İndir</a>
+        <a id="stagingDownloadBtn" class="download-btn" download="mobilyali-oda.png" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> İndir</a>
       </div>
     </div>
 
@@ -1237,7 +1237,7 @@
         <h2>GÖRSEL YÜKLE</h2>
         <div class="upload-zone" id="model3dUploadZone">
           <input type="file" id="model3dFileInput" accept="image/*" />
-          <div class="upload-icon" id="model3dIcon">🧊</div>
+          <div class="upload-icon" id="model3dIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg></div>
           <p class="upload-text">Tek bir objenin fotoğrafını seçin veya sürükleyin</p>
           <p class="upload-sub">Koltuk, mobilya, ürün ya da bina dış kütlesi</p>
           <img id="model3dPreview" class="preview-img" />
@@ -1250,10 +1250,10 @@
           Görselinizi döndürülebilir 3D modele (GLB) çevirir — AI ile işlenir.
         </p>
         <div style="font-size:11px; color:#8A7E74; padding:10px 12px; background:#E8E4DC; border-radius:8px; border:1px solid #D8D2C8; margin-bottom:16px; line-height:1.5;">
-          ⚠️ En iyi sonuç <strong>tek obje</strong> içindir (koltuk, ürün, bina dış kütlesi).
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.1"/></svg> En iyi sonuç <strong>tek obje</strong> içindir (koltuk, ürün, bina dış kütlesi).
           Komple iç mekan sahnesinde model kabaca kalır. İşlem ~1-2 dakika sürer.
         </div>
-        <button class="render-btn" id="model3dBtn" onclick="startModel3d()">🧊 Modeli Oluştur <span style="font-size:11px;opacity:0.8;">· 100 kredi</span></button>
+        <button class="render-btn" id="model3dBtn" onclick="startModel3d()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg> Modeli Oluştur <span style="font-size:11px;opacity:0.8;">· 100 kredi</span></button>
         <div class="error-msg" id="model3dError"></div>
       </div>
     </div>
@@ -1261,7 +1261,7 @@
     <!-- Sağ: 3D Sonuç -->
     <div class="panel result-panel" id="model3dResultPanel">
       <div class="result-placeholder" id="model3dPlaceholder">
-        <div class="icon">🧊</div>
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg></div>
         <p>3D model burada görünecek — fareyle döndürebilirsiniz</p>
       </div>
       <div class="loading" id="model3dLoading" style="display:none;">
@@ -1274,7 +1274,7 @@
           camera-controls auto-rotate touch-action="pan-y" shadow-intensity="1"
           exposure="1" ar ar-modes="webxr scene-viewer quick-look">
         </model-viewer>
-        <a id="model3dDownloadBtn" class="download-btn" download="model.glb" style="display:none;">⬇ GLB İndir</a>
+        <a id="model3dDownloadBtn" class="download-btn" download="model.glb" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> GLB İndir</a>
       </div>
     </div>
 
@@ -1301,7 +1301,7 @@
           ondragleave="this.style.borderColor='#D8D2C8'"
           ondrop="handleVideoDrop(event)">
           <input type="file" id="videoFileInput" accept="image/*" style="display:none" onchange="handleVideoFiles(this.files)" />
-          <div style="font-size:32px; margin-bottom:8px;" id="videoIcon">🎬</div>
+          <div style="font-size:32px; margin-bottom:8px;" id="videoIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 6 3.5-6 3.5Z"/></svg></div>
           <div style="font-size:14px; color:#9A6558; font-weight:600;">Render görselinizi seçin veya sürükleyin</div>
           <div style="font-size:12px; color:#ABA49C; margin-top:4px;">PNG, JPG · Tek görsel · Kling AI ile canlandırılır</div>
           <img id="videoSinglePreview" style="display:none; max-width:100%; border-radius:8px; margin-top:10px; max-height:160px; object-fit:cover;" />
@@ -1312,23 +1312,23 @@
         <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-bottom:14px;">
           <button class="vseason-btn active" data-season="none" onclick="setVideoSeason(this)"
             style="padding:8px 4px; border:1px solid #9A6558; border-radius:10px; background:rgba(154,101,88,0.12); color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            🌿<br>Nötr
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 20C4 10 12 4 20 4c0 8-6 16-16 16ZM5 19c4-6 8-9 13-11"/></svg><br>Nötr
           </button>
           <button class="vseason-btn" data-season="spring" onclick="setVideoSeason(this)"
             style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            🌸<br>İlkbahar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="2.5"/><path d="M12 4a3 3 0 0 1 0 5M12 20a3 3 0 0 1 0-5M4 12a3 3 0 0 1 5 0M20 12a3 3 0 0 1-5 0"/></svg><br>İlkbahar
           </button>
           <button class="vseason-btn" data-season="summer" onclick="setVideoSeason(this)"
             style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            ☀️<br>Yaz
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg><br>Yaz
           </button>
           <button class="vseason-btn" data-season="autumn" onclick="setVideoSeason(this)"
             style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            🍂<br>Sonbahar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3c4 2 6 6 0 12-6-6-4-10 0-12ZM12 9v10"/></svg><br>Sonbahar
           </button>
           <button class="vseason-btn" data-season="winter" onclick="setVideoSeason(this)"
             style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            ❄️<br>Kış
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 2v20M3 7l18 10M21 7 3 17M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3"/></svg><br>Kış
           </button>
         </div>
 
@@ -1337,11 +1337,11 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;">
           <button class="vtime-btn active" data-time="day" onclick="setVideoTime(this)"
             style="padding:10px; border:1px solid #9A6558; border-radius:10px; background:rgba(154,101,88,0.12); color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
-            🌤️ Gündüz
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M8 6a3 3 0 0 1 4.5 1.5M5 8 4 7M9 3v1M14 5l1-1"/><path d="M7 19a3.5 3.5 0 0 1 0-7 4 4 0 0 1 7.5-1A3.5 3.5 0 0 1 16 19H7Z"/></svg> Gündüz
           </button>
           <button class="vtime-btn" data-time="night" onclick="setVideoTime(this)"
             style="padding:10px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
-            🌙 Gece
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M20 14a8 8 0 1 1-9.5-9.5A6 6 0 0 0 20 14Z"/></svg> Gece
           </button>
         </div>
 
@@ -1351,19 +1351,19 @@
         <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:16px;">
           <button class="vmotion-btn" data-motion="people" onclick="toggleVideoMotion(this)"
             style="padding:9px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
-            🚶 İnsanlar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="13" cy="4" r="2"/><path d="M13 8l-2 5 3 3 1 5M11 13l-3 2M13 8l3 2"/></svg> İnsanlar
           </button>
           <button class="vmotion-btn" data-motion="cars" onclick="toggleVideoMotion(this)"
             style="padding:9px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
-            🚗 Araçlar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 17v2H3v-2M21 17v2h-2v-2M3 13l2-5h14l2 5v4H3z"/><circle cx="7.5" cy="17" r="1.5"/><circle cx="16.5" cy="17" r="1.5"/></svg> Araçlar
           </button>
           <button class="vmotion-btn" data-motion="sky" onclick="toggleVideoMotion(this)"
             style="padding:9px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
-            ☁️ Gökyüzü / Bulutlar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.5-1A4 4 0 0 1 17 18H7Z"/></svg> Gökyüzü / Bulutlar
           </button>
           <button class="vmotion-btn" data-motion="trees" onclick="toggleVideoMotion(this)"
             style="padding:9px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
-            🌳 Ağaçlar / Bitkiler
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 14a5 5 0 1 1 4.5-8 4 4 0 0 1-.5 8M12 14v7M9 21h6"/></svg> Ağaçlar / Bitkiler
           </button>
         </div>
 
@@ -1372,15 +1372,15 @@
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:16px;">
           <button class="vcam-btn active" data-camera="static" onclick="setVideoCamera(this)"
             style="padding:8px 4px; border:1px solid #9A6558; border-radius:10px; background:rgba(154,101,88,0.12); color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            📷<br>Sabit
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg><br>Sabit
           </button>
           <button class="vcam-btn" data-camera="zoom_in" onclick="setVideoCamera(this)"
             style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            🔍<br>Zoom In
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.4-3.4"/></svg><br>Zoom In
           </button>
           <button class="vcam-btn" data-camera="zoom_out" onclick="setVideoCamera(this)"
             style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            🔎<br>Zoom Out
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.4-3.4"/></svg><br>Zoom Out
           </button>
           <button class="vcam-btn" data-camera="pan_left" onclick="setVideoCamera(this)"
             style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
@@ -1392,11 +1392,11 @@
           </button>
           <button class="vcam-btn" data-camera="orbit" onclick="setVideoCamera(this)"
             style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
-            🔄<br>Yörünge
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 12a8 8 0 0 1 14-5l2 2M20 12a8 8 0 0 1-14 5l-2-2"/><path d="M20 3v4h-4M4 21v-4h4"/></svg><br>Yörünge
           </button>
         </div>
 
-        <button class="render-btn" id="videoBtn" onclick="startVideo()">🎬 Video Oluştur <span style="font-size:11px;opacity:0.8;">· 40 kredi · ~60-90 sn</span></button>
+        <button class="render-btn" id="videoBtn" onclick="startVideo()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 6 3.5-6 3.5Z"/></svg> Video Oluştur <span style="font-size:11px;opacity:0.8;">· 40 kredi · ~60-90 sn</span></button>
         <div class="error-msg" id="videoError"></div>
       </div>
     </div>
@@ -1404,7 +1404,7 @@
     <!-- Sağ: Video player -->
     <div class="panel result-panel" id="videoResultPanel">
       <div class="result-placeholder" id="videoPlaceholder">
-        <div class="icon">🎬</div>
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 6 3.5-6 3.5Z"/></svg></div>
         <p>Oluşturulan video burada görünecek</p>
       </div>
       <div class="loading" id="videoLoading" style="display:none;">
@@ -1413,7 +1413,7 @@
       </div>
       <div id="videoResultContainer" style="display:none; width:100%; text-align:center;">
         <video id="videoResultEl" controls style="width:100%; border-radius:10px; background:#000;" playsinline></video>
-        <a id="videoDownloadBtn" class="download-btn" download="renderai_video.mp4" style="margin-top:12px;">⬇ Video İndir (MP4)</a>
+        <a id="videoDownloadBtn" class="download-btn" download="renderai_video.mp4" style="margin-top:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> Video İndir (MP4)</a>
       </div>
     </div>
 
@@ -1440,7 +1440,7 @@
           ondragleave="document.getElementById('fpDropZone').style.borderColor='#D8D2C8'"
           ondrop="handleFpDrop(event)">
           <input type="file" id="fpFileInput" accept="image/*" style="display:none" onchange="handleFpFile(this.files[0])" />
-          <div id="fpIcon" style="font-size:36px; margin-bottom:8px;">📐</div>
+          <div id="fpIcon" style="font-size:36px; margin-bottom:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 14h7V3M10 14v7M21 10h-5"/></svg></div>
           <div style="font-size:14px; color:#9A6558; font-weight:600;">Plan görselini seçin veya sürükleyin</div>
           <div style="font-size:12px; color:#ABA49C; margin-top:4px;">PNG, JPG — Kat planı, vaziyet planı, AutoCAD export</div>
           <img id="fpPreview" style="display:none; max-width:100%; border-radius:8px; margin-top:10px;" />
@@ -1451,11 +1451,11 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
           <button class="fp-type-btn active" data-type="floor" onclick="setFpType(this)"
             style="padding:10px; border:1px solid #9A6558; border-radius:10px; background:rgba(154,101,88,0.12); color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
-            🏠 Kat Planı<br><span style="font-size:10px; color:#8A7E74; font-weight:400;">İç mekan, odalar</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="m3 11 9-7 9 7M5 10v10h14V10"/></svg> Kat Planı<br><span style="font-size:10px; color:#8A7E74; font-weight:400;">İç mekan, odalar</span>
           </button>
           <button class="fp-type-btn" data-type="site" onclick="setFpType(this)"
             style="padding:10px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
-            🗺️ Vaziyet Planı<br><span style="font-size:10px; color:#8A7E74; font-weight:400;">Dış alan, peyzaj</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg> Vaziyet Planı<br><span style="font-size:10px; color:#8A7E74; font-weight:400;">Dış alan, peyzaj</span>
           </button>
         </div>
 
@@ -1464,25 +1464,25 @@
         <div style="font-size:11px; color:#8A7E74; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">BOYAMA STİLİ</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;" id="fpStyleGrid">
           <!-- 2D bölümü -->
-          <div style="grid-column:1/-1; font-size:10px; color:#ABA49C; font-weight:600; text-transform:uppercase; letter-spacing:1px; padding:2px 0 4px; border-bottom:1px solid #D8D2C8; margin-bottom:2px;">📐 2D Plan</div>
+          <div style="grid-column:1/-1; font-size:10px; color:#ABA49C; font-weight:600; text-transform:uppercase; letter-spacing:1px; padding:2px 0 4px; border-bottom:1px solid #D8D2C8; margin-bottom:2px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 14h7V3M10 14v7M21 10h-5"/></svg> 2D Plan</div>
           <button class="fp-style-btn active" data-style="wall_paint" onclick="setFpStyle(this)"
             style="padding:10px 8px; border:1px solid #9A6558; border-radius:10px; background:rgba(154,101,88,0.12); color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
-            🎨 Boyalı Sunum<br><span style="font-size:10px; color:#8A7E74; font-weight:400;">Tek ton gri zemin · çizgi tefriş</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3a9 9 0 0 0 0 18c1.4 0 2-1 2-2s-.6-1.4 0-2 1.5-.5 2.5-.5A4.5 4.5 0 0 0 21 12 9 9 0 0 0 12 3Z"/><circle cx="7.5" cy="11" r=".8"/><circle cx="9.5" cy="7.5" r=".8"/><circle cx="14.5" cy="7.5" r=".8"/></svg> Boyalı Sunum<br><span style="font-size:10px; color:#8A7E74; font-weight:400;">Tek ton gri zemin · çizgi tefriş</span>
           </button>
           <button class="fp-style-btn" data-style="function_map" onclick="setFpStyle(this)"
             style="padding:10px 8px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:left; line-height:1.4;">
-            🗺️ Fonksiyon Haritası<br><span style="font-size:10px; color:#8A7E74; font-weight:400;">Aynı işlev = aynı renk · lejant</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg> Fonksiyon Haritası<br><span style="font-size:10px; color:#8A7E74; font-weight:400;">Aynı işlev = aynı renk · lejant</span>
           </button>
           <!-- 3D bölümü başlığı -->
-          <div style="grid-column:1/-1; font-size:10px; color:#ABA49C; font-weight:600; text-transform:uppercase; letter-spacing:1px; padding:8px 0 4px; border-bottom:1px solid #D8D2C8; margin-bottom:2px;">🏗️ 3D Plan</div>
+          <div style="grid-column:1/-1; font-size:10px; color:#ABA49C; font-weight:600; text-transform:uppercase; letter-spacing:1px; padding:8px 0 4px; border-bottom:1px solid #D8D2C8; margin-bottom:2px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21h18M5 21V8l9-3v16M14 21V10l5-2v13M8 11h3M8 15h3"/></svg> 3D Plan</div>
           <button class="fp-style-btn" data-style="realistic_3d" onclick="setFpStyle(this)"
             style="padding:11px 12px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:700; text-align:left; line-height:1.4; display:flex; align-items:center; gap:8px;">
-            <span style="font-size:18px;">✨</span>
+            <span style="font-size:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg></span>
             <span>Fotorealistik<br><span style="font-size:10px; color:#9A6558; font-weight:400;">Mobilya · parke · ışık · gölge</span></span>
           </button>
           <button class="fp-style-btn" data-style="depth_3d" onclick="setFpStyle(this)"
             style="padding:11px 12px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:700; text-align:left; line-height:1.4; display:flex; align-items:center; gap:8px;">
-            <span style="font-size:18px;">🏗️</span>
+            <span style="font-size:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21h18M5 21V8l9-3v16M14 21V10l5-2v13M8 11h3M8 15h3"/></svg></span>
             <span>3D Derinlik<br><span style="font-size:10px; color:#7A8B6A; font-weight:400;">İzometrik · duvar yüksekliği</span></span>
           </button>
         </div>
@@ -1491,7 +1491,7 @@
         <!-- Fonksiyon Haritası: bilgi notu -->
         <div id="fpFuncMapNote" style="display:none; margin-bottom:16px;">
           <div style="background:#0d0d18; border:1px solid #D8D2C8; border-radius:10px; padding:10px 12px; font-size:11px; color:#8A7E74; line-height:1.6;">
-            💡 <span style="color:#9A6558; font-weight:600;">İpucu:</span> Plan üzerine oda isimlerini yazmanız durumunda daha doğru sonuçlar elde edersiniz.
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3 11c.5.4 1 1 1 2h4c0-1 .5-1.6 1-2a6 6 0 0 0-3-11Z"/></svg> <span style="color:#9A6558; font-weight:600;">İpucu:</span> Plan üzerine oda isimlerini yazmanız durumunda daha doğru sonuçlar elde edersiniz.
           </div>
         </div>
 
@@ -1567,11 +1567,11 @@
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
             <button class="fp-wall-btn active" data-wall="black" onclick="setFpWall(this)"
               style="padding:9px 8px; border:1px solid #9A6558; border-radius:10px; background:rgba(154,101,88,0.12); color:#2A2520; cursor:pointer; font-size:20px; font-weight:600; text-align:center; transition:all 0.2s;">
-              ⬛
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
             </button>
             <button class="fp-wall-btn" data-wall="white" onclick="setFpWall(this)"
               style="padding:9px 8px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:20px; font-weight:600; text-align:center; transition:all 0.2s;">
-              ⬜
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
             </button>
           </div>
 
@@ -1580,11 +1580,11 @@
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
             <button class="fp-text-btn active" data-remove="no" onclick="setFpText(this)"
               style="padding:9px 8px; border:1px solid #9A6558; border-radius:10px; background:rgba(154,101,88,0.12); color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
-              ✏️ Koru
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 20h4L18 10l-4-4L4 16v4Z"/><path d="M13 5l4 4"/></svg> Koru
             </button>
             <button class="fp-text-btn" data-remove="yes" onclick="setFpText(this)"
               style="padding:9px 8px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
-              🚫 Kaldır
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg> Kaldır
             </button>
           </div>
 
@@ -1593,17 +1593,17 @@
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;">
             <button class="fp-floor-btn active" data-floor="ground" onclick="setFpFloor(this)"
               style="padding:9px 8px; border:1px solid #9A6558; border-radius:10px; background:rgba(154,101,88,0.12); color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.4; transition:all 0.2s;">
-              🌿 Zemin Kat<br><span style="font-size:10px; color:#8A7E74; font-weight:400;">Peyzaj eklenir</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 20C4 10 12 4 20 4c0 8-6 16-16 16ZM5 19c4-6 8-9 13-11"/></svg> Zemin Kat<br><span style="font-size:10px; color:#8A7E74; font-weight:400;">Peyzaj eklenir</span>
             </button>
             <button class="fp-floor-btn" data-floor="upper" onclick="setFpFloor(this)"
               style="padding:9px 8px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; line-height:1.4; transition:all 0.2s;">
-              🏢 Üst Kat<br><span style="font-size:10px; color:#8A7E74; font-weight:400;">Sadece iç mekan</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21h18"/><path d="M6 21V4h8v17"/><path d="M14 21V9h4v12"/><path d="M9 8h2M9 12h2M9 16h2"/></svg> Üst Kat<br><span style="font-size:10px; color:#8A7E74; font-weight:400;">Sadece iç mekan</span>
             </button>
           </div>
 
         </div><!-- /fpFloorOpts -->
 
-        <button class="render-btn" id="fpBtn" onclick="startFloorplan()">📐 Plan Renklendir <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
+        <button class="render-btn" id="fpBtn" onclick="startFloorplan()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 14h7V3M10 14v7M21 10h-5"/></svg> Plan Renklendir <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
         <div class="error-msg" id="fpError"></div>
       </div>
     </div>
@@ -1611,7 +1611,7 @@
     <!-- Sağ: Sonuç -->
     <div class="panel result-panel">
       <div class="result-placeholder" id="fpPlaceholder">
-        <div class="icon">📐</div>
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 14h7V3M10 14v7M21 10h-5"/></svg></div>
         <p>Renklendirilmiş kat planı burada görünecek</p>
       </div>
       <div class="loading" id="fpLoading" style="display:none;">
@@ -1620,7 +1620,7 @@
       </div>
       <div id="fpResultContainer" style="display:none; width:100%; text-align:center;">
         <img id="fpResultImg" style="max-width:100%; border-radius:10px; display:block;" />
-        <a id="fpDownloadBtn" class="download-btn" download="renderai_floorplan.png" style="margin-top:12px;">⬇ Kat Planı İndir (PNG)</a>
+        <a id="fpDownloadBtn" class="download-btn" download="renderai_floorplan.png" style="margin-top:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> Kat Planı İndir (PNG)</a>
       </div>
     </div>
 
@@ -1638,11 +1638,11 @@
         <h2>Mod Seçin</h2>
         <div style="display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:6px;">
           <button class="scale-btn active" id="placeModeProduct" onclick="setPlaceMode('product')">
-            <div style="font-size:15px; font-weight:700; color:#9A6558;">🛋️ Ürün Yerleştir</div>
+            <div style="font-size:15px; font-weight:700; color:#9A6558;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 10V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 19v2M19 19v2"/></svg> Ürün Yerleştir</div>
             <div style="font-size:11px; color:#8A7E74; margin-top:3px;">Mobilya/ürünü iç mekana koy</div>
           </button>
           <button class="scale-btn" id="placeModeMontage" onclick="setPlaceMode('montage')" style="display:none;">
-            <div style="font-size:15px; font-weight:700; color:#7A8B6A;">🏗️ Dijital İkiz</div>
+            <div style="font-size:15px; font-weight:700; color:#7A8B6A;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21h18M5 21V8l9-3v16M14 21V10l5-2v13M8 11h3M8 15h3"/></svg> Dijital İkiz</div>
             <div style="font-size:11px; color:#8A7E74; margin-top:3px;">Projeyi gerçek ortama monte et</div>
           </button>
         </div>
@@ -1652,7 +1652,7 @@
         <h2 id="placeSceneTitle">1 — İç Mekan Görseli</h2>
         <div class="upload-zone" id="placeSceneZone">
           <input type="file" id="placeSceneInput" accept="image/*" />
-          <div class="upload-icon">🖼️</div>
+          <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m3 17 5-4 4 3 3-2 6 4"/></svg></div>
           <p><strong id="placeSceneHint">Render veya oda fotoğrafı seçin</strong> veya sürükleyin</p>
         </div>
         <img id="placeScenePreview" class="preview-img" />
@@ -1663,7 +1663,7 @@
         <h2 id="placeItemTitle">2 — Yerleştirilecek Ürün</h2>
         <div class="upload-zone" id="placeItemZone">
           <input type="file" id="placeItemInput" accept="image/*" />
-          <div class="upload-icon">📦</div>
+          <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 7 12 3l9 4v10l-9 4-9-4V7Z"/><path d="m3 7 9 4 9-4M12 11v10"/></svg></div>
           <p><strong id="placeItemHint">Ürün fotoğrafı seçin</strong> veya sürükleyin</p>
         </div>
         <img id="placeItemPreview" class="preview-img" />
@@ -1680,20 +1680,20 @@
             onkeydown="if(event.key==='Enter'){event.preventDefault();searchPlaceMap();}"
             style="flex:1; box-sizing:border-box; padding:9px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:13px; color:#2A2520;" />
           <button type="button" onclick="searchPlaceMap()"
-            style="padding:9px 14px; border:none; border-radius:8px; background:#9A6558; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer;">🔍 Ara</button>
+            style="padding:9px 14px; border:none; border-radius:8px; background:#9A6558; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.4-3.4"/></svg> Ara</button>
         </div>
         <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
           <button type="button" id="placeLayerBtn" onclick="togglePlaceLayer()"
-            style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520; cursor:pointer;">🗺️ Haritaya Geç</button>
+            style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg> Haritaya Geç</button>
           <button type="button" id="placeDrawBtn" onclick="togglePlaceDraw()"
-            style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520; cursor:pointer;">📐 Parsel Çiz</button>
+            style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 14h7V3M10 14v7M21 10h-5"/></svg> Parsel Çiz</button>
           <button type="button" onclick="clearPlaceParcel()"
-            style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#B5483A; cursor:pointer;">✕ Temizle</button>
+            style="padding:7px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#B5483A; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 6l12 12M18 6L6 18"/></svg> Temizle</button>
         </div>
         <div id="placeMap" style="width:100%; height:260px; border-radius:10px; border:1px solid #D8D2C8;"></div>
         <div id="placeMapInfo" style="font-size:12px; color:#7A8B6A; margin-top:8px; display:none;"></div>
         <button type="button" id="placeSatBtn" onclick="useSatelliteScene()"
-          style="display:none; width:100%; margin-top:10px; padding:11px; border:none; border-radius:10px; background:#7A8B6A; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;">🛰️ Uydu Görüntüsünü Sahne Yap</button>
+          style="display:none; width:100%; margin-top:10px; padding:11px; border:none; border-radius:10px; background:#7A8B6A; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="m5 9 4-4 3 3-4 4-3-3ZM12 12l3-3 4 4-3 3-4-4ZM9 11l4 4M16 5l2-2M19 8l2-2"/></svg> Uydu Görüntüsünü Sahne Yap</button>
         <div id="placeSatInfo" style="font-size:12px; color:#7A8B6A; margin-top:6px; display:none;"></div>
         <img id="placeSatPreview" class="preview-img" />
       </div>
@@ -1702,22 +1702,22 @@
         <h2>İsteğe Bağlı Talimat</h2>
         <input type="text" id="placeNote" placeholder="örn: yataktaki örtüyü de değiştir / binayı arsanın soluna yerleştir"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:16px;" />
-        <button class="render-btn" id="placeBtn" onclick="startPlace()">🧩 Yerleştir <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
+        <button class="render-btn" id="placeBtn" onclick="startPlace()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M10 4a2 2 0 1 1 4 0v1h4v4a2 2 0 1 1 0 4v4h-4a2 2 0 1 0-4 0H6v-4a2 2 0 1 1 0-4V5h4Z"/></svg> Yerleştir <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
         <div class="error-msg" id="placeError"></div>
       </div>
 
       <div class="panel" id="placePresentPanel" style="display:none;">
-        <h2>🔗 Proje Sunum Linki</h2>
+        <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> Proje Sunum Linki</h2>
         <p style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
           Montajların + harita + 360 tek linkte: açan kişi uydu haritada parseli görür, montaj görsellerini inceler,
           360'ta binanın önünde gezinir. Link 30 gün yayında kalır, sonrasında kredi ile yenilenir.</p>
         <div id="presentItemList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
         <input type="text" id="presentTitle" placeholder="Sunum başlığı: örn. Villa Projesi — Bodrum"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
-        <button class="render-btn" onclick="createPresentation()">🔗 Sunum Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 75 kredi</span></button>
+        <button class="render-btn" onclick="createPresentation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> Sunum Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 75 kredi</span></button>
         <div class="error-msg" id="presentError"></div>
         <div id="presentLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
-          <div style="font-size:11px; color:#7A8B6A; font-weight:700; margin-bottom:6px;">✓ SUNUM YAYINDA</div>
+          <div style="font-size:11px; color:#7A8B6A; font-weight:700; margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> SUNUM YAYINDA</div>
           <div style="display:flex; gap:8px;">
             <input type="text" id="presentLinkInput" readonly
               style="flex:1; padding:10px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520;" />
@@ -1730,7 +1730,7 @@
     <!-- Sağ: Sonuç -->
     <div class="panel result-panel">
       <div class="result-placeholder" id="placePlaceholder">
-        <div class="icon">🧩</div>
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M10 4a2 2 0 1 1 4 0v1h4v4a2 2 0 1 1 0 4v4h-4a2 2 0 1 0-4 0H6v-4a2 2 0 1 1 0-4V5h4Z"/></svg></div>
         <p>Entegre edilmiş görsel burada görünecek</p>
       </div>
       <div class="loading" id="placeLoading" style="display:none;">
@@ -1739,7 +1739,7 @@
       </div>
       <div id="placeResultContainer" style="display:none; width:100%; text-align:center;">
         <img id="placeResultImg" class="result-img" style="display:block; max-width:100%;" />
-        <a id="placeDownloadBtn" class="download-btn" download="renderai_place.png" style="margin-top:12px;">⬇ İndir (PNG)</a>
+        <a id="placeDownloadBtn" class="download-btn" download="renderai_place.png" style="margin-top:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> İndir (PNG)</a>
       </div>
     </div>
 
@@ -1759,11 +1759,11 @@
         <h2>1 — Render Yükle</h2>
         <div class="upload-zone" id="decSceneZone">
           <input type="file" id="decSceneInput" accept="image/*" />
-          <div class="upload-icon">🖼️</div>
+          <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m3 17 5-4 4 3 3-2 6 4"/></svg></div>
           <p><strong>Render veya mekan görseli seçin</strong> veya sürükleyin</p>
         </div>
         <img id="decScenePreview" class="preview-img" />
-        <button id="decAddOriginalBtn" onclick="addOriginalToLink()" style="display:none; width:100%; margin-top:10px; padding:11px; border:1px solid #9A6558; border-radius:10px; background:#FAFAF8; color:#9A6558; font-size:13px; font-weight:700; cursor:pointer;">➕ Orijinali (ham render) linke ekle</button>
+        <button id="decAddOriginalBtn" onclick="addOriginalToLink()" style="display:none; width:100%; margin-top:10px; padding:11px; border:1px solid #9A6558; border-radius:10px; background:#FAFAF8; color:#9A6558; font-size:13px; font-weight:700; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 5v14M5 12h14"/></svg> Orijinali (ham render) linke ekle</button>
       </div>
 
       <div class="panel">
@@ -1773,11 +1773,11 @@
         <div style="font-size:11px; font-weight:700; color:#8A7E74; margin-bottom:6px;">ÖRNEK GÖRSEL (isteğe bağlı)</div>
         <div class="upload-zone" id="decItemZone" style="padding:14px 12px;">
           <input type="file" id="decItemInput" accept="image/*" />
-          <div style="font-size:22px;">📦</div>
+          <div style="font-size:22px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 7 12 3l9 4v10l-9 4-9-4V7Z"/><path d="m3 7 9 4 9-4M12 11v10"/></svg></div>
           <p style="font-size:12px;">Malzeme/ürün örneği (parke, kumaş, mobilya...)</p>
         </div>
         <img id="decItemPreview" class="preview-img" style="max-height:90px;" />
-        <button class="render-btn" id="decVariantBtn" onclick="startVariant()" style="margin-top:14px;">🎨 Varyasyon Üret <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
+        <button class="render-btn" id="decVariantBtn" onclick="startVariant()" style="margin-top:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3a9 9 0 0 0 0 18c1.4 0 2-1 2-2s-.6-1.4 0-2 1.5-.5 2.5-.5A4.5 4.5 0 0 0 21 12 9 9 0 0 0 12 3Z"/><circle cx="7.5" cy="11" r=".8"/><circle cx="9.5" cy="7.5" r=".8"/><circle cx="14.5" cy="7.5" r=".8"/></svg> Varyasyon Üret <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
         <div class="error-msg" id="decError"></div>
       </div>
 
@@ -1791,7 +1791,7 @@
           <img id="decVariantImg" style="max-width:100%; border-radius:10px; display:block;" />
           <input type="text" id="decVariantLabel" placeholder="Bu varyasyona ad ver: örn. Ceviz Parke"
             style="width:100%; box-sizing:border-box; padding:11px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-top:12px;" />
-          <button onclick="addVariantToLink()" style="width:100%; margin-top:10px; padding:12px; border:none; border-radius:10px; background:#7A8B6A; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;">➕ Müşteri Linkine Ekle</button>
+          <button onclick="addVariantToLink()" style="width:100%; margin-top:10px; padding:12px; border:none; border-radius:10px; background:#7A8B6A; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 5v14M5 12h14"/></svg> Müşteri Linkine Ekle</button>
         </div>
       </div>
     </div>
@@ -1810,19 +1810,19 @@
         <h2>Karar Linki Oluştur</h2>
         <input type="text" id="decTitle" placeholder="Link başlığı: örn. Salon Zemin Seçimi"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
-        <button class="render-btn" onclick="createDecision()">🔗 Karar Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 75 kredi</span></button>
+        <button class="render-btn" onclick="createDecision()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> Karar Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 75 kredi</span></button>
         <div style="font-size:11px; color:#8A7E74; margin-top:8px;">En az 2 seçenek gerekir. Link 30 gün canlı kalır.</div>
         <div class="error-msg" id="decLinkError"></div>
 
         <div id="decLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
-          <div style="font-size:11px; color:#7A8B6A; font-weight:700; margin-bottom:6px;">✓ KARAR LİNKİ HAZIR</div>
+          <div style="font-size:11px; color:#7A8B6A; font-weight:700; margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> KARAR LİNKİ HAZIR</div>
           <div style="display:flex; gap:8px;">
             <input type="text" id="decLinkInput" readonly
               style="flex:1; padding:10px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520;" />
             <button onclick="copyDecisionLink()" style="padding:10px 16px; border:none; border-radius:8px; background:#9A6558; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer;">Kopyala</button>
           </div>
           <div id="decLiveStatus" style="margin-top:12px; padding:10px 12px; border-radius:8px; background:#FAFAF8; border:1px dashed #D8D2C8; font-size:13px; color:#8A7E74;">
-            ⏳ Müşteri henüz seçim yapmadı — bu kutu otomatik güncellenir.
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 4h12M6 20h12M8 4c0 5 8 5 8 12M16 4c0 5-8 5-8 12"/></svg> Müşteri henüz seçim yapmadı — bu kutu otomatik güncellenir.
           </div>
         </div>
       </div>
@@ -1838,13 +1838,13 @@
     <!-- Sol: Panorama yükleme + GPT render -->
     <div>
       <div class="panel">
-        <h2>🌐 360 Panorama Yükle</h2>
+        <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg> 360 Panorama Yükle</h2>
         <p style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
           Kendi <b>equirectangular 360</b> panoramanı yükle (2:1 oran — Enscape, Lumion, 360 kamera vb.).
           Doğrudan tura ekleyebilir ya da önce AI ile fotorealistik render alabilirsin.</p>
         <div class="upload-zone" style="padding:18px 12px;">
           <input type="file" id="panoReadyInput" accept="image/*" />
-          <div style="font-size:24px;">🌐</div>
+          <div style="font-size:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg></div>
           <p style="font-size:12px;">360 panorama seç / sürükle</p>
         </div>
         <img id="panoReadyPrev" class="preview-img" />
@@ -1853,15 +1853,15 @@
         <input type="text" id="panoNote" placeholder="İsteğe bağlı not: örn. akşam ışığı"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <button class="render-btn" id="panoAddBtn" onclick="addUploadToTour()" style="margin-top:0; background:#7A8B6A;">➕ Tura Ekle <span style="font-size:11px;opacity:0.8;">· ücretsiz</span></button>
-          <button class="render-btn" id="panoGptBtn" onclick="startPanoGpt()" style="margin-top:0;">✨ Fotorealistik Render <span style="font-size:11px;opacity:0.8;">· 30 kredi</span></button>
+          <button class="render-btn" id="panoAddBtn" onclick="addUploadToTour()" style="margin-top:0; background:#7A8B6A;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 5v14M5 12h14"/></svg> Tura Ekle <span style="font-size:11px;opacity:0.8;">· ücretsiz</span></button>
+          <button class="render-btn" id="panoGptBtn" onclick="startPanoGpt()" style="margin-top:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Fotorealistik Render <span style="font-size:11px;opacity:0.8;">· 30 kredi</span></button>
         </div>
         <div class="error-msg" id="panoError"></div>
       </div>
 
       <!-- GPT sonucu — butonların altında -->
       <div class="panel" id="panoResultPanel" style="display:none;">
-        <h2>✨ Fotorealistik Sonuç</h2>
+        <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Fotorealistik Sonuç</h2>
         <div class="loading" id="panoLoading" style="display:none; padding:30px;">
           <div class="spinner"></div>
           <p>360° render üretiliyor...<br><span style="font-size:12px; color:#ABA49C;">~60-90 saniye</span></p>
@@ -1869,8 +1869,8 @@
         <div id="panoViewerWrap" style="display:none; width:100%;">
           <div id="panoViewer" style="width:100%; height:340px; border-radius:10px; overflow:hidden;"></div>
           <div style="padding:14px 0 2px; text-align:center;">
-            <button onclick="addPanoToTour()" style="padding:11px 26px; border:none; border-radius:10px; background:#7A8B6A; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;">➕ Tura Ekle</button>
-            <a id="panoDownloadBtn" class="download-btn" download="renderai_360.jpg" style="margin-left:8px;">⬇ İndir</a>
+            <button onclick="addPanoToTour()" style="padding:11px 26px; border:none; border-radius:10px; background:#7A8B6A; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 5v14M5 12h14"/></svg> Tura Ekle</button>
+            <a id="panoDownloadBtn" class="download-btn" download="renderai_360.jpg" style="margin-left:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> İndir</a>
           </div>
         </div>
       </div>
@@ -1879,7 +1879,7 @@
     <!-- Sağ: Tur paneli -->
     <div>
       <div class="panel">
-        <h2>🗂️ Tur Sahneleri</h2>
+        <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/></svg> Tur Sahneleri</h2>
         <div id="tourEmptyHint" style="font-size:12px; color:#8A7E74; line-height:1.5;">
           Henüz sahne yok — soldan panorama yükleyip <b>Tura Ekle</b> ile başla.
           Eklenen odaya tıklayınca geçiş noktalarını ayarlayabilirsin.</div>
@@ -1888,10 +1888,10 @@
 
       <!-- Hotspot editörü -->
       <div class="panel" id="hotspotPanel" style="display:none;">
-        <h2>📍 Geçiş Noktaları — <span id="hotspotSceneName" style="color:#9A6558;"></span></h2>
+        <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg> Geçiş Noktaları — <span id="hotspotSceneName" style="color:#9A6558;"></span></h2>
         <div id="hotspotViewer" style="width:100%; height:300px; border-radius:10px; overflow:hidden;"></div>
         <button id="hotspotAddBtn" onclick="toggleHotspotMode()"
-          style="margin-top:12px; padding:10px 18px; border:1px solid #9A6558; border-radius:10px; background:#FAFAF8; color:#9A6558; font-size:13px; font-weight:600; cursor:pointer;">📍 Geçiş Noktası Ekle</button>
+          style="margin-top:12px; padding:10px 18px; border:1px solid #9A6558; border-radius:10px; background:#FAFAF8; color:#9A6558; font-size:13px; font-weight:600; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg> Geçiş Noktası Ekle</button>
         <div id="hotspotHint" style="font-size:11px; color:#8A7E74; margin-top:8px; line-height:1.5;">
           Butona bas, sonra panoramada kapının/geçidin olduğu yere tıkla — hedef odayı seç.</div>
         <div id="hotspotTargetBox" style="display:none; align-items:center; gap:8px; margin-top:10px; padding:10px; background:#E8E4DC; border-radius:10px;">
@@ -1901,23 +1901,23 @@
           <button onclick="cancelHotspot()" style="padding:8px 12px; border:none; border-radius:8px; background:none; color:#B5483A; font-size:12px; cursor:pointer;">Vazgeç</button>
         </div>
         <div style="display:flex; align-items:center; gap:8px; margin-top:10px; padding:10px; background:#E8E4DC; border-radius:10px;">
-          <span style="font-size:12px; color:#2A2520; font-weight:600;">🧭 Açılış açısı:</span>
+          <span style="font-size:12px; color:#2A2520; font-weight:600;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="m15 9-2 5-4 2 2-5 4-2Z"/></svg> Açılış açısı:</span>
           <span id="initViewStatus" style="flex:1; font-size:11px; color:#8A7E74; line-height:1.4;"></span>
           <button onclick="setInitView()" style="padding:8px 14px; border:none; border-radius:8px; background:#7A8B6A; color:#FAFAF8; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;">Bu Açıyı Kaydet</button>
-          <button id="initViewClearBtn" onclick="clearInitView()" style="display:none; padding:8px 12px; border:none; border-radius:8px; background:none; color:#B5483A; font-size:12px; cursor:pointer;">✕</button>
+          <button id="initViewClearBtn" onclick="clearInitView()" style="display:none; padding:8px 12px; border:none; border-radius:8px; background:none; color:#B5483A; font-size:12px; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>
         <div id="hotspotList" style="display:flex; flex-direction:column; gap:6px; margin-top:10px;"></div>
       </div>
 
       <!-- Plan + Logo -->
       <div class="panel">
-        <h2>🗺️ Kat Planı & Firma Logosu <span style="font-size:11px; color:#8A7E74; font-weight:400;">(isteğe bağlı — turda sağ köşede)</span></h2>
+        <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg> Kat Planı & Firma Logosu <span style="font-size:11px; color:#8A7E74; font-weight:400;">(isteğe bağlı — turda sağ köşede)</span></h2>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <div>
             <div style="font-size:11px; font-weight:700; color:#9A6558; margin-bottom:4px;">KAT PLANI</div>
             <div class="upload-zone" style="padding:14px 10px;">
               <input type="file" id="tourPlanInput" accept="image/*" />
-              <div style="font-size:20px;">🗺️</div>
+              <div style="font-size:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg></div>
               <p style="font-size:11px;">Seç / sürükle</p>
             </div>
           </div>
@@ -1925,7 +1925,7 @@
             <div style="font-size:11px; font-weight:700; color:#9A6558; margin-bottom:4px;">FİRMA LOGOSU</div>
             <div class="upload-zone" style="padding:14px 10px;">
               <input type="file" id="tourLogoInput" accept="image/*" />
-              <div style="font-size:20px;">🏷️</div>
+              <div style="font-size:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 12V4h8l9 9-8 8-9-9Z"/><circle cx="7.5" cy="7.5" r="1.3"/></svg></div>
               <p style="font-size:11px;">Seç / sürükle</p>
             </div>
             <img id="tourLogoPrev" class="preview-img" style="max-height:60px;" />
@@ -1943,11 +1943,11 @@
       <div class="panel">
         <input type="text" id="tourTitle" placeholder="Tur başlığı: örn. Villa Projesi"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
-        <button class="render-btn" onclick="createTour()">🔗 360 Tur Oluştur <span style="font-size:11px;opacity:0.8;">· 75 kredi</span></button>
+        <button class="render-btn" onclick="createTour()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> 360 Tur Oluştur <span style="font-size:11px;opacity:0.8;">· 75 kredi</span></button>
         <div style="font-size:11px; color:#8A7E74; margin-top:8px;">Link 30 gün ücretsiz yayında kalır, sonrasında kredi ile yenilenir.</div>
         <div class="error-msg" id="tourError"></div>
         <div id="tourLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
-          <div style="font-size:11px; color:#7A8B6A; font-weight:700; margin-bottom:6px;">✓ TUR YAYINDA</div>
+          <div style="font-size:11px; color:#7A8B6A; font-weight:700; margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> TUR YAYINDA</div>
           <div style="display:flex; gap:8px;">
             <input type="text" id="tourLinkInput" readonly
               style="flex:1; padding:10px 12px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:12px; color:#2A2520;" />
@@ -1964,7 +1964,7 @@
 <div id="section-works" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div style="display:flex; align-items:center; justify-content:space-between; margin:28px 0 20px;">
     <div>
-      <h2 style="font-size:22px; font-weight:700; color:#2A2520; margin:0;">🗂️ İşlerim</h2>
+      <h2 style="font-size:22px; font-weight:700; color:#2A2520; margin:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/></svg> İşlerim</h2>
       <p style="font-size:13px; color:#8A7E74; margin:4px 0 0;">Yaptığın son çalışmalar — tıklayınca büyür</p>
     </div>
     <select id="worksFilter" onchange="loadWorks(true)"
@@ -1984,7 +1984,7 @@
   <div id="worksGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:16px;"></div>
 
   <div id="worksEmpty" style="display:none; text-align:center; padding:80px 20px; color:#8A7E74;">
-    <div style="font-size:40px; margin-bottom:12px;">🗂️</div>
+    <div style="font-size:40px; margin-bottom:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/></svg></div>
     <p>Henüz kaydedilmiş iş yok.<br>Render, kat planı veya video oluşturduğunda burada görünecek.</p>
   </div>
 
