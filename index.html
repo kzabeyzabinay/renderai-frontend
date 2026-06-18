@@ -1225,8 +1225,8 @@
       <div class="panel">
         <h2>GÖRSEL YÜKLE</h2>
         <p style="font-size:12px; color:#8A7E74; margin-bottom:14px; line-height:1.6;">
-          Render yükle → mevsim ve zaman seç → AI 5 saniyelik gerçek sahne videosu üretir<br>
-          <span style="color:#9A6558;">Sabit kamera · İnsanlar yürür · Ağaçlar sallanır · Gökyüzü hareket eder</span>
+          Render yükle → mevsim, zaman, hareket ve kamera seç → AI 5 saniyelik video üretir<br>
+          <span style="color:#9A6558;">Hareketleri sen seçersin — istemediğin hareket (örn. araç) eklenmez</span>
         </p>
 
         <!-- Drop Zone -->
@@ -1277,6 +1277,57 @@
           <button class="vtime-btn" data-time="night" onclick="setVideoTime(this)"
             style="padding:10px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
             🌙 Gece
+          </button>
+        </div>
+
+        <!-- HAREKET ÖĞELERİ (çoklu seçim, varsayılan hiçbiri) -->
+        <div style="font-size:11px; color:#8A7E74; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">HAREKET ÖĞELERİ</div>
+        <div style="font-size:11px; color:#ABA49C; margin-bottom:8px; line-height:1.5;">Sadece seçtiklerin hareket eder — istemediğini ekleme</div>
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:16px;">
+          <button class="vmotion-btn" data-motion="people" onclick="toggleVideoMotion(this)"
+            style="padding:9px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
+            🚶 İnsanlar
+          </button>
+          <button class="vmotion-btn" data-motion="cars" onclick="toggleVideoMotion(this)"
+            style="padding:9px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
+            🚗 Araçlar
+          </button>
+          <button class="vmotion-btn" data-motion="sky" onclick="toggleVideoMotion(this)"
+            style="padding:9px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
+            ☁️ Gökyüzü / Bulutlar
+          </button>
+          <button class="vmotion-btn" data-motion="trees" onclick="toggleVideoMotion(this)"
+            style="padding:9px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:12px; font-weight:600; text-align:center; transition:all 0.2s;">
+            🌳 Ağaçlar / Bitkiler
+          </button>
+        </div>
+
+        <!-- KAMERA HAREKETİ (tekli seçim, varsayılan Sabit) -->
+        <div style="font-size:11px; color:#8A7E74; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">KAMERA HAREKETİ</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:16px;">
+          <button class="vcam-btn active" data-camera="static" onclick="setVideoCamera(this)"
+            style="padding:8px 4px; border:1px solid #9A6558; border-radius:10px; background:rgba(154,101,88,0.12); color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            📷<br>Sabit
+          </button>
+          <button class="vcam-btn" data-camera="zoom_in" onclick="setVideoCamera(this)"
+            style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            🔍<br>Zoom In
+          </button>
+          <button class="vcam-btn" data-camera="zoom_out" onclick="setVideoCamera(this)"
+            style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            🔎<br>Zoom Out
+          </button>
+          <button class="vcam-btn" data-camera="pan_left" onclick="setVideoCamera(this)"
+            style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            ⬅️<br>Sola Kaydır
+          </button>
+          <button class="vcam-btn" data-camera="pan_right" onclick="setVideoCamera(this)"
+            style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            ➡️<br>Sağa Kaydır
+          </button>
+          <button class="vcam-btn" data-camera="orbit" onclick="setVideoCamera(this)"
+            style="padding:8px 4px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#2A2520; cursor:pointer; font-size:11px; font-weight:600; text-align:center; line-height:1.5; transition:all 0.2s;">
+            🔄<br>Yörünge
           </button>
         </div>
 
@@ -4207,6 +4258,8 @@
   let videoFiles = [];
   let selectedVideoSeason = 'none';
   let selectedVideoTime = 'day';
+  let selectedVideoMotion = [];        // çoklu seçim — varsayılan hiçbiri (otomatik hareket yok)
+  let selectedVideoCamera = 'static';  // tekli seçim — varsayılan sabit kamera
 
   function setVideoSeason(btn) {
     document.querySelectorAll('.vseason-btn').forEach(b => {
@@ -4226,6 +4279,30 @@
     btn.style.borderColor = '#9A6558';
     btn.style.background = 'rgba(154,101,88,0.12)';
     selectedVideoTime = btn.dataset.time;
+  }
+
+  function toggleVideoMotion(btn) {
+    const m = btn.dataset.motion;
+    const i = selectedVideoMotion.indexOf(m);
+    if (i === -1) {
+      selectedVideoMotion.push(m);
+      btn.style.borderColor = '#9A6558';
+      btn.style.background = 'rgba(154,101,88,0.12)';
+    } else {
+      selectedVideoMotion.splice(i, 1);
+      btn.style.borderColor = '#D8D2C8';
+      btn.style.background = 'transparent';
+    }
+  }
+
+  function setVideoCamera(btn) {
+    document.querySelectorAll('.vcam-btn').forEach(b => {
+      b.style.borderColor = '#D8D2C8';
+      b.style.background = 'transparent';
+    });
+    btn.style.borderColor = '#9A6558';
+    btn.style.background = 'rgba(154,101,88,0.12)';
+    selectedVideoCamera = btn.dataset.camera;
   }
 
   function handleVideoFiles(fileList) {
@@ -4267,6 +4344,8 @@
     formData.append('images', videoToSend);
     formData.append('season', selectedVideoSeason);
     formData.append('time_of_day', selectedVideoTime);
+    formData.append('motion', selectedVideoMotion.join(','));
+    formData.append('camera', selectedVideoCamera);
 
     try {
       const startRes = await fetch(`${API}/video/start`, { method: 'POST', headers: authHeaders(), body: formData });
