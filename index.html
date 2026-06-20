@@ -1003,7 +1003,17 @@
     </div>
     <div style="width:100%; text-align:center;">
       <img id="resultImg" class="result-img" />
-      <a id="downloadBtn" class="download-btn" download="render.png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> İndir</a>
+      <div id="baWrap" style="display:none; position:relative; width:100%; margin:0 auto; user-select:none; touch-action:none; border-radius:12px; overflow:hidden;">
+        <img id="baAfter" style="display:block; width:100%;" />
+        <img id="baBefore" style="position:absolute; top:0; left:0; width:100%; display:block;" />
+        <div id="baHandle" style="position:absolute; top:0; bottom:0; left:50%; width:2px; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,.35); cursor:ew-resize;"><div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:36px; height:36px; border-radius:50%; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; color:#2A2520; font-size:15px;">↔</div></div>
+        <span style="position:absolute; top:8px; left:8px; background:rgba(26,26,22,.6); color:#fff; font-size:11px; padding:2px 8px; border-radius:10px;">ÖNCE</span>
+        <span style="position:absolute; top:8px; right:8px; background:rgba(26,26,22,.6); color:#fff; font-size:11px; padding:2px 8px; border-radius:10px;">SONRA</span>
+      </div>
+      <div style="margin-top:8px;">
+        <a id="downloadBtn" class="download-btn" download="render.png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> İndir</a>
+        <button id="baBtn" onclick="toggleBeforeAfter()" style="display:none; margin-left:8px; padding:10px 16px; border:1px solid #9A6558; border-radius:10px; background:transparent; color:#9A6558; font-size:13px; font-weight:600; cursor:pointer;">↔ Önce/Sonra</button>
+      </div>
     </div>
     <!-- Render'ı promptla düzenle: oluşan renderı tekrar geliştir -->
     <div id="renderEditBox" style="display:none; width:100%; margin-top:18px; padding-top:18px; border-top:1px solid #E0DAD0; text-align:left;">
@@ -2500,6 +2510,7 @@
             document.getElementById('renderEditPrompt').value = '';
             document.getElementById('renderEditError').style.display = 'none';
             document.getElementById('renderEditBox').style.display = 'block';
+            prepBeforeAfter();
           };
           break;
         } else if (statusData.status === 'failed') {
@@ -2580,6 +2591,7 @@
             lastRenderUrl = statusData.render_url;
             document.getElementById('renderEditPrompt').value = '';
             document.getElementById('renderEditBox').style.display = 'block';
+            prepBeforeAfter();
           };
           break;
         } else if (statusData.status === 'failed') {
@@ -3933,6 +3945,45 @@
       loading.style.display = 'none';
       if (worksOffset === 0) empty.style.display = 'block';
     }
+  }
+
+  // ─── Render Önce/Sonra slider (sadece sonuç ekranı UI'si — pipeline'a dokunmaz) ───
+  function baSet(pct) {
+    pct = Math.max(0, Math.min(100, pct));
+    document.getElementById('baBefore').style.clipPath = 'inset(0 ' + (100 - pct) + '% 0 0)';
+    document.getElementById('baHandle').style.left = pct + '%';
+  }
+  (function () {
+    const w = document.getElementById('baWrap'); if (!w) return;
+    let drag = false;
+    const upd = e => { const r = w.getBoundingClientRect(); baSet(((e.clientX - r.left) / r.width) * 100); };
+    w.addEventListener('pointerdown', e => { drag = true; try { w.setPointerCapture(e.pointerId); } catch (_) {} upd(e); });
+    w.addEventListener('pointermove', e => { if (drag) upd(e); });
+    window.addEventListener('pointerup', () => drag = false);
+  })();
+  function toggleBeforeAfter() {
+    const w = document.getElementById('baWrap');
+    const on = w.style.display === 'none' || !w.style.display;
+    if (on) {
+      document.getElementById('baBefore').src = document.getElementById('previewImg').src;
+      document.getElementById('baAfter').src = document.getElementById('resultImg').src;
+      document.getElementById('resultImg').style.display = 'none';
+      w.style.display = 'block'; baSet(50);
+      document.getElementById('baBtn').textContent = '🖼 Sadece Sonuç';
+    } else {
+      w.style.display = 'none';
+      document.getElementById('resultImg').style.display = 'block';
+      document.getElementById('baBtn').textContent = '↔ Önce/Sonra';
+    }
+  }
+  function prepBeforeAfter() {
+    const pv = document.getElementById('previewImg');
+    const has = !!(pv && pv.src);
+    document.getElementById('baWrap').style.display = 'none';
+    document.getElementById('resultImg').style.display = 'block';
+    const b = document.getElementById('baBtn');
+    b.textContent = '↔ Önce/Sonra';
+    b.style.display = has ? 'inline-block' : 'none';
   }
 
   async function deleteRender(id, cardEl) {
