@@ -612,9 +612,31 @@
     <span id="authEmail" style="display:none; font-size:12px; color:#ABA49C;"></span>
     <button id="authLoginBtn" onclick="openAuthModal('login')"
       style="padding:8px 18px; border:1px solid #9A6558; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;">Giriş Yap</button>
+    <button id="accountBtn" onclick="openAccount()" style="display:none; padding:8px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:12px; font-weight:600; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Hesap</button>
     <button id="authLogoutBtn" onclick="authLogout()" style="display:none; padding:8px 14px; border:1px solid #3A352E; border-radius:10px; background:transparent; color:#ABA49C; font-size:12px; cursor:pointer;">Çıkış</button>
   </div>
 </header>
+
+<!-- ─── HESABIM MODAL ───────────────────────────────────────────────────── -->
+<div id="accountModal" style="display:none; position:fixed; inset:0; background:rgba(26,26,22,0.6); z-index:1100; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#FAFAF8; border-radius:18px; padding:28px; width:100%; max-width:380px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+      <h3 style="margin:0; font-size:18px; color:#2A2520;">Hesabım</h3>
+      <button onclick="document.getElementById('accountModal').style.display='none'" style="border:none; background:none; font-size:20px; color:#8A7E74; cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:12px; color:#8A7E74;">E-posta</div>
+    <div id="accEmail" style="font-size:14px; color:#2A2520; font-weight:600; margin-bottom:8px;"></div>
+    <div id="accCredits" style="font-size:13px; color:#7A8B6A; margin-bottom:18px;"></div>
+    <div style="font-size:13px; font-weight:700; color:#2A2520; margin-bottom:8px;">Şifre Değiştir</div>
+    <input id="accPass1" type="password" placeholder="Yeni şifre (en az 6 karakter)" autocomplete="new-password"
+      style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:10px; color:#2A2520;" />
+    <input id="accPass2" type="password" placeholder="Yeni şifre (tekrar)" autocomplete="new-password"
+      style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:12px; color:#2A2520;" />
+    <div id="accMsg" style="display:none; font-size:12px; margin-bottom:12px;"></div>
+    <button onclick="changePassword()" style="width:100%; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;">Şifreyi Güncelle</button>
+    <button onclick="authLogout()" style="width:100%; padding:11px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#8A7E74; font-size:13px; cursor:pointer;">Çıkış Yap</button>
+  </div>
+</div>
 
 <!-- ─── GİRİŞ / KAYIT MODAL ─────────────────────────────────────────────── -->
 <div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(26,26,22,0.6); z-index:1100; align-items:center; justify-content:center; padding:20px;">
@@ -2119,6 +2141,7 @@
     document.getElementById('authEmail').textContent = email || '';
     document.getElementById('authLoginBtn').style.display = email ? 'none' : 'inline-block';
     document.getElementById('authLogoutBtn').style.display = email ? 'inline-block' : 'none';
+    document.getElementById('accountBtn').style.display = email ? 'inline-block' : 'none';
     if (email) refreshCredits();
     else document.getElementById('creditBadge').style.display = 'none';
   }
@@ -2156,6 +2179,33 @@
     document.getElementById('authTabLogin').style.color = isLogin ? '#2A2520' : '#8A7E74';
     document.getElementById('authTabSignup').style.background = isLogin ? 'transparent' : '#FAFAF8';
     document.getElementById('authTabSignup').style.color = isLogin ? '#8A7E74' : '#2A2520';
+  }
+
+  function openAccount() {
+    document.getElementById('accEmail').textContent = localStorage.getItem('ra_email') || '';
+    const badge = document.getElementById('creditBadge');
+    document.getElementById('accCredits').textContent = 'Kredi: ' + (badge && badge.textContent ? badge.textContent.replace(/[^\d—]/g,'').trim() || badge.textContent.trim() : '—');
+    const m = document.getElementById('accMsg'); m.style.display = 'none';
+    document.getElementById('accPass1').value = ''; document.getElementById('accPass2').value = '';
+    document.getElementById('accountModal').style.display = 'flex';
+    if (typeof refreshCredits === 'function') refreshCredits();
+  }
+  async function changePassword() {
+    const p1 = document.getElementById('accPass1').value, p2 = document.getElementById('accPass2').value;
+    const m = document.getElementById('accMsg');
+    const show = (txt, color) => { m.textContent = txt; m.style.color = color; m.style.display = 'block'; };
+    if (p1.length < 6) { show('Şifre en az 6 karakter olmalı.', '#B5483A'); return; }
+    if (p1 !== p2) { show('Şifreler eşleşmiyor.', '#B5483A'); return; }
+    try {
+      const r = await fetch(`${API}/auth/change-password`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ password: p1 })
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || 'Şifre değiştirilemedi');
+      show('Şifren güncellendi ✓', '#7A8B6A');
+      document.getElementById('accPass1').value = ''; document.getElementById('accPass2').value = '';
+    } catch (e) { show('Hata: ' + e.message, '#B5483A'); }
   }
 
   async function authSubmit() {
