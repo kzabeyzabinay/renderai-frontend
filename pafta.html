@@ -8,7 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Roboto:wght@400;500;700&family=Oswald:wght@400;600&family=Lora:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Roboto:wght@400;500;700&family=Oswald:wght@400;600&family=Lora:wght@400;600;700&family=Poppins:wght@400;600;700&family=Raleway:wght@400;600;700&family=Bebas+Neue&family=Archivo:wght@400;600;700&family=Merriweather:wght@400;700&family=PT+Serif:wght@400;700&family=Nunito:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   :root {
@@ -184,9 +184,11 @@
   <div class="canvasArea">
     <div class="toolbar">
       <button class="tool" onclick="addText()">+ Metin</button>
-      <button class="tool" onclick="addRect()">+ Kutu</button>
-      <button class="tool" onclick="addLine()">+ Çizgi</button>
-      <button class="tool" onclick="toggleTitleBlock()" id="antetBtn">▣ Antet</button>
+      <button class="tool" onclick="addShape('rect')">▭ Kutu</button>
+      <button class="tool" onclick="addShape('circle')">○ Daire</button>
+      <button class="tool" onclick="addShape('triangle')">△ Üçgen</button>
+      <button class="tool" onclick="addShape('line')">／ Çizgi</button>
+      <button class="tool" onclick="openAntet()" id="antetBtn">▣ Antet</button>
       <span class="sep"></span>
       <button class="tool" onclick="duplicateSel()">⧉ Çoğalt</button>
       <button class="tool" onclick="deleteSel()">🗑 Sil</button>
@@ -228,8 +230,8 @@
 <!-- Şablon modalı -->
 <div class="modalBg" id="tplModal">
   <div class="modal">
-    <h3>Pafta Şablonu Seç</h3>
-    <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;">Hepsi çerçeve + estetik antet ile gelir. Antet'i toolbar'daki <b>▣ Antet</b> ile kaldırabilir, metinlerine çift tıklayıp düzenleyebilirsin.</p>
+    <h3>Pafta Boyutu Seç</h3>
+    <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;">Sayfa <b>boş</b> gelir. Antet eklemek için toolbar'daki <b>▣ Antet</b>'i kullan (birkaç stil var).</p>
     <div class="tplGrid" style="grid-template-columns:1fr 1fr 1fr;">
       <div class="tplCard" onclick="applyTemplate('a4','landscape')"><div class="big">A4</div><small>Yatay</small></div>
       <div class="tplCard" onclick="applyTemplate('a3','landscape')"><div class="big">A3</div><small>Yatay</small></div>
@@ -238,7 +240,37 @@
       <div class="tplCard" onclick="applyTemplate('a3','portrait')"><div class="big">A3</div><small>Dikey</small></div>
       <div class="tplCard" onclick="applyTemplate('a1','portrait')"><div class="big">A1</div><small>Dikey</small></div>
     </div>
+    <div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Özel Boyut (mm)</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="csW" type="number" placeholder="En" value="420" min="50" max="841"
+          style="width:90px;background:var(--bg);border:1px solid var(--line);color:var(--panel);border-radius:8px;padding:8px;">
+        <span style="color:var(--muted);">×</span>
+        <input id="csH" type="number" placeholder="Boy" value="297" min="50" max="841"
+          style="width:90px;background:var(--bg);border:1px solid var(--line);color:var(--panel);border-radius:8px;padding:8px;">
+        <button class="tbtn primary" onclick="applyCustomSize()">Uygula</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;">50–841 mm arası (300 dpi). Daha büyüğü tarayıcıyı zorlar.</div>
+    </div>
     <div style="text-align:right;margin-top:14px;"><button class="tbtn" onclick="closeModal('tplModal')">Kapat</button></div>
+  </div>
+</div>
+
+<!-- Antet modalı -->
+<div class="modalBg" id="antetModal">
+  <div class="modal">
+    <h3>Antet Stili Seç</h3>
+    <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;">Metinler çift tıklayıp düzenlenebilir. Kaldırmak için aşağıdaki <b>Anteti Kaldır</b>.</p>
+    <div class="tplGrid" style="grid-template-columns:1fr 1fr;">
+      <div class="tplCard" onclick="applyAntet('strip')"><div class="big" style="font-size:15px;">Alt Şerit</div><small>Logo solda + proje sağda (görsel tam sayfa)</small></div>
+      <div class="tplCard" onclick="applyAntet('classic')"><div class="big" style="font-size:15px;">Klasik Kutu</div><small>Çerçeve + sağ-alt bilgi bloğu</small></div>
+      <div class="tplCard" onclick="applyAntet('minimal')"><div class="big" style="font-size:15px;">Minimal Çizgi</div><small>Alt kural çizgisi + proje adı</small></div>
+      <div class="tplCard" onclick="applyAntet('sideStrip')"><div class="big" style="font-size:15px;">Sağ Şerit</div><small>Dikey koyu bant + proje adı</small></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:14px;">
+      <button class="tbtn" onclick="removeTitleBlock();closeModal('antetModal');">Anteti Kaldır</button>
+      <button class="tbtn" onclick="closeModal('antetModal')">Kapat</button>
+    </div>
   </div>
 </div>
 
@@ -510,19 +542,67 @@ function addText() {
   t.id=crypto.randomUUID(); t.objType='text'; t.name='Metin';
   canvas.add(t).setActiveObject(t); refreshLayers();
 }
-function addRect() {
-  const B = store.get().board;
-  const r = new fabric.Rect({ left:B.widthPx/2, top:B.heightPx/2, originX:'center', originY:'center',
-    width:300, height:200, fill:'rgba(154,101,88,0.12)', stroke:'#9A6558', strokeWidth:2 });
-  r.id=crypto.randomUUID(); r.objType='shape'; r.name='Kutu';
-  canvas.add(r).setActiveObject(r); refreshLayers();
+/* Şekil kütüphanesi — kutu/daire/elips/üçgen/çizgi (dolgulu veya içi boş) */
+function addShape(type) {
+  const B = store.get().board, cx = B.widthPx/2, cy = B.heightPx/2;
+  const base = { left:cx, top:cy, originX:'center', originY:'center',
+                 fill:'rgba(154,101,88,0.12)', stroke:'#1A1A16', strokeWidth:2 };
+  let o, name;
+  if (type === 'rect')      { o = new fabric.Rect({ ...base, width:300, height:200 }); name='Kutu'; }
+  else if (type==='circle') { o = new fabric.Circle({ ...base, radius:120 }); name='Daire'; }
+  else if (type==='ellipse'){ o = new fabric.Ellipse({ ...base, rx:150, ry:100 }); name='Elips'; }
+  else if (type==='triangle'){ o = new fabric.Triangle({ ...base, width:260, height:220 }); name='Üçgen'; }
+  else { o = new fabric.Line([cx-150, cy, cx+150, cy], { stroke:'#1A1A16', strokeWidth:3 }); name='Çizgi'; }
+  o.id=crypto.randomUUID(); o.objType='shape'; o.name=name;
+  canvas.add(o).setActiveObject(o); refreshLayers();
 }
-function addLine() {
-  const B = store.get().board;
-  const l = new fabric.Line([B.widthPx/2-150, B.heightPx/2, B.widthPx/2+150, B.heightPx/2],
-    { stroke:'#1A1A16', strokeWidth:3 });
-  l.id=crypto.randomUUID(); l.objType='shape'; l.name='Çizgi';
-  canvas.add(l).setActiveObject(l); refreshLayers();
+
+/* Arka planı kaldır — seçili görseli backend'e gönder (5 kredi), şeffaf PNG ile değiştir (konum/boyut sabit) */
+async function removeBgSelected() {
+  const o = canvas.getActiveObject();
+  if (!o || o.objType !== 'image') { toast('Önce bir görsel seç'); return; }
+  if (!localStorage.getItem('ra_token')) { toast('Giriş gerekli'); return; }
+  const a = store.get().assets[o.assetId];
+  if (!a) { toast('Görsel kaynağı bulunamadı'); return; }
+  toast('Arka plan kaldırılıyor… (5 kredi)');
+  try {
+    const blob = a._file ? a._file : await (await fetch(a.fullUrl)).blob();
+    const fd = new FormData();
+    fd.append('image', new File([blob], 'img.png', { type: blob.type || 'image/png' }));
+    const res = await fetch(`${API}/image/remove-bg`, { method:'POST', headers:authHeaders(), body:fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Başarısız');
+    const img = await loadImage(data.url);   // şeffaf PNG; transparanlığı bozmamak için thumb üretmeden kullan
+    const id = 'bg_' + crypto.randomUUID();
+    addAsset({ id, source:'upload', name:(a.name||'Görsel') + ' (şeffaf)', thumbUrl:data.url, fullUrl:data.url,
+      naturalWidth:img.naturalWidth, naturalHeight:img.naturalHeight });
+    const dispW = o.getScaledWidth(), dispH = o.getScaledHeight();
+    o.setSrc(data.url, () => {
+      o.set({ assetId:id, scaleX:dispW/o.width, scaleY:dispH/o.height });
+      o.setCoords(); canvas.requestRenderAll(); renderProps(); toast('Arka plan kaldırıldı ✓');
+    }, { crossOrigin:'anonymous' });
+  } catch (e) { toast('Hata: ' + e.message); }
+}
+
+/* Görseli değiştir — yeni dosya seç, konum/yön/boyut AYNI kalsın (sadece içerik değişir) */
+function replaceSelectedImage() {
+  const o = canvas.getActiveObject();
+  if (!o || o.objType !== 'image') { toast('Önce bir görsel seç'); return; }
+  const inp = document.createElement('input'); inp.type='file'; inp.accept='image/*';
+  inp.onchange = async e => {
+    const file = e.target.files[0]; if (!file) return;
+    toast('Görsel değiştiriliyor…');
+    const { thumbUrl, nW, nH } = await makeThumb(file, 1280);
+    const id = 'up_' + crypto.randomUUID();
+    addAsset({ id, source:'upload', name:file.name.slice(0,18), thumbUrl,
+      fullUrl: URL.createObjectURL(file), naturalWidth:nW, naturalHeight:nH, _file:file });
+    const dispW = o.getScaledWidth(), dispH = o.getScaledHeight();   // görünen boyutu koru
+    o.setSrc(thumbUrl, () => {
+      o.set({ assetId:id, scaleX:dispW/o.width, scaleY:dispH/o.height });   // konum/açı aynı, boyut sabit
+      o.setCoords(); canvas.requestRenderAll(); renderProps(); toast('Görsel değiştirildi ✓');
+    }, { crossOrigin:'anonymous' });
+  };
+  inp.click();
 }
 function duplicateSel() {
   const o = canvas.getActiveObject(); if (!o) return;
@@ -575,7 +655,9 @@ function refreshLayers() {
 }
 
 /* ═══ ÖZELLİK PANELİ ═══ */
-const FONTS = ['Inter','Montserrat','Playfair Display','Roboto','Oswald','Lora','Segoe UI','Georgia','Times New Roman','Arial','Courier New'];
+const FONTS = ['Inter','Montserrat','Poppins','Raleway','Oswald','Bebas Neue','Archivo','Nunito',
+  'Playfair Display','Cormorant Garamond','Lora','Merriweather','PT Serif','Roboto',
+  'Segoe UI','Georgia','Times New Roman','Arial','Courier New'];
 function renderProps() {
   const box = document.getElementById('propBox'), o = canvas.getActiveObject();
   if (!o) { box.innerHTML = '<div class="empty">Bir nesne seç</div>'; return; }
@@ -599,8 +681,21 @@ function renderProps() {
         <button class="tbtn2 ${o.textAlign==='center'?'on':''}" id="pAlC" title="Ortala">≡</button>
         <button class="tbtn2 ${o.textAlign==='right'?'on':''}" id="pAlR" title="Sağa">⇥</button>
       </div>`:''}
-    ${o.objType==='shape' ? `<div class="prop"><span>Dolgu</span><input type="color" value="${rgbToHex(o.fill)}" id="pFill"></div>
-      <div class="prop"><span>Çizgi</span><input type="color" value="${rgbToHex(o.stroke)}" id="pStroke"></div>`:''}`;
+    ${o.objType==='image' ? `
+      <button class="tbtn2" id="pReplace" style="width:100%;margin:8px 0 6px;">🔄 Görseli Değiştir</button>
+      <button class="tbtn2" id="pRemoveBg" style="width:100%;margin:0 0 8px;">🧹 Arka Planı Kaldır (5 kredi)</button>` : ''}
+    ${o.objType==='shape' ? `
+      ${o.type!=='line' ? `
+      <div class="prop"><span>Dolgu</span><input type="color" value="${rgbToHex(o.fill)}" id="pFill" ${(!o.fill||o.fill==='transparent')?'disabled':''}></div>
+      <label class="prop" style="cursor:pointer"><span>Dolgu yok</span><input type="checkbox" id="pNoFill" ${(!o.fill||o.fill==='transparent')?'checked':''}></label>`:''}
+      <div class="prop"><span>Çizgi rengi</span><input type="color" value="${rgbToHex(o.stroke)}" id="pStroke"></div>
+      <div class="prop"><span>Kalınlık</span><input type="range" min="0" max="24" value="${o.strokeWidth||0}" id="pSW"></div>
+      <div class="tgrid">
+        ${(()=>{ const da=o.strokeDashArray, d=(da&&da.length)?(da[0]<=2?'dotted':'dashed'):'solid';
+          return `<button class="tbtn2 ${d==='solid'?'on':''}" id="pDsolid">Düz</button>
+                  <button class="tbtn2 ${d==='dashed'?'on':''}" id="pDdash">Kesik</button>
+                  <button class="tbtn2 ${d==='dotted'?'on':''}" id="pDdot">Nokta</button>`; })()}
+      </div>`:''}`;
   const bind = (id, fn) => { const el = document.getElementById(id); if (el) el.oninput = e => { fn(e.target.value); canvas.requestRenderAll(); }; };
   const tog  = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = () => { fn(); canvas.requestRenderAll(); renderProps(); }; };
   bind('pOpacity', v => o.set('opacity', +v));
@@ -608,6 +703,18 @@ function renderProps() {
   bind('pColor', v => o.set('fill', v));
   bind('pFill', v => o.set('fill', v));
   bind('pStroke', v => o.set('stroke', v));
+  bind('pSW', v => o.set('strokeWidth', +v));
+  const rep = document.getElementById('pReplace'); if (rep) rep.onclick = replaceSelectedImage;
+  const rbg = document.getElementById('pRemoveBg'); if (rbg) rbg.onclick = removeBgSelected;
+  const nf = document.getElementById('pNoFill'); if (nf) nf.onchange = e => {
+    if (e.target.checked) { o._lastFill = o.fill || 'rgba(154,101,88,0.12)'; o.set('fill', ''); }
+    else { o.set('fill', o._lastFill || '#9A6558'); }
+    canvas.requestRenderAll(); renderProps();
+  };
+  const sw = () => o.strokeWidth || 2;
+  tog('pDsolid', () => o.set('strokeDashArray', null));
+  tog('pDdash',  () => o.set('strokeDashArray', [Math.max(8, sw()*4), Math.max(6, sw()*3)]));
+  tog('pDdot',   () => o.set({ strokeDashArray:[1, Math.max(6, sw()*2)], strokeLineCap:'round' }));
   const fam = document.getElementById('pFamily'); if (fam) fam.onchange = e => { o.set('fontFamily', e.target.value); canvas.requestRenderAll(); };
   tog('pBold',   () => o.set('fontWeight', isBold ? 'normal' : 'bold'));
   tog('pItalic', () => o.set('fontStyle', o.fontStyle==='italic' ? 'normal' : 'italic'));
@@ -634,17 +741,24 @@ function openTemplates(){ document.getElementById('tplModal').classList.add('ope
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 // Temel ölçüler yatay (w>h) tanımlı; dikeyde w/h yer değişir.
 const PAGE = { a4:{w:297,h:210}, a3:{w:420,h:297}, a1:{w:841,h:594} };
-function applyTemplate(sizeKey, orient) {
-  const base = PAGE[sizeKey] || PAGE.a3;
-  const land = orient !== 'portrait';
-  const w_mm = land ? base.w : base.h;
-  const h_mm = land ? base.h : base.w;
+function setBoardSize(w_mm, h_mm) {
   const px = m => Math.round(m/25.4*96);   // logical px (ekran); export'ta dpi ile çarpılır
   store.set(s => ({ board: { ...s.board, w_mm, h_mm, widthPx:px(w_mm), heightPx:px(h_mm) } }));
   applyBoardSize();
-  removeTitleBlock();   // boyut değişti → eski anteti temizle, yenisini doğru ölçüde kur
-  addTitleBlock();      // tüm şablonlarda antet var (kullanıcı toolbar'dan kaldırabilir)
-  closeModal('tplModal');
+}
+function applyTemplate(sizeKey, orient) {
+  const base = PAGE[sizeKey] || PAGE.a3;
+  const land = orient !== 'portrait';
+  setBoardSize(land ? base.w : base.h, land ? base.h : base.w);
+  closeModal('tplModal');                  // BOŞ sayfa gelir — antet ayrı menüden eklenir
+}
+const MAX_MM = 841;   // ~A0 kısa kenar; daha büyüğü 300dpi'de tarayıcı/bellek limitini zorlar
+function applyCustomSize() {
+  let w = parseInt(document.getElementById('csW').value, 10);
+  let h = parseInt(document.getElementById('csH').value, 10);
+  if (!w || !h) { toast('Geçerli en/boy gir (mm)'); return; }
+  w = Math.max(50, Math.min(MAX_MM, w)); h = Math.max(50, Math.min(MAX_MM, h));
+  setBoardSize(w, h); toast('Boyut: ' + w + '×' + h + ' mm'); closeModal('tplModal');
 }
 
 /* ═══ ANTET — estetik, düzenlenebilir (metinler), kaldırılabilir (antet:true) ═══ */
@@ -653,41 +767,59 @@ function removeTitleBlock(){
   canvas.getObjects().filter(o => o.antet).forEach(o => canvas.remove(o));
   canvas.discardActiveObject(); canvas.requestRenderAll(); refreshLayers();
 }
-function toggleTitleBlock(){ hasTitleBlock() ? removeTitleBlock() : addTitleBlock(); }
-function addTitleBlock() {
+function openAntet(){ document.getElementById('antetModal').classList.add('open'); }
+function applyAntet(style){ removeTitleBlock(); addTitleBlock(style); closeModal('antetModal'); toast('Antet eklendi: ' + style); }
+
+/* Antet stilleri — metinler düzenlenebilir, hepsi antet:true (▣ Antet > Kaldır ile gider) */
+function addTitleBlock(style = 'classic') {
   const B = store.get().board;
   const M = Math.max(18, Math.round(Math.min(B.widthPx, B.heightPx) * 0.025));
   const tag = (o, name, kind) => { o.antet = true; o.objType = kind || 'shape'; o.name = name; o.id = crypto.randomUUID(); return o; };
-  const dec = { selectable:false, evented:false };   // dekoratif parçalar: seçilemez ama antet:true ile birlikte silinir
-
-  // sayfa çerçevesi
-  canvas.add(tag(new fabric.Rect({ left:M, top:M, width:B.widthPx-2*M, height:B.heightPx-2*M,
-    fill:'', stroke:'#1A1A16', strokeWidth:1.5, ...dec }), 'Çerçeve'));
-
-  // antet bloğu (sağ alt)
-  const w = Math.min(440, Math.round(B.widthPx*0.34)), h = 150;
-  const x = B.widthPx - M - w - 6, y = B.heightPx - M - h - 6;
-  canvas.add(tag(new fabric.Rect({ left:x, top:y, width:w, height:h, fill:'#FFFFFF', stroke:'#1A1A16', strokeWidth:1.5, ...dec }), 'Antet zemini'));
-  canvas.add(tag(new fabric.Rect({ left:x, top:y, width:w, height:34, fill:'#9A6558', ...dec }), 'Antet şerit'));
-  // ayraçlar
-  canvas.add(tag(new fabric.Line([x, y+78, x+w, y+78], { stroke:'#1A1A16', strokeWidth:0.8, ...dec }), 'Ayraç'));
-  canvas.add(tag(new fabric.Line([x, y+114, x+w, y+114], { stroke:'#1A1A16', strokeWidth:0.8, ...dec }), 'Ayraç'));
-  canvas.add(tag(new fabric.Line([x+w/2, y+78, x+w/2, y+h], { stroke:'#1A1A16', strokeWidth:0.8, ...dec }), 'Ayraç'));
-
-  // düzenlenebilir metinler
-  const mk = (txt, ox, oy, opts={}) => {
-    const t = new fabric.Textbox(txt, { left:x+ox, top:y+oy, fill:'#1A1A16', fontFamily:'Inter', fontSize:12, ...opts });
-    canvas.add(tag(t, 'Antet metin', 'text')); return t;
-  };
+  const dec = { selectable:false, evented:false };
+  const title = (document.getElementById('boardTitle').value || 'Proje Adı');
   const today = new Date().toLocaleDateString('tr-TR');
-  mk((document.getElementById('boardTitle').value || 'PROJE ADI').toUpperCase(), 14, 8,
-     { width:w-28, fontSize:16, fontWeight:'700', fill:'#FFFFFF', fontFamily:'Montserrat' });
-  mk('Pafta açıklaması / görünüş adı', 14, 46, { width:w-28, fontSize:13, fill:'#666' });
-  mk('ÖLÇEK   1 / 100', 12, 88, { width:w/2-18, fontSize:12 });
-  mk('TARİH   ' + today,  w/2+12, 88, { width:w/2-22, fontSize:12 });
-  mk('PAFTA NO   01', 12, 122, { width:w/2-18, fontSize:12 });
-  mk('ÇİZEN   —',     w/2+12, 122, { width:w/2-22, fontSize:12 });
 
+  if (style === 'strip') {
+    // ── Alt Şerit (referans: logo solda + proje adı sağda, görsel tüm sayfayı kaplar) ──
+    const bh = Math.max(54, Math.round(B.heightPx * 0.075));
+    const x = M, y = B.heightPx - M - bh, w = B.widthPx - 2*M;
+    canvas.add(tag(new fabric.Rect({ left:x, top:y, width:w, height:bh, fill:'#FFFFFF', stroke:'#1A1A16', strokeWidth:1.5, ...dec }), 'Antet zemini'));
+    canvas.add(tag(new fabric.Textbox('LOGO', { left:x+20, top:y+bh/2-Math.round(bh*0.24), width:200, fontSize:Math.round(bh*0.46), fontWeight:'700', fill:'#1A1A16', fontFamily:'Bebas Neue' }), 'Antet logo', 'text'));
+    canvas.add(tag(new fabric.Textbox(title, { left:x+w-380, top:y+bh/2-Math.round(bh*0.22), width:360, fontSize:Math.round(bh*0.42), fontStyle:'italic', textAlign:'right', fill:'#1A1A16', fontFamily:'Playfair Display' }), 'Antet başlık', 'text'));
+
+  } else if (style === 'minimal') {
+    // ── Minimal Çizgi: alt kural çizgisi + sol bilgi + sağ proje adı ──
+    const y = B.heightPx - M - 44;
+    canvas.add(tag(new fabric.Line([M, y, B.widthPx-M, y], { stroke:'#1A1A16', strokeWidth:1.2, ...dec }), 'Ayraç'));
+    canvas.add(tag(new fabric.Textbox('ÖLÇEK 1/100    ' + today, { left:M+2, top:y+12, width:340, fontSize:14, fill:'#555', fontFamily:'Inter' }), 'Antet metin', 'text'));
+    canvas.add(tag(new fabric.Textbox(title, { left:B.widthPx-M-380, top:y+8, width:376, fontSize:22, textAlign:'right', fontStyle:'italic', fill:'#1A1A16', fontFamily:'Playfair Display' }), 'Antet başlık', 'text'));
+
+  } else if (style === 'sideStrip') {
+    // ── Sağ Şerit (dikey): koyu bant + dikey proje adı ──
+    const bw = Math.max(60, Math.round(B.widthPx * 0.06));
+    const x = B.widthPx - M - bw, y = M, h = B.heightPx - 2*M;
+    canvas.add(tag(new fabric.Rect({ left:x, top:y, width:bw, height:h, fill:'#1A1A16', ...dec }), 'Antet şerit'));
+    const t = new fabric.Textbox(title.toUpperCase(), { left:x+bw/2, top:y+h/2, width:h-60, fontSize:Math.round(bw*0.32), fill:'#FFFFFF', textAlign:'center', originX:'center', originY:'center', angle:-90, fontFamily:'Oswald' });
+    canvas.add(tag(t, 'Antet başlık', 'text'));
+
+  } else {
+    // ── Klasik Kutu (sağ alt) ──
+    canvas.add(tag(new fabric.Rect({ left:M, top:M, width:B.widthPx-2*M, height:B.heightPx-2*M, fill:'', stroke:'#1A1A16', strokeWidth:1.5, ...dec }), 'Çerçeve'));
+    const w = Math.min(440, Math.round(B.widthPx*0.34)), h = 150;
+    const x = B.widthPx - M - w - 6, y = B.heightPx - M - h - 6;
+    canvas.add(tag(new fabric.Rect({ left:x, top:y, width:w, height:h, fill:'#FFFFFF', stroke:'#1A1A16', strokeWidth:1.5, ...dec }), 'Antet zemini'));
+    canvas.add(tag(new fabric.Rect({ left:x, top:y, width:w, height:34, fill:'#9A6558', ...dec }), 'Antet şerit'));
+    canvas.add(tag(new fabric.Line([x, y+78, x+w, y+78], { stroke:'#1A1A16', strokeWidth:0.8, ...dec }), 'Ayraç'));
+    canvas.add(tag(new fabric.Line([x, y+114, x+w, y+114], { stroke:'#1A1A16', strokeWidth:0.8, ...dec }), 'Ayraç'));
+    canvas.add(tag(new fabric.Line([x+w/2, y+78, x+w/2, y+h], { stroke:'#1A1A16', strokeWidth:0.8, ...dec }), 'Ayraç'));
+    const mk = (txt, ox, oy, opts={}) => { const t = new fabric.Textbox(txt, { left:x+ox, top:y+oy, fill:'#1A1A16', fontFamily:'Inter', fontSize:12, ...opts }); canvas.add(tag(t, 'Antet metin', 'text')); return t; };
+    mk(title.toUpperCase(), 14, 8, { width:w-28, fontSize:16, fontWeight:'700', fill:'#FFFFFF', fontFamily:'Montserrat' });
+    mk('Pafta açıklaması / görünüş adı', 14, 46, { width:w-28, fontSize:13, fill:'#666' });
+    mk('ÖLÇEK   1 / 100', 12, 88, { width:w/2-18, fontSize:12 });
+    mk('TARİH   ' + today, w/2+12, 88, { width:w/2-22, fontSize:12 });
+    mk('PAFTA NO   01', 12, 122, { width:w/2-18, fontSize:12 });
+    mk('ÇİZEN   —', w/2+12, 122, { width:w/2-22, fontSize:12 });
+  }
   canvas.requestRenderAll(); refreshLayers();
 }
 
@@ -842,6 +974,14 @@ function loadPageInto(i) {
 }
 function gotoPage(i) { if (i === activeIdx) return; snapshotActive(); loadPageInto(i); }
 function addPage() { snapshotActive(); pages.push(blankPage()); loadPageInto(pages.length - 1); toast('Yeni sayfa eklendi'); }
+function duplicatePage() {
+  snapshotActive();
+  const src = pages[activeIdx];
+  const copy = { id:crypto.randomUUID(), board:{ ...src.board }, json: JSON.parse(JSON.stringify(src.json)) };
+  pages.splice(activeIdx + 1, 0, copy);
+  loadPageInto(activeIdx + 1);
+  toast('Sayfa çoğaltıldı');
+}
 function deletePage(i) {
   if (pages.length <= 1) { toast('En az bir sayfa olmalı'); return; }
   pages.splice(i, 1);
@@ -860,6 +1000,9 @@ function renderPageBar() {
   const add = document.createElement('button');
   add.className = 'pagechip add'; add.textContent = '+ Sayfa'; add.onclick = addPage;
   bar.appendChild(add);
+  const dup = document.createElement('button');
+  dup.className = 'pagechip add'; dup.textContent = '⧉ Çoğalt'; dup.onclick = duplicatePage;
+  bar.appendChild(dup);
   if (pages.length > 1) {
     const del = document.createElement('button');
     del.className = 'pagechip del'; del.textContent = '🗑 Bu sayfayı sil';
