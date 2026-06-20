@@ -1989,6 +1989,18 @@
     </div>
 
   </div>
+
+  <div class="panel" style="margin-top:8px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+      <h2 style="margin:0;">Önceki Turlarım</h2>
+      <div style="display:flex; gap:8px;">
+        <button onclick="panoHistMove(1)" title="Daha eski" style="width:34px;height:34px;border:1px solid #D8D2C8;border-radius:9px;background:#FAFAF8;color:#2A2520;font-size:16px;cursor:pointer;">‹</button>
+        <button onclick="panoHistMove(-1)" title="Daha yeni" style="width:34px;height:34px;border:1px solid #D8D2C8;border-radius:9px;background:#FAFAF8;color:#2A2520;font-size:16px;cursor:pointer;">›</button>
+      </div>
+    </div>
+    <div id="panoHistGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px;"></div>
+    <div id="panoHistEmpty" style="font-size:13px; color:#ABA49C; padding:10px 0;">Giriş yapınca önceki 360 turların burada görünür.</div>
+  </div>
 </div>
 
 <!-- ─── İŞLERİM ──────────────────────────────────────────────────────────── -->
@@ -2612,6 +2624,7 @@
     );
     if (section === 'works') loadWorks(true);
     if (section === 'decision') loadDecisionLibrary();
+    if (section === 'pano') loadPanoHistory();
   }
 
   // ─── YERLEŞTİR ───────────────────────────────────────────────────────────
@@ -3806,6 +3819,53 @@
     navigator.clipboard.writeText(input.value).catch(() => document.execCommand('copy'));
   }
 
+  // ─── Önceki Turlarım (pano carousel: 3'erli, ‹ eski / › yeni) ───
+  let panoHistTours = [];
+  let panoHistPage = 0;
+  async function loadPanoHistory() {
+    const grid = document.getElementById('panoHistGrid'), empty = document.getElementById('panoHistEmpty');
+    if (!grid) return;
+    if (!localStorage.getItem('ra_token')) { grid.innerHTML = ''; empty.style.display = 'block'; empty.textContent = 'Giriş yapınca önceki 360 turların burada görünür.'; return; }
+    try {
+      const res = await fetch(`${API}/my/library`, { headers: authHeaders() });
+      const data = await res.json();
+      panoHistTours = data.tours || []; panoHistPage = 0; renderPanoHist();
+    } catch (e) { empty.style.display = 'block'; empty.textContent = 'Yüklenemedi'; }
+  }
+  function panoHistMove(dir) {
+    const maxPage = Math.max(0, Math.ceil(panoHistTours.length / 3) - 1);
+    panoHistPage = Math.min(maxPage, Math.max(0, panoHistPage + dir));
+    renderPanoHist();
+  }
+  function renderPanoHist() {
+    const grid = document.getElementById('panoHistGrid'), empty = document.getElementById('panoHistEmpty');
+    if (!panoHistTours.length) { grid.innerHTML = ''; empty.style.display = 'block'; empty.textContent = 'Henüz 360 turun yok.'; return; }
+    empty.style.display = 'none';
+    const items = panoHistTours.slice(panoHistPage * 3, panoHistPage * 3 + 3);
+    grid.innerHTML = '';
+    items.forEach(t => {
+      const card = document.createElement('div');
+      card.style.cssText = 'position:relative; background:#FAFAF8; border:1px solid #E0DAD0; border-radius:12px; overflow:hidden; cursor:pointer;';
+      const date = t.created_at ? new Date(t.created_at).toLocaleDateString('tr-TR') : '';
+      const pasif = t.active === false ? ' · pasif' : '';
+      card.innerHTML = `<div style="aspect-ratio:2/1; background:#000; overflow:hidden;"><img src="${t.thumb||''}" loading="lazy" onerror="this.style.visibility='hidden'" style="width:100%;height:100%;object-fit:cover;"></div><div style="padding:9px 11px;"><div style="font-size:13px;font-weight:600;color:#2A2520;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.title||'360 Tur'}</div><div style="font-size:11px;color:#8A7E74;">${date}${pasif}</div></div>`;
+      card.onclick = () => window.open('/tur.html?id=' + t.id, '_blank');
+      const del = document.createElement('button'); del.textContent = '🗑'; del.title = 'Sil';
+      del.style.cssText = 'position:absolute;top:6px;right:6px;z-index:2;border:none;border-radius:8px;background:rgba(26,26,22,0.72);color:#fff;cursor:pointer;font-size:13px;padding:4px 7px;';
+      del.onclick = (e) => { e.stopPropagation(); deleteTourHist(t.id); };
+      card.appendChild(del);
+      grid.appendChild(card);
+    });
+  }
+  async function deleteTourHist(id) {
+    if (!confirm('Bu 360 tur kalıcı olarak silinsin mi?')) return;
+    try {
+      const r = await fetch(`${API}/tours/${id}`, { method: 'DELETE', headers: authHeaders() });
+      const d = await r.json(); if (!r.ok) throw new Error(d.detail || 'Silinemedi');
+      panoHistTours = panoHistTours.filter(x => x.id !== id); panoHistMove(0);
+    } catch (e) { alert('Hata: ' + e.message); }
+  }
+
   // ─── İŞLERİM ─────────────────────────────────────────────────────────────
   let worksOffset = 0;
   const WORKS_PAGE = 30;
@@ -3857,6 +3917,12 @@
             <span style="font-size:11px; color:#ABA49C; white-space:nowrap; margin-left:8px;">${date}</span>
           </div>`;
         card.onclick = () => openWorksLightbox(r.result_url, isVideo);
+        card.style.position = 'relative';
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '🗑'; delBtn.title = 'Sil';
+        delBtn.style.cssText = 'position:absolute; top:6px; right:6px; z-index:2; border:none; border-radius:8px; background:rgba(26,26,22,0.72); color:#fff; cursor:pointer; font-size:13px; padding:4px 7px;';
+        delBtn.onclick = (e) => { e.stopPropagation(); deleteRender(r.id, card); };
+        card.appendChild(delBtn);
         grid.appendChild(card);
       });
 
@@ -3867,6 +3933,16 @@
       loading.style.display = 'none';
       if (worksOffset === 0) empty.style.display = 'block';
     }
+  }
+
+  async function deleteRender(id, cardEl) {
+    if (!confirm('Bu görsel İşlerim\'den kalıcı olarak silinsin mi?')) return;
+    try {
+      const r = await fetch(`${API}/renders/${id}`, { method: 'DELETE', headers: authHeaders() });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || 'Silinemedi');
+      cardEl.remove();
+    } catch (e) { alert('Hata: ' + e.message); }
   }
 
   function openWorksLightbox(url, isVideo) {

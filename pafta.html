@@ -137,6 +137,9 @@
   .libItem .li-meta { display:flex; flex-direction:column; gap:2px; overflow:hidden; }
   .libItem .li-meta b { font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .libItem .li-meta span { font-size:11px; color:var(--muted); }
+  .libItem .li-meta { flex:1; }
+  .li-del { border:none; background:transparent; color:#d2998a; cursor:pointer; font-size:15px; padding:4px 8px; border-radius:6px; flex:0 0 auto; }
+  .li-del:hover { background:rgba(210,153,138,.15); }
 </style>
 </head>
 <body>
@@ -151,7 +154,7 @@
   <button class="tbtn" onclick="openTemplates()">⊞ Şablon</button>
   <button class="tbtn" onclick="exportPNG()">⬇ PNG</button>
   <button class="tbtn" onclick="exportPDF()">⬇ PDF</button>
-  <button class="tbtn primary" onclick="savePresentation()">↗ Kaydet & Paylaş</button>
+  <button class="tbtn primary" onclick="savePresentation()" title="Yeni sunum 75 kredi · mevcut sunumu güncellemek ücretsiz">↗ Kaydet & Paylaş · 75 kredi</button>
 </div>
 
 <div class="stage">
@@ -979,11 +982,22 @@ async function loadLibrary() {
     items.forEach(p => {
       const el = document.createElement('div'); el.className = 'libItem';
       const date = p.created_at ? new Date(p.created_at).toLocaleDateString('tr-TR') : '';
-      el.innerHTML = `<img src="${p.thumb||''}" onerror="this.style.visibility='hidden'"><div class="li-meta"><b>${p.title||'Sunum'}</b><span>${date}</span></div>`;
+      const pasif = p.active === false ? ' <span style="color:#c98;">· pasif</span>' : '';
+      el.innerHTML = `<img src="${p.thumb||''}" onerror="this.style.visibility='hidden'"><div class="li-meta"><b>${p.title||'Sunum'}</b><span>${date}${pasif}</span></div><button class="li-del" title="Sil">🗑</button>`;
+      el.querySelector('.li-del').onclick = (e) => { e.stopPropagation(); deletePresentation(p.id); };
       el.onclick = () => loadPresentation(p.id, p.title);
       wrap.appendChild(el);
     });
   } catch (e) { wrap.innerHTML = '<div class="empty">Yüklenemedi</div>'; }
+}
+async function deletePresentation(id) {
+  if (!confirm('Bu sunum kalıcı olarak silinsin mi?')) return;
+  try {
+    const r = await fetch(`${API}/tours/${id}`, { method:'DELETE', headers: authHeaders() });
+    const d = await r.json(); if (!r.ok) throw new Error(d.detail || 'Silinemedi');
+    if (currentPresentationId === id) { currentPresentationId = null; updateEditingBadge(); }
+    toast('Sunum silindi'); loadLibrary();
+  } catch (e) { toast('Hata: ' + e.message); }
 }
 async function loadPresentation(id, title) {
   toast('Sunum yükleniyor…');
