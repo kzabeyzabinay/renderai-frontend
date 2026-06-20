@@ -6,6 +6,9 @@
 <title>Pafta Stüdyosu — BynAi</title>
 <script src="https://cdn.jsdelivr.net/npm/fabric@5.3.0/dist/fabric.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Roboto:wght@400;500;700&family=Oswald:wght@400;600&family=Lora:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   :root {
@@ -106,6 +109,26 @@
   .linkRow { display:flex; gap:8px; margin-top:14px; }
   .linkRow input { flex:1; background:var(--bg); border:1px solid var(--line); border-radius:8px;
                    color:var(--panel); padding:9px 11px; font-size:12px; }
+  /* Tipografi kontrolleri */
+  .tgrid { display:flex; gap:5px; margin:6px 2px; }
+  .tbtn2 { flex:1; min-width:30px; padding:7px 4px; border:1px solid var(--line); border-radius:6px;
+           background:transparent; color:var(--panel); font-size:14px; cursor:pointer; line-height:1; }
+  .tbtn2:hover { border-color:var(--accent); }
+  .tbtn2.on { border-color:var(--terra); background:rgba(154,101,88,.20); color:#fff; }
+  .prop select { background:var(--bg); border:1px solid var(--line); color:var(--panel);
+                 border-radius:6px; padding:5px 6px; font-size:12px; flex:1; max-width:150px; }
+  .acard svg { width:100%; height:100%; display:block; padding:8px; }
+  .acard.sym { background:#FAFAF8; }
+  /* Sayfa çubuğu */
+  .pagebar { display:flex; gap:6px; align-items:center; padding:8px 12px; border-top:1px solid var(--line);
+             background:var(--panel2); flex:0 0 auto; overflow-x:auto; }
+  .pagebar::-webkit-scrollbar { height:6px; } .pagebar::-webkit-scrollbar-thumb { background:var(--line); border-radius:3px; }
+  .pagechip { padding:6px 13px; border:1px solid var(--line); border-radius:7px; background:transparent;
+              color:var(--panel); font-size:12px; cursor:pointer; white-space:nowrap; }
+  .pagechip:hover { border-color:var(--accent); }
+  .pagechip.on { border-color:var(--terra); background:rgba(154,101,88,.20); font-weight:600; }
+  .pagechip.add { color:var(--accent); border-style:dashed; }
+  .pagechip.del { margin-left:auto; color:#d2998a; }
 </style>
 </head>
 <body>
@@ -125,8 +148,9 @@
   <!-- ════ SOL: ASSET ÇEKMECESİ ════ -->
   <div class="side">
     <div class="tabs">
-      <div class="tab active" id="tabBynai" onclick="switchTab('bynai')">BynAi Renderlarım</div>
-      <div class="tab" id="tabUpload" onclick="switchTab('upload')">Cihazımdan Yükle</div>
+      <div class="tab active" id="tabBynai" onclick="switchTab('bynai')">Renderlarım</div>
+      <div class="tab" id="tabUpload" onclick="switchTab('upload')">Yükle</div>
+      <div class="tab" id="tabSymbols" onclick="switchTab('symbols')">Semboller</div>
     </div>
     <div class="pane">
       <!-- BynAi renderları -->
@@ -146,7 +170,12 @@
         </div>
         <input type="file" id="fileInput" accept="image/*" multiple style="display:none;" />
         <div class="agrid" id="uploadGrid"></div>
-        <div class="hint">Yüklenen orijinal dosya tam çözünürlükte saklanır; canvas'ta hafif önizleme gösterilir, çıktıda orijinal kullanılır.</div>
+        <div class="hint">Yüklenen orijinal dosya tam çözünürlükte saklanır; canvas'ta hafif önizleme gösterilir, çıktıda orijinal kullanılır. Kendi PNG'lerini (ağaç/araç/insan kesme görselleri vb.) de buradan ekleyebilirsin.</div>
+      </div>
+      <!-- Hazır semboller -->
+      <div id="paneSymbols" style="display:none;">
+        <div class="hint">Hazır mimari semboller — tıkla veya sürükle. Vektörel: her ölçekte net, çıktıda keskin.</div>
+        <div class="agrid" id="symbolGrid"></div>
       </div>
     </div>
   </div>
@@ -157,6 +186,7 @@
       <button class="tool" onclick="addText()">+ Metin</button>
       <button class="tool" onclick="addRect()">+ Kutu</button>
       <button class="tool" onclick="addLine()">+ Çizgi</button>
+      <button class="tool" onclick="toggleTitleBlock()" id="antetBtn">▣ Antet</button>
       <span class="sep"></span>
       <button class="tool" onclick="duplicateSel()">⧉ Çoğalt</button>
       <button class="tool" onclick="deleteSel()">🗑 Sil</button>
@@ -170,6 +200,7 @@
     <div class="canvasWrap" id="canvasWrap">
       <canvas id="c"></canvas>
     </div>
+    <div class="pagebar" id="pageBar"></div>
   </div>
 
   <!-- ════ SAĞ: KATMAN + HİZALAMA + ÖZELLİK ════ -->
@@ -198,12 +229,16 @@
 <div class="modalBg" id="tplModal">
   <div class="modal">
     <h3>Pafta Şablonu Seç</h3>
-    <div class="tplGrid">
-      <div class="tplCard" onclick="applyTemplate('a3-blank')"><div class="big">A3</div><small>Yatay · boş</small></div>
-      <div class="tplCard" onclick="applyTemplate('a1-blank')"><div class="big">A1</div><small>Yatay · boş</small></div>
-      <div class="tplCard" onclick="applyTemplate('a3-title')"><div class="big">A3 + Antet</div><small>Çerçeve + başlık bloğu</small></div>
-      <div class="tplCard" onclick="applyTemplate('a1-title')"><div class="big">A1 + Antet</div><small>Çerçeve + başlık bloğu</small></div>
+    <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;">Hepsi çerçeve + estetik antet ile gelir. Antet'i toolbar'daki <b>▣ Antet</b> ile kaldırabilir, metinlerine çift tıklayıp düzenleyebilirsin.</p>
+    <div class="tplGrid" style="grid-template-columns:1fr 1fr 1fr;">
+      <div class="tplCard" onclick="applyTemplate('a4','landscape')"><div class="big">A4</div><small>Yatay</small></div>
+      <div class="tplCard" onclick="applyTemplate('a3','landscape')"><div class="big">A3</div><small>Yatay</small></div>
+      <div class="tplCard" onclick="applyTemplate('a1','landscape')"><div class="big">A1</div><small>Yatay</small></div>
+      <div class="tplCard" onclick="applyTemplate('a4','portrait')"><div class="big">A4</div><small>Dikey</small></div>
+      <div class="tplCard" onclick="applyTemplate('a3','portrait')"><div class="big">A3</div><small>Dikey</small></div>
+      <div class="tplCard" onclick="applyTemplate('a1','portrait')"><div class="big">A1</div><small>Dikey</small></div>
     </div>
+    <div style="text-align:right;margin-top:14px;"><button class="tbtn" onclick="closeModal('tplModal')">Kapat</button></div>
   </div>
 </div>
 
@@ -218,6 +253,16 @@
     </div>
     <div style="text-align:right;margin-top:14px;"><button class="tbtn" onclick="closeModal('linkModal')">Kapat</button></div>
   </div>
+</div>
+
+<!-- Üyelik duvarı (giriş yoksa) -->
+<div id="authGate" style="display:none; position:fixed; inset:0; z-index:500; background:var(--bg);
+     align-items:center; justify-content:center; flex-direction:column; gap:16px; text-align:center; padding:24px;">
+  <div style="font-size:42px;">🔒</div>
+  <h2 style="font-size:20px; font-weight:700;">Pafta Stüdyosu üyelere özel</h2>
+  <p style="color:var(--muted); max-width:400px; line-height:1.6; font-size:14px;">
+    Bu modülü kullanmak için BynAi hesabınla giriş yapmalısın.</p>
+  <a href="/" class="tbtn primary" style="text-decoration:none;">Giriş yap / Kayıt ol</a>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -377,11 +422,85 @@ const wrap = document.getElementById('canvasWrap');
 wrap.addEventListener('dragover', e => e.preventDefault());
 wrap.addEventListener('drop', e => {
   e.preventDefault();
-  const asset = store.get().assets[e.dataTransfer.getData('assetId')];
-  if (!asset) return;
   const p = canvas.getPointer(e);   // zoom'u hesaba katar → logical koordinat
-  addImageToCanvas(asset, p.x, p.y);
+  const symKey = e.dataTransfer.getData('symbolKey');
+  if (symKey) { addSymbol(symKey, p.x, p.y); return; }
+  const asset = store.get().assets[e.dataTransfer.getData('assetId')];
+  if (asset) addImageToCanvas(asset, p.x, p.y);
 });
+
+/* ═══ HAZIR SEMBOLLER (vektörel — her ölçekte net) ═══ */
+const SYMBOLS = [
+  { key:'north', name:'Kuzey Oku', svg:
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 112">
+       <polygon points="40,8 40,76 23,94" fill="#1f1f1f"/>
+       <polygon points="40,8 40,76 57,94" fill="#9b9b9b"/>
+       <polygon points="40,8 57,94 40,76 23,94" fill="none" stroke="#1f1f1f" stroke-width="2" stroke-linejoin="round"/>
+       <text x="40" y="108" font-family="Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle" fill="#1f1f1f">N</text>
+     </svg>` },
+  { key:'tree_plan', name:'Ağaç (plan)', svg:
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+       <circle cx="50" cy="50" r="45" fill="#7A8B6A" stroke="#3f4a36" stroke-width="2"/>
+       <g stroke="#5e6e4f" stroke-width="2">
+         <line x1="50" y1="50" x2="50" y2="8"/><line x1="50" y1="50" x2="92" y2="50"/>
+         <line x1="50" y1="50" x2="50" y2="92"/><line x1="50" y1="50" x2="8" y2="50"/>
+         <line x1="50" y1="50" x2="80" y2="20"/><line x1="50" y1="50" x2="80" y2="80"/>
+         <line x1="50" y1="50" x2="20" y2="80"/><line x1="50" y1="50" x2="20" y2="20"/>
+       </g>
+       <circle cx="50" cy="50" r="6" fill="#3f4a36"/>
+     </svg>` },
+  { key:'tree_side', name:'Ağaç (yan)', svg:
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120">
+       <rect x="40" y="70" width="10" height="48" rx="2" fill="#6b4f2a"/>
+       <circle cx="45" cy="44" r="33" fill="#6f8559"/>
+       <circle cx="24" cy="58" r="20" fill="#7d9264"/>
+       <circle cx="66" cy="58" r="20" fill="#7d9264"/>
+       <circle cx="45" cy="64" r="22" fill="#85996c"/>
+     </svg>` },
+  { key:'car_plan', name:'Araç (plan)', svg:
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 110">
+       <rect x="7" y="5" width="46" height="100" rx="15" fill="#3a4a5a"/>
+       <rect x="13" y="18" width="34" height="22" rx="7" fill="#a8bccd"/>
+       <rect x="13" y="64" width="34" height="20" rx="7" fill="#a8bccd"/>
+       <rect x="13" y="46" width="34" height="14" rx="4" fill="#52647a"/>
+     </svg>` },
+  { key:'car_side', name:'Araç (yan)', svg:
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 62">
+       <path d="M6 44 Q9 30 26 28 L42 15 Q62 9 86 15 L106 28 Q126 31 134 41 L134 46 Q134 50 127 50 L15 50 Q6 50 6 45 Z" fill="#3a4a5a"/>
+       <path d="M44 18 Q62 13 82 18 L96 28 L40 28 Z" fill="#a8bccd"/>
+       <circle cx="40" cy="50" r="11" fill="#1c1c1c"/><circle cx="40" cy="50" r="5" fill="#888"/>
+       <circle cx="104" cy="50" r="11" fill="#1c1c1c"/><circle cx="104" cy="50" r="5" fill="#888"/>
+     </svg>` },
+  { key:'person', name:'İnsan', svg:
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 104">
+       <circle cx="22" cy="13" r="10" fill="#444"/>
+       <path d="M22 25 C13 25 11 47 13 66 L18 66 L20 46 L24 46 L26 66 L31 66 C33 47 31 25 22 25 Z" fill="#444"/>
+       <path d="M16 66 L13 98 L19 98 L22 72 L25 98 L31 98 L28 66 Z" fill="#444"/>
+     </svg>` },
+];
+function renderSymbols() {
+  const grid = document.getElementById('symbolGrid');
+  grid.innerHTML = '';
+  SYMBOLS.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'acard sym'; el.draggable = true; el.title = s.name;
+    el.innerHTML = s.svg + `<div class="nm">${s.name}</div>`;
+    el.ondragstart = e => e.dataTransfer.setData('symbolKey', s.key);
+    el.onclick = () => addSymbol(s.key);
+    grid.appendChild(el);
+  });
+}
+function addSymbol(key, x, y) {
+  const sym = SYMBOLS.find(s => s.key === key); if (!sym) return;
+  fabric.loadSVGFromString(sym.svg, (objs, opts) => {
+    const g = fabric.util.groupSVGElements(objs, opts);
+    const B = store.get().board, target = Math.min(B.widthPx, B.heightPx) * 0.12;
+    const sc = target / Math.max(g.width || 1, g.height || 1);
+    g.set({ left: x ?? B.widthPx/2, top: y ?? B.heightPx/2, originX:'center', originY:'center', scaleX:sc, scaleY:sc });
+    g.id = crypto.randomUUID(); g.objType = 'shape'; g.name = sym.name;
+    canvas.add(g).setActiveObject(g); canvas.requestRenderAll(); refreshLayers();
+  });
+}
 
 /* ═══ METİN / ŞEKİL ═══ */
 function addText() {
@@ -456,23 +575,47 @@ function refreshLayers() {
 }
 
 /* ═══ ÖZELLİK PANELİ ═══ */
+const FONTS = ['Inter','Montserrat','Playfair Display','Roboto','Oswald','Lora','Segoe UI','Georgia','Times New Roman','Arial','Courier New'];
 function renderProps() {
   const box = document.getElementById('propBox'), o = canvas.getActiveObject();
   if (!o) { box.innerHTML = '<div class="empty">Bir nesne seç</div>'; return; }
+  const isBold = o.fontWeight==='bold' || +o.fontWeight>=700;
   box.innerHTML = `
     <div class="prop"><span>Opaklık</span>
       <input type="range" min="0" max="1" step="0.05" value="${o.opacity}" id="pOpacity"></div>
-    ${o.objType==='text' ? `<div class="prop"><span>Punto</span>
-      <input type="range" min="10" max="160" value="${o.fontSize}" id="pFont"></div>
-      <div class="prop"><span>Renk</span><input type="color" value="${rgbToHex(o.fill)}" id="pColor"></div>`:''}
+    ${o.objType==='text' ? `
+      <div class="prop"><span>Yazı tipi</span>
+        <select id="pFamily">${FONTS.map(f=>`<option ${o.fontFamily===f?'selected':''}>${f}</option>`).join('')}</select></div>
+      <div class="prop"><span>Punto</span><input type="range" min="8" max="220" value="${o.fontSize}" id="pFont"></div>
+      <div class="prop"><span>Renk</span><input type="color" value="${rgbToHex(o.fill)}" id="pColor"></div>
+      <div class="tgrid">
+        <button class="tbtn2 ${isBold?'on':''}" id="pBold" style="font-weight:700">B</button>
+        <button class="tbtn2 ${o.fontStyle==='italic'?'on':''}" id="pItalic" style="font-style:italic">I</button>
+        <button class="tbtn2 ${o.underline?'on':''}" id="pUnder" style="text-decoration:underline">U</button>
+        <button class="tbtn2 ${o.linethrough?'on':''}" id="pStrike" style="text-decoration:line-through">S</button>
+      </div>
+      <div class="tgrid">
+        <button class="tbtn2 ${o.textAlign==='left'?'on':''}" id="pAlL" title="Sola">⇤</button>
+        <button class="tbtn2 ${o.textAlign==='center'?'on':''}" id="pAlC" title="Ortala">≡</button>
+        <button class="tbtn2 ${o.textAlign==='right'?'on':''}" id="pAlR" title="Sağa">⇥</button>
+      </div>`:''}
     ${o.objType==='shape' ? `<div class="prop"><span>Dolgu</span><input type="color" value="${rgbToHex(o.fill)}" id="pFill"></div>
       <div class="prop"><span>Çizgi</span><input type="color" value="${rgbToHex(o.stroke)}" id="pStroke"></div>`:''}`;
   const bind = (id, fn) => { const el = document.getElementById(id); if (el) el.oninput = e => { fn(e.target.value); canvas.requestRenderAll(); }; };
+  const tog  = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = () => { fn(); canvas.requestRenderAll(); renderProps(); }; };
   bind('pOpacity', v => o.set('opacity', +v));
   bind('pFont', v => o.set('fontSize', +v));
   bind('pColor', v => o.set('fill', v));
   bind('pFill', v => o.set('fill', v));
   bind('pStroke', v => o.set('stroke', v));
+  const fam = document.getElementById('pFamily'); if (fam) fam.onchange = e => { o.set('fontFamily', e.target.value); canvas.requestRenderAll(); };
+  tog('pBold',   () => o.set('fontWeight', isBold ? 'normal' : 'bold'));
+  tog('pItalic', () => o.set('fontStyle', o.fontStyle==='italic' ? 'normal' : 'italic'));
+  tog('pUnder',  () => o.set('underline', !o.underline));
+  tog('pStrike', () => o.set('linethrough', !o.linethrough));
+  tog('pAlL',    () => o.set('textAlign','left'));
+  tog('pAlC',    () => o.set('textAlign','center'));
+  tog('pAlR',    () => o.set('textAlign','right'));
 }
 function rgbToHex(c) { if (!c) return '#000000'; if (c[0]==='#') return c.slice(0,7);
   const m = c.match(/\d+/g); return m ? '#'+m.slice(0,3).map(x=>(+x).toString(16).padStart(2,'0')).join('') : '#000000'; }
@@ -489,36 +632,63 @@ document.addEventListener('keydown', e => {
 /* ═══ ŞABLONLAR ═══ */
 function openTemplates(){ document.getElementById('tplModal').classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-const PAGE = { A3:{w_mm:420,h_mm:297}, A1:{w_mm:841,h_mm:594} };
-function applyTemplate(key) {
-  const [size, kind] = key.split('-');
-  const mm = key.startsWith('a3') ? PAGE.A3 : PAGE.A1;
-  // logical px = mm/25.4 * 96  (ekran ölçeği; export'ta dpi ile çarpılır)
-  const px = m => Math.round(m/25.4*96);
-  store.set(s => ({ board: { ...s.board, w_mm:mm.w_mm, h_mm:mm.h_mm,
-    widthPx:px(mm.w_mm), heightPx:px(mm.h_mm) } }));
+// Temel ölçüler yatay (w>h) tanımlı; dikeyde w/h yer değişir.
+const PAGE = { a4:{w:297,h:210}, a3:{w:420,h:297}, a1:{w:841,h:594} };
+function applyTemplate(sizeKey, orient) {
+  const base = PAGE[sizeKey] || PAGE.a3;
+  const land = orient !== 'portrait';
+  const w_mm = land ? base.w : base.h;
+  const h_mm = land ? base.h : base.w;
+  const px = m => Math.round(m/25.4*96);   // logical px (ekran); export'ta dpi ile çarpılır
+  store.set(s => ({ board: { ...s.board, w_mm, h_mm, widthPx:px(w_mm), heightPx:px(h_mm) } }));
   applyBoardSize();
-  if (kind === 'title') addTitleBlock();
+  removeTitleBlock();   // boyut değişti → eski anteti temizle, yenisini doğru ölçüde kur
+  addTitleBlock();      // tüm şablonlarda antet var (kullanıcı toolbar'dan kaldırabilir)
   closeModal('tplModal');
 }
+
+/* ═══ ANTET — estetik, düzenlenebilir (metinler), kaldırılabilir (antet:true) ═══ */
+function hasTitleBlock(){ return canvas.getObjects().some(o => o.antet); }
+function removeTitleBlock(){
+  canvas.getObjects().filter(o => o.antet).forEach(o => canvas.remove(o));
+  canvas.discardActiveObject(); canvas.requestRenderAll(); refreshLayers();
+}
+function toggleTitleBlock(){ hasTitleBlock() ? removeTitleBlock() : addTitleBlock(); }
 function addTitleBlock() {
-  const B = store.get().board, M = 24;
-  // dış çerçeve (çıktıya girer)
-  const border = new fabric.Rect({ left:M, top:M, width:B.widthPx-2*M, height:B.heightPx-2*M,
-    fill:'', stroke:'#1A1A16', strokeWidth:2, selectable:false, evented:false });
-  border.objType='shape'; border.name='Çerçeve'; border.id=crypto.randomUUID();
+  const B = store.get().board;
+  const M = Math.max(18, Math.round(Math.min(B.widthPx, B.heightPx) * 0.025));
+  const tag = (o, name, kind) => { o.antet = true; o.objType = kind || 'shape'; o.name = name; o.id = crypto.randomUUID(); return o; };
+  const dec = { selectable:false, evented:false };   // dekoratif parçalar: seçilemez ama antet:true ile birlikte silinir
+
+  // sayfa çerçevesi
+  canvas.add(tag(new fabric.Rect({ left:M, top:M, width:B.widthPx-2*M, height:B.heightPx-2*M,
+    fill:'', stroke:'#1A1A16', strokeWidth:1.5, ...dec }), 'Çerçeve'));
+
   // antet bloğu (sağ alt)
-  const tbW=360, tbH=120, tx=B.widthPx-M-tbW, ty=B.heightPx-M-tbH;
-  const tb = new fabric.Rect({ left:tx, top:ty, width:tbW, height:tbH, fill:'#FAFAF8',
-    stroke:'#1A1A16', strokeWidth:2 });
-  tb.objType='shape'; tb.name='Antet'; tb.id=crypto.randomUUID();
-  const tt = new fabric.Textbox(document.getElementById('boardTitle').value || 'Proje Adı',
-    { left:tx+14, top:ty+16, width:tbW-28, fontSize:26, fill:'#1A1A16', fontFamily:'Segoe UI' });
-  tt.objType='text'; tt.name='Antet · Başlık'; tt.id=crypto.randomUUID();
-  const ts = new fabric.Textbox('Pafta No · Ölçek · Tarih',
-    { left:tx+14, top:ty+62, width:tbW-28, fontSize:15, fill:'#7A8B6A', fontFamily:'Segoe UI' });
-  ts.objType='text'; ts.name='Antet · Alt'; ts.id=crypto.randomUUID();
-  canvas.add(border, tb, tt, ts); canvas.requestRenderAll(); refreshLayers();
+  const w = Math.min(440, Math.round(B.widthPx*0.34)), h = 150;
+  const x = B.widthPx - M - w - 6, y = B.heightPx - M - h - 6;
+  canvas.add(tag(new fabric.Rect({ left:x, top:y, width:w, height:h, fill:'#FFFFFF', stroke:'#1A1A16', strokeWidth:1.5, ...dec }), 'Antet zemini'));
+  canvas.add(tag(new fabric.Rect({ left:x, top:y, width:w, height:34, fill:'#9A6558', ...dec }), 'Antet şerit'));
+  // ayraçlar
+  canvas.add(tag(new fabric.Line([x, y+78, x+w, y+78], { stroke:'#1A1A16', strokeWidth:0.8, ...dec }), 'Ayraç'));
+  canvas.add(tag(new fabric.Line([x, y+114, x+w, y+114], { stroke:'#1A1A16', strokeWidth:0.8, ...dec }), 'Ayraç'));
+  canvas.add(tag(new fabric.Line([x+w/2, y+78, x+w/2, y+h], { stroke:'#1A1A16', strokeWidth:0.8, ...dec }), 'Ayraç'));
+
+  // düzenlenebilir metinler
+  const mk = (txt, ox, oy, opts={}) => {
+    const t = new fabric.Textbox(txt, { left:x+ox, top:y+oy, fill:'#1A1A16', fontFamily:'Inter', fontSize:12, ...opts });
+    canvas.add(tag(t, 'Antet metin', 'text')); return t;
+  };
+  const today = new Date().toLocaleDateString('tr-TR');
+  mk((document.getElementById('boardTitle').value || 'PROJE ADI').toUpperCase(), 14, 8,
+     { width:w-28, fontSize:16, fontWeight:'700', fill:'#FFFFFF', fontFamily:'Montserrat' });
+  mk('Pafta açıklaması / görünüş adı', 14, 46, { width:w-28, fontSize:13, fill:'#666' });
+  mk('ÖLÇEK   1 / 100', 12, 88, { width:w/2-18, fontSize:12 });
+  mk('TARİH   ' + today,  w/2+12, 88, { width:w/2-22, fontSize:12 });
+  mk('PAFTA NO   01', 12, 122, { width:w/2-18, fontSize:12 });
+  mk('ÇİZEN   —',     w/2+12, 122, { width:w/2-22, fontSize:12 });
+
+  canvas.requestRenderAll(); refreshLayers();
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -527,11 +697,11 @@ function addTitleBlock() {
    değiştirilir, scale görünen boyut sabit kalacak şekilde yeniden hesaplanır,
    offscreen StaticCanvas baskı çözünürlüğünde render edilir.
    ═══════════════════════════════════════════════════════════════════════════ */
-async function buildExportCanvas() {
-  const B = store.get().board;
-  const json = canvas.toJSON(['id','assetId','objType','name','excludeFromExport']);
-
-  json.objects.forEach(o => {
+/* Verilen board + JSON'dan offscreen yüksek-çözünürlük canvas üretir (herhangi bir sayfa için). */
+async function buildExportCanvasFrom(B, srcJson) {
+  try { await document.fonts.ready; } catch {}   // özel yazı tipleri export'tan önce hazır olsun
+  const json = JSON.parse(JSON.stringify(srcJson || { objects: [] }));
+  (json.objects || []).forEach(o => {
     const a = o.assetId && store.get().assets[o.assetId];
     if (!a) return;
     const dispW = (o.width||0) * (o.scaleX||1);   // görünen ayak izi (logical px)
@@ -541,13 +711,17 @@ async function buildExportCanvas() {
     o.scaleY = dispH / a.naturalHeight;
     o.crossOrigin = 'anonymous';
   });
-
   const off = new fabric.StaticCanvas(document.createElement('canvas'),
     { width:B.widthPx, height:B.heightPx, backgroundColor:B.background, enableRetinaScaling:false });
   await new Promise(res => off.loadFromJSON(json, res));
   off.renderAll();
   const mult = (B.w_mm/25.4*B.dpi) / B.widthPx;   // logical px → baskı px @ hedef dpi
   return { off, mult, B };
+}
+/* Aktif sayfa için kısa yol */
+async function buildExportCanvas() {
+  return buildExportCanvasFrom(store.get().board,
+    canvas.toJSON(['id','assetId','objType','name','excludeFromExport','antet']));
 }
 async function exportPNG() {
   toast('Yüksek çözünürlük hazırlanıyor…');
@@ -558,42 +732,55 @@ async function exportPNG() {
   } catch (e) { toast('Export hatası: ' + e.message); }
 }
 async function exportPDF() {
-  toast('PDF hazırlanıyor…');
+  snapshotActive();
+  toast('PDF hazırlanıyor… (' + pages.length + ' sayfa)');
   try {
-    const { off, mult, B } = await buildExportCanvas();
-    const data = off.toDataURL({ format:'jpeg', quality:0.95, multiplier: mult });
-    off.dispose();
-    const pdf = new jspdf.jsPDF({ orientation:B.w_mm>=B.h_mm?'landscape':'portrait',
-      unit:'mm', format:[B.w_mm, B.h_mm] });
-    pdf.addImage(data, 'JPEG', 0, 0, B.w_mm, B.h_mm);
-    pdf.save((boardTitleVal()||'pafta') + '.pdf'); toast('PDF indirildi ✓');
+    let pdf = null;
+    for (let i = 0; i < pages.length; i++) {
+      const pg = pages[i];
+      const { off, mult, B } = await buildExportCanvasFrom(pg.board, pg.json);
+      const data = off.toDataURL({ format:'jpeg', quality:0.95, multiplier: mult });
+      off.dispose();
+      const orient = B.w_mm >= B.h_mm ? 'landscape' : 'portrait';
+      if (i === 0) pdf = new jspdf.jsPDF({ orientation:orient, unit:'mm', format:[B.w_mm, B.h_mm] });
+      else pdf.addPage([B.w_mm, B.h_mm], orient);
+      pdf.addImage(data, 'JPEG', 0, 0, B.w_mm, B.h_mm);
+    }
+    pdf.save((boardTitleVal()||'pafta') + '.pdf'); toast('PDF indirildi ✓ (' + pages.length + ' sayfa)');
   } catch (e) { toast('Export hatası: ' + e.message); }
 }
 
 /* ═══ KAYDET & PAYLAŞ (POST /tours/asset + POST /tours → sunum.html) ═══ */
 async function savePresentation() {
   if (!localStorage.getItem('ra_token')) { toast('Paylaşmak için BynAi\'ye giriş yap.'); return; }
-  toast('Yayınlanıyor… (yüksek çözünürlük yükleniyor)');
+  snapshotActive();
+  toast('Yayınlanıyor… (' + pages.length + ' sayfa yükleniyor)');
   try {
-    // 1) Paftayı tam çözünürlükte raster'a çevir
-    const { off, mult } = await buildExportCanvas();
-    const blob = await new Promise(r => off.toCanvasElement(mult).toBlob(r, 'image/jpeg', 0.92));
-    off.dispose();
-    // 2) Kalıcı URL için backend'e yükle
-    const fd = new FormData();
-    fd.append('image', new File([blob], 'pafta.jpg', { type:'image/jpeg' }));
-    const up = await fetch(`${API}/tours/asset`, { method:'POST', headers:authHeaders(), body:fd });
-    const upData = await up.json();
-    if (!up.ok) throw new Error(upData.detail || 'Yükleme başarısız');
-    // 3) sunum.html'in okuduğu presentation payload'u olarak kaydet
-    //    (boardJson: ileride tekrar düzenlemek için; viewer bunu yoksayar)
+    // 1) Her sayfayı tam çözünürlükte raster'a çevirip kalıcı URL için yükle
+    const images = [];
+    for (let i = 0; i < pages.length; i++) {
+      const pg = pages[i];
+      const { off, mult } = await buildExportCanvasFrom(pg.board, pg.json);
+      const blob = await new Promise(r => off.toCanvasElement(mult).toBlob(r, 'image/jpeg', 0.92));
+      off.dispose();
+      const fd = new FormData();
+      fd.append('image', new File([blob], 'pafta' + (i+1) + '.jpg', { type:'image/jpeg' }));
+      const up = await fetch(`${API}/tours/asset`, { method:'POST', headers:authHeaders(), body:fd });
+      const upData = await up.json();
+      if (!up.ok) throw new Error(upData.detail || 'Yükleme başarısız');
+      images.push({ url: upData.url, label: boardTitleVal() + (pages.length>1 ? ' — Sayfa ' + (i+1) : '') });
+    }
+    // 2) sunum.html'in okuduğu presentation payload'u olarak kaydet.
+    //    NOT: /tours, panoramas[].url'in http ile başlamasını ŞART koşuyor (panorama olmasa da) —
+    //    bu yüzden üst seviye `url` ZORUNLU. boardJson: tüm sayfaların düzeni (ileride tekrar düzenleme için).
     const res = await fetch(`${API}/tours`, { method:'POST',
       headers:{ 'Content-Type':'application/json', ...authHeaders() },
       body: JSON.stringify({ title: boardTitleVal(), panoramas: [{
         kind:'presentation',
-        images: [{ url: upData.url, label: boardTitleVal() }],
+        url: images[0].url,                               // ★ /tours doğrulaması için şart
+        images,
         panos: [], map: {},
-        boardJson: canvas.toJSON(['id','assetId','objType','name','excludeFromExport'])
+        boardJson: { pages: pages.map(p => ({ board:p.board, json:p.json })) }
       }]})
     });
     const data = await res.json();
@@ -610,10 +797,10 @@ function copyShare() {
 
 /* ═══ UI yardımcıları ═══ */
 function switchTab(t) {
-  document.getElementById('tabBynai').classList.toggle('active', t==='bynai');
-  document.getElementById('tabUpload').classList.toggle('active', t==='upload');
-  document.getElementById('paneBynai').style.display = t==='bynai'?'block':'none';
-  document.getElementById('paneUpload').style.display = t==='upload'?'block':'none';
+  const tabs = { bynai:'tabBynai', upload:'tabUpload', symbols:'tabSymbols' };
+  const panes = { bynai:'paneBynai', upload:'paneUpload', symbols:'paneSymbols' };
+  Object.entries(tabs).forEach(([k,id]) => document.getElementById(id).classList.toggle('active', k===t));
+  Object.entries(panes).forEach(([k,id]) => document.getElementById(id).style.display = k===t?'block':'none');
 }
 function boardTitleVal(){ return document.getElementById('boardTitle').value.trim() || 'İsimsiz Pafta'; }
 function downloadURL(url, name){ const a=document.createElement('a'); a.href=url; a.download=name; a.click(); }
@@ -628,9 +815,68 @@ fi.onchange = e => handleFiles(e.target.files);
 ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e=>{ e.preventDefault(); dz.classList.remove('drag'); }));
 dz.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
 
+/* ═══ ÇOK SAYFA ═══ */
+const PAGE_PROPS = ['id','assetId','objType','name','excludeFromExport','antet'];
+let pages = [];
+let activeIdx = 0;
+function blankPage() {
+  const b = { ...store.get().board };
+  return { id:crypto.randomUUID(), board:b, json:{ objects:[], background:b.background } };
+}
+function snapshotActive() {
+  if (pages[activeIdx]) {
+    pages[activeIdx].json  = canvas.toJSON(PAGE_PROPS);
+    pages[activeIdx].board = { ...store.get().board };
+  }
+}
+function loadPageInto(i) {
+  activeIdx = i;
+  const pg = pages[i];
+  store.set({ board: { ...pg.board } });
+  applyBoardSize();
+  canvas.loadFromJSON(pg.json || { objects:[] }, () => {
+    canvas.backgroundColor = pg.board.background; canvas.renderAll();
+    refreshLayers(); renderProps();
+  });
+  renderPageBar();
+}
+function gotoPage(i) { if (i === activeIdx) return; snapshotActive(); loadPageInto(i); }
+function addPage() { snapshotActive(); pages.push(blankPage()); loadPageInto(pages.length - 1); toast('Yeni sayfa eklendi'); }
+function deletePage(i) {
+  if (pages.length <= 1) { toast('En az bir sayfa olmalı'); return; }
+  pages.splice(i, 1);
+  activeIdx = Math.min(activeIdx, pages.length - 1);
+  loadPageInto(activeIdx);
+}
+function renderPageBar() {
+  const bar = document.getElementById('pageBar'); bar.innerHTML = '';
+  pages.forEach((pg, i) => {
+    const b = document.createElement('button');
+    b.className = 'pagechip' + (i === activeIdx ? ' on' : '');
+    b.textContent = 'Sayfa ' + (i + 1);
+    b.onclick = () => gotoPage(i);
+    bar.appendChild(b);
+  });
+  const add = document.createElement('button');
+  add.className = 'pagechip add'; add.textContent = '+ Sayfa'; add.onclick = addPage;
+  bar.appendChild(add);
+  if (pages.length > 1) {
+    const del = document.createElement('button');
+    del.className = 'pagechip del'; del.textContent = '🗑 Bu sayfayı sil';
+    del.onclick = () => deletePage(activeIdx);
+    bar.appendChild(del);
+  }
+}
+
 /* başlat */
+if (!localStorage.getItem('ra_token')) {           // üyelik duvarı
+  document.getElementById('authGate').style.display = 'flex';
+}
 applyBoardSize();
 loadBynaiRenders();
+renderSymbols();
+pages = [ blankPage() ];                            // ilk sayfa
+renderPageBar();
 refreshLayers();
 </script>
 </body>
