@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pafta Stüdyosu — BynAi</title>
+<script src="https://cdn.jsdelivr.net/npm/fabric@5.3.0/dist/fabric.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --bg:#1A1A16; --panel:#FAFAF8; --panel2:#23231D; --ink:#2A2520;
+    --terra:#9A6558; --terra-lite:#B5786A; --sage:#7A8B6A; --accent:#C89B8C;
+    --line:#34342C; --muted:#ABA49C;
+  }
+  body { font-family:'Segoe UI', system-ui, sans-serif; background:var(--bg); color:var(--panel);
+         height:100vh; overflow:hidden; display:flex; flex-direction:column; }
+
+  /* ── Üst bar ── */
+  .topbar { display:flex; align-items:center; gap:14px; padding:10px 16px;
+            background:var(--panel2); border-bottom:1px solid var(--line); z-index:30; flex:0 0 auto; }
+  .brand { font-size:15px; font-weight:700; letter-spacing:.5px; color:var(--panel); text-decoration:none; }
+  .brand span { color:var(--accent); }
+  .titleInput { background:transparent; border:1px solid var(--line); border-radius:8px; color:var(--panel);
+                padding:7px 12px; font-size:13px; width:220px; }
+  .titleInput:focus { outline:none; border-color:var(--terra); }
+  .spacer { flex:1; }
+  .tbtn { padding:8px 14px; border:1px solid var(--line); border-radius:8px; background:transparent;
+          color:var(--panel); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .tbtn:hover { border-color:var(--accent); }
+  .tbtn.primary { background:var(--terra); border-color:var(--terra); }
+  .tbtn.primary:hover { background:var(--terra-lite); }
+
+  /* ── Yerleşim ── */
+  .stage { flex:1; display:flex; min-height:0; }
+  .side { width:268px; flex:0 0 auto; background:var(--panel2); border-right:1px solid var(--line);
+          display:flex; flex-direction:column; min-height:0; }
+  .side.right { border-right:none; border-left:1px solid var(--line); width:248px; }
+
+  /* sekmeler */
+  .tabs { display:flex; border-bottom:1px solid var(--line); flex:0 0 auto; }
+  .tab { flex:1; padding:11px 6px; text-align:center; font-size:12px; font-weight:600; cursor:pointer;
+         color:var(--muted); border-bottom:2px solid transparent; }
+  .tab.active { color:var(--panel); border-bottom-color:var(--terra); }
+
+  .pane { flex:1; overflow-y:auto; padding:12px; }
+  .pane::-webkit-scrollbar { width:8px; } .pane::-webkit-scrollbar-thumb { background:var(--line); border-radius:4px; }
+
+  /* asset grid */
+  .agrid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .acard { position:relative; border-radius:9px; overflow:hidden; cursor:grab; background:var(--bg);
+           border:1px solid var(--line); aspect-ratio:4/3; }
+  .acard:hover { border-color:var(--accent); }
+  .acard img { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
+  .acard .nm { position:absolute; left:0; right:0; bottom:0; padding:3px 6px; font-size:10px;
+               background:linear-gradient(transparent, rgba(0,0,0,.8)); }
+  .dropzone { border:2px dashed var(--line); border-radius:12px; padding:26px 12px; text-align:center;
+              color:var(--muted); font-size:12px; cursor:pointer; margin-bottom:12px; }
+  .dropzone.drag { border-color:var(--terra); color:var(--accent); background:rgba(154,101,88,.08); }
+  .hint { font-size:11px; color:var(--muted); line-height:1.5; margin:10px 2px; }
+  .loginNote { background:rgba(154,101,88,.12); border:1px solid var(--terra); border-radius:9px;
+               padding:10px; font-size:11px; color:var(--accent); line-height:1.5; }
+  .loginNote a { color:var(--panel); }
+
+  /* canvas ortası */
+  .canvasArea { flex:1; min-width:0; display:flex; flex-direction:column; background:#111;
+                background-image:radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+                background-size:22px 22px; }
+  .toolbar { display:flex; gap:6px; padding:8px 12px; border-bottom:1px solid var(--line);
+             background:var(--panel2); flex:0 0 auto; flex-wrap:wrap; align-items:center; }
+  .tool { padding:7px 11px; border:1px solid var(--line); border-radius:7px; background:transparent;
+          color:var(--panel); font-size:12px; cursor:pointer; }
+  .tool:hover { border-color:var(--accent); }
+  .sep { width:1px; align-self:stretch; background:var(--line); margin:2px 4px; }
+  .canvasWrap { flex:1; display:flex; align-items:center; justify-content:center; overflow:auto; padding:24px; }
+  .canvasWrap canvas { box-shadow:0 8px 40px rgba(0,0,0,.5); }
+
+  /* sağ panel */
+  .section { font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
+             color:var(--muted); margin:14px 2px 8px; }
+  .alignGrid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .layerRow { display:flex; align-items:center; gap:6px; padding:6px 8px; border-radius:7px;
+              background:var(--bg); border:1px solid var(--line); margin-bottom:5px; font-size:12px; cursor:pointer; }
+  .layerRow.sel { border-color:var(--terra); }
+  .layerRow .lname { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .layerRow .ic { width:22px; text-align:center; cursor:pointer; opacity:.7; }
+  .layerRow .ic:hover { opacity:1; }
+  .prop { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:8px 2px; font-size:12px; }
+  .prop input[type=range] { flex:1; accent-color:var(--terra); }
+  .empty { color:var(--muted); font-size:12px; text-align:center; padding:18px 8px; }
+
+  .modalBg { position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center;
+             justify-content:center; z-index:100; }
+  .modalBg.open { display:flex; }
+  .modal { background:var(--panel2); border:1px solid var(--line); border-radius:14px; padding:22px;
+           width:min(520px,92vw); }
+  .modal h3 { font-size:15px; margin-bottom:14px; }
+  .tplGrid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .tplCard { border:1px solid var(--line); border-radius:10px; padding:14px; cursor:pointer; text-align:center; }
+  .tplCard:hover { border-color:var(--terra); }
+  .tplCard .big { font-size:22px; font-weight:700; color:var(--accent); }
+  .tplCard small { color:var(--muted); }
+  .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--terra);
+           color:#fff; padding:11px 20px; border-radius:10px; font-size:13px; z-index:200; display:none;
+           box-shadow:0 6px 20px rgba(0,0,0,.4); max-width:90vw; }
+  .linkRow { display:flex; gap:8px; margin-top:14px; }
+  .linkRow input { flex:1; background:var(--bg); border:1px solid var(--line); border-radius:8px;
+                   color:var(--panel); padding:9px 11px; font-size:12px; }
+</style>
+</head>
+<body>
+
+<!-- ════ ÜST BAR ════ -->
+<div class="topbar">
+  <a class="brand" href="/">Byn<span>Ai</span></a>
+  <input class="titleInput" id="boardTitle" placeholder="Pafta başlığı" value="İsimsiz Pafta" />
+  <div class="spacer"></div>
+  <button class="tbtn" onclick="openTemplates()">⊞ Şablon</button>
+  <button class="tbtn" onclick="exportPNG()">⬇ PNG</button>
+  <button class="tbtn" onclick="exportPDF()">⬇ PDF</button>
+  <button class="tbtn primary" onclick="savePresentation()">↗ Kaydet & Paylaş</button>
+</div>
+
+<div class="stage">
+  <!-- ════ SOL: ASSET ÇEKMECESİ ════ -->
+  <div class="side">
+    <div class="tabs">
+      <div class="tab active" id="tabBynai" onclick="switchTab('bynai')">BynAi Renderlarım</div>
+      <div class="tab" id="tabUpload" onclick="switchTab('upload')">Cihazımdan Yükle</div>
+    </div>
+    <div class="pane">
+      <!-- BynAi renderları -->
+      <div id="paneBynai">
+        <div id="bynaiLogin" class="loginNote" style="display:none;">
+          Renderlarını görmek için <a href="/">BynAi'ye giriş yap</a>, sonra bu sayfayı yenile.
+        </div>
+        <div class="agrid" id="bynaiGrid"></div>
+        <div class="empty" id="bynaiEmpty" style="display:none;">Henüz render yok.</div>
+        <div class="hint" id="bynaiLoading">Renderlar yükleniyor…</div>
+      </div>
+      <!-- Cihazdan upload -->
+      <div id="paneUpload" style="display:none;">
+        <div class="dropzone" id="dropzone">
+          📁 Görsel sürükle-bırak<br>veya tıklayıp seç<br>
+          <small>(site planı, logo, diyagram…)</small>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" multiple style="display:none;" />
+        <div class="agrid" id="uploadGrid"></div>
+        <div class="hint">Yüklenen orijinal dosya tam çözünürlükte saklanır; canvas'ta hafif önizleme gösterilir, çıktıda orijinal kullanılır.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ ORTA: CANVAS ════ -->
+  <div class="canvasArea">
+    <div class="toolbar">
+      <button class="tool" onclick="addText()">+ Metin</button>
+      <button class="tool" onclick="addRect()">+ Kutu</button>
+      <button class="tool" onclick="addLine()">+ Çizgi</button>
+      <span class="sep"></span>
+      <button class="tool" onclick="duplicateSel()">⧉ Çoğalt</button>
+      <button class="tool" onclick="deleteSel()">🗑 Sil</button>
+      <span class="sep"></span>
+      <button class="tool" onclick="zoomBy(1.1)">＋</button>
+      <button class="tool" onclick="fitToScreen()">Sığdır</button>
+      <button class="tool" onclick="zoomBy(0.9)">－</button>
+      <span class="sep"></span>
+      <span style="font-size:11px;color:var(--muted)" id="boardSizeLbl"></span>
+    </div>
+    <div class="canvasWrap" id="canvasWrap">
+      <canvas id="c"></canvas>
+    </div>
+  </div>
+
+  <!-- ════ SAĞ: KATMAN + HİZALAMA + ÖZELLİK ════ -->
+  <div class="side right">
+    <div class="pane">
+      <div class="section">Hizalama</div>
+      <div class="alignGrid">
+        <button class="tool" onclick="align('left')">⇤ Sol</button>
+        <button class="tool" onclick="align('cx')">⇔ Orta</button>
+        <button class="tool" onclick="align('right')">Sağ ⇥</button>
+        <button class="tool" onclick="align('top')">⇧ Üst</button>
+        <button class="tool" onclick="align('cy')">⇕ Orta</button>
+        <button class="tool" onclick="align('bottom')">Alt ⇩</button>
+      </div>
+
+      <div class="section">Seçili Nesne</div>
+      <div id="propBox"><div class="empty">Bir nesne seç</div></div>
+
+      <div class="section">Katmanlar</div>
+      <div id="layerList"><div class="empty">Boş</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Şablon modalı -->
+<div class="modalBg" id="tplModal">
+  <div class="modal">
+    <h3>Pafta Şablonu Seç</h3>
+    <div class="tplGrid">
+      <div class="tplCard" onclick="applyTemplate('a3-blank')"><div class="big">A3</div><small>Yatay · boş</small></div>
+      <div class="tplCard" onclick="applyTemplate('a1-blank')"><div class="big">A1</div><small>Yatay · boş</small></div>
+      <div class="tplCard" onclick="applyTemplate('a3-title')"><div class="big">A3 + Antet</div><small>Çerçeve + başlık bloğu</small></div>
+      <div class="tplCard" onclick="applyTemplate('a1-title')"><div class="big">A1 + Antet</div><small>Çerçeve + başlık bloğu</small></div>
+    </div>
+  </div>
+</div>
+
+<!-- Paylaş linki modalı -->
+<div class="modalBg" id="linkModal">
+  <div class="modal">
+    <h3>Sunum yayınlandı ✓</h3>
+    <p style="font-size:12px;color:var(--muted);line-height:1.5;">Bu linki paylaş — alıcı tarayıcıda paftayı görür.</p>
+    <div class="linkRow">
+      <input id="shareLink" readonly />
+      <button class="tbtn primary" onclick="copyShare()">Kopyala</button>
+    </div>
+    <div style="text-align:right;margin-top:14px;"><button class="tbtn" onclick="closeModal('linkModal')">Kapat</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   BynAi — Pafta Stüdyosu
+   Mimari: index.html ile aynı vanilla + CDN yaklaşımı.
+   Optimizasyon: canvas hafif THUMBNAIL ile çalışır; export'ta orijinal 4K+
+   görsel yerleştirilir (asset.fullUrl). resizeIfNeeded() mantığı korunur.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const API = 'https://web-production-8c34d.up.railway.app';
+const authHeaders = () => {
+  const t = localStorage.getItem('ra_token');
+  return t ? { 'Authorization': 'Bearer ' + t } : {};
+};
+
+/* ── Minimal reaktif store (Zustand'a birebir taşınabilir şema) ── */
+function createStore(initial) {
+  let state = initial; const subs = new Set();
+  return {
+    get: () => state,
+    // Zustand gibi sığ merge — fonksiyon dalı da kısmi state döndürebilir
+    set: (patch) => { state = { ...state, ...(typeof patch === 'function' ? patch(state) : patch) };
+                      subs.forEach(fn => fn(state)); },
+    subscribe: (fn) => { subs.add(fn); return () => subs.delete(fn); }
+  };
+}
+
+const store = createStore({
+  board: { widthPx: 1587, heightPx: 1123, w_mm: 420, h_mm: 297, dpi: 300, background:'#FFFFFF' },
+  assets: {},          // registry: id -> { source, name, thumbUrl, fullUrl, naturalWidth, naturalHeight, _file }
+});
+
+/* ═══ FABRIC CANVAS ═══ */
+const canvas = new fabric.Canvas('c', { backgroundColor:'#FFFFFF', preserveObjectStacking:true });
+
+function applyBoardSize() {
+  const B = store.get().board;
+  canvas.backgroundColor = B.background;
+  document.getElementById('boardSizeLbl').textContent =
+    `${B.w_mm}×${B.h_mm}mm · ${B.dpi}dpi · çıktı ≈ ${Math.round(B.w_mm/25.4*B.dpi)}px`;
+  fitToScreen();
+}
+function fitToScreen() {
+  const B = store.get().board;
+  const wrap = document.getElementById('canvasWrap');
+  const z = Math.min((wrap.clientWidth-48)/B.widthPx, (wrap.clientHeight-48)/B.heightPx, 1.2) * 0.98;
+  canvas.setZoom(z);
+  canvas.setDimensions({ width: B.widthPx*z, height: B.heightPx*z });
+  canvas.requestRenderAll();
+}
+function zoomBy(f) {
+  const z = Math.max(0.1, Math.min(3, canvas.getZoom()*f)), B = store.get().board;
+  canvas.setZoom(z); canvas.setDimensions({ width:B.widthPx*z, height:B.heightPx*z }); canvas.requestRenderAll();
+}
+window.addEventListener('resize', fitToScreen);
+
+/* ═══ GÖRSEL YARDIMCILARI ═══ */
+function loadImage(src) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    if (typeof src === 'string') img.crossOrigin = 'anonymous';   // CORS: canvas tainting'i önler
+    img.onload = () => res(img); img.onerror = rej;
+    img.src = src instanceof File ? URL.createObjectURL(src) : src;
+  });
+}
+/* index.html'deki resizeIfNeeded() ile aynı mantık; natural boyutu da döndürür. */
+async function makeThumb(src, maxDim = 1280, quality = 0.82) {
+  let img;
+  try { img = await loadImage(src); }
+  catch { return { thumbUrl: typeof src==='string'?src:'', nW:0, nH:0, tainted:true }; }
+  const nW = img.naturalWidth, nH = img.naturalHeight;
+  const scale = Math.min(1, maxDim / Math.max(nW, nH));
+  if (scale === 1 && typeof src === 'string') return { thumbUrl: src, nW, nH };
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(nW*scale); cv.height = Math.round(nH*scale);
+  const ctx = cv.getContext('2d'); ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, 0, 0, cv.width, cv.height);
+  let thumbUrl;
+  try { thumbUrl = cv.toDataURL('image/jpeg', quality); }
+  catch { return { thumbUrl: typeof src==='string'?src:'', nW, nH, tainted:true }; } // remote+CORS yoksa
+  return { thumbUrl, nW, nH };
+}
+
+/* ═══ ASSET REGISTRY ═══ */
+function addAsset(a) { store.set(s => ({ assets: { ...s.assets, [a.id]: a } })); }
+
+/* ── Sekme 1: BynAi renderları (GET /renders) ── */
+async function loadBynaiRenders() {
+  const grid = document.getElementById('bynaiGrid');
+  const loading = document.getElementById('bynaiLoading');
+  const empty = document.getElementById('bynaiEmpty');
+  if (!localStorage.getItem('ra_token')) {
+    loading.style.display='none'; document.getElementById('bynaiLogin').style.display='block'; return;
+  }
+  try {
+    const res = await fetch(`${API}/renders?limit=60&offset=0`, { headers: authHeaders() });
+    const data = await res.json();
+    const items = (data.renders || []).filter(r =>
+      r.result_url && !(r.render_type==='video' || String(r.result_url).endsWith('.mp4')));
+    loading.style.display = 'none';
+    if (!items.length) { empty.style.display='block'; return; }
+    grid.innerHTML = '';
+    for (const r of items) {
+      const { thumbUrl, nW, nH, tainted } = await makeThumb(r.result_url, 1280);
+      const id = 'bynai_' + (r.id || crypto.randomUUID());
+      addAsset({ id, source:'bynai', name: r.style ? String(r.style).slice(0,18) : 'Render',
+        thumbUrl: thumbUrl || r.result_url, fullUrl: r.result_url,
+        naturalWidth: nW||2048, naturalHeight: nH||1536, _tainted: tainted,
+        meta:{ renderId:r.id, createdAt:r.created_at } });
+      grid.appendChild(assetCard(store.get().assets[id]));
+    }
+  } catch { loading.style.display='none'; empty.style.display='block'; }
+}
+
+/* ── Sekme 2: Cihazdan upload ── */
+async function handleFiles(fileList) {
+  const grid = document.getElementById('uploadGrid');
+  for (const file of fileList) {
+    if (!file.type.startsWith('image/')) continue;
+    const { thumbUrl, nW, nH } = await makeThumb(file, 1280);
+    const id = 'up_' + crypto.randomUUID();
+    addAsset({ id, source:'upload', name: file.name.slice(0,18),
+      thumbUrl, fullUrl: URL.createObjectURL(file),   // orijinal File blob URL'i
+      naturalWidth: nW, naturalHeight: nH, _file: file,
+      meta:{ mime:file.type, bytes:file.size } });
+    grid.appendChild(assetCard(store.get().assets[id]));
+  }
+}
+
+function assetCard(a) {
+  const el = document.createElement('div');
+  el.className = 'acard'; el.draggable = true;
+  el.innerHTML = `<img src="${a.thumbUrl}"><div class="nm">${a.name}</div>`;
+  el.ondragstart = e => e.dataTransfer.setData('assetId', a.id);
+  el.onclick = () => addImageToCanvas(a);
+  return el;
+}
+
+/* ── Fabric'e THUMBNAIL ile ekle (4K+ canvas'ı yormasın) ── */
+function addImageToCanvas(asset, x, y) {
+  if (asset._tainted) toast('Bu render CORS nedeniyle önizlenemiyor — yine de çıktıya tam çözünürlük girer.');
+  fabric.Image.fromURL(asset.thumbUrl, img => {
+    const B = store.get().board, maxW = B.widthPx * 0.42, fit = Math.min(1, maxW / img.width);
+    img.set({ left: x ?? B.widthPx/2, top: y ?? B.heightPx/2,
+              originX:'center', originY:'center', scaleX:fit, scaleY:fit });
+    img.id = crypto.randomUUID(); img.assetId = asset.id; img.objType = 'image';
+    img.name = asset.name;
+    canvas.add(img).setActiveObject(img); canvas.requestRenderAll(); refreshLayers();
+  }, { crossOrigin: 'anonymous' });
+}
+
+/* drop hedefi */
+const wrap = document.getElementById('canvasWrap');
+wrap.addEventListener('dragover', e => e.preventDefault());
+wrap.addEventListener('drop', e => {
+  e.preventDefault();
+  const asset = store.get().assets[e.dataTransfer.getData('assetId')];
+  if (!asset) return;
+  const p = canvas.getPointer(e);   // zoom'u hesaba katar → logical koordinat
+  addImageToCanvas(asset, p.x, p.y);
+});
+
+/* ═══ METİN / ŞEKİL ═══ */
+function addText() {
+  const B = store.get().board;
+  const t = new fabric.Textbox('Başlık', { left:B.widthPx/2, top:B.heightPx/2, originX:'center',
+    originY:'center', fontSize:48, fill:'#1A1A16', fontFamily:'Segoe UI', width:400, textAlign:'center' });
+  t.id=crypto.randomUUID(); t.objType='text'; t.name='Metin';
+  canvas.add(t).setActiveObject(t); refreshLayers();
+}
+function addRect() {
+  const B = store.get().board;
+  const r = new fabric.Rect({ left:B.widthPx/2, top:B.heightPx/2, originX:'center', originY:'center',
+    width:300, height:200, fill:'rgba(154,101,88,0.12)', stroke:'#9A6558', strokeWidth:2 });
+  r.id=crypto.randomUUID(); r.objType='shape'; r.name='Kutu';
+  canvas.add(r).setActiveObject(r); refreshLayers();
+}
+function addLine() {
+  const B = store.get().board;
+  const l = new fabric.Line([B.widthPx/2-150, B.heightPx/2, B.widthPx/2+150, B.heightPx/2],
+    { stroke:'#1A1A16', strokeWidth:3 });
+  l.id=crypto.randomUUID(); l.objType='shape'; l.name='Çizgi';
+  canvas.add(l).setActiveObject(l); refreshLayers();
+}
+function duplicateSel() {
+  const o = canvas.getActiveObject(); if (!o) return;
+  o.clone(c => { c.set({ left:o.left+24, top:o.top+24, id:crypto.randomUUID() });
+    c.assetId=o.assetId; c.objType=o.objType; c.name=o.name;
+    canvas.add(c).setActiveObject(c); refreshLayers(); }, ['assetId','objType','name','id']);
+}
+function deleteSel() {
+  canvas.getActiveObjects().forEach(o => canvas.remove(o));
+  canvas.discardActiveObject(); canvas.requestRenderAll(); refreshLayers(); renderProps();
+}
+
+/* ═══ HİZALAMA ═══ */
+function align(mode) {
+  const o = canvas.getActiveObject(); if (!o) return; const B = store.get().board;
+  const w = o.getScaledWidth(), h = o.getScaledHeight();
+  o.set({ originX:'left', originY:'top' });
+  const b = o.getBoundingRect(true, true);
+  o.left += { left:0, cx:(B.widthPx-w)/2, right:B.widthPx-w }[mode] !== undefined && ['left','cx','right'].includes(mode)
+    ? ({left:0,cx:(B.widthPx-w)/2,right:B.widthPx-w}[mode]-b.left) : 0;
+  o.top += ['top','cy','bottom'].includes(mode)
+    ? ({top:0,cy:(B.heightPx-h)/2,bottom:B.heightPx-h}[mode]-b.top) : 0;
+  o.setCoords(); canvas.requestRenderAll();
+}
+
+/* ═══ KATMAN PANELİ ═══ */
+function refreshLayers() {
+  const list = document.getElementById('layerList');
+  const objs = canvas.getObjects().filter(o => !o.excludeFromExport).slice().reverse();
+  if (!objs.length) { list.innerHTML = '<div class="empty">Boş</div>'; return; }
+  list.innerHTML = '';
+  objs.forEach(o => {
+    const row = document.createElement('div');
+    row.className = 'layerRow' + (o === canvas.getActiveObject() ? ' sel' : '');
+    const icon = { image:'🖼', text:'T', shape:'▭' }[o.objType] || '•';
+    row.innerHTML = `<span>${icon}</span><span class="lname">${o.name||o.objType}</span>
+      <span class="ic" title="Görünürlük">${o.visible===false?'🚫':'👁'}</span>
+      <span class="ic" title="Kilit">${o.lockMovementX?'🔒':'🔓'}</span>
+      <span class="ic" title="Yukarı">▲</span><span class="ic" title="Aşağı">▼</span>`;
+    const ics = row.querySelectorAll('.ic');
+    row.onclick = () => { canvas.setActiveObject(o); canvas.requestRenderAll(); refreshLayers(); renderProps(); };
+    ics[0].onclick = e => { e.stopPropagation(); o.visible = o.visible===false; canvas.requestRenderAll(); refreshLayers(); };
+    ics[1].onclick = e => { e.stopPropagation(); const lk=!o.lockMovementX;
+      o.set({ lockMovementX:lk, lockMovementY:lk, lockRotation:lk, lockScalingX:lk, lockScalingY:lk, selectable:!lk });
+      canvas.requestRenderAll(); refreshLayers(); };
+    ics[2].onclick = e => { e.stopPropagation(); canvas.bringForward(o); canvas.requestRenderAll(); refreshLayers(); };
+    ics[3].onclick = e => { e.stopPropagation(); canvas.sendBackwards(o); canvas.requestRenderAll(); refreshLayers(); };
+    list.appendChild(row);
+  });
+}
+
+/* ═══ ÖZELLİK PANELİ ═══ */
+function renderProps() {
+  const box = document.getElementById('propBox'), o = canvas.getActiveObject();
+  if (!o) { box.innerHTML = '<div class="empty">Bir nesne seç</div>'; return; }
+  box.innerHTML = `
+    <div class="prop"><span>Opaklık</span>
+      <input type="range" min="0" max="1" step="0.05" value="${o.opacity}" id="pOpacity"></div>
+    ${o.objType==='text' ? `<div class="prop"><span>Punto</span>
+      <input type="range" min="10" max="160" value="${o.fontSize}" id="pFont"></div>
+      <div class="prop"><span>Renk</span><input type="color" value="${rgbToHex(o.fill)}" id="pColor"></div>`:''}
+    ${o.objType==='shape' ? `<div class="prop"><span>Dolgu</span><input type="color" value="${rgbToHex(o.fill)}" id="pFill"></div>
+      <div class="prop"><span>Çizgi</span><input type="color" value="${rgbToHex(o.stroke)}" id="pStroke"></div>`:''}`;
+  const bind = (id, fn) => { const el = document.getElementById(id); if (el) el.oninput = e => { fn(e.target.value); canvas.requestRenderAll(); }; };
+  bind('pOpacity', v => o.set('opacity', +v));
+  bind('pFont', v => o.set('fontSize', +v));
+  bind('pColor', v => o.set('fill', v));
+  bind('pFill', v => o.set('fill', v));
+  bind('pStroke', v => o.set('stroke', v));
+}
+function rgbToHex(c) { if (!c) return '#000000'; if (c[0]==='#') return c.slice(0,7);
+  const m = c.match(/\d+/g); return m ? '#'+m.slice(0,3).map(x=>(+x).toString(16).padStart(2,'0')).join('') : '#000000'; }
+
+canvas.on('selection:created', () => { refreshLayers(); renderProps(); });
+canvas.on('selection:updated', () => { refreshLayers(); renderProps(); });
+canvas.on('selection:cleared', () => { refreshLayers(); renderProps(); });
+canvas.on('object:modified', refreshLayers);
+document.addEventListener('keydown', e => {
+  if ((e.key==='Delete'||e.key==='Backspace') && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)
+      && !(canvas.getActiveObject()?.isEditing)) { e.preventDefault(); deleteSel(); }
+});
+
+/* ═══ ŞABLONLAR ═══ */
+function openTemplates(){ document.getElementById('tplModal').classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+const PAGE = { A3:{w_mm:420,h_mm:297}, A1:{w_mm:841,h_mm:594} };
+function applyTemplate(key) {
+  const [size, kind] = key.split('-');
+  const mm = key.startsWith('a3') ? PAGE.A3 : PAGE.A1;
+  // logical px = mm/25.4 * 96  (ekran ölçeği; export'ta dpi ile çarpılır)
+  const px = m => Math.round(m/25.4*96);
+  store.set(s => ({ board: { ...s.board, w_mm:mm.w_mm, h_mm:mm.h_mm,
+    widthPx:px(mm.w_mm), heightPx:px(mm.h_mm) } }));
+  applyBoardSize();
+  if (kind === 'title') addTitleBlock();
+  closeModal('tplModal');
+}
+function addTitleBlock() {
+  const B = store.get().board, M = 24;
+  // dış çerçeve (çıktıya girer)
+  const border = new fabric.Rect({ left:M, top:M, width:B.widthPx-2*M, height:B.heightPx-2*M,
+    fill:'', stroke:'#1A1A16', strokeWidth:2, selectable:false, evented:false });
+  border.objType='shape'; border.name='Çerçeve'; border.id=crypto.randomUUID();
+  // antet bloğu (sağ alt)
+  const tbW=360, tbH=120, tx=B.widthPx-M-tbW, ty=B.heightPx-M-tbH;
+  const tb = new fabric.Rect({ left:tx, top:ty, width:tbW, height:tbH, fill:'#FAFAF8',
+    stroke:'#1A1A16', strokeWidth:2 });
+  tb.objType='shape'; tb.name='Antet'; tb.id=crypto.randomUUID();
+  const tt = new fabric.Textbox(document.getElementById('boardTitle').value || 'Proje Adı',
+    { left:tx+14, top:ty+16, width:tbW-28, fontSize:26, fill:'#1A1A16', fontFamily:'Segoe UI' });
+  tt.objType='text'; tt.name='Antet · Başlık'; tt.id=crypto.randomUUID();
+  const ts = new fabric.Textbox('Pafta No · Ölçek · Tarih',
+    { left:tx+14, top:ty+62, width:tbW-28, fontSize:15, fill:'#7A8B6A', fontFamily:'Segoe UI' });
+  ts.objType='text'; ts.name='Antet · Alt'; ts.id=crypto.randomUUID();
+  canvas.add(border, tb, tt, ts); canvas.requestRenderAll(); refreshLayers();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ═══ EXPORT — THUMBNAIL → ORİJİNAL (4K+) SWAP ═══
+   Canlı canvas'a dokunmadan: JSON kopyalanır, image src'leri fullUrl ile
+   değiştirilir, scale görünen boyut sabit kalacak şekilde yeniden hesaplanır,
+   offscreen StaticCanvas baskı çözünürlüğünde render edilir.
+   ═══════════════════════════════════════════════════════════════════════════ */
+async function buildExportCanvas() {
+  const B = store.get().board;
+  const json = canvas.toJSON(['id','assetId','objType','name','excludeFromExport']);
+
+  json.objects.forEach(o => {
+    const a = o.assetId && store.get().assets[o.assetId];
+    if (!a) return;
+    const dispW = (o.width||0) * (o.scaleX||1);   // görünen ayak izi (logical px)
+    const dispH = (o.height||0) * (o.scaleY||1);
+    o.src    = a.fullUrl;                          // ★ orijinal yüksek çözünürlük
+    o.scaleX = dispW / a.naturalWidth;            // ★ görüntü aynı, piksel tam
+    o.scaleY = dispH / a.naturalHeight;
+    o.crossOrigin = 'anonymous';
+  });
+
+  const off = new fabric.StaticCanvas(document.createElement('canvas'),
+    { width:B.widthPx, height:B.heightPx, backgroundColor:B.background, enableRetinaScaling:false });
+  await new Promise(res => off.loadFromJSON(json, res));
+  off.renderAll();
+  const mult = (B.w_mm/25.4*B.dpi) / B.widthPx;   // logical px → baskı px @ hedef dpi
+  return { off, mult, B };
+}
+async function exportPNG() {
+  toast('Yüksek çözünürlük hazırlanıyor…');
+  try {
+    const { off, mult } = await buildExportCanvas();
+    const url = off.toDataURL({ format:'png', multiplier: mult });
+    off.dispose(); downloadURL(url, (boardTitleVal()||'pafta') + '.png'); toast('PNG indirildi ✓');
+  } catch (e) { toast('Export hatası: ' + e.message); }
+}
+async function exportPDF() {
+  toast('PDF hazırlanıyor…');
+  try {
+    const { off, mult, B } = await buildExportCanvas();
+    const data = off.toDataURL({ format:'jpeg', quality:0.95, multiplier: mult });
+    off.dispose();
+    const pdf = new jspdf.jsPDF({ orientation:B.w_mm>=B.h_mm?'landscape':'portrait',
+      unit:'mm', format:[B.w_mm, B.h_mm] });
+    pdf.addImage(data, 'JPEG', 0, 0, B.w_mm, B.h_mm);
+    pdf.save((boardTitleVal()||'pafta') + '.pdf'); toast('PDF indirildi ✓');
+  } catch (e) { toast('Export hatası: ' + e.message); }
+}
+
+/* ═══ KAYDET & PAYLAŞ (POST /tours/asset + POST /tours → sunum.html) ═══ */
+async function savePresentation() {
+  if (!localStorage.getItem('ra_token')) { toast('Paylaşmak için BynAi\'ye giriş yap.'); return; }
+  toast('Yayınlanıyor… (yüksek çözünürlük yükleniyor)');
+  try {
+    // 1) Paftayı tam çözünürlükte raster'a çevir
+    const { off, mult } = await buildExportCanvas();
+    const blob = await new Promise(r => off.toCanvasElement(mult).toBlob(r, 'image/jpeg', 0.92));
+    off.dispose();
+    // 2) Kalıcı URL için backend'e yükle
+    const fd = new FormData();
+    fd.append('image', new File([blob], 'pafta.jpg', { type:'image/jpeg' }));
+    const up = await fetch(`${API}/tours/asset`, { method:'POST', headers:authHeaders(), body:fd });
+    const upData = await up.json();
+    if (!up.ok) throw new Error(upData.detail || 'Yükleme başarısız');
+    // 3) sunum.html'in okuduğu presentation payload'u olarak kaydet
+    //    (boardJson: ileride tekrar düzenlemek için; viewer bunu yoksayar)
+    const res = await fetch(`${API}/tours`, { method:'POST',
+      headers:{ 'Content-Type':'application/json', ...authHeaders() },
+      body: JSON.stringify({ title: boardTitleVal(), panoramas: [{
+        kind:'presentation',
+        images: [{ url: upData.url, label: boardTitleVal() }],
+        panos: [], map: {},
+        boardJson: canvas.toJSON(['id','assetId','objType','name','excludeFromExport'])
+      }]})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Kayıt başarısız');
+    const link = `${location.origin}/sunum.html?id=${data.tour_id}`;
+    document.getElementById('shareLink').value = link;
+    document.getElementById('linkModal').classList.add('open');
+  } catch (e) { toast('Hata: ' + e.message); }
+}
+function copyShare() {
+  const i = document.getElementById('shareLink'); i.select();
+  navigator.clipboard.writeText(i.value).catch(()=>document.execCommand('copy')); toast('Kopyalandı ✓');
+}
+
+/* ═══ UI yardımcıları ═══ */
+function switchTab(t) {
+  document.getElementById('tabBynai').classList.toggle('active', t==='bynai');
+  document.getElementById('tabUpload').classList.toggle('active', t==='upload');
+  document.getElementById('paneBynai').style.display = t==='bynai'?'block':'none';
+  document.getElementById('paneUpload').style.display = t==='upload'?'block':'none';
+}
+function boardTitleVal(){ return document.getElementById('boardTitle').value.trim() || 'İsimsiz Pafta'; }
+function downloadURL(url, name){ const a=document.createElement('a'); a.href=url; a.download=name; a.click(); }
+let toastT; function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.style.display='block';
+  clearTimeout(toastT); toastT=setTimeout(()=>t.style.display='none', 3200); }
+
+/* upload bağlama */
+const dz = document.getElementById('dropzone'), fi = document.getElementById('fileInput');
+dz.onclick = () => fi.click();
+fi.onchange = e => handleFiles(e.target.files);
+['dragover','dragenter'].forEach(ev => dz.addEventListener(ev, e=>{ e.preventDefault(); dz.classList.add('drag'); }));
+['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e=>{ e.preventDefault(); dz.classList.remove('drag'); }));
+dz.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+
+/* başlat */
+applyBoardSize();
+loadBynaiRenders();
+refreshLayers();
+</script>
+</body>
+</html>
