@@ -587,12 +587,12 @@ async function removeBgSelected() {
   if (!localStorage.getItem('ra_token')) { toast('Giriş gerekli'); return; }
   const a = store.get().assets[o.assetId];
   if (!a) { toast('Görsel kaynağı bulunamadı'); return; }
-  toast('Arka plan kaldırılıyor… (5 kredi)');
+  toast('Gökyüzü kaldırılıyor… (5 kredi)');
   try {
     const blob = a._file ? a._file : await (await fetch(a.fullUrl)).blob();
     const fd = new FormData();
     fd.append('image', new File([blob], 'img.png', { type: blob.type || 'image/png' }));
-    const res = await fetch(`${API}/image/remove-bg`, { method:'POST', headers:authHeaders(), body:fd });
+    const res = await fetch(`${API}/image/remove-sky`, { method:'POST', headers:authHeaders(), body:fd });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Başarısız');
     const img = await loadImage(data.url);   // şeffaf PNG; transparanlığı bozmamak için thumb üretmeden kullan
@@ -602,7 +602,7 @@ async function removeBgSelected() {
     const dispW = o.getScaledWidth(), dispH = o.getScaledHeight();
     o.setSrc(data.url, () => {
       o.set({ assetId:id, scaleX:dispW/o.width, scaleY:dispH/o.height });
-      o.setCoords(); canvas.requestRenderAll(); renderProps(); toast('Arka plan kaldırıldı ✓');
+      o.setCoords(); canvas.requestRenderAll(); renderProps(); toast('Gökyüzü kaldırıldı ✓');
     }, { crossOrigin:'anonymous' });
   } catch (e) { toast('Hata: ' + e.message); }
 }
@@ -706,7 +706,7 @@ function renderProps() {
       </div>`:''}
     ${o.objType==='image' ? `
       <button class="tbtn2" id="pReplace" style="width:100%;margin:8px 0 6px;">🔄 Görseli Değiştir</button>
-      <button class="tbtn2" id="pRemoveBg" style="width:100%;margin:0 0 8px;">🧹 Arka Planı Kaldır (5 kredi)</button>` : ''}
+      <button class="tbtn2" id="pRemoveBg" style="width:100%;margin:0 0 8px;">🌥 Gökyüzünü Kaldır (5 kredi)</button>` : ''}
     ${o.objType==='shape' ? `
       ${o.type!=='line' ? `
       <div class="prop"><span>Dolgu</span><input type="color" value="${rgbToHex(o.fill)}" id="pFill" ${(!o.fill||o.fill==='transparent')?'disabled':''}></div>
