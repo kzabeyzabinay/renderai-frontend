@@ -2009,6 +2009,7 @@
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
         <button class="render-btn" onclick="createTour()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> 360 Tur Oluştur <span style="font-size:11px;opacity:0.8;">· 75 kredi</span></button>
         <div style="font-size:11px; color:#8A7E74; margin-top:8px;">Üye olduğun sürece link aktif kalır; üyeliğin yoksa 30 gün sonra pasifleşir (1 ay içinde üye olursan geri döner, olmazsan silinir).</div>
+        <div id="tourEditBadge" onclick="clearTourEditing()" style="display:none; font-size:11px; color:#9A6558; margin-top:6px; cursor:pointer;">✏️ Mevcut tur düzenleniyor — tıkla: yeni tur olarak oluştur</div>
         <div class="error-msg" id="tourError"></div>
         <div id="tourLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
           <div style="font-size:11px; color:#7A8B6A; font-weight:700; margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> TUR YAYINDA</div>
@@ -3438,6 +3439,7 @@
   let panoViewerInstance = null;
   let currentPanoUrl = null;
   let tourPanos = [];  // [{id, url, label, hotspots:[{pitch,yaw,target,targetLabel}], planX, planY}]
+  let currentTourId = null;  // depo: mevcut 360 tur düzenleniyorsa id (güncellemede kredi kesilmez)
   let panoReadyFile = null;
   let tourPlanUrl = '';
   let tourLogoUrl = '';
@@ -3856,24 +3858,58 @@
       return;
     }
     try {
-      const res = await fetch(`${API}/tours`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({
-          title: document.getElementById('tourTitle').value.trim(),
-          panoramas: tourPanos,
-          meta: { plan_url: tourPlanUrl, logo_url: tourLogoUrl }
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Tur oluşturulamadı');
-      const link = `${location.origin}/tur.html?id=${data.tour_id}`;
+      const body = {
+        title: document.getElementById('tourTitle').value.trim(),
+        panoramas: tourPanos,
+        meta: { plan_url: tourPlanUrl, logo_url: tourLogoUrl }
+      };
+      let tourId;
+      if (currentTourId) {
+        // Mevcut turu GÜNCELLE — kredi kesilmez
+        const res = await fetch(`${API}/tours/${currentTourId}`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Güncellenemedi');
+        tourId = currentTourId;
+      } else {
+        // Yeni tur — 75 kredi
+        const res = await fetch(`${API}/tours`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Tur oluşturulamadı');
+        tourId = data.tour_id; currentTourId = tourId; refreshCredits();
+      }
+      updateTourEditBadge();
+      const link = `${location.origin}/tur.html?id=${tourId}`;
       document.getElementById('tourLinkInput').value = link;
       document.getElementById('tourLinkBox').style.display = 'block';
+      loadPanoHistory();
     } catch (e) {
       errEl.textContent = 'Hata: ' + e.message;
       errEl.style.display = 'block';
     }
+  }
+  function updateTourEditBadge() {
+    const b = document.getElementById('tourEditBadge'); if (b) b.style.display = currentTourId ? 'block' : 'none';
+  }
+  function clearTourEditing() { currentTourId = null; updateTourEditBadge(); }
+  async function loadTourForEdit(id) {
+    try {
+      const res = await fetch(`${API}/tours/${id}`);
+      const data = await res.json();
+      if (data.expired) { alert('Bu turun süresi dolmuş; üyeliğin aktifse tekrar açılır.'); return; }
+      const pans = (data.panoramas || []).filter(p => p && p.url && p.kind !== 'presentation');
+      if (!pans.length) { alert('Bu kayıt düzenlenebilir bir 360 tur değil.'); return; }
+      tourPanos = pans.map(p => ({ id: p.id || ('p' + Date.now() + Math.random()), url: p.url, label: p.label || 'Sahne', hotspots: p.hotspots || [], planX: p.planX, planY: p.planY }));
+      const meta = data.meta || {}; tourPlanUrl = meta.plan_url || ''; tourLogoUrl = meta.logo_url || '';
+      document.getElementById('tourTitle').value = data.title || '';
+      currentTourId = id; renderTourList(); updateTourEditBadge();
+      document.getElementById('tourLinkBox').style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      alert('Tur düzenlemeye yüklendi. Değişikliği yapıp "360 Tur Oluştur" ile güncelle (kredi kesilmez).');
+    } catch (e) { alert('Hata: ' + e.message); }
   }
 
   function copyTourLink() {
@@ -3912,7 +3948,12 @@
       const date = t.created_at ? new Date(t.created_at).toLocaleDateString('tr-TR') : '';
       const pasif = t.active === false ? ' · pasif' : '';
       card.innerHTML = `<div style="aspect-ratio:2/1; background:#000; overflow:hidden;"><img src="${t.thumb||''}" loading="lazy" onerror="this.style.visibility='hidden'" style="width:100%;height:100%;object-fit:cover;"></div><div style="padding:9px 11px;"><div style="font-size:13px;font-weight:600;color:#2A2520;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.title||'360 Tur'}</div><div style="font-size:11px;color:#8A7E74;">${date}${pasif}</div></div>`;
-      card.onclick = () => window.open('/tur.html?id=' + t.id, '_blank');
+      card.onclick = () => loadTourForEdit(t.id);   // düzenlemeye yükle
+      card.title = 'Düzenlemek için tıkla';
+      const open = document.createElement('button'); open.textContent = '🔗'; open.title = 'Linki aç';
+      open.style.cssText = 'position:absolute;top:6px;right:38px;z-index:2;border:none;border-radius:8px;background:rgba(26,26,22,0.72);color:#fff;cursor:pointer;font-size:13px;padding:4px 7px;';
+      open.onclick = (e) => { e.stopPropagation(); window.open('/tur.html?id=' + t.id, '_blank'); };
+      card.appendChild(open);
       const del = document.createElement('button'); del.textContent = '🗑'; del.title = 'Sil';
       del.style.cssText = 'position:absolute;top:6px;right:6px;z-index:2;border:none;border-radius:8px;background:rgba(26,26,22,0.72);color:#fff;cursor:pointer;font-size:13px;padding:4px 7px;';
       del.onclick = (e) => { e.stopPropagation(); deleteTourHist(t.id); };
