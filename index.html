@@ -1331,6 +1331,7 @@
           exposure="1" ar ar-modes="webxr scene-viewer quick-look">
         </model-viewer>
         <a id="model3dDownloadBtn" class="download-btn" download="model.glb" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> GLB İndir</a>
+        <button id="model3dObjBtn" onclick="downloadModelObj()" style="display:none; margin-left:8px; padding:10px 16px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:13px; font-weight:600; cursor:pointer;">⬇ OBJ İndir (SketchUp / 3ds Max)</button>
       </div>
     </div>
 
@@ -4550,6 +4551,22 @@
 
   // ─── 🧊 GÖRSELDEN 3D MODEL ────────────────────────────────────────────────
   let model3dFile = null;
+  let lastModel3dUrl = '';
+  async function downloadModelObj() {
+    if (!lastModel3dUrl) return;
+    const btn = document.getElementById('model3dObjBtn');
+    const orig = btn.textContent; btn.disabled = true; btn.textContent = 'OBJ hazırlanıyor… (~20-40sn)';
+    try {
+      const r = await fetch(`${API}/model3d/obj`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ url: lastModel3dUrl }) });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || 'OBJ dönüşümü başarısız');
+      const resp = await fetch(d.url); const blob = await resp.blob();
+      const u = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = u; a.download = 'model_obj.zip'; a.click();
+      setTimeout(() => URL.revokeObjectURL(u), 4000);
+    } catch (e) { alert('Hata: ' + e.message); }
+    finally { btn.disabled = false; btn.textContent = orig; }
+  }
 
   document.getElementById('model3dFileInput').addEventListener('change', e => {
     model3dFile = e.target.files[0];
@@ -4634,6 +4651,8 @@
               setTimeout(() => URL.revokeObjectURL(u), 4000);
             } catch (_) { window.open(statusData.render_url, '_blank'); }
           };
+          lastModel3dUrl = statusData.render_url;
+          document.getElementById('model3dObjBtn').style.display = 'inline-block';
           break;
         } else if (statusData.status === 'failed') {
           throw new Error(statusData.error || '3D model başarısız');
