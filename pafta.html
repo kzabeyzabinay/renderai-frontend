@@ -662,6 +662,9 @@ async function removeBgSelected() {
   if (!localStorage.getItem('ra_token')) { toast('Giriş gerekli'); return; }
   const a = store.get().assets[o.assetId];
   if (!a) { toast('Görsel kaynağı bulunamadı'); return; }
+  const btn = document.getElementById('pRemoveBg');
+  const restoreBtn = () => { const b = document.getElementById('pRemoveBg'); if (b) { b.disabled = false; b.textContent = '🌥 Gökyüzünü Kaldır (5 kredi)'; } };
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Gökyüzü kaldırılıyor…'; }
   toast('Gökyüzü kaldırılıyor… (5 kredi)');
   try {
     const blob = a._file ? a._file : await (await fetch(a.fullUrl)).blob();
@@ -679,7 +682,7 @@ async function removeBgSelected() {
       o.set({ assetId:id, scaleX:dispW/o.width, scaleY:dispH/o.height });
       o.setCoords(); canvas.requestRenderAll(); renderProps(); toast('Gökyüzü kaldırıldı ✓');
     }, { crossOrigin:'anonymous' });
-  } catch (e) { toast('Hata: ' + e.message); }
+  } catch (e) { toast('Hata: ' + e.message); restoreBtn(); }
 }
 
 /* ═══ GÖRSEL KIRPMA ═══ (tam çözünürlükten yeniden üretir → export tutarlı kalır) */
