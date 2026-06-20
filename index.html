@@ -4622,6 +4622,18 @@
           const dl = document.getElementById('model3dDownloadBtn');
           dl.href = statusData.render_url;
           dl.style.display = 'inline-block';
+          // Cross-origin (Supabase) link'te tarayıcı download attribute'ünü yok sayar →
+          // blob ile zorla indir (indirme bug'ı düzeltmesi)
+          dl.onclick = async (e) => {
+            e.preventDefault();
+            try {
+              const resp = await fetch(statusData.render_url);
+              const blob = await resp.blob();
+              const u = URL.createObjectURL(blob);
+              const a = document.createElement('a'); a.href = u; a.download = 'model.glb'; a.click();
+              setTimeout(() => URL.revokeObjectURL(u), 4000);
+            } catch (_) { window.open(statusData.render_url, '_blank'); }
+          };
           break;
         } else if (statusData.status === 'failed') {
           throw new Error(statusData.error || '3D model başarısız');
