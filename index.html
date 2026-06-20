@@ -546,11 +546,31 @@
       box-shadow: 0 0 0 1px rgba(122,139,106,0.3);
     }
 
+    /* Nav container (masaüstü: yatay sıra) */
+    #mainNav { display: flex; gap: 8px; align-items: center; }
+    /* Mobil menü butonu — masaüstünde gizli */
+    .nav-toggle { display: none; background: transparent; border: none; color: #E8E4DC; cursor: pointer; padding: 6px; }
+
     @media (max-width: 768px) {
       .main { grid-template-columns: 1fr; }
       #section-upscale > div { grid-template-columns: 1fr; }
       .hero h1 { font-size: 32px; }
       .room-grid { grid-template-columns: repeat(3, 1fr); }
+
+      /* Telefonda sekmeler hamburger menüye girer */
+      header { position: relative; }
+      .nav-toggle { display: block; }
+      #mainNav {
+        display: none;
+        position: absolute; top: 100%; left: 0; right: 0;
+        flex-direction: column; align-items: stretch !important;
+        gap: 2px !important; padding: 6px;
+        background: #1A1A16; border-bottom: 1px solid #2A2820;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.5); z-index: 1000;
+        max-height: calc(100vh - 56px); overflow-y: auto;
+      }
+      #mainNav.open { display: flex; }
+      #mainNav .main-nav-btn { width: 100%; text-align: left; border-bottom: none; padding: 12px 18px; }
     }
 
     /* 360 tur — geçiş noktası önizlemesi (turdakiyle aynı yuvarlak beyaz nokta) */
@@ -570,7 +590,8 @@
 
 <header>
   <div class="logo">BynAi</div>
-  <div style="display:flex; gap:8px; align-items:center;">
+  <button id="navToggle" class="nav-toggle" onclick="toggleMainNav()" aria-label="Menü"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;display:block"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div id="mainNav">
     <button class="main-nav-btn active" id="nav-render" onclick="switchMainSection('render')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 21h18"/><path d="M6 21V4h8v17"/><path d="M14 21V9h4v12"/><path d="M9 8h2M9 12h2M9 16h2"/></svg>Render</button>
     <button class="main-nav-btn" id="nav-staging" onclick="switchMainSection('staging')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M4 10V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 19v2M19 19v2"/></svg>Sanal Mobilyalama</button>
     <button class="main-nav-btn" id="nav-model3d" onclick="switchMainSection('model3d')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg>3D Model</button>
@@ -921,6 +942,8 @@
           <button class="chip" data-prompt="public park recreational setting, park benches and lamp posts, families and people walking, mature park trees and grass, recreational green urban space">Park <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 14a5 5 0 1 1 4.5-8 4 4 0 0 1-.5 8M12 14v7M9 21h6"/></svg></button>
           <button class="chip" data-prompt="seafront coastal waterfront location, ocean sea visible in background or foreground, beach promenade, coastal palm trees, sea breeze Mediterranean atmosphere">Deniz Kenarı <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 8c3-3 6 3 9 0s6-3 9 0M3 14c3-3 6 3 9 0s6-3 9 0M3 20c3-3 6 3 9 0s6-3 9 0"/></svg></button>
           <button class="chip" data-prompt="dramatic mountain alpine setting, mountain peaks and ridges visible in background, alpine landscape, mountain forest, high altitude atmosphere, fresh mountain air">Dağ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="m3 19 6-10 4 6 2-3 6 7H3Z"/></svg></button>
+          <button class="chip" data-prompt="upscale resort hotel setting, landscaped hotel grounds with a swimming pool and sun loungers, palm trees and manicured ornamental gardens, elegant arrival driveway and covered entrance canopy, hospitality resort complex context, relaxed leisure tourism atmosphere">Otel <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 18h16M5 18a7 7 0 0 1 14 0M12 6V4M10 4h4"/></svg></button>
+          <button class="chip" data-prompt="serene religious complex setting, a traditional mosque with domes and slender minarets visible nearby, Islamic architectural context, spacious paved courtyard with an ablution fountain, mature trees and a calm dignified spiritual atmosphere, place of worship surroundings">Dini <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M2 21h20M5 21V11M19 21V11M5 11a7 7 0 0 1 14 0M12 4V2M10 21v-5a2 2 0 0 1 4 0v5"/></svg></button>
         </div>
       </div>
 
@@ -2251,6 +2274,14 @@
     if (e.target.classList.contains('chip')) {
       toggleChip(e.target);
     }
+  });
+
+  // Mobil hamburger menü
+  function toggleMainNav() {
+    document.getElementById('mainNav').classList.toggle('open');
+  }
+  document.getElementById('mainNav').addEventListener('click', e => {
+    if (e.target.closest('.main-nav-btn')) document.getElementById('mainNav').classList.remove('open');
   });
 
   const INTERIOR_STYLES = [
