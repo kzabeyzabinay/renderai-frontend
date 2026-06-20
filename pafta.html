@@ -129,6 +129,14 @@
   .pagechip.on { border-color:var(--terra); background:rgba(154,101,88,.20); font-weight:600; }
   .pagechip.add { color:var(--accent); border-style:dashed; }
   .pagechip.del { margin-left:auto; color:#d2998a; }
+  /* Sunumlarım depo öğeleri */
+  .libItem { display:flex; gap:12px; align-items:center; padding:8px; border:1px solid var(--line);
+             border-radius:10px; cursor:pointer; background:var(--bg); }
+  .libItem:hover { border-color:var(--terra); }
+  .libItem img { width:84px; height:56px; object-fit:cover; border-radius:7px; background:#000; flex:0 0 auto; }
+  .libItem .li-meta { display:flex; flex-direction:column; gap:2px; overflow:hidden; }
+  .libItem .li-meta b { font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .libItem .li-meta span { font-size:11px; color:var(--muted); }
 </style>
 </head>
 <body>
@@ -137,7 +145,9 @@
 <div class="topbar">
   <a class="brand" href="/">Byn<span>Ai</span></a>
   <input class="titleInput" id="boardTitle" placeholder="Pafta başlığı" value="İsimsiz Pafta" />
+  <span id="editBadge" onclick="clearEditing()" title="Tıkla: yeni sunum olarak kaydet" style="display:none;cursor:pointer;font-size:11px;color:var(--accent);border:1px solid var(--terra);border-radius:14px;padding:4px 10px;"></span>
   <div class="spacer"></div>
+  <button class="tbtn" onclick="openLibrary()">📁 Sunumlarım</button>
   <button class="tbtn" onclick="openTemplates()">⊞ Şablon</button>
   <button class="tbtn" onclick="exportPNG()">⬇ PNG</button>
   <button class="tbtn" onclick="exportPDF()">⬇ PDF</button>
@@ -295,6 +305,16 @@
   <p style="color:var(--muted); max-width:400px; line-height:1.6; font-size:14px;">
     Bu modülü kullanmak için BynAi hesabınla giriş yapmalısın.</p>
   <a href="/" class="tbtn primary" style="text-decoration:none;">Giriş yap / Kayıt ol</a>
+</div>
+
+<!-- Sunumlarım (depo) modalı -->
+<div class="modalBg" id="libModal">
+  <div class="modal" style="width:min(620px,94vw);">
+    <h3>Sunumlarım</h3>
+    <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;">Önceki sunumun üzerine tıkla → editöre yüklenir, düzenleyip tekrar kaydedersin (<b>kredi kesilmez</b>).</p>
+    <div id="libList" style="display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;"></div>
+    <div style="text-align:right;margin-top:14px;"><button class="tbtn" onclick="closeModal('libModal')">Kapat</button></div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -905,19 +925,27 @@ async function savePresentation() {
     // 2) sunum.html'in okuduğu presentation payload'u olarak kaydet.
     //    NOT: /tours, panoramas[].url'in http ile başlamasını ŞART koşuyor (panorama olmasa da) —
     //    bu yüzden üst seviye `url` ZORUNLU. boardJson: tüm sayfaların düzeni (ileride tekrar düzenleme için).
-    const res = await fetch(`${API}/tours`, { method:'POST',
-      headers:{ 'Content-Type':'application/json', ...authHeaders() },
-      body: JSON.stringify({ title: boardTitleVal(), panoramas: [{
-        kind:'presentation',
-        url: images[0].url,                               // ★ /tours doğrulaması için şart
-        images,
-        panos: [], map: {},
-        boardJson: { pages: pages.map(p => ({ board:p.board, json:p.json })) }
-      }]})
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Kayıt başarısız');
-    const link = `${location.origin}/sunum.html?id=${data.tour_id}`;
+    const payloadPano = [{ kind:'presentation', url: images[0].url, images, panos: [], map: {},
+      boardJson: { pages: pages.map(p => ({ board:p.board, json:p.json })) } }];
+    let tourId;
+    if (currentPresentationId) {
+      // Mevcut sunumu GÜNCELLE — kredi kesilmez
+      const res = await fetch(`${API}/tours/${currentPresentationId}`, { method:'PATCH',
+        headers:{ 'Content-Type':'application/json', ...authHeaders() },
+        body: JSON.stringify({ title: boardTitleVal(), panoramas: payloadPano }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Güncellenemedi');
+      tourId = currentPresentationId; toast('Sunum güncellendi (kredi kesilmedi) ✓');
+    } else {
+      // Yeni sunum — 75 kredi
+      const res = await fetch(`${API}/tours`, { method:'POST',
+        headers:{ 'Content-Type':'application/json', ...authHeaders() },
+        body: JSON.stringify({ title: boardTitleVal(), panoramas: payloadPano }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Kayıt başarısız');
+      tourId = data.tour_id; currentPresentationId = tourId; updateEditingBadge();
+    }
+    const link = `${location.origin}/sunum.html?id=${tourId}`;
     document.getElementById('shareLink').value = link;
     document.getElementById('linkModal').classList.add('open');
   } catch (e) { toast('Hata: ' + e.message); }
@@ -925,6 +953,52 @@ async function savePresentation() {
 function copyShare() {
   const i = document.getElementById('shareLink'); i.select();
   navigator.clipboard.writeText(i.value).catch(()=>document.execCommand('copy')); toast('Kopyalandı ✓');
+}
+
+/* ═══ DEPO / SUNUMLARIM — önceki sunumları listele, düzenlemek için yükle ═══ */
+let currentPresentationId = null;
+function updateEditingBadge() {
+  const b = document.getElementById('editBadge');
+  if (currentPresentationId) { b.style.display='inline'; b.textContent='✏️ Mevcut sunum düzenleniyor'; }
+  else b.style.display='none';
+}
+function clearEditing() { currentPresentationId = null; updateEditingBadge(); toast('Artık YENİ sunum olarak kaydedilecek (75 kredi)'); }
+function openLibrary() {
+  if (!localStorage.getItem('ra_token')) { toast('Giriş gerekli'); return; }
+  document.getElementById('libModal').classList.add('open'); loadLibrary();
+}
+async function loadLibrary() {
+  const wrap = document.getElementById('libList');
+  wrap.innerHTML = '<div class="hint">Yükleniyor…</div>';
+  try {
+    const res = await fetch(`${API}/my/library`, { headers: authHeaders() });
+    const data = await res.json();
+    const items = data.presentations || [];
+    if (!items.length) { wrap.innerHTML = '<div class="empty">Henüz kayıtlı sunum yok.</div>'; return; }
+    wrap.innerHTML = '';
+    items.forEach(p => {
+      const el = document.createElement('div'); el.className = 'libItem';
+      const date = p.created_at ? new Date(p.created_at).toLocaleDateString('tr-TR') : '';
+      el.innerHTML = `<img src="${p.thumb||''}" onerror="this.style.visibility='hidden'"><div class="li-meta"><b>${p.title||'Sunum'}</b><span>${date}</span></div>`;
+      el.onclick = () => loadPresentation(p.id, p.title);
+      wrap.appendChild(el);
+    });
+  } catch (e) { wrap.innerHTML = '<div class="empty">Yüklenemedi</div>'; }
+}
+async function loadPresentation(id, title) {
+  toast('Sunum yükleniyor…');
+  try {
+    const res = await fetch(`${API}/tours/${id}`);
+    const data = await res.json();
+    const pl = (data.panoramas || [])[0] || {};
+    const bj = pl.boardJson;
+    if (!bj || !bj.pages || !bj.pages.length) { toast('Bu sunum düzenlenemiyor (eski kayıt — düzen verisi yok)'); return; }
+    pages = bj.pages.map(p => ({ id:crypto.randomUUID(), board:p.board, json:p.json }));
+    activeIdx = 0; currentPresentationId = id;
+    document.getElementById('boardTitle').value = title || data.title || '';
+    loadPageInto(0); updateEditingBadge(); closeModal('libModal');
+    toast('Sunum yüklendi — düzenleyip kaydet (kredi kesilmez)');
+  } catch (e) { toast('Hata: ' + e.message); }
 }
 
 /* ═══ UI yardımcıları ═══ */

@@ -1836,6 +1836,7 @@
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
         <button class="render-btn" onclick="createDecision()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> Karar Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 75 kredi</span></button>
         <div style="font-size:11px; color:#8A7E74; margin-top:8px;">En az 2 seçenek gerekir. Link 30 gün canlı kalır.</div>
+        <div id="decEditBadge" onclick="clearDecisionEditing()" style="display:none; font-size:11px; color:#9A6558; margin-top:6px; cursor:pointer;">✏️ Mevcut link düzenleniyor — tıkla: yeni link olarak oluştur</div>
         <div class="error-msg" id="decLinkError"></div>
 
         <div id="decLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
@@ -1849,6 +1850,12 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 4h12M6 20h12M8 4c0 5 8 5 8 12M16 4c0 5-8 5-8 12"/></svg> Müşteri henüz seçim yapmadı — bu kutu otomatik güncellenir.
           </div>
         </div>
+      </div>
+
+      <div class="panel">
+        <h2>Önceki Karar Linklerim</h2>
+        <div style="font-size:11px; color:#8A7E74; margin-bottom:8px;">Tıkla → seçenekleri editöre yükle, düzenleyip güncelle (<b>kredi kesilmez</b>).</div>
+        <div id="decLibList" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
     </div>
 
@@ -2604,6 +2611,7 @@
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
     if (section === 'works') loadWorks(true);
+    if (section === 'decision') loadDecisionLibrary();
   }
 
   // ─── YERLEŞTİR ───────────────────────────────────────────────────────────
@@ -2973,6 +2981,7 @@
   let decCurrentVariantUrl = null;
   let decOptions = [];          // [{url, label}]
   let decPollTimer = null;
+  let currentDecisionId = null; // depo: mevcut karar linki düzenleniyorsa id (güncellemede kredi kesilmez)
 
   document.getElementById('decSceneInput').addEventListener('change', e => {
     decSceneFile = e.target.files[0] || null;
@@ -3124,22 +3133,74 @@
       errEl.style.display = 'block'; return;
     }
     try {
-      const res = await fetch(`${API}/decisions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({ title: document.getElementById('decTitle').value.trim(), options: decOptions })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Karar linki oluşturulamadı');
-      refreshCredits();
-      const link = `${location.origin}/karar.html?id=${data.decision_id}`;
+      const title = document.getElementById('decTitle').value.trim();
+      let decId;
+      if (currentDecisionId) {
+        // Mevcut karar linkini GÜNCELLE — kredi kesilmez
+        const res = await fetch(`${API}/decisions/${currentDecisionId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ title, options: decOptions })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Güncellenemedi');
+        decId = currentDecisionId;
+      } else {
+        // Yeni karar linki — 75 kredi
+        const res = await fetch(`${API}/decisions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ title, options: decOptions })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Karar linki oluşturulamadı');
+        decId = data.decision_id; currentDecisionId = decId; refreshCredits();
+      }
+      updateDecEditBadge();
+      const link = `${location.origin}/karar.html?id=${decId}`;
       document.getElementById('decLinkInput').value = link;
       document.getElementById('decLinkBox').style.display = 'block';
-      startDecisionPolling(data.decision_id);
+      startDecisionPolling(decId);
+      loadDecisionLibrary();
     } catch (e) {
       errEl.textContent = 'Hata: ' + e.message;
       errEl.style.display = 'block';
     }
+  }
+
+  // ─── Karar deposu: önceki linkleri listele + düzenlemek için yükle ───
+  function updateDecEditBadge() {
+    const b = document.getElementById('decEditBadge'); if (b) b.style.display = currentDecisionId ? 'block' : 'none';
+  }
+  function clearDecisionEditing() { currentDecisionId = null; updateDecEditBadge(); }
+  function loadDecisionForEdit(d) {
+    decOptions = (d.options || []).map(o => ({ url: o.url, label: o.label }));
+    document.getElementById('decTitle').value = d.title || '';
+    currentDecisionId = d.id;
+    renderDecOptions(); updateDecEditBadge();
+    document.getElementById('decLinkBox').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  async function loadDecisionLibrary() {
+    const wrap = document.getElementById('decLibList'); if (!wrap) return;
+    if (!localStorage.getItem('ra_token')) { wrap.innerHTML = '<div style="font-size:12px;color:#ABA49C;">Giriş yapınca kayıtların burada listelenir.</div>'; return; }
+    wrap.innerHTML = '<div style="font-size:12px;color:#ABA49C;">Yükleniyor…</div>';
+    try {
+      const res = await fetch(`${API}/my/library`, { headers: authHeaders() });
+      const data = await res.json();
+      const items = data.decisions || [];
+      if (!items.length) { wrap.innerHTML = '<div style="font-size:12px;color:#ABA49C;">Henüz karar linki yok.</div>'; return; }
+      wrap.innerHTML = '';
+      items.forEach(d => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; gap:10px; align-items:center; padding:8px; border:1px solid #E0DAD0; border-radius:8px; cursor:pointer; background:#FAFAF8;';
+        const date = d.created_at ? new Date(d.created_at).toLocaleDateString('tr-TR') : '';
+        const sel = d.selected_label ? ' · ✓ ' + d.selected_label : '';
+        row.innerHTML = `<img src="${d.thumb||''}" onerror="this.style.visibility='hidden'" style="width:54px;height:40px;object-fit:cover;border-radius:6px;background:#000;"><div style="flex:1;overflow:hidden;"><div style="font-size:13px;font-weight:600;color:#2A2520;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.title||'Karar Linki'}</div><div style="font-size:11px;color:#8A7E74;">${d.count} seçenek · ${date}${sel}</div></div>`;
+        row.onclick = () => loadDecisionForEdit(d);
+        wrap.appendChild(row);
+      });
+    } catch (e) { wrap.innerHTML = '<div style="font-size:12px;color:#ABA49C;">Yüklenemedi</div>'; }
   }
 
   function startDecisionPolling(id) {
