@@ -361,6 +361,9 @@ const store = createStore({
 
 /* ═══ FABRIC CANVAS ═══ */
 const canvas = new fabric.Canvas('c', { backgroundColor:'#FFFFFF', preserveObjectStacking:true });
+// NETLİK: görseller önbelleğe alınmasın → büyütülünce kaynaktan tam çözünürlükte çizilir
+// (objectCaching açıkken küçük önbellek büyütülüp bulanıklaşıyordu). Sadece Image'a uygulanır.
+fabric.Image.prototype.objectCaching = false;
 
 function applyBoardSize() {
   const B = store.get().board;
@@ -465,10 +468,17 @@ function assetCard(a) {
   return el;
 }
 
-/* ── Fabric'e THUMBNAIL ile ekle (4K+ canvas'ı yormasın) ── */
+/* Canvas kaynağı: kalıcı (https/data) tam çözünürlük varsa ONU kullan → ekranda net.
+   Upload blob'u (session-only) ise 2048 thumb'a düş (JSON'da kalıcı kalsın diye). */
+function canvasSrc(a) {
+  if (a.fullUrl && /^(https?:|data:)/i.test(a.fullUrl)) return a.fullUrl;
+  return a.thumbUrl;
+}
+
+/* ── Fabric'e ekle — net önizleme için kalıcı tam çözünürlük (objectCaching kapalı) ── */
 function addImageToCanvas(asset, x, y) {
   if (asset._tainted) toast('Bu render CORS nedeniyle önizlenemiyor — yine de çıktıya tam çözünürlük girer.');
-  fabric.Image.fromURL(asset.thumbUrl, img => {
+  fabric.Image.fromURL(canvasSrc(asset), img => {
     const B = store.get().board, maxW = B.widthPx * 0.42, fit = Math.min(1, maxW / img.width);
     img.set({ left: x ?? B.widthPx/2, top: y ?? B.heightPx/2,
               originX:'center', originY:'center', scaleX:fit, scaleY:fit });
@@ -500,7 +510,7 @@ wrap.addEventListener('drop', e => {
 });
 function replaceObjImage(o, asset) {
   const dispW = o.getScaledWidth(), dispH = o.getScaledHeight();
-  o.setSrc(asset.thumbUrl, () => {
+  o.setSrc(canvasSrc(asset), () => {
     o.set({ assetId: asset.id, scaleX: dispW / o.width, scaleY: dispH / o.height });
     o.setCoords(); canvas.setActiveObject(o); canvas.requestRenderAll(); refreshLayers();
     toast('Görsel değiştirildi ✓');
