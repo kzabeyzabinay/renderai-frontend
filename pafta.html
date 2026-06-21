@@ -393,7 +393,7 @@ function loadImage(src) {
   });
 }
 /* index.html'deki resizeIfNeeded() ile aynı mantık; natural boyutu da döndürür. */
-async function makeThumb(src, maxDim = 1280, quality = 0.82) {
+async function makeThumb(src, maxDim = 2048, quality = 0.9) {
   let img;
   try { img = await loadImage(src); }
   catch { return { thumbUrl: typeof src==='string'?src:'', nW:0, nH:0, tainted:true }; }
@@ -430,7 +430,7 @@ async function loadBynaiRenders() {
     if (!items.length) { empty.style.display='block'; return; }
     grid.innerHTML = '';
     for (const r of items) {
-      const { thumbUrl, nW, nH, tainted } = await makeThumb(r.result_url, 1280);
+      const { thumbUrl, nW, nH, tainted } = await makeThumb(r.result_url, 2048, 0.9);
       const id = 'bynai_' + (r.id || crypto.randomUUID());
       addAsset({ id, source:'bynai', name: r.style ? String(r.style).slice(0,18) : 'Render',
         thumbUrl: thumbUrl || r.result_url, fullUrl: r.result_url,
@@ -446,7 +446,7 @@ async function handleFiles(fileList) {
   const grid = document.getElementById('uploadGrid');
   for (const file of fileList) {
     if (!file.type.startsWith('image/')) continue;
-    const { thumbUrl, nW, nH } = await makeThumb(file, 1280);
+    const { thumbUrl, nW, nH } = await makeThumb(file, 2048, 0.9);
     const id = 'up_' + crypto.randomUUID();
     addAsset({ id, source:'upload', name: file.name.slice(0,18),
       thumbUrl, fullUrl: URL.createObjectURL(file),   // orijinal File blob URL'i
@@ -764,7 +764,7 @@ function replaceSelectedImage() {
   inp.onchange = async e => {
     const file = e.target.files[0]; if (!file) return;
     toast('Görsel değiştiriliyor…');
-    const { thumbUrl, nW, nH } = await makeThumb(file, 1280);
+    const { thumbUrl, nW, nH } = await makeThumb(file, 2048, 0.9);
     const id = 'up_' + crypto.randomUUID();
     addAsset({ id, source:'upload', name:file.name.slice(0,18), thumbUrl,
       fullUrl: URL.createObjectURL(file), naturalWidth:nW, naturalHeight:nH, _file:file });
