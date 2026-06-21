@@ -2193,7 +2193,7 @@
 
   function updateAuthUI() {
     const email = localStorage.getItem('ra_email');
-    document.getElementById('authEmail').style.display = email ? 'inline' : 'none';
+    document.getElementById('authEmail').style.display = 'none';   // e-posta header'da gizli; sadece Hesap modalında görünür
     document.getElementById('authEmail').textContent = email || '';
     document.getElementById('authLoginBtn').style.display = email ? 'none' : 'inline-block';
     document.getElementById('authLogoutBtn').style.display = email ? 'inline-block' : 'none';
