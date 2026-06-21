@@ -674,21 +674,28 @@ function addShape(type) {
   canvas.add(o).setActiveObject(o); refreshLayers();
 }
 
-/* Arka planı kaldır — seçili görseli backend'e gönder (5 kredi), şeffaf PNG ile değiştir (konum/boyut sabit) */
-async function removeBgSelected() {
+/* Arka planı kaldır — iki mod:
+   mode='sky'     → sadece gökyüzünü sil (mimari cephe); bina+havuz+peyzaj kalır
+   mode='subject' → nesneyi/logoyu ayır (Canva mantığı); seçilen kalır, gerisi gider
+   2 kredi, şeffaf PNG ile değiştir (konum/boyut sabit) */
+async function removeBgSelected(mode = 'sky') {
   const o = canvas.getActiveObject();
   if (!o || o.objType !== 'image') { toast('Önce bir görsel seç'); return; }
   if (!localStorage.getItem('ra_token')) { toast('Giriş gerekli'); return; }
   const a = store.get().assets[o.assetId];
   if (!a) { toast('Görsel kaynağı bulunamadı'); return; }
-  const btn = document.getElementById('pRemoveBg');
-  const restoreBtn = () => { const b = document.getElementById('pRemoveBg'); if (b) { b.disabled = false; b.textContent = '🧹 Arka Plan Kaldır (2 kredi)'; } };
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Arka plan kaldırılıyor…'; }
-  toast('Arka plan kaldırılıyor… (2 kredi)');
+  const ids = ['pRemoveSky', 'pRemoveSubject'];
+  const labels = { pRemoveSky:'🌤️ Gökyüzünü Sil (2 kredi)', pRemoveSubject:'✂️ Nesneyi/Logoyu Kes (2 kredi)' };
+  const restoreBtn = () => ids.forEach(i => { const b = document.getElementById(i); if (b) { b.disabled = false; b.textContent = labels[i]; } });
+  ids.forEach(i => { const b = document.getElementById(i); if (b) b.disabled = true; });
+  const actBtn = document.getElementById(mode === 'subject' ? 'pRemoveSubject' : 'pRemoveSky');
+  if (actBtn) actBtn.textContent = '⏳ İşleniyor…';
+  toast((mode === 'subject' ? 'Nesne ayrılıyor' : 'Gökyüzü siliniyor') + '… (2 kredi)');
   try {
     const blob = a._file ? a._file : await (await fetch(a.fullUrl)).blob();
     const fd = new FormData();
     fd.append('image', new File([blob], 'img.png', { type: blob.type || 'image/png' }));
+    fd.append('mode', mode);
     const res = await fetch(`${API}/image/remove-bg`, { method:'POST', headers:authHeaders(), body:fd });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Başarısız');
@@ -865,7 +872,9 @@ function renderProps() {
     ${o.objType==='image' ? `
       <button class="tbtn2" id="pReplace" style="width:100%;margin:8px 0 6px;">🔄 Görseli Değiştir</button>
       <button class="tbtn2" id="pCrop" style="width:100%;margin:0 0 6px;">✂ Kırp</button>
-      <button class="tbtn2" id="pRemoveBg" style="width:100%;margin:0 0 8px;">🧹 Arka Plan Kaldır (2 kredi)</button>` : ''}
+      <div style="font-size:10px;color:var(--muted,#8A7E74);margin:6px 0 4px;">Arka plan kaldır</div>
+      <button class="tbtn2" id="pRemoveSky" style="width:100%;margin:0 0 5px;">🌤️ Gökyüzünü Sil (2 kredi)</button>
+      <button class="tbtn2" id="pRemoveSubject" style="width:100%;margin:0 0 8px;">✂️ Nesneyi/Logoyu Kes (2 kredi)</button>` : ''}
     ${o.objType==='shape' ? `
       ${o.type!=='line' ? `
       <div class="prop"><span>Dolgu</span><input type="color" value="${rgbToHex(o.fill)}" id="pFill" ${(!o.fill||o.fill==='transparent')?'disabled':''}></div>
@@ -887,7 +896,8 @@ function renderProps() {
   bind('pStroke', v => o.set('stroke', v));
   bind('pSW', v => o.set('strokeWidth', +v));
   const rep = document.getElementById('pReplace'); if (rep) rep.onclick = replaceSelectedImage;
-  const rbg = document.getElementById('pRemoveBg'); if (rbg) rbg.onclick = removeBgSelected;
+  const rsky = document.getElementById('pRemoveSky'); if (rsky) rsky.onclick = () => removeBgSelected('sky');
+  const rsub = document.getElementById('pRemoveSubject'); if (rsub) rsub.onclick = () => removeBgSelected('subject');
   const crp = document.getElementById('pCrop'); if (crp) crp.onclick = startCrop;
   const nf = document.getElementById('pNoFill'); if (nf) nf.onchange = e => {
     if (e.target.checked) { o._lastFill = o.fill || 'rgba(154,101,88,0.12)'; o.set('fill', ''); }
