@@ -45,7 +45,9 @@
   .tabs { display:flex; border-bottom:1px solid var(--line); flex:0 0 auto; }
   .tab { flex:1; padding:11px 6px; text-align:center; font-size:12px; font-weight:600; cursor:pointer;
          color:var(--muted); border-bottom:2px solid transparent; }
-  .tab.active { color:var(--panel); border-bottom-color:var(--terra); }
+  .tab.active { color:var(--ink); border-bottom-color:var(--sage); }
+  /* Tıklanan/odaklı butonlar kurumsal yeşil */
+  .tool:focus, .tbtn:focus, .tbtn2:focus, .pagechip:focus { outline:none; border-color:var(--sage); box-shadow:0 0 0 2px rgba(122,139,106,.25); }
 
   .pane { flex:1; overflow-y:auto; padding:12px; }
   .pane::-webkit-scrollbar { width:8px; } .pane::-webkit-scrollbar-thumb { background:var(--line); border-radius:4px; }
@@ -85,7 +87,7 @@
   .alignGrid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
   .layerRow { display:flex; align-items:center; gap:6px; padding:6px 8px; border-radius:7px;
               background:var(--bg); border:1px solid var(--line); margin-bottom:5px; font-size:12px; cursor:pointer; }
-  .layerRow.sel { border-color:var(--terra); }
+  .layerRow.sel { border-color:var(--sage); background:rgba(122,139,106,.12); }
   .layerRow .lname { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .layerRow .ic { width:22px; text-align:center; cursor:pointer; opacity:.7; }
   .layerRow .ic:hover { opacity:1; }
@@ -115,7 +117,7 @@
   .tbtn2 { flex:1; min-width:30px; padding:7px 4px; border:1px solid var(--line); border-radius:6px;
            background:transparent; color:var(--panel); font-size:14px; cursor:pointer; line-height:1; }
   .tbtn2:hover { border-color:var(--accent); }
-  .tbtn2.on { border-color:var(--terra); background:rgba(154,101,88,.20); color:#fff; }
+  .tbtn2.on { border-color:var(--sage); background:rgba(122,139,106,.18); color:var(--ink); }
   .prop select { background:var(--bg); border:1px solid var(--line); color:var(--panel);
                  border-radius:6px; padding:5px 6px; font-size:12px; flex:1; max-width:150px; }
   .acard svg { width:100%; height:100%; display:block; padding:8px; }
@@ -127,7 +129,7 @@
   .pagechip { padding:6px 13px; border:1px solid var(--line); border-radius:7px; background:transparent;
               color:var(--panel); font-size:12px; cursor:pointer; white-space:nowrap; }
   .pagechip:hover { border-color:var(--accent); }
-  .pagechip.on { border-color:var(--terra); background:rgba(154,101,88,.20); font-weight:600; }
+  .pagechip.on { border-color:var(--sage); background:rgba(122,139,106,.18); font-weight:600; }
   .pagechip.add { color:var(--accent); border-style:dashed; }
   .pagechip.del { margin-left:auto; color:#d2998a; }
   /* Sunumlarım depo öğeleri */
@@ -151,11 +153,11 @@
   <input class="titleInput" id="boardTitle" placeholder="Pafta başlığı" value="İsimsiz Pafta" />
   <span id="editBadge" onclick="clearEditing()" title="Tıkla: yeni sunum olarak kaydet" style="display:none;cursor:pointer;font-size:11px;color:var(--accent);border:1px solid var(--terra);border-radius:14px;padding:4px 10px;"></span>
   <div class="spacer"></div>
-  <button class="tbtn" onclick="openLibrary()">📁 Sunumlarım</button>
-  <button class="tbtn" onclick="openTemplates()">⊞ Şablon</button>
-  <button class="tbtn" onclick="exportPNG()">⬇ PNG</button>
-  <button class="tbtn" onclick="exportPDF()">⬇ PDF</button>
-  <button class="tbtn primary" onclick="savePresentation()" title="Yeni sunum 75 kredi · mevcut sunumu güncellemek ücretsiz">↗ Kaydet & Paylaş · 75 kredi</button>
+  <button class="tbtn" onclick="openLibrary()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Sunumlarım</button>
+  <button class="tbtn" onclick="openTemplates()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Şablon</button>
+  <button class="tbtn" onclick="exportPNG()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg>PNG</button>
+  <button class="tbtn" onclick="exportPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg>PDF</button>
+  <button class="tbtn primary" onclick="savePresentation()" title="Yeni sunum 75 kredi · mevcut sunumu güncellemek ücretsiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2"/></svg>Kaydet & Paylaş · 75 kredi</button>
 </div>
 
 <div class="stage">
@@ -484,10 +486,25 @@ wrap.addEventListener('drop', e => {
   const symKey = e.dataTransfer.getData('symbolKey');
   if (symKey) { addSymbol(symKey, p.x, p.y); return; }
   const usym = e.dataTransfer.getData('userSym');
-  if (usym) { addUserSymbol(usym, p.x, p.y); return; }
   const asset = store.get().assets[e.dataTransfer.getData('assetId')];
+  // Mevcut bir görselin ÜSTÜNE bırakıldıysa → o görseli değiştir (konum/boyut aynı kalır, Canva gibi)
+  const tgt = canvas.findTarget(e);
+  if (tgt && tgt.objType === 'image' && (asset || usym)) {
+    if (asset) replaceObjImage(tgt, asset);
+    else { const s = userSymbols().find(u => u.id === usym); if (s) loadImage(s.dataUrl).then(img => { const aid='us_'+usym; if(!store.get().assets[aid]) addAsset({id:aid,source:'upload',name:s.name,thumbUrl:s.dataUrl,fullUrl:s.dataUrl,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight}); replaceObjImage(tgt, store.get().assets[aid]); }); }
+    return;
+  }
+  if (usym) { addUserSymbol(usym, p.x, p.y); return; }
   if (asset) addImageToCanvas(asset, p.x, p.y);
 });
+function replaceObjImage(o, asset) {
+  const dispW = o.getScaledWidth(), dispH = o.getScaledHeight();
+  o.setSrc(asset.thumbUrl, () => {
+    o.set({ assetId: asset.id, scaleX: dispW / o.width, scaleY: dispH / o.height });
+    o.setCoords(); canvas.setActiveObject(o); canvas.requestRenderAll(); refreshLayers();
+    toast('Görsel değiştirildi ✓');
+  }, { crossOrigin: 'anonymous' });
+}
 
 /* ═══ HAZIR SEMBOLLER (vektörel — her ölçekte net) ═══ */
 const SYMBOLS = [
@@ -664,14 +681,14 @@ async function removeBgSelected() {
   const a = store.get().assets[o.assetId];
   if (!a) { toast('Görsel kaynağı bulunamadı'); return; }
   const btn = document.getElementById('pRemoveBg');
-  const restoreBtn = () => { const b = document.getElementById('pRemoveBg'); if (b) { b.disabled = false; b.textContent = '🌥 Gökyüzünü Kaldır (5 kredi)'; } };
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Gökyüzü kaldırılıyor…'; }
-  toast('Gökyüzü kaldırılıyor… (5 kredi)');
+  const restoreBtn = () => { const b = document.getElementById('pRemoveBg'); if (b) { b.disabled = false; b.textContent = '🧹 Arka Plan Kaldır (2 kredi)'; } };
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Arka plan kaldırılıyor…'; }
+  toast('Arka plan kaldırılıyor… (2 kredi)');
   try {
     const blob = a._file ? a._file : await (await fetch(a.fullUrl)).blob();
     const fd = new FormData();
     fd.append('image', new File([blob], 'img.png', { type: blob.type || 'image/png' }));
-    const res = await fetch(`${API}/image/remove-sky`, { method:'POST', headers:authHeaders(), body:fd });
+    const res = await fetch(`${API}/image/remove-bg`, { method:'POST', headers:authHeaders(), body:fd });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Başarısız');
     const img = await loadImage(data.url);   // şeffaf PNG; transparanlığı bozmamak için thumb üretmeden kullan
@@ -681,7 +698,7 @@ async function removeBgSelected() {
     const dispW = o.getScaledWidth(), dispH = o.getScaledHeight();
     o.setSrc(data.url, () => {
       o.set({ assetId:id, scaleX:dispW/o.width, scaleY:dispH/o.height });
-      o.setCoords(); canvas.requestRenderAll(); renderProps(); toast('Gökyüzü kaldırıldı ✓');
+      o.setCoords(); canvas.requestRenderAll(); renderProps(); toast('Arka plan kaldırıldı ✓');
     }, { crossOrigin:'anonymous' });
   } catch (e) { toast('Hata: ' + e.message); restoreBtn(); }
 }
@@ -847,7 +864,7 @@ function renderProps() {
     ${o.objType==='image' ? `
       <button class="tbtn2" id="pReplace" style="width:100%;margin:8px 0 6px;">🔄 Görseli Değiştir</button>
       <button class="tbtn2" id="pCrop" style="width:100%;margin:0 0 6px;">✂ Kırp</button>
-      <button class="tbtn2" id="pRemoveBg" style="width:100%;margin:0 0 8px;">🌥 Gökyüzünü Kaldır (5 kredi)</button>` : ''}
+      <button class="tbtn2" id="pRemoveBg" style="width:100%;margin:0 0 8px;">🧹 Arka Plan Kaldır (2 kredi)</button>` : ''}
     ${o.objType==='shape' ? `
       ${o.type!=='line' ? `
       <div class="prop"><span>Dolgu</span><input type="color" value="${rgbToHex(o.fill)}" id="pFill" ${(!o.fill||o.fill==='transparent')?'disabled':''}></div>
@@ -1204,8 +1221,10 @@ function loadPageInto(i) {
   const pg = pages[i];
   store.set({ board: { ...pg.board } });
   applyBoardSize();
+  histLock = true;
   canvas.loadFromJSON(pg.json || { objects:[] }, () => {
     canvas.backgroundColor = pg.board.background; canvas.renderAll();
+    histLock = false; resetHist();
     refreshLayers(); renderProps();
   });
   renderPageBar();
@@ -1249,6 +1268,23 @@ function renderPageBar() {
   }
 }
 
+/* ═══ GERİ AL / İLERİ AL (Ctrl+Z / Ctrl+Y) ═══ */
+let undoStack = [], redoStack = [], histLock = false;
+function pushHist() { if (histLock) return; try { undoStack.push(JSON.stringify(canvas.toJSON(PAGE_PROPS))); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0; } catch (_) {} }
+function resetHist() { undoStack = []; redoStack = []; try { undoStack.push(JSON.stringify(canvas.toJSON(PAGE_PROPS))); } catch (_) {} }
+function applyHist(json) { histLock = true; canvas.loadFromJSON(JSON.parse(json), () => { canvas.renderAll(); histLock = false; refreshLayers(); renderProps(); }); }
+function undo() { if (undoStack.length < 2) return; redoStack.push(undoStack.pop()); applyHist(undoStack[undoStack.length - 1]); }
+function redo() { if (!redoStack.length) return; const s = redoStack.pop(); undoStack.push(s); applyHist(s); }
+canvas.on('object:added', pushHist);
+canvas.on('object:modified', pushHist);
+canvas.on('object:removed', pushHist);
+document.addEventListener('keydown', e => {
+  const k = (e.key || '').toLowerCase();
+  if ((e.ctrlKey || e.metaKey) && k === 'z' && !e.shiftKey) {
+    if (!(canvas.getActiveObject() && canvas.getActiveObject().isEditing)) { e.preventDefault(); undo(); }
+  } else if ((e.ctrlKey || e.metaKey) && (k === 'y' || (e.shiftKey && k === 'z'))) { e.preventDefault(); redo(); }
+});
+
 /* başlat */
 if (!localStorage.getItem('ra_token')) {           // üyelik duvarı
   document.getElementById('authGate').style.display = 'flex';
@@ -1259,6 +1295,7 @@ renderSymbols();
 pages = [ blankPage() ];                            // ilk sayfa
 renderPageBar();
 refreshLayers();
+resetHist();                                         // ilk geri-al anlık görüntüsü
 </script>
 </body>
 </html>
