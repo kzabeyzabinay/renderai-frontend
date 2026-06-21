@@ -603,9 +603,12 @@
     <button class="main-nav-btn" id="nav-pano" onclick="switchMainSection('pano')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>360 Tur</button>
     <button class="main-nav-btn" id="nav-decision" onclick="switchMainSection('decision')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.3 2.3L15.5 9.5"/></svg>Karar Linki</button>
     <button class="main-nav-btn" id="nav-works" onclick="switchMainSection('works')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/></svg>İşlerim</button>
+    <button class="main-nav-btn" id="nav-egitim" onclick="switchMainSection('egitim')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>Eğitim</button>
     <a class="main-nav-btn" id="nav-pafta" href="pafta.html" style="text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 4h18"/><path d="M20 4v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4"/><path d="m8 20 4-4 4 4"/><path d="M9 11l2.2-2.2L13 10.5 15 8"/></svg>Pafta / Sunum</a>
   </div>
   <div style="display:flex; gap:10px; align-items:center;">
+    <div id="gtranslate" style="display:inline-block;"></div>
+    <button id="helpBtn" onclick="openHelp()" style="padding:8px 12px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#8A7E74; font-size:12px; cursor:pointer;">Yardım</button>
     <button id="pricingBtn" onclick="openPricingModal()"
       style="padding:8px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:13px; font-weight:700; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9 3 6.5 8 12 21 17.5 8 15 3"/></svg> Paketler</button>
     <span id="creditBadge" style="display:none; font-size:12px; font-weight:700; color:#FAFAF8; background:#7A8B6A; padding:6px 12px; border-radius:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M13 3 4 14h6l-1 7 9-11h-6l1-7Z"/></svg> —</span>
@@ -626,7 +629,8 @@
     </div>
     <div style="font-size:12px; color:#8A7E74;">E-posta</div>
     <div id="accEmail" style="font-size:14px; color:#2A2520; font-weight:600; margin-bottom:8px;"></div>
-    <div id="accCredits" style="font-size:13px; color:#7A8B6A; margin-bottom:18px;"></div>
+    <div id="accCredits" style="font-size:13px; color:#7A8B6A; margin-bottom:4px;"></div>
+    <div id="accSub" style="font-size:13px; color:#7A8B6A; margin-bottom:18px;"></div>
     <div style="font-size:13px; font-weight:700; color:#2A2520; margin-bottom:8px;">Şifre Değiştir</div>
     <input id="accPass1" type="password" placeholder="Yeni şifre (en az 6 karakter)" autocomplete="new-password"
       style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:10px; color:#2A2520;" />
@@ -635,6 +639,30 @@
     <div id="accMsg" style="display:none; font-size:12px; margin-bottom:12px;"></div>
     <button onclick="changePassword()" style="width:100%; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;">Şifreyi Güncelle</button>
     <button onclick="authLogout()" style="width:100%; padding:11px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#8A7E74; font-size:13px; cursor:pointer;">Çıkış Yap</button>
+  </div>
+</div>
+
+<!-- ─── EĞİTİM VİDEOLARI ─────────────────────────────────────────────────── -->
+<div id="section-egitim" style="display:none; max-width:1000px; margin:0 auto; padding:40px 32px 80px; text-align:center;">
+  <h2 style="font-size:24px; color:#2A2520; margin:24px 0 8px;">Eğitim Videoları</h2>
+  <p style="color:#8A7E74; font-size:14px;">BynAi'yi en verimli kullanmanın yolları — adım adım videolar.</p>
+  <div style="margin-top:40px; padding:60px 24px; border:2px dashed #D8D2C8; border-radius:16px; background:#FAFAF8;">
+    <div style="font-size:42px;">🎬</div>
+    <div style="font-size:16px; font-weight:600; color:#8A7E74; margin-top:12px;">Eğitim videoları yakında eklenecek</div>
+  </div>
+</div>
+
+<!-- ─── YARDIM MODAL ────────────────────────────────────────────────────── -->
+<div id="helpModal" style="display:none; position:fixed; inset:0; background:rgba(26,26,22,0.6); z-index:1100; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#FAFAF8; border-radius:18px; padding:28px; width:100%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <h3 style="margin:0; font-size:18px; color:#2A2520;">Yardım / İletişim</h3>
+      <button onclick="document.getElementById('helpModal').style.display='none'" style="border:none; background:none; font-size:20px; color:#8A7E74; cursor:pointer;">✕</button>
+    </div>
+    <p style="font-size:13px; color:#8A7E74; line-height:1.6; margin-bottom:12px;">Soru, sorun veya önerini yaz — "Gönder"e basınca e-posta uygulamanla bize ulaşır.</p>
+    <textarea id="helpMsg" rows="5" placeholder="Mesajın..." style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; color:#2A2520; font-family:inherit; resize:vertical;"></textarea>
+    <button onclick="sendHelp()" style="width:100%; margin-top:12px; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;">Gönder</button>
+    <p style="font-size:12px; color:#8A7E74; text-align:center; margin-top:12px;">Veya doğrudan: <b>bynaiapp@gmail.com</b></p>
   </div>
 </div>
 
@@ -2183,14 +2211,29 @@
     document.getElementById('authTabSignup').style.color = isLogin ? '#8A7E74' : '#2A2520';
   }
 
-  function openAccount() {
+  async function openAccount() {
+    document.getElementById('accountModal').style.display = 'flex';
     document.getElementById('accEmail').textContent = localStorage.getItem('ra_email') || '';
-    const badge = document.getElementById('creditBadge');
-    document.getElementById('accCredits').textContent = 'Kredi: ' + (badge && badge.textContent ? badge.textContent.replace(/[^\d—]/g,'').trim() || badge.textContent.trim() : '—');
     const m = document.getElementById('accMsg'); m.style.display = 'none';
     document.getElementById('accPass1').value = ''; document.getElementById('accPass2').value = '';
-    document.getElementById('accountModal').style.display = 'flex';
-    if (typeof refreshCredits === 'function') refreshCredits();
+    document.getElementById('accCredits').textContent = 'Kredi: …';
+    document.getElementById('accSub').textContent = '';
+    try {
+      const res = await fetch(`${API}/me`, { headers: authHeaders() });
+      const d = await res.json();
+      document.getElementById('accEmail').textContent = d.email || localStorage.getItem('ra_email') || '';
+      document.getElementById('accCredits').textContent = 'Kredi: ' + (d.credits ?? '—');
+      const su = d.subscription_until ? new Date(d.subscription_until) : null;
+      const subEl = document.getElementById('accSub');
+      if (su && su > new Date()) {
+        const days = Math.ceil((su - new Date()) / 86400000);
+        subEl.textContent = `Abonelik aktif — yenilenmesine ${days} gün (${su.toLocaleDateString('tr-TR')})`;
+        subEl.style.color = '#7A8B6A';
+      } else {
+        subEl.textContent = 'Aktif aboneliğin yok. (Paketler\'den abone olabilirsin)';
+        subEl.style.color = '#8A7E74';
+      }
+    } catch (_) {}
   }
   async function changePassword() {
     const p1 = document.getElementById('accPass1').value, p2 = document.getElementById('accPass2').value;
@@ -2208,6 +2251,14 @@
       show('Şifren güncellendi ✓', '#7A8B6A');
       document.getElementById('accPass1').value = ''; document.getElementById('accPass2').value = '';
     } catch (e) { show('Hata: ' + e.message, '#B5483A'); }
+  }
+
+  function openHelp() { document.getElementById('helpModal').style.display = 'flex'; }
+  function sendHelp() {
+    const msg = document.getElementById('helpMsg').value.trim();
+    const email = localStorage.getItem('ra_email') || 'misafir';
+    const body = encodeURIComponent((msg || '(mesaj yok)') + '\n\n— Gönderen: ' + email);
+    window.location.href = `mailto:bynaiapp@gmail.com?subject=${encodeURIComponent('BynAi Destek')}&body=${body}`;
   }
 
   async function authSubmit() {
@@ -2683,7 +2734,8 @@
     document.getElementById('section-pano').style.display      = section === 'pano'      ? 'block' : 'none';
     document.getElementById('section-decision').style.display  = section === 'decision' ? 'block' : 'none';
     document.getElementById('section-works').style.display     = section === 'works'     ? 'block' : 'none';
-    ['render','staging','model3d','upscale','enhance','video','floorplan','place','pano','decision','works'].forEach(s =>
+    document.getElementById('section-egitim').style.display    = section === 'egitim'    ? 'block' : 'none';
+    ['render','staging','model3d','upscale','enhance','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
     if (section === 'works') loadWorks(true);
@@ -5114,5 +5166,27 @@
     }
   }
 </script>
+
+<!-- ─── DİL SEÇENEĞİ (Google Translate — tüm sayfayı çevirir) ─────────────── -->
+<style>
+  .goog-te-banner-frame, .skiptranslate iframe { display:none !important; }
+  body { top:0 !important; position:static !important; }
+  #gtranslate .goog-te-gadget { font-size:0; color:transparent; line-height:1; }
+  #gtranslate .goog-te-gadget .goog-te-combo {
+    font-size:12px; color:#2A2520; padding:6px 8px; border:1px solid #D8D2C8;
+    border-radius:10px; background:#fff; cursor:pointer; margin:0;
+  }
+</style>
+<script type="text/javascript">
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+      pageLanguage: 'tr',
+      includedLanguages: 'tr,en,de,fr,es,it,ar,ru,nl,pt,az',
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+      autoDisplay: false
+    }, 'gtranslate');
+  }
+</script>
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
