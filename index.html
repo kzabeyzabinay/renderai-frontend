@@ -2098,18 +2098,25 @@
       <h2 style="font-size:22px; font-weight:700; color:#2A2520; margin:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/></svg> İşlerim</h2>
       <p style="font-size:13px; color:#8A7E74; margin:4px 0 0;">Yaptığın son çalışmalar — tıklayınca büyür</p>
     </div>
-    <select id="worksFilter" onchange="loadWorks(true)"
-      style="padding:8px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; cursor:pointer;">
-      <option value="">Tümü</option>
-      <option value="gpt">Render</option>
-      <option value="exterior">Dış Cephe</option>
-      <option value="upscale">Büyüt</option>
-      <option value="enhance">Geliştir</option>
-      <option value="video">Video</option>
-      <option value="floorplan">Kat Planı</option>
-      <option value="place">Yerleştirme</option>
-      <option value="pano">360 Panorama</option>
-    </select>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <button onclick="loadWorks(true)" title="Yenile"
+        style="padding:8px 12px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+        Yenile
+      </button>
+      <select id="worksFilter" onchange="loadWorks(true)"
+        style="padding:8px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; cursor:pointer;">
+        <option value="">Tümü</option>
+        <option value="gpt">Render</option>
+        <option value="exterior">Dış Cephe</option>
+        <option value="upscale">Büyüt</option>
+        <option value="enhance">Geliştir</option>
+        <option value="video">Video</option>
+        <option value="floorplan">Kat Planı</option>
+        <option value="place">Yerleştirme</option>
+        <option value="pano">360 Panorama</option>
+      </select>
+    </div>
   </div>
 
   <div id="worksGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:16px;"></div>
@@ -2784,7 +2791,7 @@
     ['render','staging','model3d','upscale','enhance','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
-    if (section === 'works') loadWorks(true);
+    if (section === 'works' && document.getElementById('worksGrid').children.length === 0) loadWorks(true);
     if (section === 'decision') loadDecisionLibrary();
     if (section === 'pano') loadPanoHistory();
   }
@@ -4112,7 +4119,7 @@
           <div style="aspect-ratio:4/3; background:#E8E4DC; overflow:hidden;">
             ${isVideo
               ? `<video src="${r.result_url}" muted preload="metadata" style="width:100%; height:100%; object-fit:cover;"></video>`
-              : `<img src="${r.result_url}" loading="lazy" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;color:#ABA49C;font-size:12px;\\'>Görsel yüklenemedi</div>'" />`}
+              : `<img src="${r.result_url}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;color:#ABA49C;font-size:12px;\\'>Görsel yüklenemedi</div>'" />`}
           </div>
           <div style="padding:10px 12px; display:flex; align-items:center; justify-content:space-between;">
             <span style="font-size:12px; font-weight:600; color:#2A2520;">${label}${r.style ? ' · ' + String(r.style).slice(0, 24) : ''}</span>
