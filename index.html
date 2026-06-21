@@ -607,8 +607,21 @@
     <a class="main-nav-btn" id="nav-pafta" href="pafta.html" style="text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 4h18"/><path d="M20 4v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4"/><path d="m8 20 4-4 4 4"/><path d="M9 11l2.2-2.2L13 10.5 15 8"/></svg>Pafta / Sunum</a>
   </div>
   <div style="display:flex; gap:10px; align-items:center;">
-    <div id="gtranslate" style="display:inline-block;"></div>
-    <button id="helpBtn" onclick="openHelp()" style="padding:8px 12px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#8A7E74; font-size:12px; cursor:pointer;">Yardım</button>
+    <select id="langSelect" onchange="setLang(this.value)" title="Dil / Language"
+      style="padding:8px 10px; border:1px solid #3A352E; border-radius:10px; background:transparent; color:#E8E4DC; font-size:12px; cursor:pointer;">
+      <option value="tr">🌐 TR</option>
+      <option value="en">EN</option>
+      <option value="de">DE</option>
+      <option value="fr">FR</option>
+      <option value="es">ES</option>
+      <option value="it">IT</option>
+      <option value="ar">AR</option>
+      <option value="ru">RU</option>
+      <option value="nl">NL</option>
+      <option value="pt">PT</option>
+      <option value="az">AZ</option>
+    </select>
+    <div id="gtranslate" style="position:absolute; left:-9999px; top:-9999px; height:0; overflow:hidden;"></div>
     <button id="pricingBtn" onclick="openPricingModal()"
       style="padding:8px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:13px; font-weight:700; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9 3 6.5 8 12 21 17.5 8 15 3"/></svg> Paketler</button>
     <span id="creditBadge" style="display:none; font-size:12px; font-weight:700; color:#FAFAF8; background:#7A8B6A; padding:6px 12px; border-radius:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M13 3 4 14h6l-1 7 9-11h-6l1-7Z"/></svg> —</span>
@@ -732,7 +745,7 @@
     </div>
 
     <!-- EK KREDİ PAKETLERİ -->
-    <div style="font-size:13px; font-weight:700; color:#2A2520; margin-bottom:6px;">Ek Kredi Paketleri <span style="font-size:11px; color:#8A7E74; font-weight:400;">(tek seferlik — aktif abonelere)</span></div>
+    <div style="font-size:13px; font-weight:700; color:#2A2520; margin-bottom:6px;">Ek Kredi Paketleri <span style="font-size:11px; color:#8A7E74; font-weight:400;">(aktif abonelere)</span></div>
     <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px;">
       <div style="border:1px solid #E0DAD0; border-radius:12px; padding:14px; background:#fff; display:flex; align-items:center; justify-content:space-between;">
         <div><div style="font-size:13px; font-weight:700; color:#2A2520;">Mini</div><div style="font-size:12px; color:#7A8B6A;">80 kredi · $9</div></div>
@@ -2253,6 +2266,15 @@
     } catch (e) { show('Hata: ' + e.message, '#B5483A'); }
   }
 
+  // Dil: özel dropdown → gizli Google Translate motorunu sürer
+  function setLang(lang) {
+    const tryset = (n) => {
+      const combo = document.querySelector('.goog-te-combo');
+      if (combo) { combo.value = lang; combo.dispatchEvent(new Event('change')); }
+      else if (n < 20) setTimeout(() => tryset(n + 1), 300);   // widget yüklenene kadar bekle
+    };
+    tryset(0);
+  }
   function openHelp() { document.getElementById('helpModal').style.display = 'flex'; }
   function sendHelp() {
     const msg = document.getElementById('helpMsg').value.trim();
@@ -5166,6 +5188,15 @@
     }
   }
 </script>
+
+<!-- ─── SAĞ-ALT YÜZEN DESTEK BUTONU ─────────────────────────────────────── -->
+<button onclick="openHelp()" title="Yardım & Destek"
+  style="position:fixed; right:22px; bottom:22px; z-index:1000; display:flex; align-items:center; gap:8px;
+         padding:12px 18px; border:none; border-radius:30px; background:#9A6558; color:#FAFAF8;
+         font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 6px 20px rgba(26,26,22,0.3);">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M9.1 9a3 3 0 1 1 5.8 1c0 2-3 2.5-3 4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
+  Destek
+</button>
 
 <!-- ─── DİL SEÇENEĞİ (Google Translate — tüm sayfayı çevirir) ─────────────── -->
 <style>
