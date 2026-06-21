@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BynAi — Mimari Render Platformu</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%239A6558'/%3E%3Ctext%20x='16'%20y='23'%20font-family='Arial'%20font-size='19'%20font-weight='bold'%20fill='%23FAFAF8'%20text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -571,6 +572,13 @@
       }
       #mainNav.open { display: flex; }
       #mainNav .main-nav-btn { width: 100%; text-align: left; border-bottom: none; padding: 12px 18px; }
+
+      /* Telefon/tablet: header sarmalanır, kontroller küçülür (üst üste binmesin) */
+      header { flex-wrap: wrap; height: auto; min-height: 56px; padding: 8px 14px; row-gap: 8px; }
+      header > div:last-child { flex-wrap: wrap; justify-content: flex-end; gap: 6px !important; }
+      #pricingBtn, #authLoginBtn, #accountBtn, #authLogoutBtn { padding: 6px 10px !important; font-size: 11px !important; }
+      #langSelect { padding: 6px 8px !important; font-size: 11px !important; }
+      #creditBadge { font-size: 11px !important; padding: 5px 9px !important; }
     }
 
     /* 360 tur — geçiş noktası önizlemesi (turdakiyle aynı yuvarlak beyaz nokta) */
@@ -607,9 +615,10 @@
     <a class="main-nav-btn" id="nav-pafta" href="pafta.html" style="text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 4h18"/><path d="M20 4v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4"/><path d="m8 20 4-4 4 4"/><path d="M9 11l2.2-2.2L13 10.5 15 8"/></svg>Pafta / Sunum</a>
   </div>
   <div style="display:flex; gap:10px; align-items:center;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#E8E4DC" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;margin-right:-4px;vertical-align:middle;"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>
     <select id="langSelect" onchange="setLang(this.value)" title="Dil / Language"
       style="padding:8px 10px; border:1px solid #3A352E; border-radius:10px; background:transparent; color:#E8E4DC; font-size:12px; cursor:pointer;">
-      <option value="tr">🌐 TR</option>
+      <option value="tr">TR</option>
       <option value="en">EN</option>
       <option value="de">DE</option>
       <option value="fr">FR</option>
@@ -696,10 +705,14 @@
       style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:14px; color:#2A2520;" />
     <div id="authError" style="display:none; font-size:12px; color:#B5483A; margin-bottom:12px;"></div>
     <div id="authInfo" style="display:none; font-size:12px; color:#7A8B6A; margin-bottom:12px;"></div>
+    <label id="authConsentRow" style="display:none; gap:8px; align-items:flex-start; font-size:11px; color:#8A7E74; margin-bottom:12px; line-height:1.5; cursor:pointer;">
+      <input type="checkbox" id="authConsent" style="margin-top:2px; flex:0 0 auto; accent-color:#9A6558;">
+      <span><a href="terms.html" target="_blank" style="color:#9A6558;">Kullanıcı Sözleşmesi</a>, <a href="privacy.html" target="_blank" style="color:#9A6558;">Gizlilik Politikası</a> ve <a href="refund.html" target="_blank" style="color:#9A6558;">İade Koşulları</a>'nı okudum ve kabul ediyorum.</span>
+    </label>
     <button id="authSubmitBtn" onclick="authSubmit()"
       style="width:100%; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;">Giriş Yap</button>
-    <p style="font-size:11px; color:#8A7E74; text-align:center; margin:12px 0 0; line-height:1.6;">
-      Kayıt olarak / giriş yaparak
+    <p id="authConsentNote" style="font-size:11px; color:#8A7E74; text-align:center; margin:12px 0 0; line-height:1.6;">
+      Giriş yaparak
       <a href="terms.html" target="_blank" style="color:#9A6558;">Kullanıcı Sözleşmesi</a> ve
       <a href="privacy.html" target="_blank" style="color:#9A6558;">Gizlilik Politikası</a>'nı kabul edersiniz.
     </p>
@@ -2222,6 +2235,8 @@
     document.getElementById('authTabLogin').style.color = isLogin ? '#2A2520' : '#8A7E74';
     document.getElementById('authTabSignup').style.background = isLogin ? 'transparent' : '#FAFAF8';
     document.getElementById('authTabSignup').style.color = isLogin ? '#8A7E74' : '#2A2520';
+    document.getElementById('authConsentRow').style.display = isLogin ? 'none' : 'flex';
+    document.getElementById('authConsentNote').style.display = isLogin ? 'block' : 'none';
   }
 
   async function openAccount() {
@@ -2292,6 +2307,11 @@
     errEl.style.display = 'none';
     infoEl.style.display = 'none';
 
+    if (authMode === 'signup' && !document.getElementById('authConsent').checked) {
+      errEl.textContent = 'Devam etmek için sözleşmeleri kabul etmelisin.';
+      errEl.style.display = 'block';
+      return;
+    }
     if (!email || !pass) {
       errEl.textContent = 'E-posta ve şifre gerekli.';
       errEl.style.display = 'block';
