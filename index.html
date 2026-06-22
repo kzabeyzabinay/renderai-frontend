@@ -2404,8 +2404,8 @@
     selectedQuality = q;
     document.getElementById('qualityAuto').classList.toggle('active', q === 'auto');
     document.getElementById('qualityHigh').classList.toggle('active', q === 'high');
-    // Yüksek kalite render 15, Oto 8 kredi — buton etiketlerini güncelle
-    const lbl = '· ' + (q === 'high' ? 15 : 8) + ' kredi';
+    // Yüksek kalite render 13, Oto 8 kredi — buton etiketlerini güncelle
+    const lbl = '· ' + (q === 'high' ? 13 : 8) + ' kredi';
     ['renderBtnInterior', 'renderBtn'].forEach(id => {
       const b = document.getElementById(id);
       const s = b && b.querySelector('span');
