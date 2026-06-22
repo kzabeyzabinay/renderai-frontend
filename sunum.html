@@ -211,6 +211,14 @@
         return;
       }
 
+      // Henüz paylaşılmamış taslak (shared===false) → görüntülenemez.
+      // Eski kayıtlarda shared alanı yok (undefined) → eskisi gibi açık kalır (bozulmaz).
+      if (payload.shared === false) {
+        showMsg('🔒', 'Bu sunum henüz paylaşılmadı',
+          'Sunum sahibi bu sunumu henüz paylaşıma açmamış. Sahibiyseniz Pafta Stüdyosu\'nda "Paylaş" butonuna basın.', true);
+        return;
+      }
+
       images = payload.images || [];
       panos = payload.panos || [];
       const mapData = payload.map || {};
