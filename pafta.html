@@ -107,9 +107,17 @@
   .tplCard:hover { border-color:var(--terra); }
   .tplCard .big { font-size:22px; font-weight:700; color:var(--accent); }
   .tplCard small { color:var(--muted); }
-  .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--terra);
-           color:#fff; padding:11px 20px; border-radius:10px; font-size:13px; z-index:200; display:none;
-           box-shadow:0 6px 20px rgba(0,0,0,.4); max-width:90vw; }
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(10px);
+           background:#FAFAF8; color:#2A2520; padding:13px 18px 13px 15px; border-radius:13px; font-size:13px;
+           font-weight:500; line-height:1.4; z-index:200; display:none; align-items:center; gap:11px; max-width:90vw;
+           border:1px solid #E5DFD5; border-left:4px solid #7A8B6A; box-shadow:0 12px 34px rgba(42,37,32,.20);
+           opacity:0; transition:opacity .22s ease, transform .22s ease; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast.ok  { border-left-color:#7A8B6A; }
+  .toast.err { border-left-color:#C2554D; }
+  .toast.info{ border-left-color:#9A6558; }
+  .toast .tic { width:21px; height:21px; flex:0 0 auto; border-radius:50%; color:#fff;
+                display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; }
   .linkRow { display:flex; gap:8px; margin-top:14px; }
   .linkRow input { flex:1; background:var(--bg); border:1px solid var(--line); border-radius:8px;
                    color:var(--panel); padding:9px 11px; font-size:12px; }
@@ -158,7 +166,8 @@
   <button class="tbtn" onclick="openTemplates()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Şablon</button>
   <button class="tbtn" onclick="exportPNG()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg>PNG</button>
   <button class="tbtn" onclick="exportPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg>PDF</button>
-  <button class="tbtn primary" onclick="savePresentation()" title="Yeni sunum 75 kredi · mevcut sunumu güncellemek ücretsiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2"/></svg>Kaydet & Paylaş · 75 kredi</button>
+  <button class="tbtn" onclick="saveOnly()" title="Çalışmanı kaydet — ücretsiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Kaydet</button>
+  <button class="tbtn primary" onclick="sharePresentation()" title="Paylaşım linki oluştur — ilk paylaşımda 75 kredi, sonraki güncellemeler ücretsiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Paylaş · 75 kredi</button>
 </div>
 
 <div class="stage">
@@ -821,11 +830,18 @@ function refreshLayers() {
   objs.forEach(o => {
     const row = document.createElement('div');
     row.className = 'layerRow' + (o === canvas.getActiveObject() ? ' sel' : '');
-    const icon = { image:'🖼', text:'T', shape:'▭' }[o.objType] || '•';
+    const icon = { image:'🖼', text:'T', shape:'▭', group:'▦' }[o.objType] || (o.type==='group'?'▦':'•');
+    const eye = o.visible===false
+      ? `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#B0A89C" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l18 18M10.6 5.1A9.7 9.7 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3 3.7M6.2 6.3A16.8 16.8 0 0 0 2 12s3.5 7 10 7a9.6 9.6 0 0 0 3.3-.6"/></svg>`
+      : `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#7A8B6A" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="2.6"/></svg>`;
+    const lock = o.lockMovementX
+      ? `<svg viewBox="0 0 24 24" width="15" height="15"><rect x="5" y="11" width="14" height="9.5" rx="2" fill="#C2554D"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="#C2554D" stroke-width="2.2"/></svg>`
+      : `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#B0A89C" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.6-1.6"/></svg>`;
     row.innerHTML = `<span>${icon}</span><span class="lname">${o.name||o.objType}</span>
-      <span class="ic" title="Görünürlük">${o.visible===false?'🚫':'👁'}</span>
-      <span class="ic" title="Kilit">${o.lockMovementX?'🔒':'🔓'}</span>
-      <span class="ic" title="Yukarı">▲</span><span class="ic" title="Aşağı">▼</span>`;
+      <span class="ic" title="${o.visible===false?'Göster':'Gizle'}">${eye}</span>
+      <span class="ic" title="${o.lockMovementX?'Kilitli — aç':'Kilitle'}">${lock}</span>
+      <span class="ic" title="Yukarı">▲</span><span class="ic" title="Aşağı">▼</span>
+      <span class="ic" title="Sil"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#C2554D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg></span>`;
     const ics = row.querySelectorAll('.ic');
     row.onclick = () => { canvas.setActiveObject(o); canvas.requestRenderAll(); refreshLayers(); renderProps(); };
     ics[0].onclick = e => { e.stopPropagation(); o.visible = o.visible===false; canvas.requestRenderAll(); refreshLayers(); };
@@ -834,8 +850,26 @@ function refreshLayers() {
       canvas.requestRenderAll(); refreshLayers(); };
     ics[2].onclick = e => { e.stopPropagation(); canvas.bringForward(o); canvas.requestRenderAll(); refreshLayers(); };
     ics[3].onclick = e => { e.stopPropagation(); canvas.sendBackwards(o); canvas.requestRenderAll(); refreshLayers(); };
+    ics[4].onclick = e => { e.stopPropagation(); if (o.isEditing) o.exitEditing(); canvas.remove(o); canvas.discardActiveObject(); canvas.requestRenderAll(); refreshLayers(); renderProps(); };
     list.appendChild(row);
   });
+}
+
+/* ═══ GRUPLAMA ═══ */
+function groupSelected() {
+  const o = canvas.getActiveObject();
+  if (!o || o.type !== 'activeSelection') { toast('Önce birden fazla nesne seç'); return; }
+  const g = o.toGroup();
+  g.id = crypto.randomUUID(); g.objType = 'group'; g.name = 'Grup';
+  canvas.requestRenderAll(); refreshLayers(); renderProps();
+  toast('Nesneler gruplandı');
+}
+function ungroupSelected() {
+  const o = canvas.getActiveObject();
+  if (!o || o.type !== 'group') { toast('Önce bir grup seç'); return; }
+  o.toActiveSelection();
+  canvas.requestRenderAll(); refreshLayers(); renderProps();
+  toast('Grup çözüldü');
 }
 
 /* ═══ ÖZELLİK PANELİ ═══ */
@@ -856,6 +890,8 @@ function renderProps() {
   if (!o) { box.innerHTML = '<div class="empty">Bir nesne seç</div>'; return; }
   const isBold = o.fontWeight==='bold' || +o.fontWeight>=700;
   box.innerHTML = `
+    ${o.type==='activeSelection' ? `<button class="tbtn2" id="pGroup" style="width:100%;margin:0 0 8px;font-weight:600;">▦ Seçimi Grupla (${(o._objects||[]).length})</button>` : ''}
+    ${o.type==='group' ? `<button class="tbtn2" id="pUngroup" style="width:100%;margin:0 0 8px;font-weight:600;">▦ Grubu Çöz</button>` : ''}
     <div class="prop"><span>Opaklık</span>
       <input type="range" min="0" max="1" step="0.05" value="${o.opacity}" id="pOpacity"></div>
     ${o.objType==='text' ? `
@@ -875,7 +911,11 @@ function renderProps() {
         <button class="tbtn2 ${o.textAlign==='right'?'on':''}" id="pAlR" title="Sağa">⇥</button>
       </div>`:''}
     ${o.objType==='image' ? `
-      <button class="tbtn2" id="pReplace" style="width:100%;margin:8px 0 6px;">🔄 Görseli Değiştir</button>
+      <div class="tgrid">
+        <button class="tbtn2 ${o.flipX?'on':''}" id="pFlipX" title="Yatay çevir">⇋ Yatay</button>
+        <button class="tbtn2 ${o.flipY?'on':''}" id="pFlipY" title="Dikey çevir">⇅ Dikey</button>
+      </div>
+      <button class="tbtn2" id="pReplace" style="width:100%;margin:6px 0 6px;">🔄 Görseli Değiştir</button>
       <button class="tbtn2" id="pCrop" style="width:100%;margin:0 0 6px;">✂ Kırp</button>
       <button class="tbtn2" id="pRemoveBg" style="width:100%;margin:0 0 8px;">🧹 Arka Plan Kaldır (2 kredi)</button>` : ''}
     ${o.objType==='shape' ? `
@@ -901,6 +941,10 @@ function renderProps() {
   const rep = document.getElementById('pReplace'); if (rep) rep.onclick = replaceSelectedImage;
   const rbg = document.getElementById('pRemoveBg'); if (rbg) rbg.onclick = () => removeBgSelected('subject');
   const crp = document.getElementById('pCrop'); if (crp) crp.onclick = startCrop;
+  const flx = document.getElementById('pFlipX'); if (flx) flx.onclick = () => { o.set('flipX', !o.flipX); o.setCoords(); canvas.requestRenderAll(); renderProps(); };
+  const fly = document.getElementById('pFlipY'); if (fly) fly.onclick = () => { o.set('flipY', !o.flipY); o.setCoords(); canvas.requestRenderAll(); renderProps(); };
+  const grpBtn = document.getElementById('pGroup'); if (grpBtn) grpBtn.onclick = groupSelected;
+  const ungBtn = document.getElementById('pUngroup'); if (ungBtn) ungBtn.onclick = ungroupSelected;
   const nf = document.getElementById('pNoFill'); if (nf) nf.onchange = e => {
     if (e.target.checked) { o._lastFill = o.fill || 'rgba(154,101,88,0.12)'; o.set('fill', ''); }
     else { o.set('fill', o._lastFill || '#9A6558'); }
@@ -925,6 +969,13 @@ function rgbToHex(c) { if (!c) return '#000000'; if (c[0]==='#') return c.slice(
 canvas.on('selection:created', () => { refreshLayers(); renderProps(); });
 canvas.on('selection:updated', () => { refreshLayers(); renderProps(); });
 canvas.on('selection:cleared', () => { refreshLayers(); renderProps(); });
+// Boş bırakılan metin kutusunu otomatik sil (görünmez artık kalmasın)
+canvas.on('text:editing:exited', e => {
+  const t = e.target;
+  if (t && typeof t.text === 'string' && t.text.trim() === '') {
+    canvas.remove(t); canvas.requestRenderAll(); refreshLayers(); renderProps();
+  }
+});
 canvas.on('object:modified', refreshLayers);
 document.addEventListener('keydown', e => {
   if ((e.key==='Delete'||e.key==='Backspace') && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)
@@ -1078,66 +1129,81 @@ async function exportPDF() {
 }
 
 /* ═══ KAYDET & PAYLAŞ (POST /tours/asset + POST /tours → sunum.html) ═══ */
-async function savePresentation() {
-  if (!localStorage.getItem('ra_token')) { toast('Paylaşmak için BynAi\'ye giriş yap.'); return; }
+/* Sayfaları raster'a çevirip kalıcı URL'lere yükle + kaydet/güncelle. KREDİ KESMEZ.
+   Yeni ise draft (ücretsiz) oluşturur, varsa PATCH'ler. tourId döner. */
+async function persistPresentation() {
   snapshotActive();
-  toast('Yayınlanıyor… (' + pages.length + ' sayfa yükleniyor)');
+  const images = [];
+  for (let i = 0; i < pages.length; i++) {
+    const pg = pages[i];
+    const { off, mult } = await buildExportCanvasFrom(pg.board, pg.json);
+    const blob = await new Promise(r => off.toCanvasElement(mult).toBlob(r, 'image/jpeg', 0.92));
+    off.dispose();
+    const fd = new FormData();
+    fd.append('image', new File([blob], 'pafta' + (i+1) + '.jpg', { type:'image/jpeg' }));
+    const up = await fetch(`${API}/tours/asset`, { method:'POST', headers:authHeaders(), body:fd });
+    const upData = await up.json();
+    if (!up.ok) throw new Error(upData.detail || 'Yükleme başarısız');
+    images.push({ url: upData.url, label: boardTitleVal() + (pages.length>1 ? ' — Sayfa ' + (i+1) : '') });
+  }
+  const payloadPano = [{ kind:'presentation', url: images[0].url, images, panos: [], map: {}, shared: currentShared,
+    boardJson: { pages: pages.map(p => ({ board:p.board, json:p.json })) } }];
+  if (currentPresentationId) {
+    const res = await fetch(`${API}/tours/${currentPresentationId}`, { method:'PATCH',
+      headers:{ 'Content-Type':'application/json', ...authHeaders() },
+      body: JSON.stringify({ title: boardTitleVal(), panoramas: payloadPano }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Güncellenemedi');
+    return currentPresentationId;
+  }
+  const res = await fetch(`${API}/tours`, { method:'POST',
+    headers:{ 'Content-Type':'application/json', ...authHeaders() },
+    body: JSON.stringify({ title: boardTitleVal(), panoramas: payloadPano, draft: true }) });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'Kayıt başarısız');
+  currentPresentationId = data.tour_id; updateEditingBadge();
+  return currentPresentationId;
+}
+
+/* KAYDET — ücretsiz. Daha önce paylaşıldıysa link içeriği de otomatik güncellenir. */
+async function saveOnly() {
+  if (!localStorage.getItem('ra_token')) { toast('Kaydetmek için BynAi\'ye giriş yap', 'err'); return; }
+  toast('Kaydediliyor…', 'info');
   try {
-    // 1) Her sayfayı tam çözünürlükte raster'a çevirip kalıcı URL için yükle
-    const images = [];
-    for (let i = 0; i < pages.length; i++) {
-      const pg = pages[i];
-      const { off, mult } = await buildExportCanvasFrom(pg.board, pg.json);
-      const blob = await new Promise(r => off.toCanvasElement(mult).toBlob(r, 'image/jpeg', 0.92));
-      off.dispose();
-      const fd = new FormData();
-      fd.append('image', new File([blob], 'pafta' + (i+1) + '.jpg', { type:'image/jpeg' }));
-      const up = await fetch(`${API}/tours/asset`, { method:'POST', headers:authHeaders(), body:fd });
-      const upData = await up.json();
-      if (!up.ok) throw new Error(upData.detail || 'Yükleme başarısız');
-      images.push({ url: upData.url, label: boardTitleVal() + (pages.length>1 ? ' — Sayfa ' + (i+1) : '') });
-    }
-    // 2) sunum.html'in okuduğu presentation payload'u olarak kaydet.
-    //    NOT: /tours, panoramas[].url'in http ile başlamasını ŞART koşuyor (panorama olmasa da) —
-    //    bu yüzden üst seviye `url` ZORUNLU. boardJson: tüm sayfaların düzeni (ileride tekrar düzenleme için).
-    const payloadPano = [{ kind:'presentation', url: images[0].url, images, panos: [], map: {},
-      boardJson: { pages: pages.map(p => ({ board:p.board, json:p.json })) } }];
-    let tourId;
-    if (currentPresentationId) {
-      // Mevcut sunumu GÜNCELLE — kredi kesilmez
-      const res = await fetch(`${API}/tours/${currentPresentationId}`, { method:'PATCH',
-        headers:{ 'Content-Type':'application/json', ...authHeaders() },
-        body: JSON.stringify({ title: boardTitleVal(), panoramas: payloadPano }) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Güncellenemedi');
-      tourId = currentPresentationId; toast('Sunum güncellendi (kredi kesilmedi) ✓');
-    } else {
-      // Yeni sunum — 75 kredi
-      const res = await fetch(`${API}/tours`, { method:'POST',
-        headers:{ 'Content-Type':'application/json', ...authHeaders() },
-        body: JSON.stringify({ title: boardTitleVal(), panoramas: payloadPano }) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Kayıt başarısız');
-      tourId = data.tour_id; currentPresentationId = tourId; updateEditingBadge();
-    }
-    const link = `${location.origin}/sunum.html?id=${tourId}`;
-    document.getElementById('shareLink').value = link;
+    await persistPresentation();
+    toast(currentShared ? 'Kaydedildi · paylaşım linki güncellendi' : 'Sunumun kaydedildi', 'ok');
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+
+/* PAYLAŞ — önce kaydeder, sonra linki açar. İlk paylaşımda 75 kredi, sonraki paylaşımlar ücretsiz. */
+async function sharePresentation() {
+  if (!localStorage.getItem('ra_token')) { toast('Paylaşmak için BynAi\'ye giriş yap', 'err'); return; }
+  toast('Paylaşıma hazırlanıyor…', 'info');
+  try {
+    const id = await persistPresentation();
+    const res = await fetch(`${API}/tours/${id}/publish`, { method:'POST', headers:authHeaders() });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'Paylaşılamadı');
+    currentShared = true;
+    toast(d.charged ? 'Sunum paylaşıldı · 75 kredi' : 'Paylaşım linki hazır', 'ok');
+    document.getElementById('shareLink').value = `${location.origin}/sunum.html?id=${id}`;
     document.getElementById('linkModal').classList.add('open');
-  } catch (e) { toast('Hata: ' + e.message); }
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
 }
 function copyShare() {
   const i = document.getElementById('shareLink'); i.select();
-  navigator.clipboard.writeText(i.value).catch(()=>document.execCommand('copy')); toast('Kopyalandı ✓');
+  navigator.clipboard.writeText(i.value).catch(()=>document.execCommand('copy')); toast('Link kopyalandı', 'ok');
 }
 
 /* ═══ DEPO / SUNUMLARIM — önceki sunumları listele, düzenlemek için yükle ═══ */
 let currentPresentationId = null;
+let currentShared = false;   // mevcut sunum daha önce paylaşıldı mı (link aktif mi)
 function updateEditingBadge() {
   const b = document.getElementById('editBadge');
   if (currentPresentationId) { b.style.display='inline'; b.textContent='✏️ Mevcut sunum düzenleniyor'; }
   else b.style.display='none';
 }
-function clearEditing() { currentPresentationId = null; updateEditingBadge(); toast('Artık YENİ sunum olarak kaydedilecek (75 kredi)'); }
+function clearEditing() { currentPresentationId = null; currentShared = false; updateEditingBadge(); toast('Bundan sonra yeni bir sunum olarak kaydedilecek', 'info'); }
 function openLibrary() {
   if (!localStorage.getItem('ra_token')) { toast('Giriş gerekli'); return; }
   document.getElementById('libModal').classList.add('open'); loadLibrary();
@@ -1155,7 +1221,10 @@ async function loadLibrary() {
       const el = document.createElement('div'); el.className = 'libItem';
       const date = p.created_at ? new Date(p.created_at).toLocaleDateString('tr-TR') : '';
       const pasif = p.active === false ? ' <span style="color:#c98;">· pasif</span>' : '';
-      el.innerHTML = `<img src="${p.thumb||''}" onerror="this.style.visibility='hidden'"><div class="li-meta"><b>${p.title||'Sunum'}</b><span>${date}${pasif}</span></div><button class="li-del" title="Sil">🗑</button>`;
+      el.innerHTML = `<img src="${p.thumb||''}" onerror="this.style.visibility='hidden'"><div class="li-meta"><b>${p.title||'Sunum'}</b><span>${date}${pasif}</span></div>`
+        + `<button class="li-act" title="Kopyala" style="background:none;border:none;cursor:pointer;color:#7A8B6A;padding:4px;"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>`
+        + `<button class="li-del" title="Sil">🗑</button>`;
+      el.querySelector('.li-act').onclick = (e) => { e.stopPropagation(); duplicatePresentation(p.id); };
       el.querySelector('.li-del').onclick = (e) => { e.stopPropagation(); deletePresentation(p.id); };
       el.onclick = () => loadPresentation(p.id, p.title);
       wrap.appendChild(el);
@@ -1172,19 +1241,35 @@ async function deletePresentation(id) {
   } catch (e) { toast('Hata: ' + e.message); }
 }
 async function loadPresentation(id, title) {
-  toast('Sunum yükleniyor…');
+  toast('Sunum açılıyor…', 'info');
   try {
     const res = await fetch(`${API}/tours/${id}`);
     const data = await res.json();
     const pl = (data.panoramas || [])[0] || {};
     const bj = pl.boardJson;
-    if (!bj || !bj.pages || !bj.pages.length) { toast('Bu sunum düzenlenemiyor (eski kayıt — düzen verisi yok)'); return; }
+    if (!bj || !bj.pages || !bj.pages.length) { toast('Bu sunum düzenlenemiyor (eski kayıt — düzen verisi yok)', 'err'); return; }
     pages = bj.pages.map(p => ({ id:crypto.randomUUID(), board:p.board, json:p.json }));
-    activeIdx = 0; currentPresentationId = id;
+    activeIdx = 0; currentPresentationId = id; currentShared = !!pl.shared;
     document.getElementById('boardTitle').value = title || data.title || '';
     loadPageInto(0); updateEditingBadge(); closeModal('libModal');
-    toast('Sunum yüklendi — düzenleyip kaydet (kredi kesilmez)');
-  } catch (e) { toast('Hata: ' + e.message); }
+    toast('Sunum açıldı · düzenleyip kaydedebilirsin', 'ok');
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+/* Sunumu KOPYALA — tasarımı yeni bir kopya olarak editöre yükler (link değil). */
+async function duplicatePresentation(id) {
+  toast('Kopya hazırlanıyor…', 'info');
+  try {
+    const res = await fetch(`${API}/tours/${id}`);
+    const data = await res.json();
+    const pl = (data.panoramas || [])[0] || {};
+    const bj = pl.boardJson;
+    if (!bj || !bj.pages || !bj.pages.length) { toast('Bu sunum kopyalanamıyor (düzen verisi yok)', 'err'); return; }
+    pages = bj.pages.map(p => ({ id:crypto.randomUUID(), board:p.board, json:p.json }));
+    activeIdx = 0; currentPresentationId = null; currentShared = false;
+    document.getElementById('boardTitle').value = (data.title || 'Sunum') + ' (kopya)';
+    loadPageInto(0); updateEditingBadge(); closeModal('libModal');
+    toast('Kopya açıldı · Kaydet ile yeni sunum oluştur', 'ok');
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
 }
 
 /* ═══ UI yardımcıları ═══ */
@@ -1196,8 +1281,21 @@ function switchTab(t) {
 }
 function boardTitleVal(){ return document.getElementById('boardTitle').value.trim() || 'İsimsiz Pafta'; }
 function downloadURL(url, name){ const a=document.createElement('a'); a.href=url; a.download=name; a.click(); }
-let toastT; function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.style.display='block';
-  clearTimeout(toastT); toastT=setTimeout(()=>t.style.display='none', 3200); }
+let toastT; function toast(m, type){
+  const t = document.getElementById('toast');
+  type = type || (/hata|başarısız|yetersiz|gerekli|bulunamadı|seç$/i.test(m) ? 'err'
+        : /kaydedildi|güncellendi|kopyaland|silindi|hazır|indirildi|yayınland|paylaşıld|oluşturuldu|gruplandı|çözüldü|açıldı|değiştirildi|✓/i.test(m) ? 'ok'
+        : 'info');
+  const ic  = type==='ok' ? '✓' : type==='err' ? '!' : 'i';
+  const col = type==='ok' ? '#7A8B6A' : type==='err' ? '#C2554D' : '#9A6558';
+  const clean = m.replace(/[✓✕🧹⏳🌤️✏️📄🔒🔓]/g, '').trim();
+  t.className = 'toast ' + type;
+  t.innerHTML = '<span class="tic" style="background:'+col+'">'+ic+'</span><span>'+clean+'</span>';
+  t.style.display = 'flex';
+  requestAnimationFrame(() => t.classList.add('show'));
+  clearTimeout(toastT);
+  toastT = setTimeout(() => { t.classList.remove('show'); setTimeout(()=>{ t.style.display='none'; }, 220); }, 3400);
+}
 
 /* upload bağlama */
 const dz = document.getElementById('dropzone'), fi = document.getElementById('fileInput');
