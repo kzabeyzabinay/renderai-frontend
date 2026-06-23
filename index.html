@@ -474,6 +474,24 @@
       color: #9A6558;
     }
 
+    .cbtn {
+      padding: 6px 11px;
+      border: 1px solid #D8D2C8;
+      border-radius: 10px;
+      background: transparent;
+      color: #6E7A5E;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cbtn:hover { border-color: #7A8B6A; color: #2A2520; }
+    .cbtn.active {
+      border-color: #7A8B6A;
+      background: rgba(122,139,106,0.15);
+      color: #5E6E4E;
+    }
+
     .chip-tag {
       display: inline-flex;
       align-items: center;
@@ -1061,6 +1079,27 @@
 
       <!-- Seçili etiketler -->
       <div id="selectedChips" style="min-height:28px; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
+
+      <!-- ════ KONSTRÜKSİYON (Yapısal Düzenleme) — Creative'den AYRI, tek seçimli ════ -->
+      <div style="margin-top:18px; padding-top:16px; border-top:1px solid #E0DAD0;">
+        <div class="preset-group-label" style="color:#6E7A5E;">Konstrüksiyon — Yapısal Düzenleme</div>
+        <div style="display:flex; flex-wrap:wrap; gap:7px; margin-top:8px;">
+          <button class="cbtn" onclick="toggleConstruction(this)" data-prompt="Remove exactly one middle floor from the building so it becomes one story shorter, keeping the ground floor and the top floor intact and correctly reconnected.">−1 Kat</button>
+          <button class="cbtn" onclick="toggleConstruction(this)" data-prompt="Add exactly one additional floor to the building so it becomes one story taller, matching the existing floor height, window layout and facade pattern.">+1 Kat</button>
+          <button class="cbtn" onclick="toggleConstruction(this)" data-prompt="Enlarge the windows into large floor-to-ceiling glazing and convert the facade into a modern glass curtain-wall system, keeping the structural grid and floor levels.">Cam Cephe / Pencere Büyüt</button>
+          <button class="cbtn" onclick="toggleConstruction(this)" data-prompt="Add balconies with slim glass railings to each upper floor, integrated naturally into the facade.">Balkon Ekle</button>
+          <button class="cbtn" onclick="toggleConstruction(this)" data-prompt="Remove all balconies from the building, leaving a clean flat facade where they were.">Balkon Kaldır</button>
+          <button class="cbtn" onclick="toggleConstruction(this)" data-prompt="Convert the ground floor into a commercial retail level with large storefront glazing and shopfront entrances, keeping the upper floors unchanged.">Zemin Ticari Vitrin</button>
+          <button class="cbtn" onclick="toggleConstruction(this)" data-prompt="Change the flat roof into a pitched gable roof with appropriate eaves and ridge, keeping the rest of the building unchanged.">Çatı: Düz → Eğimli</button>
+          <button class="cbtn" onclick="toggleConstruction(this)" data-prompt="Change the pitched sloped roof into a modern flat roof, keeping the rest of the building unchanged.">Çatı: Eğimli → Düz</button>
+          <button class="cbtn" onclick="toggleConstruction(this)" data-prompt="Extend the building horizontally by adding one additional structural bay/module on one side, seamlessly matching the existing facade pattern, windows and floor lines.">Aks Genişlet</button>
+          <button class="cbtn" onclick="toggleConstruction(this)" data-prompt="Reduce the building width by removing one structural bay/module from one side, keeping the facade pattern consistent and correctly closed.">Aks Daralt</button>
+        </div>
+        <div style="font-size:11px; color:#8A7E74; margin-top:10px; line-height:1.55;">
+          ⚠ Yapısal değişiklikler <b>özel çalışır</b> — diğer (Creative) ayarlarla birleşmez. En iyi sonuç için <b>tek başına</b>, mevcut bir render/fotoğraf üzerine uygula. Biri seçilince Creative seçimleri otomatik kapanır.
+        </div>
+        <div id="selectedConstruction" style="margin-top:8px;"></div>
+      </div>
 
       <button class="render-btn" id="renderBtn" onclick="startRender()" style="margin-top:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Render Oluştur <span style="font-size:11px;opacity:0.8;">· 8 kredi</span></button>
       <div class="error-msg" id="errorMsg"></div>
@@ -2429,6 +2468,7 @@
     } else {
       btn.classList.add('active');
       selectedPresets[prompt] = label;
+      clearConstruction();   // karşılıklı dışlama: Creative seçilince konstrüksiyonu kapat
     }
     renderChipTags();
   }
@@ -2452,6 +2492,29 @@
 
   function buildPresetPrompt() {
     return Object.keys(selectedPresets).join(', ');
+  }
+
+  // ═══ KONSTRÜKSİYON (yapısal düzenleme) — Creative'den AYRI, tek seçimli, karşılıklı dışlamalı ═══
+  const CONSTRUCTION_KEEP = " Keep the building's facade materials, colors, window style, signage and overall proportions identical. Keep all foreground elements (cars, people, trees, landscaping), the lighting, weather and photographic style exactly as in the original image. Photorealistic, consistent camera angle and perspective, clean architectural visualization.";
+  let selectedConstruction = null;   // tam prompt veya null
+
+  function toggleConstruction(btn) {
+    const wasActive = btn.classList.contains('active');
+    document.querySelectorAll('.cbtn').forEach(b => b.classList.remove('active'));
+    if (wasActive) { clearConstruction(); return; }
+    btn.classList.add('active');
+    selectedConstruction = btn.dataset.prompt + CONSTRUCTION_KEEP;
+    document.getElementById('selectedConstruction').innerHTML =
+      `<span class="chip-tag" style="border-color:#7A8B6A;background:rgba(122,139,106,0.15);color:#5E6E4E;">${btn.textContent.trim()} <button onclick="clearConstruction()" style="color:#5E6E4E;">×</button></span>`;
+    // Karşılıklı dışlama: Creative seçimlerini temizle
+    Object.keys(selectedPresets).forEach(k => delete selectedPresets[k]);
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    renderChipTags();
+  }
+  function clearConstruction() {
+    selectedConstruction = null;
+    document.querySelectorAll('.cbtn').forEach(b => b.classList.remove('active'));
+    const el = document.getElementById('selectedConstruction'); if (el) el.innerHTML = '';
   }
 
   // Chip click handler
@@ -2499,6 +2562,7 @@
     // Preset panelleri
     document.getElementById('interiorPresetPanel').style.display = type === 'interior' ? '' : 'none';
     document.getElementById('exteriorPresetPanel').style.display  = type === 'exterior' ? '' : 'none';
+    if (type !== 'exterior') clearConstruction();   // iç mekana geçince yapısal seçimi temizle
 
     if (type === 'interior') {
       selectedStyle = 'modern_interior';
@@ -2620,7 +2684,9 @@
 
     const presetPrompt = buildPresetPrompt();
     const customText = (document.getElementById('customPrompt')?.value || '').trim();
-    const combinedPrompt = [presetPrompt, customText].filter(Boolean).join(', ');
+    // Konstrüksiyon (yapısal) seçiliyse EN SONA eklenir → baskın direktif (sadece dış cephede)
+    const consText = (renderType === 'exterior') ? selectedConstruction : null;
+    const combinedPrompt = [presetPrompt, customText, consText].filter(Boolean).join(', ');
 
     const imageToSend = await resizeIfNeeded(selectedFile);
     const formData = new FormData();
