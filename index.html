@@ -1116,6 +1116,8 @@
       </div>
 
       <button class="render-btn" id="renderBtn" onclick="startRender()" style="margin-top:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Render Oluştur <span style="font-size:11px;opacity:0.8;">· 8 kredi</span></button>
+      <button class="render-btn" id="varBtn" onclick="startVariations()" style="margin-top:10px; background:transparent; color:#9A6558; border:1px solid #9A6558;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> 4 Malzeme Varyasyonu Üret <span style="font-size:11px;opacity:0.8;">· 4×8 kredi</span></button>
+      <p style="font-size:11px; color:#8A7E74; margin:8px 0 0; line-height:1.5;">Aynı binayı 4 farklı cephe malzemesiyle üretir (taş/kompozit/sıvalı/ahşap), sonra tek tıkla karar linkine basarsın.</p>
       <div class="error-msg" id="errorMsg"></div>
     </div>
   </div>
@@ -1151,6 +1153,18 @@
       <p style="font-size:11px; color:#8A7E74; margin:6px 0 10px; line-height:1.5;">Yazdığın değişiklik uygulanır, sahnenin geri kalanı (açı, mobilya, ışık) birebir korunur.</p>
       <button class="render-btn" id="renderEditBtn" onclick="startRenderEdit()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Geliştir <span style="font-size:11px;opacity:0.8;">· 5 kredi</span></button>
       <div class="error-msg" id="renderEditError"></div>
+    </div>
+
+    <!-- 4 Varyasyon sonuçları -->
+    <div id="variationsResult" style="display:none; width:100%; margin-top:6px;">
+      <div style="font-size:13px; font-weight:700; color:#2A2520; margin-bottom:10px;">4 Malzeme Varyasyonu</div>
+      <div id="variationsGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+      <button class="render-btn" id="varDecisionBtn" onclick="variationsToDecision()" style="margin-top:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> Bu 4 Varyasyonla Karar Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 75 kredi</span></button>
+      <div id="varDecisionLink" style="display:none; margin-top:10px; gap:8px;">
+        <input id="varLinkInput" readonly style="flex:1; padding:9px 11px; border:1px solid #D8D2C8; border-radius:8px; background:#FAFAF8; color:#2A2520; font-size:12px;">
+        <button onclick="navigator.clipboard.writeText(document.getElementById('varLinkInput').value)" style="padding:9px 14px; border:none; border-radius:8px; background:#9A6558; color:#fff; font-size:12px; font-weight:600; cursor:pointer;">Kopyala</button>
+      </div>
+      <div class="error-msg" id="varError"></div>
     </div>
   </div>
 </main>
@@ -2808,6 +2822,97 @@
     } finally {
       btn.disabled = false;
     }
+  }
+
+  // ═══ OTOMATİK 4 MALZEME VARYASYONU (dış cephe) ═══
+  let lastVariations = [];
+  const VAR_DEFS = [
+    { label: 'Taş',        extra: 'facade clad in photorealistic natural stone with visible joints, keep the building form, windows and surroundings identical' },
+    { label: 'Kompozit',   extra: 'facade clad in modern composite aluminum panels with visible seams, keep the building form, windows and surroundings identical' },
+    { label: 'Sıvalı Boya', extra: 'facade with smooth plaster and clean painted finish, keep the building form, windows and surroundings identical' },
+    { label: 'Ahşap',      extra: 'facade clad in warm natural wood with visible grain, keep the building form, windows and surroundings identical' },
+  ];
+
+  async function pollRender(predictionId) {
+    let elapsed = 0;
+    while (true) {
+      await new Promise(r => setTimeout(r, 3000));
+      elapsed += 3;
+      const st = await (await fetch(`${API}/render/status/${predictionId}`)).json();
+      if (st.status === 'succeeded') return st.render_url;
+      if (st.status === 'failed') throw new Error(st.error || 'Render başarısız');
+      if (elapsed > 360) throw new Error('Süre aşıldı');
+    }
+  }
+
+  async function startVariations() {
+    if (!selectedFile) { showError('Lütfen önce bir görsel yükleyin.'); return; }
+    if (!localStorage.getItem('ra_token')) { showError('Bu özellik için giriş yapmalısın.'); return; }
+    if (!confirm('Aynı görsel 4 farklı cephe malzemesiyle render edilecek (4×8 = 32 kredi). Devam edilsin mi?')) return;
+    const vbtn = document.getElementById('varBtn'), rbtn = document.getElementById('renderBtn');
+    vbtn.disabled = true; rbtn.disabled = true;
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById('variationsResult').style.display = 'none';
+    document.getElementById('resultImg').style.display = 'none';
+    document.getElementById('downloadBtn').style.display = 'none';
+    document.getElementById('renderEditBox').style.display = 'none';
+    document.getElementById('errorMsg').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+
+    const base = [buildPresetPrompt(), (document.getElementById('customPrompt')?.value || '').trim()].filter(Boolean);
+    let imageToSend;
+    try { imageToSend = await resizeIfNeeded(selectedFile); } catch (e) { imageToSend = selectedFile; }
+    lastVariations = [];
+    try {
+      for (let i = 0; i < VAR_DEFS.length; i++) {
+        const v = VAR_DEFS[i];
+        document.querySelector('.loading p').innerHTML = `Varyasyon ${i+1}/4 — ${v.label}<br><span style="font-size:12px;color:#ABA49C;">AI görüntü işliyor</span>`;
+        const fd = new FormData();
+        fd.append('image', imageToSend);
+        fd.append('style', selectedStyle);
+        fd.append('render_type', 'exterior');
+        fd.append('room_type', selectedRoom);
+        fd.append('render_model', selectedRenderModel);
+        fd.append('mode', selectedMode);
+        fd.append('quality', selectedQuality);
+        fd.append('custom_prompt', [...base, v.extra].join(', '));
+        const sr = await fetch(`${API}/render/start`, { method: 'POST', headers: authHeaders(), body: fd });
+        const sd = await sr.json();
+        if (!sr.ok) throw new Error(sd.detail || 'Başlatılamadı');
+        refreshCredits();
+        const url = await pollRender(sd.prediction_id);
+        lastVariations.push({ url, label: v.label });
+      }
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('variationsGrid').innerHTML = lastVariations.map(v =>
+        `<div style="border:1px solid #E0DAD0; border-radius:10px; overflow:hidden; background:#FAFAF8;"><a href="${v.url}" target="_blank"><img src="${v.url}" style="width:100%; display:block;"></a><div style="padding:6px 8px; font-size:12px; font-weight:600; color:#2A2520; text-align:center;">${v.label}</div></div>`
+      ).join('');
+      document.getElementById('varDecisionLink').style.display = 'none';
+      document.getElementById('variationsResult').style.display = 'block';
+    } catch (err) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('placeholder').style.display = 'block';
+      showError('Hata: ' + err.message);
+    } finally {
+      vbtn.disabled = false; rbtn.disabled = false;
+    }
+  }
+
+  async function variationsToDecision() {
+    const errEl = document.getElementById('varError'); errEl.style.display = 'none';
+    if (lastVariations.length < 2) { errEl.textContent = 'Önce varyasyonları üret.'; errEl.style.display = 'block'; return; }
+    const dbtn = document.getElementById('varDecisionBtn'); dbtn.disabled = true;
+    try {
+      const res = await fetch(`${API}/decisions`, { method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ title: 'Cephe Malzeme Seçenekleri', options: lastVariations.map(v => ({ url: v.url, label: v.label })) }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Karar linki oluşturulamadı');
+      refreshCredits();
+      document.getElementById('varLinkInput').value = `${location.origin}/karar.html?id=${data.decision_id}`;
+      document.getElementById('varDecisionLink').style.display = 'flex';
+    } catch (e) { errEl.textContent = 'Hata: ' + e.message; errEl.style.display = 'block'; }
+    finally { dbtn.disabled = false; }
   }
 
   // ─── RENDER'I PROMPTLA DÜZENLE (oluşan renderı tekrar geliştir) ────────────
