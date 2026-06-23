@@ -1846,6 +1846,13 @@
         </div>
         <img id="placeItemPreview" class="preview-img" />
         <div id="placeItemExtraPrevs" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;"></div>
+        <div style="margin-top:12px; padding-top:12px; border-top:1px solid #E0DAD0;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <span style="font-size:12px; font-weight:600; color:#8A7E74;">Ürün Kataloğum</span>
+            <button onclick="addToCatalog()" style="font-size:11px; padding:4px 10px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; cursor:pointer; font-weight:600;">+ Bu ürünü kataloğa ekle</button>
+          </div>
+          <div id="catalogGrid" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+        </div>
       </div>
 
       <div class="panel" id="placeMapPanel" style="display:none;">
@@ -3295,6 +3302,56 @@
     e.target.value = ''; // ayni dosya tekrar secilebilsin
     renderPlaceItemPrevs();
   });
+
+  // ═══ ÜRÜN KATALOĞUM — kendi ürün görsellerini bir kez yükle, tekrar kullan (localStorage) ═══
+  function getCatalog() { try { return JSON.parse(localStorage.getItem('bynai_catalog') || '[]'); } catch { return []; } }
+  function setCatalog(a) { localStorage.setItem('bynai_catalog', JSON.stringify(a)); }
+  function dataUrlToFile(dataUrl, name) {
+    const [meta, b64] = dataUrl.split(',');
+    const mime = (meta.match(/:(.*?);/) || [])[1] || 'image/png';
+    const bin = atob(b64); const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new File([arr], name || 'urun.png', { type: mime });
+  }
+  function fileToThumbDataUrl(file, maxDim) {
+    return new Promise(res => {
+      const img = new Image();
+      img.onload = () => {
+        const sc = Math.min(1, maxDim / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL('image/jpeg', 0.85)); URL.revokeObjectURL(img.src);
+      };
+      img.onerror = () => res(''); img.src = URL.createObjectURL(file);
+    });
+  }
+  async function addToCatalog() {
+    if (!placeItemFile) { alert('Önce bir ürün görseli yükle, sonra kataloğa ekle.'); return; }
+    const name = (prompt('Ürün adı:', '') || '').trim() || 'Ürün';
+    const dataUrl = await fileToThumbDataUrl(placeItemFile, 640);
+    if (!dataUrl) { alert('Görsel okunamadı.'); return; }
+    const arr = getCatalog();
+    arr.push({ id: 'c_' + Date.now(), name: name.slice(0, 24), dataUrl });
+    setCatalog(arr); renderCatalog();
+  }
+  function useCatalogItem(id) {
+    const it = getCatalog().find(x => x.id === id); if (!it) return;
+    placeItemFiles = [dataUrlToFile(it.dataUrl, it.name + '.jpg')];
+    renderPlaceItemPrevs();
+  }
+  function deleteCatalogItem(id, e) {
+    if (e) e.stopPropagation();
+    setCatalog(getCatalog().filter(x => x.id !== id)); renderCatalog();
+  }
+  function renderCatalog() {
+    const box = document.getElementById('catalogGrid'); if (!box) return;
+    const list = getCatalog();
+    box.innerHTML = list.length
+      ? list.map(it => `<div style="position:relative; width:64px;" title="${it.name}"><img src="${it.dataUrl}" onclick="useCatalogItem('${it.id}')" style="width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid #D8D2C8; cursor:pointer; background:#fff;"><button onclick="deleteCatalogItem('${it.id}',event)" title="Sil" style="position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; border:none; background:#C2554D; color:#fff; font-size:11px; line-height:1; cursor:pointer;">×</button><div style="font-size:10px; color:#8A7E74; text-align:center; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${it.name}</div></div>`).join('')
+      : '<span style="font-size:11px; color:#ABA49C;">Kataloğun boş — bir ürün yükleyip "Bu ürünü kataloğa ekle"ye bas, sonra tekrar tekrar kullan.</span>';
+  }
+  renderCatalog();
 
   async function startPlace() {
     const errEl = document.getElementById('placeError');
