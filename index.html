@@ -2259,13 +2259,13 @@
 
   function goCheckout(key) {
     const url = LS_CHECKOUT[key];
-    if (!url) { alert('Bu paket yakında aktif olacak.'); return; }
+    if (!url) { uiAlert('Bu paket yakında aktif olacak.'); return; }
     const token = localStorage.getItem('ra_token');
     const uid = localStorage.getItem('ra_uid');
     if (!token || !uid) {
       // Önce giriş gerekli — krediyi doğru hesaba yazabilmek için
       document.getElementById('pricingModal').style.display = 'none';
-      alert('Satın almadan önce giriş yapmalısın.');
+      uiAlert('Satın almadan önce giriş yapmalısın.');
       openAuthModal('login');
       return;
     }
@@ -2562,9 +2562,9 @@
   // ═══ STİLLERİM — preset kombinasyonunu isimle kaydet/uygula (localStorage) ═══
   function getStyles() { try { return JSON.parse(localStorage.getItem('bynai_styles') || '[]'); } catch { return []; } }
   function setStyles(a) { localStorage.setItem('bynai_styles', JSON.stringify(a)); }
-  function saveCurrentStyle() {
-    if (!Object.keys(selectedPresets).length) { alert('Önce birkaç preset/ayar seç, sonra kaydet.'); return; }
-    const name = (prompt('Bu stile bir isim ver:', '') || '').trim();
+  async function saveCurrentStyle() {
+    if (!Object.keys(selectedPresets).length) { uiAlert('Önce birkaç preset/ayar seç, sonra kaydet.'); return; }
+    const name = (await uiPrompt('Bu stile bir isim ver:', '') || '').trim();
     if (!name) return;
     const arr = getStyles();
     arr.push({ id: 'st_' + Date.now(), name: name.slice(0, 30), type: renderType,
@@ -2744,6 +2744,32 @@
     document.getElementById('fileInput').dispatchEvent(new Event('change'));
   });
 
+  // ═══ ŞIK MODAL — native alert/confirm/prompt yerine site-temalı kutular ═══
+  function _uiModal(o) {
+    return new Promise(resolve => {
+      const bg = document.getElementById('uiModalBg');
+      document.getElementById('uiModalMsg').textContent = o.message || '';
+      const inp = document.getElementById('uiModalInput');
+      inp.style.display = o.input ? 'block' : 'none';
+      if (o.input) inp.value = o.defaultVal || '';
+      const ok = document.getElementById('uiModalOk'), cancel = document.getElementById('uiModalCancel');
+      ok.textContent = o.okText || 'Tamam';
+      cancel.textContent = o.cancelText || 'İptal';
+      cancel.style.display = o.alertOnly ? 'none' : '';
+      ok.style.background = o.danger ? '#C2554D' : '#9A6558';
+      bg.style.display = 'flex';
+      if (o.input) setTimeout(() => inp.focus(), 60);
+      const done = (val) => { bg.style.display = 'none'; ok.onclick = cancel.onclick = inp.onkeydown = bg.onclick = null; resolve(val); };
+      ok.onclick = () => done(o.input ? inp.value : true);
+      cancel.onclick = () => done(o.input ? null : false);
+      bg.onclick = (e) => { if (e.target === bg) done(o.input ? null : false); };
+      inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); done(inp.value); } if (e.key === 'Escape') done(null); };
+    });
+  }
+  function uiAlert(message, okText) { return _uiModal({ message, alertOnly: true, okText: okText || 'Tamam' }); }
+  function uiConfirm(message, opt) { opt = opt || {}; return _uiModal({ message, okText: opt.okText || 'Tamam', danger: opt.danger }); }
+  function uiPrompt(message, defaultVal, okText) { return _uiModal({ message, input: true, defaultVal: defaultVal || '', okText: okText || 'Kaydet' }); }
+
   let lastRenderUrl = '';
 
   async function startRender() {
@@ -2862,7 +2888,7 @@
   async function startVariations() {
     if (!selectedFile) { showError('Lütfen önce bir görsel yükleyin.'); return; }
     if (!localStorage.getItem('ra_token')) { showError('Bu özellik için giriş yapmalısın.'); return; }
-    if (!confirm('Aynı görsel 4 farklı cephe malzemesiyle render edilecek (4×8 = 32 kredi). Devam edilsin mi?')) return;
+    if (!await uiConfirm('Aynı görsel 4 farklı cephe malzemesiyle render edilecek (4×8 = 32 kredi). Devam edilsin mi?', { okText: 'Üret' })) return;
     const vbtn = document.getElementById('varBtn'), rbtn = document.getElementById('renderBtn');
     vbtn.disabled = true; rbtn.disabled = true;
     document.getElementById('placeholder').style.display = 'none';
@@ -3334,10 +3360,10 @@
     });
   }
   async function addToCatalog() {
-    if (!placeItemFile) { alert('Önce bir ürün görseli yükle, sonra kataloğa ekle.'); return; }
-    const name = (prompt('Ürün adı:', '') || '').trim() || 'Ürün';
+    if (!placeItemFile) { uiAlert('Önce bir ürün görseli yükle, sonra kataloğa ekle.'); return; }
+    const name = (await uiPrompt('Ürün adı:', '') || '').trim() || 'Ürün';
     const dataUrl = await fileToThumbDataUrl(placeItemFile, 640);
-    if (!dataUrl) { alert('Görsel okunamadı.'); return; }
+    if (!dataUrl) { uiAlert('Görsel okunamadı.'); return; }
     const arr = getCatalog();
     arr.push({ id: 'c_' + Date.now(), name: name.slice(0, 24), dataUrl });
     setCatalog(arr); renderCatalog();
@@ -4023,9 +4049,9 @@
   }
 
   // ── Sahne adını düzenle — geçiş etiketleri de güncellenir ──
-  function renameTourPano(i) {
+  async function renameTourPano(i) {
     const p = tourPanos[i];
-    const name = prompt('Sahne adı:', p.label);
+    const name = await uiPrompt('Sahne adı:', p.label);
     if (name == null) return;
     const label = name.trim();
     if (!label || label === p.label) return;
@@ -4292,17 +4318,17 @@
     try {
       const res = await fetch(`${API}/tours/${id}`);
       const data = await res.json();
-      if (data.expired) { alert('Bu turun süresi dolmuş; üyeliğin aktifse tekrar açılır.'); return; }
+      if (data.expired) { uiAlert('Bu turun süresi dolmuş; üyeliğin aktifse tekrar açılır.'); return; }
       const pans = (data.panoramas || []).filter(p => p && p.url && p.kind !== 'presentation');
-      if (!pans.length) { alert('Bu kayıt düzenlenebilir bir 360 tur değil.'); return; }
+      if (!pans.length) { uiAlert('Bu kayıt düzenlenebilir bir 360 tur değil.'); return; }
       tourPanos = pans.map(p => ({ id: p.id || ('p' + Date.now() + Math.random()), url: p.url, label: p.label || 'Sahne', hotspots: p.hotspots || [], planX: p.planX, planY: p.planY }));
       const meta = data.meta || {}; tourPlanUrl = meta.plan_url || ''; tourLogoUrl = meta.logo_url || '';
       document.getElementById('tourTitle').value = data.title || '';
       currentTourId = id; renderTourList(); updateTourEditBadge();
       document.getElementById('tourLinkBox').style.display = 'none';
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      alert('Tur düzenlemeye yüklendi. Değişikliği yapıp "360 Tur Oluştur" ile güncelle (kredi kesilmez).');
-    } catch (e) { alert('Hata: ' + e.message); }
+      uiAlert('Tur düzenlemeye yüklendi. Değişikliği yapıp "360 Tur Oluştur" ile güncelle (kredi kesilmez).');
+    } catch (e) { uiAlert('Hata: ' + e.message); }
   }
 
   function copyTourLink() {
@@ -4355,12 +4381,12 @@
     });
   }
   async function deleteTourHist(id) {
-    if (!confirm('Bu 360 tur kalıcı olarak silinsin mi?')) return;
+    if (!await uiConfirm('Bu 360 tur kalıcı olarak silinsin mi?', { okText: 'Sil', danger: true })) return;
     try {
       const r = await fetch(`${API}/tours/${id}`, { method: 'DELETE', headers: authHeaders() });
       const d = await r.json(); if (!r.ok) throw new Error(d.detail || 'Silinemedi');
       panoHistTours = panoHistTours.filter(x => x.id !== id); panoHistMove(0);
-    } catch (e) { alert('Hata: ' + e.message); }
+    } catch (e) { uiAlert('Hata: ' + e.message); }
   }
 
   // ─── İŞLERİM ─────────────────────────────────────────────────────────────
@@ -4377,8 +4403,8 @@
   function getProjectNames() { try { return JSON.parse(localStorage.getItem('bynai_project_names') || '[]'); } catch { return []; } }
   function setProjectNames(a) { localStorage.setItem('bynai_project_names', JSON.stringify([...new Set(a)])); }
   function addProjectName(n) { if (!n) return; const a = getProjectNames(); if (!a.includes(n)) { a.push(n); setProjectNames(a); } }
-  function newProject() {
-    const n = (prompt('Yeni proje adı:', '') || '').trim(); if (!n) return;
+  async function newProject() {
+    const n = (await uiPrompt('Yeni proje adı:', '') || '').trim(); if (!n) return;
     addProjectName(n.slice(0, 40)); renderProjectFilter();
   }
   function renderProjectFilter() {
@@ -4397,7 +4423,7 @@
       if (project) addProjectName(project);
       renderProjectFilter();
       if (document.getElementById('worksProject').value) loadWorks(true); // aktif filtreden düşmüşse yenile
-    } catch (e) { alert('Hata: ' + e.message); }
+    } catch (e) { uiAlert('Hata: ' + e.message); }
   }
 
   async function loadWorks(reset) {
@@ -4513,13 +4539,13 @@
   }
 
   async function deleteRender(id, cardEl) {
-    if (!confirm('Bu görsel İşlerim\'den kalıcı olarak silinsin mi?')) return;
+    if (!await uiConfirm('Bu görsel İşlerim\'den kalıcı olarak silinsin mi?', { okText: 'Sil', danger: true })) return;
     try {
       const r = await fetch(`${API}/renders/${id}`, { method: 'DELETE', headers: authHeaders() });
       const d = await r.json();
       if (!r.ok) throw new Error(d.detail || 'Silinemedi');
       cardEl.remove();
-    } catch (e) { alert('Hata: ' + e.message); }
+    } catch (e) { uiAlert('Hata: ' + e.message); }
   }
 
   function openWorksLightbox(url, isVideo) {
@@ -5039,7 +5065,7 @@
       const u = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href = u; a.download = 'model_obj.zip'; a.click();
       setTimeout(() => URL.revokeObjectURL(u), 4000);
-    } catch (e) { alert('Hata: ' + e.message); }
+    } catch (e) { uiAlert('Hata: ' + e.message); }
     finally { btn.disabled = false; btn.textContent = orig; }
   }
 
@@ -5579,5 +5605,16 @@
   }
 </script>
 <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<!-- Şık modal (alert/confirm/prompt) -->
+<div id="uiModalBg" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(26,26,22,.45); align-items:center; justify-content:center; padding:20px; font-family:inherit;">
+  <div style="background:#FAFAF8; border-radius:16px; box-shadow:0 24px 64px rgba(26,26,22,.35); max-width:400px; width:100%; padding:24px 24px 18px;">
+    <div id="uiModalMsg" style="font-size:15px; color:#2A2520; line-height:1.55; margin-bottom:16px; white-space:pre-wrap;"></div>
+    <input id="uiModalInput" style="display:none; width:100%; box-sizing:border-box; padding:11px 13px; border:1px solid #D8D2C8; border-radius:10px; font-size:14px; color:#2A2520; background:#fff; margin-bottom:18px; outline:none;" />
+    <div style="display:flex; gap:10px; justify-content:flex-end;">
+      <button id="uiModalCancel" style="padding:10px 18px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#8A7E74; font-size:13px; font-weight:600; cursor:pointer;">İptal</button>
+      <button id="uiModalOk" style="padding:10px 22px; border:none; border-radius:10px; background:#9A6558; color:#fff; font-size:13px; font-weight:600; cursor:pointer;">Tamam</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
