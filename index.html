@@ -2190,6 +2190,13 @@
         <option value="place">Yerleştirme</option>
         <option value="pano">360 Panorama</option>
       </select>
+      <select id="worksProject" onchange="loadWorks(true)"
+        style="padding:8px 14px; border:1px solid #9A6558; border-radius:10px; background:#FAFAF8; color:#9A6558; font-size:13px; font-weight:600; cursor:pointer;">
+        <option value="">📁 Tüm Projeler</option>
+        <option value="__none__">Atanmamış</option>
+      </select>
+      <button onclick="newProject()" title="Yeni proje oluştur"
+        style="padding:8px 12px; border:1px solid #9A6558; border-radius:10px; background:transparent; color:#9A6558; font-size:13px; font-weight:600; cursor:pointer;">+ Proje</button>
     </div>
   </div>
 
@@ -4366,6 +4373,33 @@
     place: '🧩 Yerleştirme', pano: '🌐 360 Panorama'
   };
 
+  // ═══ PROJE KLASÖRLERİ — render'ları projelere ata/filtrele (atama sunucu-tarafı) ═══
+  function getProjectNames() { try { return JSON.parse(localStorage.getItem('bynai_project_names') || '[]'); } catch { return []; } }
+  function setProjectNames(a) { localStorage.setItem('bynai_project_names', JSON.stringify([...new Set(a)])); }
+  function addProjectName(n) { if (!n) return; const a = getProjectNames(); if (!a.includes(n)) { a.push(n); setProjectNames(a); } }
+  function newProject() {
+    const n = (prompt('Yeni proje adı:', '') || '').trim(); if (!n) return;
+    addProjectName(n.slice(0, 40)); renderProjectFilter();
+  }
+  function renderProjectFilter() {
+    const sel = document.getElementById('worksProject'); if (!sel) return;
+    const cur = sel.value, names = getProjectNames();
+    sel.innerHTML = `<option value="">📁 Tüm Projeler</option><option value="__none__">Atanmamış</option>`
+      + names.map(n => `<option value="${n}">${n}</option>`).join('');
+    sel.value = cur;
+  }
+  async function assignRenderProject(id, project) {
+    try {
+      const res = await fetch(`${API}/renders/${id}`, { method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ project }) });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.detail || 'Atanamadı');
+      if (project) addProjectName(project);
+      renderProjectFilter();
+      if (document.getElementById('worksProject').value) loadWorks(true); // aktif filtreden düşmüşse yenile
+    } catch (e) { alert('Hata: ' + e.message); }
+  }
+
   async function loadWorks(reset) {
     const grid = document.getElementById('worksGrid');
     const empty = document.getElementById('worksEmpty');
@@ -4377,7 +4411,8 @@
 
     try {
       const filter = document.getElementById('worksFilter').value;
-      const res = await fetch(`${API}/renders?limit=${WORKS_PAGE}&offset=${worksOffset}${filter ? '&render_type=' + filter : ''}`, { headers: authHeaders() });
+      const proj = document.getElementById('worksProject').value;
+      const res = await fetch(`${API}/renders?limit=${WORKS_PAGE}&offset=${worksOffset}${filter ? '&render_type=' + filter : ''}${proj ? '&project=' + encodeURIComponent(proj) : ''}`, { headers: authHeaders() });
       const data = await res.json();
       const items = data.renders || [];
 
@@ -4413,8 +4448,21 @@
         delBtn.style.cssText = 'position:absolute; top:6px; right:6px; z-index:2; border:none; border-radius:8px; background:rgba(26,26,22,0.72); color:#fff; cursor:pointer; font-size:13px; padding:4px 7px;';
         delBtn.onclick = (e) => { e.stopPropagation(); deleteRender(r.id, card); };
         card.appendChild(delBtn);
+        // Projeye ata (sol üst)
+        const projSel = document.createElement('select');
+        projSel.title = 'Projeye ata';
+        projSel.style.cssText = 'position:absolute; top:6px; left:6px; z-index:2; border:none; border-radius:8px; background:rgba(26,26,22,0.72); color:#fff; font-size:11px; padding:3px 6px; max-width:130px; cursor:pointer;';
+        const names = getProjectNames();
+        let opts = `<option value="">📁 Proje yok</option>` + names.map(n => `<option value="${n}" ${r.project === n ? 'selected' : ''}>${n}</option>`).join('');
+        if (r.project && !names.includes(r.project)) opts += `<option value="${r.project}" selected>${r.project}</option>`;
+        projSel.innerHTML = opts;
+        projSel.onclick = (e) => e.stopPropagation();
+        projSel.onchange = (e) => { e.stopPropagation(); assignRenderProject(r.id, projSel.value); };
+        card.appendChild(projSel);
+        if (r.project) addProjectName(r.project);
         grid.appendChild(card);
       });
+      renderProjectFilter();
 
       worksOffset += WORKS_PAGE;
       // Sayfa doluysa devamı olabilir

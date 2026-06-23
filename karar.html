@@ -122,8 +122,45 @@
         </div></div>`;
     });
     html += `</div>`;
+    html += `<div style="max-width:900px; margin:34px auto 0; padding:0 16px;">
+      <h2 style="font-size:18px; color:#2A2520; margin:0 0 12px;">Yorumlar & Notlar</h2>
+      <div id="commentList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;"></div>
+      <div style="background:#FAFAF8; border:1px solid #E0DAD0; border-radius:12px; padding:14px;">
+        <input id="cName" placeholder="Adınız (opsiyonel)" style="width:100%; box-sizing:border-box; padding:9px 11px; border:1px solid #D8D2C8; border-radius:8px; margin-bottom:8px; font-size:13px;" />
+        <textarea id="cText" rows="2" placeholder="Görüşünüzü veya değişiklik isteğinizi yazın..." style="width:100%; box-sizing:border-box; padding:9px 11px; border:1px solid #D8D2C8; border-radius:8px; font-size:13px; font-family:inherit; resize:vertical;"></textarea>
+        <button onclick="sendComment()" style="margin-top:8px; padding:9px 18px; border:none; border-radius:8px; background:#9A6558; color:#fff; font-size:13px; font-weight:600; cursor:pointer;">Yorumu Gönder</button>
+        <div id="cErr" style="color:#C2554D; font-size:12px; margin-top:6px; display:none;"></div>
+      </div>
+    </div>`;
     document.getElementById('content').innerHTML = html;
     if (sel) showBanner(sel);
+    renderComments(d.comments || []);
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[m])); }
+  function renderComments(list) {
+    const box = document.getElementById('commentList'); if (!box) return;
+    if (!list.length) { box.innerHTML = '<div style="color:#8A7E74; font-size:13px;">Henüz yorum yok. İlk görüşü siz bırakın.</div>'; return; }
+    box.innerHTML = list.map(c => {
+      let dt = ''; try { dt = new Date(c.at).toLocaleString('tr-TR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }); } catch {}
+      const ch = c.choice ? ` · <span style="color:#9A6558;">${esc(c.choice)}</span>` : '';
+      return `<div style="background:#fff; border:1px solid #E0DAD0; border-radius:10px; padding:10px 12px;"><div style="font-size:12px; color:#8A7E74; margin-bottom:4px;"><b style="color:#2A2520;">${esc(c.name || 'Misafir')}</b>${ch} · ${dt}</div><div style="font-size:14px; color:#2A2520; white-space:pre-wrap;">${esc(c.text || '')}</div></div>`;
+    }).join('');
+  }
+  async function sendComment() {
+    const err = document.getElementById('cErr'); err.style.display = 'none';
+    const name = document.getElementById('cName').value.trim();
+    const text = document.getElementById('cText').value.trim();
+    if (!text) { err.textContent = 'Lütfen bir not yazın.'; err.style.display = 'block'; return; }
+    try {
+      const res = await fetch(`${API}/decisions/${decisionId}/comment`, { method: 'POST',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, text }) });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.detail || 'Gönderilemedi');
+      document.getElementById('cText').value = '';
+      const rr = await fetch(`${API}/decisions/${decisionId}`); const dd = await rr.json();
+      renderComments(dd.comments || []);
+    } catch (e) { err.textContent = 'Hata: ' + e.message; err.style.display = 'block'; }
   }
 
   function showBanner(label) {
