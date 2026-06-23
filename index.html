@@ -935,6 +935,13 @@
       </div>
 
       <div id="selectedChipsInterior" style="min-height:28px; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
+      <div style="margin-top:14px; padding-top:12px; border-top:1px solid #E0DAD0;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <span class="preset-group-label" style="margin:0;">Stillerim</span>
+          <button onclick="saveCurrentStyle()" style="font-size:11px; padding:4px 10px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; cursor:pointer; font-weight:600;">+ Mevcut ayarı kaydet</button>
+        </div>
+        <div id="myStylesInterior" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
       <button class="render-btn" id="renderBtnInterior" onclick="startRender()" style="margin-top:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Render Oluştur <span style="font-size:11px;opacity:0.8;">· 8 kredi</span></button>
       <div class="error-msg" id="errorMsgInterior"></div>
     </div>
@@ -1079,6 +1086,13 @@
 
       <!-- Seçili etiketler -->
       <div id="selectedChips" style="min-height:28px; margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
+      <div style="margin-top:14px; padding-top:12px; border-top:1px solid #E0DAD0;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <span class="preset-group-label" style="margin:0;">Stillerim</span>
+          <button onclick="saveCurrentStyle()" style="font-size:11px; padding:4px 10px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; cursor:pointer; font-weight:600;">+ Mevcut ayarı kaydet</button>
+        </div>
+        <div id="myStylesExterior" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
 
       <!-- ════ KONSTRÜKSİYON (Yapısal Düzenleme) — Creative'den AYRI, tek seçimli ════ -->
       <div style="margin-top:18px; padding-top:16px; border-top:1px solid #E0DAD0;">
@@ -2516,6 +2530,45 @@
     document.querySelectorAll('.cbtn').forEach(b => b.classList.remove('active'));
     const el = document.getElementById('selectedConstruction'); if (el) el.innerHTML = '';
   }
+
+  // ═══ STİLLERİM — preset kombinasyonunu isimle kaydet/uygula (localStorage) ═══
+  function getStyles() { try { return JSON.parse(localStorage.getItem('bynai_styles') || '[]'); } catch { return []; } }
+  function setStyles(a) { localStorage.setItem('bynai_styles', JSON.stringify(a)); }
+  function saveCurrentStyle() {
+    if (!Object.keys(selectedPresets).length) { alert('Önce birkaç preset/ayar seç, sonra kaydet.'); return; }
+    const name = (prompt('Bu stile bir isim ver:', '') || '').trim();
+    if (!name) return;
+    const arr = getStyles();
+    arr.push({ id: 'st_' + Date.now(), name: name.slice(0, 30), type: renderType,
+               style: selectedStyle, presets: { ...selectedPresets } });
+    setStyles(arr); renderMyStyles();
+  }
+  function applyStyle(id) {
+    const s = getStyles().find(x => x.id === id); if (!s) return;
+    clearConstruction();
+    Object.keys(selectedPresets).forEach(k => delete selectedPresets[k]);
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    Object.entries(s.presets).forEach(([prm, lbl]) => {
+      selectedPresets[prm] = lbl;
+      document.querySelectorAll('.chip').forEach(c => { if (c.dataset.prompt === prm) c.classList.add('active'); });
+    });
+    renderChipTags();
+  }
+  function deleteStyle(id, e) {
+    if (e) e.stopPropagation();
+    setStyles(getStyles().filter(x => x.id !== id)); renderMyStyles();
+  }
+  function renderMyStyles() {
+    const all = getStyles();
+    [['interior', 'myStylesInterior'], ['exterior', 'myStylesExterior']].forEach(([t, cid]) => {
+      const box = document.getElementById(cid); if (!box) return;
+      const list = all.filter(s => s.type === t);
+      box.innerHTML = list.length
+        ? list.map(s => `<span class="chip-tag" style="cursor:pointer;" onclick="applyStyle('${s.id}')" title="Uygula">${s.name} <button onclick="deleteStyle('${s.id}',event)" title="Sil">×</button></span>`).join('')
+        : '<span style="font-size:11px;color:#ABA49C;">Henüz kayıtlı stil yok — bir kombinasyon seçip "Mevcut ayarı kaydet"e bas.</span>';
+    });
+  }
+  renderMyStyles();
 
   // Chip click handler
   document.addEventListener('click', e => {
