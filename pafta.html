@@ -244,6 +244,8 @@
         <button class="tool" onclick="align('top')">⇧ Üst</button>
         <button class="tool" onclick="align('cy')">⇕ Orta</button>
         <button class="tool" onclick="align('bottom')">Alt ⇩</button>
+        <button class="tool" onclick="distribute('h')" title="Yatay eşit aralık (3+ nesne)">⇿ Dağıt Y</button>
+        <button class="tool" onclick="distribute('v')" title="Dikey eşit aralık (3+ nesne)">⇳ Dağıt D</button>
       </div>
 
       <div class="section">Seçili Nesne</div>
@@ -1432,6 +1434,105 @@ document.addEventListener('keydown', e => {
     if (!(canvas.getActiveObject() && canvas.getActiveObject().isEditing)) { e.preventDefault(); undo(); }
   } else if ((e.ctrlKey || e.metaKey) && (k === 'y' || (e.shiftKey && k === 'z'))) { e.preventDefault(); redo(); }
 });
+
+/* ═══ KLAVYE: ok ile kaydır · Ctrl+C/V kopyala-yapıştır · Ctrl+D çoğalt ═══ */
+let _clip = null;
+document.addEventListener('keydown', e => {
+  const tag = (document.activeElement && document.activeElement.tagName) || '';
+  if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+  const ao = canvas.getActiveObject();
+  if (ao && ao.isEditing) return;
+  const k = (e.key || '').toLowerCase();
+  if (ao && ['arrowleft','arrowright','arrowup','arrowdown'].includes(k)) {
+    e.preventDefault();
+    const s = e.shiftKey ? 10 : 1;
+    if (k === 'arrowleft') ao.left -= s;
+    if (k === 'arrowright') ao.left += s;
+    if (k === 'arrowup') ao.top -= s;
+    if (k === 'arrowdown') ao.top += s;
+    ao.setCoords(); canvas.requestRenderAll();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && k === 'c' && ao) { e.preventDefault(); ao.clone(c => { _clip = c; }, PAGE_PROPS); return; }
+  if ((e.ctrlKey || e.metaKey) && k === 'v' && _clip) {
+    e.preventDefault();
+    _clip.clone(c => { c.set({ left:(_clip.left||0)+24, top:(_clip.top||0)+24 }); c.id = crypto.randomUUID();
+      canvas.add(c).setActiveObject(c); canvas.requestRenderAll(); refreshLayers(); }, PAGE_PROPS);
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && k === 'd' && ao) {
+    e.preventDefault();
+    ao.clone(c => { c.set({ left:(ao.left||0)+24, top:(ao.top||0)+24 }); c.id = crypto.randomUUID();
+      canvas.add(c).setActiveObject(c); canvas.requestRenderAll(); refreshLayers(); }, PAGE_PROPS);
+    return;
+  }
+});
+
+/* ═══ ALT-SÜRÜKLE ÇOĞALT ═══ */
+canvas.on('mouse:down', opt => {
+  if (opt.e && opt.e.altKey && opt.target && !opt.target.group) {
+    const src = opt.target;
+    src.clone(c => { c.set({ left: src.left, top: src.top }); c.id = crypto.randomUUID();
+      canvas.add(c); canvas.requestRenderAll(); refreshLayers(); }, PAGE_PROPS);
+  }
+});
+
+/* ═══ SNAP — akıllı hizalama kılavuzları ═══ */
+const SNAP_TOL = 6;
+let _snapGuides = [];
+canvas.on('object:moving', e => {
+  const o = e.target; if (!o) return;
+  const B = store.get().board;
+  const r = o.getBoundingRect(true, true);
+  const ax = [r.left, r.left + r.width/2, r.left + r.width];
+  const ay = [r.top, r.top + r.height/2, r.top + r.height];
+  const tX = [0, B.widthPx/2, B.widthPx];
+  const tY = [0, B.heightPx/2, B.heightPx];
+  canvas.getObjects().forEach(ob => { if (ob === o || ob.excludeFromExport) return;
+    const b = ob.getBoundingRect(true, true);
+    tX.push(b.left, b.left + b.width/2, b.left + b.width);
+    tY.push(b.top, b.top + b.height/2, b.top + b.height); });
+  _snapGuides = [];
+  let dx = null, dxd = SNAP_TOL + 1, gx = null;
+  ax.forEach(v => tX.forEach(t => { const d = Math.abs(v - t); if (d < dxd) { dxd = d; dx = t - v; gx = t; } }));
+  if (dx !== null && dxd <= SNAP_TOL) { o.left += dx; _snapGuides.push({ x: gx }); }
+  let dy = null, dyd = SNAP_TOL + 1, gy = null;
+  ay.forEach(v => tY.forEach(t => { const d = Math.abs(v - t); if (d < dyd) { dyd = d; dy = t - v; gy = t; } }));
+  if (dy !== null && dyd <= SNAP_TOL) { o.top += dy; _snapGuides.push({ y: gy }); }
+  o.setCoords();
+});
+canvas.on('after:render', () => {
+  if (!_snapGuides.length) return;
+  const ctx = canvas.contextTop; if (!ctx) return;
+  const vt = canvas.viewportTransform;
+  ctx.save(); ctx.strokeStyle = '#7A8B6A'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+  _snapGuides.forEach(g => {
+    ctx.beginPath();
+    if (g.x !== undefined) { const px = g.x * vt[0] + vt[4]; ctx.moveTo(px, 0); ctx.lineTo(px, ctx.canvas.height); }
+    if (g.y !== undefined) { const py = g.y * vt[3] + vt[5]; ctx.moveTo(0, py); ctx.lineTo(ctx.canvas.width, py); }
+    ctx.stroke();
+  });
+  ctx.restore();
+});
+canvas.on('mouse:up', () => { if (_snapGuides.length) { _snapGuides = []; try { canvas.clearContext(canvas.contextTop); } catch(_){} canvas.requestRenderAll(); } });
+
+/* ═══ DAĞIT — eşit aralıkla diz ═══ */
+function distribute(axis) {
+  const sel = canvas.getActiveObject();
+  if (!sel || sel.type !== 'activeSelection' || sel._objects.length < 3) { toast('En az 3 nesne seç (Shift ile)'); return; }
+  const objs = sel._objects.slice();
+  canvas.discardActiveObject(); canvas.requestRenderAll();
+  const key = axis === 'h' ? 'left' : 'top';
+  const dimFn = axis === 'h' ? 'getScaledWidth' : 'getScaledHeight';
+  objs.sort((a, b) => a[key] - b[key]);
+  const start = objs[0][key];
+  const end = objs[objs.length - 1][key] + objs[objs.length - 1][dimFn]();
+  const total = objs.reduce((s, o) => s + o[dimFn](), 0);
+  const gap = (end - start - total) / (objs.length - 1);
+  let cur = start;
+  objs.forEach(o => { o.set(key, cur); o.setCoords(); cur += o[dimFn]() + gap; });
+  canvas.requestRenderAll(); refreshLayers();
+}
 
 /* başlat */
 if (!localStorage.getItem('ra_token')) {           // üyelik duvarı
