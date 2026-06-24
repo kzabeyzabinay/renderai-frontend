@@ -395,7 +395,7 @@ function createStore(initial) {
 }
 
 const store = createStore({
-  board: { widthPx: 1587, heightPx: 1123, w_mm: 420, h_mm: 297, dpi: 300, background:'#FFFFFF' },
+  board: { widthPx: 2480, heightPx: 1754, w_mm: 420, h_mm: 297, dpi: 300, background:'#FFFFFF' },
   assets: {},          // registry: id -> { source, name, thumbUrl, fullUrl, naturalWidth, naturalHeight, _file }
 });
 
@@ -436,7 +436,7 @@ function loadImage(src) {
   });
 }
 /* index.html'deki resizeIfNeeded() ile aynı mantık; natural boyutu da döndürür. */
-async function makeThumb(src, maxDim = 2048, quality = 0.9) {
+async function makeThumb(src, maxDim = 4096, quality = 0.9) {
   let img;
   try { img = await loadImage(src); }
   catch { return { thumbUrl: typeof src==='string'?src:'', nW:0, nH:0, tainted:true }; }
@@ -473,7 +473,7 @@ async function loadBynaiRenders() {
     if (!items.length) { empty.style.display='block'; return; }
     grid.innerHTML = '';
     for (const r of items) {
-      const { thumbUrl, nW, nH, tainted } = await makeThumb(r.result_url, 2048, 0.9);
+      const { thumbUrl, nW, nH, tainted } = await makeThumb(r.result_url, 4096, 0.9);
       const id = 'bynai_' + (r.id || crypto.randomUUID());
       addAsset({ id, source:'bynai', name: r.style ? String(r.style).slice(0,18) : 'Render',
         thumbUrl: thumbUrl || r.result_url, fullUrl: r.result_url,
@@ -489,7 +489,7 @@ async function handleFiles(fileList) {
   const grid = document.getElementById('uploadGrid');
   for (const file of fileList) {
     if (!file.type.startsWith('image/')) continue;
-    const { thumbUrl, nW, nH } = await makeThumb(file, 2048, 0.9);
+    const { thumbUrl, nW, nH } = await makeThumb(file, 4096, 0.9);
     const id = 'up_' + crypto.randomUUID();
     addAsset({ id, source:'upload', name: file.name.slice(0,18),
       thumbUrl, fullUrl: URL.createObjectURL(file),   // orijinal File blob URL'i
@@ -816,7 +816,7 @@ function replaceSelectedImage() {
   inp.onchange = async e => {
     const file = e.target.files[0]; if (!file) return;
     toast('Görsel değiştiriliyor…');
-    const { thumbUrl, nW, nH } = await makeThumb(file, 2048, 0.9);
+    const { thumbUrl, nW, nH } = await makeThumb(file, 4096, 0.9);
     const id = 'up_' + crypto.randomUUID();
     addAsset({ id, source:'upload', name:file.name.slice(0,18), thumbUrl,
       fullUrl: URL.createObjectURL(file), naturalWidth:nW, naturalHeight:nH, _file:file });
@@ -853,6 +853,7 @@ function align(mode) {
 }
 
 /* ═══ KATMAN PANELİ ═══ */
+let _dragLayer = null;   // katman sürükle-bırak için
 function refreshLayers() {
   const list = document.getElementById('layerList');
   const objs = canvas.getObjects().filter(o => !o.excludeFromExport).slice().reverse();
@@ -874,7 +875,21 @@ function refreshLayers() {
       <span class="ic" title="Yukarı">▲</span><span class="ic" title="Aşağı">▼</span>
       <span class="ic" title="Sil"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#C2554D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg></span>`;
     const ics = row.querySelectorAll('.ic');
-    row.onclick = () => { canvas.setActiveObject(o); canvas.requestRenderAll(); refreshLayers(); renderProps(); };
+    row.onclick = (e) => {
+      if (e.ctrlKey || e.metaKey || e.shiftKey) {
+        // Ctrl/Ctrl+Shift → çoklu seçim: mevcut seçime ekle/çıkar
+        const cur = canvas.getActiveObject();
+        let sel = cur ? (cur.type === 'activeSelection' ? cur._objects.slice() : [cur]) : [];
+        const i = sel.indexOf(o);
+        if (i === -1) sel.push(o); else sel.splice(i, 1);
+        canvas.discardActiveObject();
+        if (sel.length === 1) canvas.setActiveObject(sel[0]);
+        else if (sel.length > 1) canvas.setActiveObject(new fabric.ActiveSelection(sel, { canvas }));
+        canvas.requestRenderAll(); refreshLayers(); renderProps();
+        return;
+      }
+      canvas.setActiveObject(o); canvas.requestRenderAll(); refreshLayers(); renderProps();
+    };
     ics[0].onclick = e => { e.stopPropagation(); o.visible = o.visible===false; canvas.requestRenderAll(); refreshLayers(); };
     ics[1].onclick = e => { e.stopPropagation(); const lk=!o.lockMovementX;
       o.set({ lockMovementX:lk, lockMovementY:lk, lockRotation:lk, lockScalingX:lk, lockScalingY:lk, selectable:!lk });
@@ -882,6 +897,26 @@ function refreshLayers() {
     ics[2].onclick = e => { e.stopPropagation(); canvas.bringForward(o); canvas.requestRenderAll(); refreshLayers(); };
     ics[3].onclick = e => { e.stopPropagation(); canvas.sendBackwards(o); canvas.requestRenderAll(); refreshLayers(); };
     ics[4].onclick = e => { e.stopPropagation(); if (o.isEditing) o.exitEditing(); canvas.remove(o); canvas.discardActiveObject(); canvas.requestRenderAll(); refreshLayers(); renderProps(); };
+    // Sürükle-bırak: grup satırına bırak → grubun içine al; başka satıra bırak → z-sırasını değiştir
+    row.draggable = true;
+    row.ondragstart = ev => { _dragLayer = o; ev.dataTransfer.effectAllowed = 'move'; };
+    row.ondragend   = () => { _dragLayer = null; row.style.outline = ''; };
+    row.ondragover  = ev => { if (_dragLayer && _dragLayer !== o) { ev.preventDefault();
+      row.style.outline = (o.type === 'group') ? '2px solid var(--sage)' : '2px dashed var(--line)'; } };
+    row.ondragleave = () => { row.style.outline = ''; };
+    row.ondrop = ev => {
+      ev.preventDefault(); row.style.outline = '';
+      const d = _dragLayer; _dragLayer = null;
+      if (!d || d === o) return;
+      if (o.type === 'group') {
+        if (d.type === 'group') { toast('Grubu gruba ekleyemezsin'); return; }
+        canvas.remove(d); o.addWithUpdate(d);
+        canvas.setActiveObject(o); canvas.requestRenderAll(); refreshLayers(); renderProps(); toast('Gruba eklendi ✓');
+      } else {
+        canvas.moveTo(d, canvas.getObjects().indexOf(o));
+        canvas.requestRenderAll(); refreshLayers();
+      }
+    };
     list.appendChild(row);
   });
 }
@@ -1110,7 +1145,7 @@ function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 // Temel ölçüler yatay (w>h) tanımlı; dikeyde w/h yer değişir.
 const PAGE = { a4:{w:297,h:210}, a3:{w:420,h:297}, a1:{w:841,h:594} };
 function setBoardSize(w_mm, h_mm) {
-  const px = m => Math.round(m/25.4*96);   // logical px (ekran); export'ta dpi ile çarpılır
+  const px = m => Math.round(m/25.4*150);   // logical px (ekran, ~150dpi netlik); export'ta dpi ile çarpılır
   store.set(s => ({ board: { ...s.board, w_mm, h_mm, widthPx:px(w_mm), heightPx:px(h_mm) } }));
   applyBoardSize();
 }
@@ -1585,8 +1620,8 @@ canvas.on('mouse:down', opt => {
   }
 });
 
-/* ═══ SNAP — akıllı hizalama kılavuzları ═══ */
-const SNAP_TOL = 6;
+/* ═══ SNAP — kullanıcı isteğiyle KAPATILDI (sürüklerken kılavuz çizgisi/yapışma yok) ═══ */
+const SNAP_TOL = -1;
 let _snapGuides = [];
 canvas.on('object:moving', e => {
   const o = e.target; if (!o) return;
