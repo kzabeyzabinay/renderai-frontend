@@ -248,6 +248,9 @@
         <button class="tool" onclick="distribute('v')" title="Dikey eşit aralık (3+ nesne)">⇳ Dağıt D</button>
       </div>
 
+      <div class="section">Marka Renkleri</div>
+      <div id="brandColors" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;"></div>
+
       <div class="section">Seçili Nesne</div>
       <div id="propBox"><div class="empty">Bir nesne seç</div></div>
 
@@ -281,6 +284,20 @@
         <button class="tbtn primary" onclick="applyCustomSize()">Uygula</button>
       </div>
       <div style="font-size:11px;color:var(--muted);margin-top:6px;">50–841 mm arası (300 dpi). Daha büyüğü tarayıcıyı zorlar.</div>
+    </div>
+    <div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Hazır Düzenler</div>
+      <div class="tplGrid" style="grid-template-columns:1fr 1fr;">
+        <div class="tplCard" onclick="builtinLayout('cover')"><div class="big" style="font-size:15px;">Kapak</div><small>Başlık + alt başlık</small></div>
+        <div class="tplCard" onclick="builtinLayout('compare')"><div class="big" style="font-size:15px;">Önce / Sonra</div><small>2 görsel çerçevesi + etiket</small></div>
+      </div>
+    </div>
+    <div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:13px;font-weight:600;">Şablonlarım</div>
+        <button class="tbtn" onclick="saveAsTemplate()">+ Bu paftayı kaydet</button>
+      </div>
+      <div id="myTplList" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow:auto;"></div>
     </div>
     <div style="text-align:right;margin-top:14px;"><button class="tbtn" onclick="closeModal('tplModal')">Kapat</button></div>
   </div>
@@ -923,6 +940,12 @@ function renderProps() {
         <button class="tbtn2 ${o.textAlign==='left'?'on':''}" id="pAlL" title="Sola">⇤</button>
         <button class="tbtn2 ${o.textAlign==='center'?'on':''}" id="pAlC" title="Ortala">≡</button>
         <button class="tbtn2 ${o.textAlign==='right'?'on':''}" id="pAlR" title="Sağa">⇥</button>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin:8px 0 4px;">Hazır stil</div>
+      <div class="tgrid">
+        <button class="tbtn2" id="pStyTitle">Başlık</button>
+        <button class="tbtn2" id="pStySub">Alt başlık</button>
+        <button class="tbtn2" id="pStyBody">Gövde</button>
       </div>`:''}
     ${o.objType==='image' ? `
       <div class="tgrid">
@@ -931,7 +954,11 @@ function renderProps() {
       </div>
       <button class="tbtn2" id="pReplace" style="width:100%;margin:6px 0 6px;">🔄 Görseli Değiştir</button>
       <button class="tbtn2" id="pCrop" style="width:100%;margin:0 0 6px;">✂ Kırp</button>
-      <button class="tbtn2" id="pRemoveBg" style="width:100%;margin:0 0 8px;">🧹 Arka Plan Kaldır (2 kredi)</button>` : ''}
+      <button class="tbtn2" id="pRemoveBg" style="width:100%;margin:0 0 8px;">🧹 Arka Plan Kaldır (2 kredi)</button>
+      <label class="prop" style="cursor:pointer"><span>Gölge</span><input type="checkbox" id="pShadow" ${o.shadow?'checked':''}></label>
+      <div class="prop"><span>Yuvarlak köşe</span><input type="range" min="0" max="120" value="${(o.clipPath&&o.clipPath.__r)||0}" id="pRadius"></div>
+      <div class="prop"><span>Çerçeve</span><input type="color" value="${rgbToHex(o.stroke||'#FFFFFF')}" id="pImgStroke"></div>
+      <div class="prop"><span>Çerçeve kalınlığı</span><input type="range" min="0" max="40" value="${o.strokeWidth||0}" id="pImgSW"></div>` : ''}
     ${o.objType==='shape' ? `
       ${o.type!=='line' ? `
       <div class="prop"><span>Dolgu</span><input type="color" value="${rgbToHex(o.fill)}" id="pFill" ${(!o.fill||o.fill==='transparent')?'disabled':''}></div>
@@ -957,6 +984,20 @@ function renderProps() {
   const crp = document.getElementById('pCrop'); if (crp) crp.onclick = startCrop;
   const flx = document.getElementById('pFlipX'); if (flx) flx.onclick = () => { o.set('flipX', !o.flipX); o.setCoords(); canvas.requestRenderAll(); renderProps(); };
   const fly = document.getElementById('pFlipY'); if (fly) fly.onclick = () => { o.set('flipY', !o.flipY); o.setCoords(); canvas.requestRenderAll(); renderProps(); };
+  // Görsel cila: gölge / yuvarlak köşe / çerçeve
+  const psh = document.getElementById('pShadow'); if (psh) psh.onchange = e => { o.set('shadow', e.target.checked ? new fabric.Shadow({ color:'rgba(0,0,0,0.35)', blur:28, offsetX:0, offsetY:12 }) : null); canvas.requestRenderAll(); };
+  const prad = document.getElementById('pRadius'); if (prad) prad.oninput = e => {
+    const r = +e.target.value;
+    if (r > 0) { const cp = new fabric.Rect({ width:o.width, height:o.height, rx:r, ry:r, originX:'center', originY:'center' }); cp.__r = r; o.clipPath = cp; }
+    else o.clipPath = null;
+    o.dirty = true; canvas.requestRenderAll();
+  };
+  const pis = document.getElementById('pImgStroke'); if (pis) pis.oninput = e => { o.set('stroke', e.target.value); if (!o.strokeWidth) o.set('strokeWidth', 6); canvas.requestRenderAll(); renderProps(); };
+  const pisw = document.getElementById('pImgSW'); if (pisw) pisw.oninput = e => { o.set('strokeWidth', +e.target.value); canvas.requestRenderAll(); };
+  // Metin hazır stilleri
+  const styT = document.getElementById('pStyTitle'); if (styT) styT.onclick = () => { o.set({ fontFamily:'Oswald', fontSize:64, fontWeight:'bold', fontStyle:'normal' }); canvas.requestRenderAll(); renderProps(); };
+  const styS = document.getElementById('pStySub'); if (styS) styS.onclick = () => { o.set({ fontFamily:'Montserrat', fontSize:34, fontWeight:'600', fontStyle:'normal' }); canvas.requestRenderAll(); renderProps(); };
+  const styB = document.getElementById('pStyBody'); if (styB) styB.onclick = () => { o.set({ fontFamily:'Inter', fontSize:20, fontWeight:'normal', fontStyle:'normal' }); canvas.requestRenderAll(); renderProps(); };
   const grpBtn = document.getElementById('pGroup'); if (grpBtn) grpBtn.onclick = groupSelected;
   const ungBtn = document.getElementById('pUngroup'); if (ungBtn) ungBtn.onclick = ungroupSelected;
   const nf = document.getElementById('pNoFill'); if (nf) nf.onchange = e => {
@@ -996,8 +1037,75 @@ document.addEventListener('keydown', e => {
       && !(canvas.getActiveObject()?.isEditing)) { e.preventDefault(); deleteSel(); }
 });
 
+/* ═══ MARKA RENKLERİ ═══ */
+function getBrand(){ try { return JSON.parse(localStorage.getItem('bynai_brand_colors') || '[]'); } catch { return []; } }
+function setBrand(a){ localStorage.setItem('bynai_brand_colors', JSON.stringify(a.slice(0, 16))); }
+function addBrandColor(hex){ if (!hex) return; const a = getBrand(); if (!a.includes(hex)) { a.push(hex); setBrand(a); renderBrandColors(); } }
+function deleteBrandColor(hex, e){ if (e) e.stopPropagation(); setBrand(getBrand().filter(c => c !== hex)); renderBrandColors(); }
+function applyBrandColor(hex){
+  const o = canvas.getActiveObject(); if (!o) { toast('Önce bir nesne seç'); return; }
+  if (o.objType === 'image') { o.set('stroke', hex); if (!o.strokeWidth) o.set('strokeWidth', 6); }
+  else o.set('fill', hex);
+  canvas.requestRenderAll(); renderProps();
+}
+function renderBrandColors(){
+  const box = document.getElementById('brandColors'); if (!box) return;
+  box.innerHTML = getBrand().map(c =>
+    `<span style="position:relative;display:inline-block;"><button onclick="applyBrandColor('${c}')" title="Seçili nesneye uygula" style="width:24px;height:24px;border-radius:6px;border:1px solid var(--line);background:${c};cursor:pointer;"></button><button onclick="deleteBrandColor('${c}',event)" title="Sil" style="position:absolute;top:-6px;right:-6px;width:14px;height:14px;border:none;border-radius:50%;background:#C2554D;color:#fff;font-size:9px;line-height:1;cursor:pointer;">×</button></span>`
+  ).join('') + `<label title="Renk ekle" style="width:24px;height:24px;border-radius:6px;border:1px dashed var(--line);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:15px;">+<input type="color" style="width:0;height:0;opacity:0;position:absolute;" onchange="addBrandColor(this.value)"></label>`;
+}
+
+/* ═══ ŞABLONLARIM (localStorage) + HAZIR DÜZENLER ═══ */
+function getTpls(){ try { return JSON.parse(localStorage.getItem('bynai_pafta_templates') || '[]'); } catch { return []; } }
+function setTpls(a){ localStorage.setItem('bynai_pafta_templates', JSON.stringify(a)); }
+async function saveAsTemplate(){
+  const name = (await uiPrompt('Şablon adı:', '') || '').trim(); if (!name) return;
+  snapshotActive();
+  const pg = pages[activeIdx];
+  const a = getTpls(); a.push({ id:'tpl_'+Date.now(), name:name.slice(0,30), board:pg.board, json:pg.json });
+  setTpls(a); renderMyTemplates(); toast('Şablon kaydedildi');
+}
+function loadMyTemplate(id){
+  const t = getTpls().find(x => x.id === id); if (!t) return;
+  store.set({ board:{ ...t.board } }); applyBoardSize();
+  histLock = true;
+  canvas.loadFromJSON(t.json || { objects:[] }, () => {
+    canvas.backgroundColor = t.board.background; canvas.renderAll();
+    histLock = false; resetHist(); refreshLayers(); renderProps();
+  });
+  pages[activeIdx] = { id: pages[activeIdx].id, board:{ ...t.board }, json: t.json };
+  closeModal('tplModal'); toast('Şablon yüklendi');
+}
+function deleteMyTemplate(id, e){ if (e) e.stopPropagation(); setTpls(getTpls().filter(x => x.id !== id)); renderMyTemplates(); }
+function renderMyTemplates(){
+  const box = document.getElementById('myTplList'); if (!box) return;
+  const a = getTpls();
+  box.innerHTML = a.length
+    ? a.map(t => `<div onclick="loadMyTemplate('${t.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;"><span style="font-size:13px;">${t.name}</span><button onclick="deleteMyTemplate('${t.id}',event)" title="Sil" style="border:none;background:none;color:#C2554D;cursor:pointer;font-size:14px;">🗑</button></div>`).join('')
+    : '<div style="font-size:12px;color:var(--muted);">Henüz şablonun yok. Bir pafta hazırla → "Bu paftayı kaydet".</div>';
+}
+function builtinLayout(kind){
+  const B = store.get().board;
+  if (kind === 'cover') {
+    const t = new fabric.Textbox('PROJE ADI', { left:B.widthPx/2, top:B.heightPx*0.42, width:B.widthPx*0.8, fontSize:Math.round(B.widthPx*0.06), fontFamily:'Oswald', fontWeight:'bold', fill:'#1A1A16', textAlign:'center', originX:'center', originY:'center' });
+    t.id = crypto.randomUUID(); t.objType = 'text'; t.name = 'Başlık';
+    const s = new fabric.Textbox('Alt başlık / firma adı', { left:B.widthPx/2, top:B.heightPx*0.42 + Math.round(B.widthPx*0.055), width:B.widthPx*0.7, fontSize:Math.round(B.widthPx*0.024), fontFamily:'Montserrat', fill:'#6E6258', textAlign:'center', originX:'center', originY:'center' });
+    s.id = crypto.randomUUID(); s.objType = 'text'; s.name = 'Alt başlık';
+    canvas.add(t, s);
+  } else if (kind === 'compare') {
+    const m = B.widthPx*0.04, w = (B.widthPx - 3*m)/2, h = B.heightPx*0.58, y = B.heightPx*0.3;
+    [0,1].forEach(i => {
+      const r = new fabric.Rect({ left:m + i*(w+m), top:y, width:w, height:h, fill:'#EDE8E0', stroke:'#C9BFB2', strokeWidth:2, rx:8, ry:8 });
+      r.id = crypto.randomUUID(); r.objType = 'shape'; r.name = 'Görsel çerçevesi'; canvas.add(r);
+      const lb = new fabric.Textbox(i===0 ? 'ÖNCE' : 'SONRA', { left:m + i*(w+m) + w/2, top:y - B.heightPx*0.05, fontSize:Math.round(B.widthPx*0.022), fontFamily:'Oswald', fontWeight:'bold', fill:'#1A1A16', textAlign:'center', originX:'center' });
+      lb.id = crypto.randomUUID(); lb.objType = 'text'; lb.name = 'Etiket'; canvas.add(lb);
+    });
+  }
+  canvas.requestRenderAll(); refreshLayers(); closeModal('tplModal');
+}
+
 /* ═══ ŞABLONLAR ═══ */
-function openTemplates(){ document.getElementById('tplModal').classList.add('open'); }
+function openTemplates(){ renderMyTemplates(); document.getElementById('tplModal').classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 // Temel ölçüler yatay (w>h) tanımlı; dikeyde w/h yer değişir.
 const PAGE = { a4:{w:297,h:210}, a3:{w:420,h:297}, a1:{w:841,h:594} };
@@ -1544,6 +1652,7 @@ renderSymbols();
 pages = [ blankPage() ];                            // ilk sayfa
 renderPageBar();
 refreshLayers();
+renderBrandColors();
 resetHist();                                         // ilk geri-al anlık görüntüsü
 </script>
 </body>
