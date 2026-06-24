@@ -167,7 +167,7 @@
   <button class="tbtn" onclick="exportPNG()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg>PNG</button>
   <button class="tbtn" onclick="exportPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg>PDF</button>
   <button class="tbtn" onclick="saveOnly()" title="Çalışmanı kaydet — ücretsiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Kaydet</button>
-  <button class="tbtn primary" onclick="sharePresentation()" title="Paylaşım linki oluştur — ilk paylaşımda 75 kredi, sonraki güncellemeler ücretsiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Paylaş · 75 kredi</button>
+  <button class="tbtn primary" onclick="sharePresentation()" title="Paylaşım linki oluştur — ilk paylaşımda 50 kredi, sonraki güncellemeler ücretsiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Paylaş · 50 kredi</button>
 </div>
 
 <div class="stage">
@@ -1297,7 +1297,7 @@ async function saveOnly() {
   } catch (e) { toast('Hata: ' + e.message, 'err'); }
 }
 
-/* PAYLAŞ — önce kaydeder, sonra linki açar. İlk paylaşımda 75 kredi, sonraki paylaşımlar ücretsiz. */
+/* PAYLAŞ — önce kaydeder, sonra linki açar. İlk paylaşımda 50 kredi, sonraki paylaşımlar ücretsiz. */
 async function sharePresentation() {
   if (!localStorage.getItem('ra_token')) { toast('Paylaşmak için BynAi\'ye giriş yap', 'err'); return; }
   toast('Paylaşıma hazırlanıyor…', 'info');
@@ -1307,7 +1307,7 @@ async function sharePresentation() {
     const d = await res.json();
     if (!res.ok) throw new Error(d.detail || 'Paylaşılamadı');
     currentShared = true;
-    toast(d.charged ? 'Sunum paylaşıldı · 75 kredi' : 'Paylaşım linki hazır', 'ok');
+    toast(d.charged ? 'Sunum paylaşıldı · 50 kredi' : 'Paylaşım linki hazır', 'ok');
     document.getElementById('shareLink').value = `${location.origin}/sunum.html?id=${id}`;
     document.getElementById('linkModal').classList.add('open');
   } catch (e) { toast('Hata: ' + e.message, 'err'); }
