@@ -2197,6 +2197,8 @@
       </select>
       <button onclick="newProject()" title="Yeni proje oluştur"
         style="padding:8px 12px; border:1px solid #9A6558; border-radius:10px; background:transparent; color:#9A6558; font-size:13px; font-weight:600; cursor:pointer;">+ Proje</button>
+      <button onclick="deleteProject()" title="Seçili projeyi ve içindeki tüm görselleri sil"
+        style="padding:8px 10px; border:1px solid #E0C9C4; border-radius:10px; background:transparent; color:#C2554D; font-size:13px; font-weight:600; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-.2em;"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg></button>
     </div>
   </div>
 
@@ -4406,6 +4408,22 @@
   async function newProject() {
     const n = (await uiPrompt('Yeni proje adı:', '') || '').trim(); if (!n) return;
     addProjectName(n.slice(0, 40)); renderProjectFilter();
+    document.getElementById('worksProject').value = n.slice(0, 40); loadWorks(true);
+  }
+  async function deleteProject() {
+    const sel = document.getElementById('worksProject');
+    const name = sel.value;
+    if (!name || name === '__none__') { uiAlert('Önce silmek istediğin projeyi listeden seç.'); return; }
+    if (!await uiConfirm(`"${name}" projesi ve içindeki TÜM görseller kalıcı olarak silinecek. Emin misin?`, { okText: 'Projeyi Sil', danger: true })) return;
+    try {
+      const res = await fetch(`${API}/projects/${encodeURIComponent(name)}`, { method: 'DELETE', headers: authHeaders() });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.detail || 'Silinemedi');
+      setProjectNames(getProjectNames().filter(n => n !== name));
+      sel.value = '';
+      renderProjectFilter(); loadWorks(true);
+      uiAlert(`"${name}" projesi silindi.`);
+    } catch (e) { uiAlert('Hata: ' + e.message); }
   }
   function renderProjectFilter() {
     const sel = document.getElementById('worksProject'); if (!sel) return;
