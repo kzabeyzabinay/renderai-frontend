@@ -29,11 +29,16 @@
     }
 
     .logo {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      color: #ECE7DF;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .logo .ai {
       background: linear-gradient(135deg, #9A6558, #B8956A);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
@@ -616,7 +621,7 @@
 <body>
 
 <header>
-  <div class="logo">BynAi</div>
+  <div class="logo">byn<span class="ai">ai</span></div>
   <button id="navToggle" class="nav-toggle" onclick="toggleMainNav()" aria-label="Menü"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;display:block"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   <div id="mainNav">
     <button class="main-nav-btn active" id="nav-render" onclick="switchMainSection('render')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 21h18"/><path d="M6 21V4h8v17"/><path d="M14 21V9h4v12"/><path d="M9 8h2M9 12h2M9 16h2"/></svg>Render</button>
