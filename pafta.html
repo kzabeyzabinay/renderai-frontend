@@ -161,6 +161,7 @@
   <a class="brand" href="/">Byn<span>Ai</span></a>
   <input class="titleInput" id="boardTitle" placeholder="Pafta başlığı" value="İsimsiz Pafta" />
   <span id="editBadge" onclick="clearEditing()" title="Tıkla: yeni sunum olarak kaydet" style="display:none;cursor:pointer;font-size:11px;color:var(--accent);border:1px solid var(--terra);border-radius:14px;padding:4px 10px;"></span>
+  <span id="autoSaveLbl" style="font-size:10px;color:var(--muted);white-space:nowrap;"></span>
   <div class="spacer"></div>
   <button class="tbtn" onclick="openLibrary()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Sunumlarım</button>
   <button class="tbtn" onclick="openTemplates()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Şablon</button>
@@ -1328,6 +1329,7 @@ async function saveOnly() {
   toast('Kaydediliyor…', 'info');
   try {
     await persistPresentation();
+    clearAutoSave();
     toast(currentShared ? 'Kaydedildi · paylaşım linki güncellendi' : 'Sunumun kaydedildi', 'ok');
   } catch (e) { toast('Hata: ' + e.message, 'err'); }
 }
@@ -1540,11 +1542,32 @@ function deletePage(i) {
 }
 function renderPageBar() {
   const bar = document.getElementById('pageBar'); bar.innerHTML = '';
+  let dragSrcIdx = null;
   pages.forEach((pg, i) => {
     const b = document.createElement('button');
     b.className = 'pagechip' + (i === activeIdx ? ' on' : '');
     b.textContent = 'Sayfa ' + (i + 1);
+    b.draggable = true;
+    b.title = 'Sürükle → sıra değiştir';
     b.onclick = () => gotoPage(i);
+    b.ondragstart = e => { dragSrcIdx = i; e.dataTransfer.effectAllowed = 'move'; b.style.opacity = '0.45'; };
+    b.ondragend   = () => { dragSrcIdx = null; b.style.opacity = ''; bar.querySelectorAll('.pagechip').forEach(el => el.style.outline = ''); };
+    b.ondragover  = e => { e.preventDefault(); if (dragSrcIdx !== null && dragSrcIdx !== i) b.style.outline = '2px solid var(--terra)'; };
+    b.ondragleave = () => { b.style.outline = ''; };
+    b.ondrop = e => {
+      e.preventDefault(); b.style.outline = '';
+      if (dragSrcIdx === null || dragSrcIdx === i) return;
+      snapshotActive();
+      const activeId = pages[activeIdx].id;
+      const moved = pages.splice(dragSrcIdx, 1)[0];
+      const insertAt = dragSrcIdx < i ? i - 1 : i;
+      pages.splice(insertAt, 0, moved);
+      activeIdx = pages.findIndex(p => p.id === activeId);
+      dragSrcIdx = null;
+      renderPageBar();
+      triggerAutoSave();
+      toast('Sayfa sırası değiştirildi ✓');
+    };
     bar.appendChild(b);
   });
   const add = document.createElement('button');
@@ -1588,7 +1611,7 @@ document.addEventListener('keydown', e => {
   const k = (e.key || '').toLowerCase();
   if (ao && ['arrowleft','arrowright','arrowup','arrowdown'].includes(k)) {
     e.preventDefault();
-    const s = e.shiftKey ? 10 : 1;
+    const s = e.shiftKey ? 20 : 1;
     if (k === 'arrowleft') ao.left -= s;
     if (k === 'arrowright') ao.left += s;
     if (k === 'arrowup') ao.top -= s;
@@ -1610,6 +1633,53 @@ document.addEventListener('keydown', e => {
     return;
   }
 });
+
+/* ═══ OTOMATİK KAYIT (localStorage) ═══ */
+const AUTOSAVE_KEY = 'bynai_pafta_autosave';
+let _autoSaveTimer = null;
+function triggerAutoSave() {
+  clearTimeout(_autoSaveTimer);
+  _autoSaveTimer = setTimeout(doAutoSave, 4000);
+}
+function doAutoSave() {
+  try {
+    snapshotActive();
+    const data = {
+      savedAt: Date.now(),
+      title: boardTitleVal(),
+      presentationId: currentPresentationId,
+      pages: pages.map(p => ({ id: p.id, board: p.board, json: p.json }))
+    };
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
+    const el = document.getElementById('autoSaveLbl');
+    if (el) { const t = new Date().toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}); el.textContent = '● ' + t + ' otomatik kaydedildi'; }
+  } catch (_) {}
+}
+function clearAutoSave() { try { localStorage.removeItem(AUTOSAVE_KEY); const el = document.getElementById('autoSaveLbl'); if (el) el.textContent = ''; } catch (_) {} }
+function checkAutoSave() {
+  try {
+    const raw = localStorage.getItem(AUTOSAVE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (!data || !data.pages || !data.pages.length) return;
+    const ago = Math.round((Date.now() - data.savedAt) / 60000);
+    if (ago > 1440) { localStorage.removeItem(AUTOSAVE_KEY); return; }
+    const label = ago < 1 ? 'az önce' : ago + ' dakika önce';
+    setTimeout(async () => {
+      const ok = await uiConfirm(`Kaydedilmemiş çalışma var (${label}).\n"${data.title || 'İsimsiz Pafta'}" — ${data.pages.length} sayfa.\nKaldığın yerden devam etmek ister misin?`, { okText: 'Devam Et' });
+      if (!ok) { localStorage.removeItem(AUTOSAVE_KEY); return; }
+      pages = data.pages.map(p => ({ id: p.id || crypto.randomUUID(), board: p.board, json: p.json }));
+      activeIdx = 0;
+      currentPresentationId = data.presentationId || null;
+      if (data.title) document.getElementById('boardTitle').value = data.title;
+      loadPageInto(0); updateEditingBadge();
+      toast('Kaldığın yerden devam ediyorsun ✓', 'ok');
+    }, 600);
+  } catch (_) {}
+}
+canvas.on('object:added',    () => triggerAutoSave());
+canvas.on('object:modified', () => triggerAutoSave());
+canvas.on('object:removed',  () => triggerAutoSave());
 
 /* ═══ ALT-SÜRÜKLE ÇOĞALT ═══ */
 canvas.on('mouse:down', opt => {
@@ -1689,6 +1759,7 @@ renderPageBar();
 refreshLayers();
 renderBrandColors();
 resetHist();                                         // ilk geri-al anlık görüntüsü
+checkAutoSave();
 </script>
 </body>
 </html>
