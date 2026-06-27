@@ -3109,7 +3109,18 @@
     ['render','staging','model3d','upscale','enhance','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
-    if (section === 'works' && document.getElementById('worksGrid').children.length === 0) loadWorks(true);
+    if (section === 'works') {
+      if (!localStorage.getItem('ra_token')) {
+        const empty = document.getElementById('worksEmpty');
+        empty.style.display = 'block';
+        empty.innerHTML = '<div style="font-size:40px; margin-bottom:16px;">🔒</div><p style="font-size:15px; font-weight:600; color:#2A2520; margin:0 0 8px;">Giriş yapman gerekiyor</p><p style="font-size:13px; color:#8A7E74; margin:0 0 20px;">İşlerini görmek için hesabına giriş yap.</p><button onclick="openAuthModal(\'login\')" style="padding:10px 24px; background:#9A6558; color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">Giriş Yap</button>';
+        document.getElementById('worksGrid').innerHTML = '';
+        document.getElementById('worksLoading').style.display = 'none';
+        document.getElementById('worksMoreBtn').style.display = 'none';
+      } else if (document.getElementById('worksGrid').children.length === 0) {
+        loadWorks(true);
+      }
+    }
     if (section === 'decision') loadDecisionLibrary();
     if (section === 'pano') loadPanoHistory();
   }
@@ -4501,6 +4512,15 @@
     const empty = document.getElementById('worksEmpty');
     const loading = document.getElementById('worksLoading');
     const moreBtn = document.getElementById('worksMoreBtn');
+
+    if (!localStorage.getItem('ra_token')) {
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+      empty.innerHTML = '<div style="font-size:40px; margin-bottom:16px;">🔒</div><p style="font-size:15px; font-weight:600; color:#2A2520; margin:0 0 8px;">Giriş yapman gerekiyor</p><p style="font-size:13px; color:#8A7E74; margin:0 0 20px;">İşlerini görmek için hesabına giriş yap.</p><button onclick="openAuthModal(\'login\')" style="padding:10px 24px; background:#9A6558; color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;">Giriş Yap</button>';
+      loading.style.display = 'none';
+      moreBtn.style.display = 'none';
+      return;
+    }
 
     if (reset) { worksOffset = 0; grid.innerHTML = ''; empty.style.display = 'none'; moreBtn.style.display = 'none'; }
     loading.style.display = 'block';
