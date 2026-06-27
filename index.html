@@ -570,6 +570,13 @@
       background: rgba(122,139,106,0.15);
       box-shadow: 0 0 0 1px rgba(122,139,106,0.3);
     }
+    .recolor-mat-btn {
+      padding: 5px 12px; border: 1px solid #D8D2C8; border-radius: 20px;
+      background: #FAFAF8; color: #2A2520; font-size: 12px; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .recolor-mat-btn:hover { border-color: #9A6558; color: #9A6558; }
+    .recolor-mat-btn.active { border-color: #9A6558; background: rgba(154,101,88,0.1); color: #9A6558; font-weight: 600; }
 
     /* Nav container (masaüstü: yatay sıra) */
     #mainNav { display: flex; gap: 8px; align-items: center; }
@@ -1344,13 +1351,23 @@
             <input id="recolorDstPicker" type="color" value="#A65E2E" style="width:36px;height:36px;border:none;padding:0;cursor:pointer;border-radius:8px;background:transparent;"
               oninput="syncRecolorDstFromPicker(this.value)" title="Renk seçici" />
           </div>
-          <div style="display:flex; gap:8px; align-items:center;">
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
             <input id="recolorRal" type="text" maxlength="10" placeholder="RAL kodu (örn: 8023)"
               style="width:130px;padding:8px 10px;border:1px solid #D8D2C8;border-radius:8px;background:#FAFAF8;color:#2A2520;font-size:13px;" />
             <button onclick="applyRalCode()" style="padding:8px 14px;border:1px solid #D8D2C8;border-radius:8px;background:transparent;color:#2A2520;font-size:12px;font-weight:600;cursor:pointer;">RAL Uygula</button>
             <span id="recolorRalName" style="font-size:11px;color:#8A7E74;"></span>
           </div>
-          <p style="font-size:11px; color:#8A7E74; margin-top:8px; line-height:1.5;">Sadece seçilen renkteki yüzeyler değiştirilir. Antrasit/beyaz ve diğer renkler, gölge ve ışık korunur.</p>
+          <div class="mini-label" style="margin-bottom:6px;">Malzeme</div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
+            <button class="recolor-mat-btn active" data-mat="" onclick="selectRecolorMat(this,'')">Otomatik</button>
+            <button class="recolor-mat-btn" data-mat="smooth painted plaster render, matte paint finish" onclick="selectRecolorMat(this,'smooth painted plaster render, matte paint finish')">Sıva / Boya</button>
+            <button class="recolor-mat-btn" data-mat="aluminium composite panel cladding, ACM panel, flat metal surface" onclick="selectRecolorMat(this,'aluminium composite panel cladding, ACM panel, flat metal surface')">Kompozit</button>
+            <button class="recolor-mat-btn" data-mat="natural wood timber cladding, visible wood grain texture" onclick="selectRecolorMat(this,'natural wood timber cladding, visible wood grain texture')">Ahşap</button>
+            <button class="recolor-mat-btn" data-mat="exposed concrete surface, raw concrete texture" onclick="selectRecolorMat(this,'exposed concrete surface, raw concrete texture')">Beton</button>
+            <button class="recolor-mat-btn" data-mat="ceramic or porcelain tile cladding, fine grout lines" onclick="selectRecolorMat(this,'ceramic or porcelain tile cladding, fine grout lines')">Seramik</button>
+            <button class="recolor-mat-btn" data-mat="natural stone cladding, travertine or limestone surface" onclick="selectRecolorMat(this,'natural stone cladding, travertine or limestone surface')">Taş</button>
+          </div>
+          <p style="font-size:11px; color:#8A7E74; margin-top:4px; line-height:1.5;">Sadece seçilen renkteki yüzeyler değiştirilir. Antrasit/beyaz ve diğer renkler, gölge ve ışık korunur.</p>
         </div>
 
         <button class="render-btn" id="enhanceBtn" onclick="startEnhance()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Uygula <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
@@ -5005,27 +5022,60 @@
     nameEl.style.color = '#7A8B6A';
   }
 
+  let recolorMat = '';
+  function selectRecolorMat(btn, val) {
+    recolorMat = val;
+    document.querySelectorAll('.recolor-mat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
   /* Görsele tıkla → piksel rengi örnekle */
   function setupRecolorPicker() {
     const preview = document.getElementById('enhancePreview');
-    preview.style.cursor = '';
-    preview._recolorHandler = null;
+    const fileInput = document.getElementById('enhanceFileInput');
+    // Dosya input'unu recolor modunda kapat ki tıklama renk seçiciye gitsin
+    fileInput.style.pointerEvents = 'none';
+    preview.style.cursor = 'crosshair';
+    if (preview._recolorHandler) {
+      preview.removeEventListener('click', preview._recolorHandler);
+    }
     preview._recolorHandler = function(e) {
       if (selectedEnhanceType !== 'recolor') return;
+      e.stopPropagation();
       const rect = preview.getBoundingClientRect();
-      const x = Math.round((e.clientX - rect.left) * (preview.naturalWidth / rect.width));
-      const y = Math.round((e.clientY - rect.top)  * (preview.naturalHeight / rect.height));
+      // object-fit:cover ile görselin ekrandaki gerçek konumunu hesapla
+      const scaleX = preview.naturalWidth / rect.width;
+      const scaleY = preview.naturalHeight / rect.height;
+      const scale = Math.max(scaleX, scaleY); // cover → büyük oranı kullan
+      const renderedW = preview.naturalWidth / scale;
+      const renderedH = preview.naturalHeight / scale;
+      const offsetX = (rect.width - renderedW) / 2;
+      const offsetY = (rect.height - renderedH) / 2;
+      const imgX = Math.round((e.clientX - rect.left - offsetX) * scale);
+      const imgY = Math.round((e.clientY - rect.top  - offsetY) * scale);
+      if (imgX < 0 || imgY < 0 || imgX >= preview.naturalWidth || imgY >= preview.naturalHeight) return;
       const cv = document.createElement('canvas');
       cv.width = preview.naturalWidth; cv.height = preview.naturalHeight;
       cv.getContext('2d').drawImage(preview, 0, 0);
       try {
-        const px = cv.getContext('2d').getImageData(x, y, 1, 1).data;
+        const px = cv.getContext('2d').getImageData(imgX, imgY, 1, 1).data;
         const hex = '#' + [px[0],px[1],px[2]].map(v=>v.toString(16).padStart(2,'0')).join('');
         document.getElementById('recolorSrcHex').value = hex;
         syncRecolorSrc(hex);
-      } catch(_) {}
+      } catch(err) { console.warn('Renk örnekleme hatası:', err); }
     };
     preview.addEventListener('click', preview._recolorHandler);
+  }
+
+  function teardownRecolorPicker() {
+    const preview = document.getElementById('enhancePreview');
+    const fileInput = document.getElementById('enhanceFileInput');
+    fileInput.style.pointerEvents = '';
+    preview.style.cursor = '';
+    if (preview._recolorHandler) {
+      preview.removeEventListener('click', preview._recolorHandler);
+      preview._recolorHandler = null;
+    }
   }
 
   function setEnhanceType(type) {
@@ -5035,9 +5085,8 @@
     });
     document.getElementById('enhanceCustomBox').style.display  = (type === 'custom')   ? 'block' : 'none';
     document.getElementById('enhanceRecolorBox').style.display = (type === 'recolor')  ? 'block' : 'none';
-    const preview = document.getElementById('enhancePreview');
-    preview.style.cursor = (type === 'recolor') ? 'crosshair' : '';
     if (type === 'recolor') setupRecolorPicker();
+    else teardownRecolorPicker();
   }
 
   document.getElementById('enhanceFileInput').addEventListener('change', e => {
@@ -5090,7 +5139,8 @@
       }
       const [sr,sg,sb] = hexToRgb(srcHex);
       const [dr,dg,db] = hexToRgb(dstHex);
-      customPrompt = `COLOR REPLACEMENT TASK: Identify all surfaces in this architectural image that are colored approximately RGB(${sr},${sg},${sb}) — this includes facade cladding, panels, or material finishes in that specific hue. Change ONLY those surfaces to RGB(${dr},${dg},${db}). STRICT RULES: 1) Do NOT touch anthracite, dark grey, black, white, or off-white surfaces. 2) Preserve all shadows, highlights, reflections, and ambient occlusion on the recolored surfaces — just shift the base hue. 3) Keep the exact camera angle, composition, sky, vegetation, people, and all other scene elements completely unchanged. 4) The result must look photorealistic and atmospherically consistent with the original lighting.`;
+      const matClause = recolorMat ? ` The target surface material is: ${recolorMat}.` : '';
+      customPrompt = `COLOR REPLACEMENT TASK: Identify all surfaces in this architectural image that are colored approximately RGB(${sr},${sg},${sb}) — this includes facade cladding, panels, or material finishes in that specific hue. Change ONLY those surfaces to RGB(${dr},${dg},${db}).${matClause} STRICT RULES: 1) Do NOT touch anthracite, dark grey, black, white, or off-white surfaces. 2) Preserve all shadows, highlights, reflections, and ambient occlusion on the recolored surfaces — just shift the base hue while maintaining realistic material texture and depth. 3) Keep the exact camera angle, composition, sky, vegetation, people, and all other scene elements completely unchanged. 4) The result must look photorealistic and atmospherically consistent with the original lighting.`;
     }
 
     const btn = document.getElementById('enhanceBtn');
