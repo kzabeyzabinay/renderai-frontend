@@ -1964,7 +1964,7 @@
         <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> Proje Sunum Linki</h2>
         <p style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
           Montajların + harita + 360 tek linkte: açan kişi uydu haritada parseli görür, montaj görsellerini inceler,
-          360'ta binanın önünde gezinir. Üye olduğun sürece link aktif kalır; üyeliğin yoksa 30 gün sonra pasifleşir (1 ay içinde üye olursan geri döner, olmazsan silinir).</p>
+          360'ta binanın önünde gezinir. Aboneliğin devam ettiği sürece link aktif kalır; aboneliğin biterse link 1 ay daha aktif kalır, bu sürede tekrar abone olmazsan silinir.</p>
         <div id="presentItemList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
         <input type="text" id="presentTitle" placeholder="Sunum başlığı: örn. Villa Projesi — Bodrum"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
@@ -2065,7 +2065,7 @@
         <input type="text" id="decTitle" placeholder="Link başlığı: örn. Salon Zemin Seçimi"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
         <button class="render-btn" onclick="createDecision()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> Karar Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 50 kredi</span></button>
-        <div style="font-size:11px; color:#8A7E74; margin-top:8px;">En az 2 seçenek gerekir. Üye olduğun sürece link aktif kalır; üyeliğin yoksa 30 gün sonra pasifleşir (1 ay içinde üye olursan geri döner, olmazsan silinir).</div>
+        <div style="font-size:11px; color:#8A7E74; margin-top:8px;">En az 2 seçenek gerekir. Aboneliğin devam ettiği sürece link aktif kalır; aboneliğin biterse link 1 ay daha aktif kalır, bu sürede tekrar abone olmazsan silinir.</div>
         <div id="decEditBadge" onclick="clearDecisionEditing()" style="display:none; font-size:11px; color:#9A6558; margin-top:6px; cursor:pointer;">✏️ Mevcut link düzenleniyor — tıkla: yeni link olarak oluştur</div>
         <div class="error-msg" id="decLinkError"></div>
 
@@ -2205,7 +2205,7 @@
         <input type="text" id="tourTitle" placeholder="Tur başlığı: örn. Villa Projesi"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
         <button class="render-btn" onclick="createTour()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> 360 Tur Oluştur <span style="font-size:11px;opacity:0.8;">· 50 kredi</span></button>
-        <div style="font-size:11px; color:#8A7E74; margin-top:8px;">Üye olduğun sürece link aktif kalır; üyeliğin yoksa 30 gün sonra pasifleşir (1 ay içinde üye olursan geri döner, olmazsan silinir).</div>
+        <div style="font-size:11px; color:#8A7E74; margin-top:8px;">Aboneliğin devam ettiği sürece link aktif kalır; aboneliğin biterse link 1 ay daha aktif kalır, bu sürede tekrar abone olmazsan silinir.</div>
         <div id="tourEditBadge" onclick="clearTourEditing()" style="display:none; font-size:11px; color:#9A6558; margin-top:6px; cursor:pointer;">✏️ Mevcut tur düzenleniyor — tıkla: yeni tur olarak oluştur</div>
         <div class="error-msg" id="tourError"></div>
         <div id="tourLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
@@ -2556,7 +2556,7 @@
     selectedQuality = q;
     document.getElementById('qualityAuto').classList.toggle('active', q === 'auto');
     document.getElementById('qualityHigh').classList.toggle('active', q === 'high');
-    // Yüksek kalite render 13, Oto 8 kredi — buton etiketlerini güncelle
+    // Yüksek kalite render 20, Oto 8 kredi — buton etiketlerini güncelle
     const lbl = '· ' + (q === 'high' ? 20 : 8) + ' kredi';
     ['renderBtnInterior', 'renderBtn'].forEach(id => {
       const b = document.getElementById(id);
@@ -3724,7 +3724,7 @@
         if (!res.ok) throw new Error(data.detail || 'Güncellenemedi');
         decId = currentDecisionId;
       } else {
-        // Yeni karar linki — 75 kredi
+        // Yeni karar linki — 50 kredi
         const res = await fetch(`${API}/decisions`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...authHeaders() },
@@ -3774,8 +3774,13 @@
         row.style.cssText = 'display:flex; gap:10px; align-items:center; padding:8px; border:1px solid #E0DAD0; border-radius:8px; cursor:pointer; background:#FAFAF8;';
         const date = d.created_at ? new Date(d.created_at).toLocaleDateString('tr-TR') : '';
         const sel = d.selected_label ? ' · ✓ ' + d.selected_label : '';
-        row.innerHTML = `<img src="${d.thumb||''}" onerror="this.style.visibility='hidden'" style="width:54px;height:40px;object-fit:cover;border-radius:6px;background:#000;"><div style="flex:1;overflow:hidden;"><div style="font-size:13px;font-weight:600;color:#2A2520;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.title||'Karar Linki'}</div><div style="font-size:11px;color:#8A7E74;">${d.count} seçenek · ${date}${sel}</div></div>`;
+        const pasif = d.active === false ? ' · pasif' : '';
+        row.innerHTML = `<img src="${d.thumb||''}" onerror="this.style.visibility='hidden'" style="width:54px;height:40px;object-fit:cover;border-radius:6px;background:#000;"><div style="flex:1;overflow:hidden;"><div style="font-size:13px;font-weight:600;color:#2A2520;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.title||'Karar Linki'}</div><div style="font-size:11px;color:#8A7E74;">${d.count} seçenek · ${date}${sel}${pasif}</div></div>`;
         row.onclick = () => loadDecisionForEdit(d);
+        const del = document.createElement('button'); del.textContent = '🗑'; del.title = 'Sil';
+        del.style.cssText = 'flex:0 0 auto;border:none;border-radius:8px;background:rgba(26,26,22,0.72);color:#fff;cursor:pointer;font-size:13px;padding:5px 8px;';
+        del.onclick = (e) => { e.stopPropagation(); deleteDecisionHist(d.id, row); };
+        row.appendChild(del);
         wrap.appendChild(row);
       });
     } catch (e) { wrap.innerHTML = '<div style="font-size:12px;color:#ABA49C;">Yüklenemedi</div>'; }
@@ -4374,7 +4379,7 @@
         if (!res.ok) throw new Error(data.detail || 'Güncellenemedi');
         tourId = currentTourId;
       } else {
-        // Yeni tur — 75 kredi
+        // Yeni tur — 50 kredi
         const res = await fetch(`${API}/tours`, {
           method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body)
         });
@@ -4468,6 +4473,14 @@
       const r = await fetch(`${API}/tours/${id}`, { method: 'DELETE', headers: authHeaders() });
       const d = await r.json(); if (!r.ok) throw new Error(d.detail || 'Silinemedi');
       panoHistTours = panoHistTours.filter(x => x.id !== id); panoHistMove(0);
+    } catch (e) { uiAlert('Hata: ' + e.message); }
+  }
+  async function deleteDecisionHist(id, row) {
+    if (!await uiConfirm('Bu karar linki kalıcı olarak silinsin mi?', { okText: 'Sil', danger: true })) return;
+    try {
+      const r = await fetch(`${API}/decisions/${id}`, { method: 'DELETE', headers: authHeaders() });
+      const d = await r.json(); if (!r.ok) throw new Error(d.detail || 'Silinemedi');
+      if (row) row.remove();
     } catch (e) { uiAlert('Hata: ' + e.message); }
   }
 
