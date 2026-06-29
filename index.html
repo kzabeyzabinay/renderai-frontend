@@ -701,6 +701,10 @@
     <div id="accMsg" style="display:none; font-size:12px; margin-bottom:12px;"></div>
     <button onclick="changePassword()" style="width:100%; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;">Şifreyi Güncelle</button>
     <button onclick="authLogout()" style="width:100%; padding:11px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#8A7E74; font-size:13px; cursor:pointer;">Çıkış Yap</button>
+    <div style="margin-top:16px; padding-top:14px; border-top:1px solid #ECE7DE; display:flex; flex-direction:column; gap:9px; align-items:center;">
+      <a onclick="manageSubscription()" style="font-size:12px; color:#8A7E74; cursor:pointer; text-decoration:underline; text-underline-offset:2px;">Aboneliği yönet / iptal et</a>
+      <a onclick="deleteAccount()" style="font-size:11px; color:#B79B94; cursor:pointer;">Üyeliğimi sil</a>
+    </div>
   </div>
 </div>
 
@@ -2441,6 +2445,37 @@
       if (!r.ok) throw new Error(d.detail || 'Şifre değiştirilemedi');
       show('Şifren güncellendi ✓', '#7A8B6A');
       document.getElementById('accPass1').value = ''; document.getElementById('accPass2').value = '';
+    } catch (e) { show('Hata: ' + e.message, '#B5483A'); }
+  }
+
+  async function manageSubscription() {
+    const m = document.getElementById('accMsg');
+    const show = (txt, color) => { m.textContent = txt; m.style.color = color; m.style.display = 'block'; };
+    show('Abonelik sayfası açılıyor…', '#8A7E74');
+    try {
+      const r = await fetch(`${API}/subscription/portal`, { headers: authHeaders() });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || 'Abonelik sayfası açılamadı.');
+      window.open(d.url, '_blank');
+      show('Abonelik yönetim sayfan yeni sekmede açıldı — iptal işlemini orada yapabilirsin.', '#7A8B6A');
+    } catch (e) { show(e.message, '#B5483A'); }
+  }
+
+  async function deleteAccount() {
+    if (!confirm('Üyeliğini KALICI olarak silmek üzeresin.\n\n• Tüm işlerin ve kalan kredilerin silinir, geri alınamaz.\n• Aktif aboneliğin varsa iptal edilir, kartın bir daha çekilmez.\n\nDevam etmek istiyor musun?')) return;
+    const sure = prompt('Bu işlem geri alınamaz. Onaylamak için SİL yaz:');
+    if (!sure || sure.trim().toLocaleUpperCase('tr-TR') !== 'SİL') return;
+    const m = document.getElementById('accMsg');
+    const show = (txt, color) => { m.textContent = txt; m.style.color = color; m.style.display = 'block'; };
+    show('Üyeliğin siliniyor…', '#8A7E74');
+    try {
+      const r = await fetch(`${API}/account/delete`, { method: 'POST', headers: authHeaders() });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || 'Üyelik silinemedi.');
+      alert('Üyeliğin silindi. Bizi tercih ettiğin için teşekkürler.');
+      authLogout();
+      document.getElementById('accountModal').style.display = 'none';
+      location.reload();
     } catch (e) { show('Hata: ' + e.message, '#B5483A'); }
   }
 
