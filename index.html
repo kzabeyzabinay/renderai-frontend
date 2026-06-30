@@ -640,45 +640,35 @@
   <div class="logo">byn<span class="ai">ai</span></div>
   <button id="navToggle" class="nav-toggle" onclick="toggleMainNav()" aria-label="Menü"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;display:block"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   <div id="mainNav">
-    <button class="main-nav-btn active" id="nav-render" onclick="switchMainSection('render')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 21h18"/><path d="M6 21V4h8v17"/><path d="M14 21V9h4v12"/><path d="M9 8h2M9 12h2M9 16h2"/></svg>Render</button>
-    <button class="main-nav-btn" id="nav-staging" onclick="switchMainSection('staging')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M4 10V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 19v2M19 19v2"/></svg>Sanal Mobilyalama</button>
-    <button class="main-nav-btn" id="nav-model3d" onclick="switchMainSection('model3d')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg>3D Model</button>
-    <button class="main-nav-btn" id="nav-upscale" onclick="switchMainSection('upscale')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg>Büyüt</button>
-    <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 3v5M12 16v5M3 12h5M16 12h5"/><path d="m6 6 3 3M15 15l3 3M18 6l-3 3M9 15l-3 3"/></svg>Geliştir</button>
-    <button class="main-nav-btn" id="nav-video" onclick="switchMainSection('video')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 6 3.5-6 3.5Z"/></svg>Video</button>
-    <button class="main-nav-btn" id="nav-floorplan" onclick="switchMainSection('floorplan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 14h7V3M10 14v7M21 10h-5"/></svg>Kat Planı</button>
-    <button class="main-nav-btn" id="nav-place" onclick="switchMainSection('place')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>Yerleştir</button>
-    <button class="main-nav-btn" id="nav-pano" onclick="switchMainSection('pano')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>360 Tur</button>
-    <button class="main-nav-btn" id="nav-decision" onclick="switchMainSection('decision')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.3 2.3L15.5 9.5"/></svg>Karar Linki</button>
-    <button class="main-nav-btn" id="nav-works" onclick="switchMainSection('works')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/></svg>İşlerim</button>
-    <button class="main-nav-btn" id="nav-egitim" onclick="switchMainSection('egitim')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>Eğitim</button>
-    <a class="main-nav-btn" id="nav-pafta" href="pafta.html" style="text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 4h18"/><path d="M20 4v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4"/><path d="m8 20 4-4 4 4"/><path d="M9 11l2.2-2.2L13 10.5 15 8"/></svg>Pafta / Sunum</a>
+    <button class="main-nav-btn active" id="nav-render" onclick="switchMainSection('render')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 21h18"/><path d="M6 21V4h8v17"/><path d="M14 21V9h4v12"/><path d="M9 8h2M9 12h2M9 16h2"/></svg><span data-i18n="nav_render">Render</span></button>
+    <button class="main-nav-btn" id="nav-staging" onclick="switchMainSection('staging')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M4 10V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 19v2M19 19v2"/></svg><span data-i18n="nav_staging">Sanal Mobilyalama</span></button>
+    <button class="main-nav-btn" id="nav-model3d" onclick="switchMainSection('model3d')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg><span data-i18n="nav_model3d">3D Model</span></button>
+    <button class="main-nav-btn" id="nav-upscale" onclick="switchMainSection('upscale')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg><span data-i18n="nav_upscale">Büyüt</span></button>
+    <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 3v5M12 16v5M3 12h5M16 12h5"/><path d="m6 6 3 3M15 15l3 3M18 6l-3 3M9 15l-3 3"/></svg><span data-i18n="nav_enhance">Geliştir</span></button>
+    <button class="main-nav-btn" id="nav-video" onclick="switchMainSection('video')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 6 3.5-6 3.5Z"/></svg><span data-i18n="nav_video">Video</span></button>
+    <button class="main-nav-btn" id="nav-floorplan" onclick="switchMainSection('floorplan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 14h7V3M10 14v7M21 10h-5"/></svg><span data-i18n="nav_floorplan">Kat Planı</span></button>
+    <button class="main-nav-btn" id="nav-place" onclick="switchMainSection('place')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg><span data-i18n="nav_place">Yerleştir</span></button>
+    <button class="main-nav-btn" id="nav-pano" onclick="switchMainSection('pano')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg><span data-i18n="nav_pano">360 Tur</span></button>
+    <button class="main-nav-btn" id="nav-decision" onclick="switchMainSection('decision')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.3 2.3L15.5 9.5"/></svg><span data-i18n="nav_decision">Karar Linki</span></button>
+    <button class="main-nav-btn" id="nav-works" onclick="switchMainSection('works')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/></svg><span data-i18n="nav_works">İşlerim</span></button>
+    <button class="main-nav-btn" id="nav-egitim" onclick="switchMainSection('egitim')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span data-i18n="nav_egitim">Eğitim</span></button>
+    <a class="main-nav-btn" id="nav-pafta" href="pafta.html" style="text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 4h18"/><path d="M20 4v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4"/><path d="m8 20 4-4 4 4"/><path d="M9 11l2.2-2.2L13 10.5 15 8"/></svg><span data-i18n="nav_pafta">Pafta / Sunum</span></a>
   </div>
   <div style="display:flex; gap:10px; align-items:center;">
     <svg viewBox="0 0 24 24" fill="none" stroke="#E8E4DC" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;margin-right:-4px;vertical-align:middle;"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>
-    <select id="langSelect" onchange="setLang(this.value)" title="Dil / Language"
+    <select id="langSelect" onchange="setLang(this.value)" data-i18n-title="lang_title" title="Dil / Language"
       style="padding:8px 10px; border:1px solid #3A352E; border-radius:10px; background:transparent; color:#E8E4DC; font-size:12px; cursor:pointer;">
       <option value="tr">TR</option>
       <option value="en">EN</option>
-      <option value="de">DE</option>
-      <option value="fr">FR</option>
-      <option value="es">ES</option>
-      <option value="it">IT</option>
-      <option value="ar">AR</option>
-      <option value="ru">RU</option>
-      <option value="nl">NL</option>
-      <option value="pt">PT</option>
-      <option value="az">AZ</option>
     </select>
-    <div id="gtranslate" style="position:absolute; left:-9999px; top:-9999px; height:0; overflow:hidden;"></div>
     <button id="pricingBtn" onclick="openPricingModal()"
-      style="padding:8px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:13px; font-weight:700; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9 3 6.5 8 12 21 17.5 8 15 3"/></svg> Paketler</button>
+      style="padding:8px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:13px; font-weight:700; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9 3 6.5 8 12 21 17.5 8 15 3"/></svg> <span data-i18n="hdr_packages">Paketler</span></button>
     <span id="creditBadge" style="display:none; font-size:12px; font-weight:700; color:#FAFAF8; background:#7A8B6A; padding:6px 12px; border-radius:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M13 3 4 14h6l-1 7 9-11h-6l1-7Z"/></svg> —</span>
     <span id="authEmail" style="display:none; font-size:12px; color:#ABA49C;"></span>
     <button id="authLoginBtn" onclick="openAuthModal('login')"
-      style="padding:8px 18px; border:1px solid #9A6558; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;">Giriş Yap</button>
-    <button id="accountBtn" onclick="openAccount()" style="display:none; padding:8px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:12px; font-weight:600; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Hesap</button>
-    <button id="authLogoutBtn" onclick="authLogout()" style="display:none; padding:8px 14px; border:1px solid #3A352E; border-radius:10px; background:transparent; color:#ABA49C; font-size:12px; cursor:pointer;">Çıkış</button>
+      style="padding:8px 18px; border:1px solid #9A6558; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:13px; font-weight:600; cursor:pointer;"><span data-i18n="hdr_login">Giriş Yap</span></button>
+    <button id="accountBtn" onclick="openAccount()" style="display:none; padding:8px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:12px; font-weight:600; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> <span data-i18n="hdr_account">Hesap</span></button>
+    <button id="authLogoutBtn" onclick="authLogout()" style="display:none; padding:8px 14px; border:1px solid #3A352E; border-radius:10px; background:transparent; color:#ABA49C; font-size:12px; cursor:pointer;"><span data-i18n="hdr_logout">Çıkış</span></button>
   </div>
 </header>
 
@@ -686,35 +676,35 @@
 <div id="accountModal" style="display:none; position:fixed; inset:0; background:rgba(26,26,22,0.6); z-index:1100; align-items:center; justify-content:center; padding:20px;">
   <div style="background:#FAFAF8; border-radius:18px; padding:28px; width:100%; max-width:380px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
-      <h3 style="margin:0; font-size:18px; color:#2A2520;">Hesabım</h3>
+      <h3 data-i18n="acc_title" style="margin:0; font-size:18px; color:#2A2520;">Hesabım</h3>
       <button onclick="document.getElementById('accountModal').style.display='none'" style="border:none; background:none; font-size:20px; color:#8A7E74; cursor:pointer;">✕</button>
     </div>
-    <div style="font-size:12px; color:#8A7E74;">E-posta</div>
+    <div data-i18n="acc_email_label" style="font-size:12px; color:#8A7E74;">E-posta</div>
     <div id="accEmail" style="font-size:14px; color:#2A2520; font-weight:600; margin-bottom:8px;"></div>
     <div id="accCredits" style="font-size:13px; color:#7A8B6A; margin-bottom:4px;"></div>
     <div id="accSub" style="font-size:13px; color:#7A8B6A; margin-bottom:18px;"></div>
-    <div style="font-size:13px; font-weight:700; color:#2A2520; margin-bottom:8px;">Şifre Değiştir</div>
-    <input id="accPass1" type="password" placeholder="Yeni şifre (en az 6 karakter)" autocomplete="new-password"
+    <div data-i18n="acc_changepw" style="font-size:13px; font-weight:700; color:#2A2520; margin-bottom:8px;">Şifre Değiştir</div>
+    <input id="accPass1" type="password" data-i18n-ph="acc_pw1_ph" placeholder="Yeni şifre (en az 6 karakter)" autocomplete="new-password"
       style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:10px; color:#2A2520;" />
-    <input id="accPass2" type="password" placeholder="Yeni şifre (tekrar)" autocomplete="new-password"
+    <input id="accPass2" type="password" data-i18n-ph="acc_pw2_ph" placeholder="Yeni şifre (tekrar)" autocomplete="new-password"
       style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:12px; color:#2A2520;" />
     <div id="accMsg" style="display:none; font-size:12px; margin-bottom:12px;"></div>
-    <button onclick="changePassword()" style="width:100%; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;">Şifreyi Güncelle</button>
-    <button onclick="authLogout()" style="width:100%; padding:11px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#8A7E74; font-size:13px; cursor:pointer;">Çıkış Yap</button>
+    <button onclick="changePassword()" style="width:100%; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;"><span data-i18n="acc_update_pw">Şifreyi Güncelle</span></button>
+    <button onclick="authLogout()" style="width:100%; padding:11px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#8A7E74; font-size:13px; cursor:pointer;"><span data-i18n="acc_logout">Çıkış Yap</span></button>
     <div style="margin-top:16px; padding-top:14px; border-top:1px solid #ECE7DE; display:flex; flex-direction:column; gap:9px; align-items:center;">
-      <a onclick="manageSubscription()" style="font-size:12px; color:#8A7E74; cursor:pointer; text-decoration:underline; text-underline-offset:2px;">Aboneliği yönet / iptal et</a>
-      <a onclick="deleteAccount()" style="font-size:11px; color:#B79B94; cursor:pointer;">Üyeliğimi sil</a>
+      <a onclick="manageSubscription()" data-i18n="acc_manage_sub" style="font-size:12px; color:#8A7E74; cursor:pointer; text-decoration:underline; text-underline-offset:2px;">Aboneliği yönet / iptal et</a>
+      <a onclick="deleteAccount()" data-i18n="acc_delete" style="font-size:11px; color:#B79B94; cursor:pointer;">Üyeliğimi sil</a>
     </div>
   </div>
 </div>
 
 <!-- ─── EĞİTİM VİDEOLARI ─────────────────────────────────────────────────── -->
 <div id="section-egitim" style="display:none; max-width:1000px; margin:0 auto; padding:40px 32px 80px; text-align:center;">
-  <h2 style="font-size:24px; color:#2A2520; margin:24px 0 8px;">Eğitim Videoları</h2>
-  <p style="color:#8A7E74; font-size:14px;">BynAi'yi en verimli kullanmanın yolları — adım adım videolar.</p>
+  <h2 data-i18n="edu_title" style="font-size:24px; color:#2A2520; margin:24px 0 8px;">Eğitim Videoları</h2>
+  <p data-i18n="edu_sub" style="color:#8A7E74; font-size:14px;">BynAi'yi en verimli kullanmanın yolları — adım adım videolar.</p>
   <div style="margin-top:40px; padding:60px 24px; border:2px dashed #D8D2C8; border-radius:16px; background:#FAFAF8;">
     <div style="font-size:42px;">🎬</div>
-    <div style="font-size:16px; font-weight:600; color:#8A7E74; margin-top:12px;">Eğitim videoları yakında eklenecek</div>
+    <div data-i18n="edu_soon" style="font-size:16px; font-weight:600; color:#8A7E74; margin-top:12px;">Eğitim videoları yakında eklenecek</div>
   </div>
 </div>
 
@@ -722,13 +712,13 @@
 <div id="helpModal" style="display:none; position:fixed; inset:0; background:rgba(26,26,22,0.6); z-index:1100; align-items:center; justify-content:center; padding:20px;">
   <div style="background:#FAFAF8; border-radius:18px; padding:28px; width:100%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-      <h3 style="margin:0; font-size:18px; color:#2A2520;">Yardım / İletişim</h3>
+      <h3 data-i18n="help_title" style="margin:0; font-size:18px; color:#2A2520;">Yardım / İletişim</h3>
       <button onclick="document.getElementById('helpModal').style.display='none'" style="border:none; background:none; font-size:20px; color:#8A7E74; cursor:pointer;">✕</button>
     </div>
-    <p style="font-size:13px; color:#8A7E74; line-height:1.6; margin-bottom:12px;">Soru, sorun veya önerini yaz — "Gönder"e basınca e-posta uygulamanla bize ulaşır.</p>
-    <textarea id="helpMsg" rows="5" placeholder="Mesajın..." style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; color:#2A2520; font-family:inherit; resize:vertical;"></textarea>
-    <button onclick="sendHelp()" style="width:100%; margin-top:12px; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;">Gönder</button>
-    <p style="font-size:12px; color:#8A7E74; text-align:center; margin-top:12px;">Veya doğrudan: <b>bynaiapp@gmail.com</b></p>
+    <p data-i18n="help_sub" style="font-size:13px; color:#8A7E74; line-height:1.6; margin-bottom:12px;">Soru, sorun veya önerini yaz — "Gönder"e basınca e-posta uygulamanla bize ulaşır.</p>
+    <textarea id="helpMsg" rows="5" data-i18n-ph="help_ph" placeholder="Mesajın..." style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; color:#2A2520; font-family:inherit; resize:vertical;"></textarea>
+    <button onclick="sendHelp()" style="width:100%; margin-top:12px; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;"><span data-i18n="help_send">Gönder</span></button>
+    <p data-i18n-html="help_direct" style="font-size:12px; color:#8A7E74; text-align:center; margin-top:12px;">Veya doğrudan: <b>bynaiapp@gmail.com</b></p>
   </div>
 </div>
 
@@ -740,22 +730,22 @@
       <button onclick="document.getElementById('authModal').style.display='none'" style="border:none; background:none; font-size:20px; color:#8A7E74; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div style="display:flex; gap:6px; margin-bottom:18px; background:#E8E4DC; border-radius:10px; padding:4px;">
-      <button id="authTabLogin" onclick="setAuthMode('login')" style="flex:1; padding:8px; border:none; border-radius:8px; background:#FAFAF8; color:#2A2520; font-size:13px; font-weight:600; cursor:pointer;">Giriş</button>
-      <button id="authTabSignup" onclick="setAuthMode('signup')" style="flex:1; padding:8px; border:none; border-radius:8px; background:transparent; color:#8A7E74; font-size:13px; font-weight:600; cursor:pointer;">Kayıt Ol</button>
+      <button id="authTabLogin" onclick="setAuthMode('login')" style="flex:1; padding:8px; border:none; border-radius:8px; background:#FAFAF8; color:#2A2520; font-size:13px; font-weight:600; cursor:pointer;"><span data-i18n="auth_tab_login">Giriş</span></button>
+      <button id="authTabSignup" onclick="setAuthMode('signup')" style="flex:1; padding:8px; border:none; border-radius:8px; background:transparent; color:#8A7E74; font-size:13px; font-weight:600; cursor:pointer;"><span data-i18n="auth_tab_signup">Kayıt Ol</span></button>
     </div>
-    <input id="authEmailInput" type="email" placeholder="E-posta" autocomplete="email"
+    <input id="authEmailInput" type="email" data-i18n-ph="auth_email_ph" placeholder="E-posta" autocomplete="email"
       style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:10px; color:#2A2520;" />
-    <input id="authPassInput" type="password" placeholder="Şifre (en az 6 karakter)" autocomplete="current-password"
+    <input id="authPassInput" type="password" data-i18n-ph="auth_pass_ph" placeholder="Şifre (en az 6 karakter)" autocomplete="current-password"
       style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:14px; color:#2A2520;" />
     <div id="authError" style="display:none; font-size:12px; color:#B5483A; margin-bottom:12px;"></div>
     <div id="authInfo" style="display:none; font-size:12px; color:#7A8B6A; margin-bottom:12px;"></div>
     <label id="authConsentRow" style="display:none; gap:8px; align-items:flex-start; font-size:11px; color:#8A7E74; margin-bottom:12px; line-height:1.5; cursor:pointer;">
       <input type="checkbox" id="authConsent" style="margin-top:2px; flex:0 0 auto; accent-color:#9A6558;">
-      <span><a href="terms.html" target="_blank" style="color:#9A6558;">Kullanıcı Sözleşmesi</a>, <a href="privacy.html" target="_blank" style="color:#9A6558;">Gizlilik Politikası</a>, <a href="kvkk.html" target="_blank" style="color:#9A6558;">KVKK Aydınlatma Metni</a>, <a href="cerez.html" target="_blank" style="color:#9A6558;">Çerez Politikası</a> ve <a href="refund.html" target="_blank" style="color:#9A6558;">İade Koşulları</a>'nı okudum ve kabul ediyorum.</span>
+      <span data-i18n-html="auth_consent"><a href="terms.html" target="_blank" style="color:#9A6558;">Kullanıcı Sözleşmesi</a>, <a href="privacy.html" target="_blank" style="color:#9A6558;">Gizlilik Politikası</a>, <a href="kvkk.html" target="_blank" style="color:#9A6558;">KVKK Aydınlatma Metni</a>, <a href="cerez.html" target="_blank" style="color:#9A6558;">Çerez Politikası</a> ve <a href="refund.html" target="_blank" style="color:#9A6558;">İade Koşulları</a>'nı okudum ve kabul ediyorum.</span>
     </label>
     <button id="authSubmitBtn" onclick="authSubmit()"
       style="width:100%; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;">Giriş Yap</button>
-    <p id="authConsentNote" style="font-size:11px; color:#8A7E74; text-align:center; margin:12px 0 0; line-height:1.6;">
+    <p id="authConsentNote" data-i18n-html="auth_note" style="font-size:11px; color:#8A7E74; text-align:center; margin:12px 0 0; line-height:1.6;">
       Giriş yaparak
       <a href="terms.html" target="_blank" style="color:#9A6558;">Kullanıcı Sözleşmesi</a> ve
       <a href="privacy.html" target="_blank" style="color:#9A6558;">Gizlilik Politikası</a>'nı kabul edersiniz.
@@ -767,58 +757,58 @@
 <div id="pricingModal" style="display:none; position:fixed; inset:0; background:rgba(26,26,22,0.6); z-index:1100; align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto;">
   <div style="background:#FAFAF8; border-radius:18px; padding:32px; width:100%; max-width:1000px; box-shadow:0 20px 60px rgba(0,0,0,0.3); margin:auto;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-      <h3 style="margin:0; font-size:22px; color:#2A2520;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9 3 6.5 8 12 21 17.5 8 15 3"/></svg> Üyelik Paketleri</h3>
+      <h3 style="margin:0; font-size:22px; color:#2A2520;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9 3 6.5 8 12 21 17.5 8 15 3"/></svg> <span data-i18n="pr_title">Üyelik Paketleri</span></h3>
       <button onclick="document.getElementById('pricingModal').style.display='none'" style="border:none; background:none; font-size:22px; color:#8A7E74; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
-    <p style="font-size:13px; color:#8A7E74; margin:0 0 22px; line-height:1.6;">Aylık abonelik al, her ay kredin yenilensin. Ödeme güvenli şekilde Lemon Squeezy üzerinden alınır.</p>
+    <p data-i18n="pr_sub" style="font-size:13px; color:#8A7E74; margin:0 0 22px; line-height:1.6;">Aylık abonelik al, her ay kredin yenilensin. Ödeme güvenli şekilde Lemon Squeezy üzerinden alınır.</p>
 
     <!-- ABONELİKLER -->
     <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:26px;">
       <!-- Başlangıç -->
       <div style="border:1px solid #E0DAD0; border-radius:14px; padding:22px; background:#fff; display:flex; flex-direction:column;">
-        <div style="font-size:15px; font-weight:700; color:#2A2520;">Başlangıç</div>
-        <div style="font-size:30px; font-weight:800; color:#2A2520; margin:8px 0 2px;">$29<span style="font-size:13px; color:#8A7E74; font-weight:500;">/ay</span></div>
-        <div style="font-size:13px; color:#7A8B6A; font-weight:700; margin-bottom:14px;">300 kredi / ay</div>
-        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Tüm render araçları<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Aylık 300 kredi<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Ticari kullanım</div>
-        <button onclick="goCheckout('sub_starter')" style="margin-top:16px; width:100%; padding:12px; border:1px solid #9A6558; border-radius:10px; background:transparent; color:#9A6558; font-size:14px; font-weight:700; cursor:pointer;">Seç</button>
+        <div data-i18n="pr_starter" style="font-size:15px; font-weight:700; color:#2A2520;">Başlangıç</div>
+        <div style="font-size:30px; font-weight:800; color:#2A2520; margin:8px 0 2px;">$29<span data-i18n="pr_per_mo" style="font-size:13px; color:#8A7E74; font-weight:500;">/ay</span></div>
+        <div data-i18n="pr_starter_cr" style="font-size:13px; color:#7A8B6A; font-weight:700; margin-bottom:14px;">300 kredi / ay</div>
+        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;" data-i18n-html="pr_feat_starter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Tüm render araçları<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Aylık 300 kredi<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Ticari kullanım</div>
+        <button onclick="goCheckout('sub_starter')" style="margin-top:16px; width:100%; padding:12px; border:1px solid #9A6558; border-radius:10px; background:transparent; color:#9A6558; font-size:14px; font-weight:700; cursor:pointer;"><span data-i18n="pr_select">Seç</span></button>
       </div>
       <!-- Pro (En Popüler) -->
       <div style="border:2px solid #9A6558; border-radius:14px; padding:22px; background:#fff; display:flex; flex-direction:column; position:relative;">
-        <div style="position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:#9A6558; color:#FAFAF8; font-size:10px; font-weight:700; padding:3px 12px; border-radius:20px; letter-spacing:0.5px;">EN POPÜLER</div>
-        <div style="font-size:15px; font-weight:700; color:#2A2520;">Pro</div>
-        <div style="font-size:30px; font-weight:800; color:#2A2520; margin:8px 0 2px;">$79<span style="font-size:13px; color:#8A7E74; font-weight:500;">/ay</span></div>
-        <div style="font-size:13px; color:#7A8B6A; font-weight:700; margin-bottom:14px;">1000 kredi / ay</div>
-        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Başlangıç'taki her şey<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Aylık 1000 kredi<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Kredi başına daha ucuz<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Öncelikli işlem</div>
-        <button onclick="goCheckout('sub_pro')" style="margin-top:16px; width:100%; padding:12px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;">Seç</button>
+        <div style="position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:#9A6558; color:#FAFAF8; font-size:10px; font-weight:700; padding:3px 12px; border-radius:20px; letter-spacing:0.5px;" data-i18n="pr_popular">EN POPÜLER</div>
+        <div data-i18n="pr_pro" style="font-size:15px; font-weight:700; color:#2A2520;">Pro</div>
+        <div style="font-size:30px; font-weight:800; color:#2A2520; margin:8px 0 2px;">$79<span data-i18n="pr_per_mo" style="font-size:13px; color:#8A7E74; font-weight:500;">/ay</span></div>
+        <div data-i18n="pr_pro_cr" style="font-size:13px; color:#7A8B6A; font-weight:700; margin-bottom:14px;">1000 kredi / ay</div>
+        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;" data-i18n-html="pr_feat_pro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Başlangıç'taki her şey<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Aylık 1000 kredi<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Kredi başına daha ucuz<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Öncelikli işlem</div>
+        <button onclick="goCheckout('sub_pro')" style="margin-top:16px; width:100%; padding:12px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer;"><span data-i18n="pr_select">Seç</span></button>
       </div>
       <!-- Stüdyo -->
       <div style="border:1px solid #E0DAD0; border-radius:14px; padding:22px; background:#fff; display:flex; flex-direction:column;">
-        <div style="font-size:15px; font-weight:700; color:#2A2520;">Stüdyo</div>
-        <div style="font-size:30px; font-weight:800; color:#2A2520; margin:8px 0 2px;">$129<span style="font-size:13px; color:#8A7E74; font-weight:500;">/ay</span></div>
-        <div style="font-size:13px; color:#7A8B6A; font-weight:700; margin-bottom:14px;">2000 kredi / ay</div>
-        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Pro'daki her şey<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Aylık 2000 kredi<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> En düşük kredi maliyeti<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Ajans/stüdyo için ideal</div>
-        <button onclick="goCheckout('sub_studio')" style="margin-top:16px; width:100%; padding:12px; border:1px solid #9A6558; border-radius:10px; background:transparent; color:#9A6558; font-size:14px; font-weight:700; cursor:pointer;">Seç</button>
+        <div data-i18n="pr_studio" style="font-size:15px; font-weight:700; color:#2A2520;">Stüdyo</div>
+        <div style="font-size:30px; font-weight:800; color:#2A2520; margin:8px 0 2px;">$129<span data-i18n="pr_per_mo" style="font-size:13px; color:#8A7E74; font-weight:500;">/ay</span></div>
+        <div data-i18n="pr_studio_cr" style="font-size:13px; color:#7A8B6A; font-weight:700; margin-bottom:14px;">2000 kredi / ay</div>
+        <div style="font-size:12px; color:#8A7E74; line-height:1.8; flex:1;" data-i18n-html="pr_feat_studio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Pro'daki her şey<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Aylık 2000 kredi<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> En düşük kredi maliyeti<br><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg> Ajans/stüdyo için ideal</div>
+        <button onclick="goCheckout('sub_studio')" style="margin-top:16px; width:100%; padding:12px; border:1px solid #9A6558; border-radius:10px; background:transparent; color:#9A6558; font-size:14px; font-weight:700; cursor:pointer;"><span data-i18n="pr_select">Seç</span></button>
       </div>
     </div>
 
     <!-- EK KREDİ PAKETLERİ -->
-    <div style="font-size:13px; font-weight:700; color:#2A2520; margin-bottom:6px;">Ek Kredi Paketleri <span style="font-size:11px; color:#8A7E74; font-weight:400;">(aktif abonelere)</span></div>
+    <div style="font-size:13px; font-weight:700; color:#2A2520; margin-bottom:6px;"><span data-i18n="pr_extra">Ek Kredi Paketleri</span> <span data-i18n="pr_extra_note" style="font-size:11px; color:#8A7E74; font-weight:400;">(aktif abonelere)</span></div>
     <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px;">
       <div style="border:1px solid #E0DAD0; border-radius:12px; padding:14px; background:#fff; display:flex; align-items:center; justify-content:space-between;">
-        <div><div style="font-size:13px; font-weight:700; color:#2A2520;">Mini</div><div style="font-size:12px; color:#7A8B6A;">80 kredi · $9</div></div>
-        <button onclick="goCheckout('pack_mini')" style="padding:8px 14px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:700; cursor:pointer;">Al</button>
+        <div><div data-i18n="pk_mini" style="font-size:13px; font-weight:700; color:#2A2520;">Mini</div><div data-i18n="pk_mini_d" style="font-size:12px; color:#7A8B6A;">80 kredi · $9</div></div>
+        <button onclick="goCheckout('pack_mini')" style="padding:8px 14px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:700; cursor:pointer;"><span data-i18n="pk_buy">Al</span></button>
       </div>
       <div style="border:1px solid #E0DAD0; border-radius:12px; padding:14px; background:#fff; display:flex; align-items:center; justify-content:space-between;">
-        <div><div style="font-size:13px; font-weight:700; color:#2A2520;">Orta</div><div style="font-size:12px; color:#7A8B6A;">250 kredi · $24</div></div>
-        <button onclick="goCheckout('pack_medium')" style="padding:8px 14px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:700; cursor:pointer;">Al</button>
+        <div><div data-i18n="pk_med" style="font-size:13px; font-weight:700; color:#2A2520;">Orta</div><div data-i18n="pk_med_d" style="font-size:12px; color:#7A8B6A;">250 kredi · $24</div></div>
+        <button onclick="goCheckout('pack_medium')" style="padding:8px 14px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:700; cursor:pointer;"><span data-i18n="pk_buy">Al</span></button>
       </div>
       <div style="border:1px solid #E0DAD0; border-radius:12px; padding:14px; background:#fff; display:flex; align-items:center; justify-content:space-between;">
-        <div><div style="font-size:13px; font-weight:700; color:#2A2520;">Büyük</div><div style="font-size:12px; color:#7A8B6A;">600 kredi · $49</div></div>
-        <button onclick="goCheckout('pack_large')" style="padding:8px 14px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:700; cursor:pointer;">Al</button>
+        <div><div data-i18n="pk_large" style="font-size:13px; font-weight:700; color:#2A2520;">Büyük</div><div data-i18n="pk_large_d" style="font-size:12px; color:#7A8B6A;">600 kredi · $49</div></div>
+        <button onclick="goCheckout('pack_large')" style="padding:8px 14px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:700; cursor:pointer;"><span data-i18n="pk_buy">Al</span></button>
       </div>
     </div>
 
-    <p style="font-size:11px; color:#8A7E74; text-align:center; margin:22px 0 0; line-height:1.7;">
+    <p data-i18n-html="pr_terms" style="font-size:11px; color:#8A7E74; text-align:center; margin:22px 0 0; line-height:1.7;">
       Satın alarak <a href="terms.html" target="_blank" style="color:#9A6558;">Kullanıcı Sözleşmesi</a>,
       <a href="privacy.html" target="_blank" style="color:#9A6558;">Gizlilik Politikası</a> ve
       <a href="refund.html" target="_blank" style="color:#9A6558;">İade & Mesafeli Satış</a> şartlarını kabul edersiniz.
@@ -1135,7 +1125,7 @@
           <button class="cbtn" onclick="toggleConstruction(this)" data-prompt="Extend the building horizontally by adding one additional structural bay/module on one side, seamlessly matching the existing facade pattern, windows and floor lines.">Aks Genişlet</button>
           <button class="cbtn" onclick="toggleConstruction(this)" data-prompt="Reduce the building width by removing one structural bay/module from one side, keeping the facade pattern consistent and correctly closed.">Aks Daralt</button>
         </div>
-        <div style="font-size:11px; color:#8A7E74; margin-top:10px; line-height:1.55;">
+        <div data-i18n-html="constr_warn" style="font-size:11px; color:#8A7E74; margin-top:10px; line-height:1.55;">
           ⚠ Yapısal değişiklikler <b>özel çalışır</b> — diğer (Creative) ayarlarla birleşmez. En iyi sonuç için <b>tek başına</b>, mevcut bir render/fotoğraf üzerine uygula. Biri seçilince Creative seçimleri otomatik kapanır.
         </div>
         <div id="selectedConstruction" style="margin-top:8px;"></div>
@@ -1143,7 +1133,7 @@
 
       <button class="render-btn" id="renderBtn" onclick="startRender()" style="margin-top:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Render Oluştur <span style="font-size:11px;opacity:0.8;">· 8 kredi</span></button>
       <button class="render-btn" id="varBtn" onclick="startVariations()" style="margin-top:10px; background:transparent; color:#9A6558; border:1px solid #9A6558;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> 4 Malzeme Varyasyonu Üret <span style="font-size:11px;opacity:0.8;">· 4×8 kredi</span></button>
-      <p style="font-size:11px; color:#8A7E74; margin:8px 0 0; line-height:1.5;">Aynı binayı 4 farklı cephe malzemesiyle üretir (taş/kompozit/sıvalı/ahşap), sonra tek tıkla karar linkine basarsın.</p>
+      <p data-i18n="rndr_4mat_hint" style="font-size:11px; color:#8A7E74; margin:8px 0 0; line-height:1.5;">Aynı binayı 4 farklı cephe malzemesiyle üretir (taş/kompozit/sıvalı/ahşap), sonra tek tıkla karar linkine basarsın.</p>
       <div class="error-msg" id="errorMsg"></div>
     </div>
   </div>
@@ -1371,7 +1361,7 @@
             <button class="recolor-mat-btn" data-mat="ceramic or porcelain tile cladding, fine grout lines" onclick="selectRecolorMat(this,'ceramic or porcelain tile cladding, fine grout lines')">Seramik</button>
             <button class="recolor-mat-btn" data-mat="natural stone cladding, travertine or limestone surface" onclick="selectRecolorMat(this,'natural stone cladding, travertine or limestone surface')">Taş</button>
           </div>
-          <p style="font-size:11px; color:#8A7E74; margin-top:4px; line-height:1.5;">Sadece seçilen renkteki yüzeyler değiştirilir. Antrasit/beyaz ve diğer renkler, gölge ve ışık korunur.</p>
+          <p data-i18n="enh_color_hint" style="font-size:11px; color:#8A7E74; margin-top:4px; line-height:1.5;">Sadece seçilen renkteki yüzeyler değiştirilir. Antrasit/beyaz ve diğer renkler, gölge ve ışık korunur.</p>
         </div>
 
         <button class="render-btn" id="enhanceBtn" onclick="startEnhance()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Uygula <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
@@ -1499,7 +1489,7 @@
         <p style="font-size:12px; color:#8A7E74; margin-bottom:14px; line-height:1.6;">
           Görselinizi döndürülebilir 3D modele (GLB) çevirir — AI ile işlenir.
         </p>
-        <div style="font-size:11px; color:#8A7E74; padding:10px 12px; background:#E8E4DC; border-radius:8px; border:1px solid #D8D2C8; margin-bottom:16px; line-height:1.5;">
+        <div data-i18n-html="model3d_hint" style="font-size:11px; color:#8A7E74; padding:10px 12px; background:#E8E4DC; border-radius:8px; border:1px solid #D8D2C8; margin-bottom:16px; line-height:1.5;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.1"/></svg> En iyi sonuç <strong>tek obje</strong> içindir (koltuk, ürün, bina dış kütlesi).
           Komple iç mekan sahnesinde model kabaca kalır. İşlem ~1-2 dakika sürer.
         </div>
@@ -1930,7 +1920,7 @@
 
       <div class="panel" id="placeMapPanel" style="display:none;">
         <h2>Konum & Parsel <span style="font-size:11px; color:#8A7E74; font-weight:400;">(isteğe bağlı)</span></h2>
-        <p style="font-size:12px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">
+        <p data-i18n-html="place_loc_hint" style="font-size:12px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">
           Tek tıkla konum işaretle, ya da <b>Parsel Çiz</b>'i açıp arsanın köşelerine tıklayarak sınırı çiz.
           Parseli çizdikten sonra uydu görüntüsünü doğrudan sahne yapabilirsin — arsa fotoğrafı çekmene gerek kalmaz.</p>
         <div style="display:flex; gap:8px; margin-bottom:8px;">
@@ -1966,7 +1956,7 @@
 
       <div class="panel" id="placePresentPanel" style="display:none;">
         <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> Proje Sunum Linki</h2>
-        <p style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
+        <p data-i18n="place_pres_hint" style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
           Montajların + harita + 360 tek linkte: açan kişi uydu haritada parseli görür, montaj görsellerini inceler,
           360'ta binanın önünde gezinir. Aboneliğin devam ettiği sürece link aktif kalır; aboneliğin biterse link 1 ay daha aktif kalır, bu sürede tekrar abone olmazsan silinir.</p>
         <div id="presentItemList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
@@ -2006,7 +1996,7 @@
 
 <!-- ─── MÜŞTERİ KARAR LİNKİ ──────────────────────────────────────────────── -->
 <div id="section-decision" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
-  <div style="background:#FAFAF8; border:1px solid #E0DAD0; border-radius:14px; padding:16px 20px; margin:18px 0; font-size:13px; color:#5A5249; line-height:1.6;">
+  <div data-i18n-html="dec_how" style="background:#FAFAF8; border:1px solid #E0DAD0; border-radius:14px; padding:16px 20px; margin:18px 0; font-size:13px; color:#5A5249; line-height:1.6;">
     <b style="color:#9A6558;">Nasıl çalışır?</b> Bir render yükle → farklı malzeme/renk varyasyonları üret (örn. ceviz parke, gri parke) → beğendiklerini müşteri linkine ekle → linki müşterine gönder. Müşteri linkte beğendiğini <b>"Bunu Seçiyorum"</b> ile işaretler, sen de hangisini seçtiğini anında görürsün.
   </div>
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
@@ -2069,7 +2059,7 @@
         <input type="text" id="decTitle" placeholder="Link başlığı: örn. Salon Zemin Seçimi"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
         <button class="render-btn" onclick="createDecision()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> Karar Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 50 kredi</span></button>
-        <div style="font-size:11px; color:#8A7E74; margin-top:8px;">En az 2 seçenek gerekir. Aboneliğin devam ettiği sürece link aktif kalır; aboneliğin biterse link 1 ay daha aktif kalır, bu sürede tekrar abone olmazsan silinir.</div>
+        <div data-i18n="dec_link_note" style="font-size:11px; color:#8A7E74; margin-top:8px;">En az 2 seçenek gerekir. Aboneliğin devam ettiği sürece link aktif kalır; aboneliğin biterse link 1 ay daha aktif kalır, bu sürede tekrar abone olmazsan silinir.</div>
         <div id="decEditBadge" onclick="clearDecisionEditing()" style="display:none; font-size:11px; color:#9A6558; margin-top:6px; cursor:pointer;">✏️ Mevcut link düzenleniyor — tıkla: yeni link olarak oluştur</div>
         <div class="error-msg" id="decLinkError"></div>
 
@@ -2088,7 +2078,7 @@
 
       <div class="panel">
         <h2>Önceki Karar Linklerim</h2>
-        <div style="font-size:11px; color:#8A7E74; margin-bottom:8px;">Tıkla → seçenekleri editöre yükle, düzenleyip güncelle (<b>kredi kesilmez</b>).</div>
+        <div data-i18n-html="dec_edit_hint" style="font-size:11px; color:#8A7E74; margin-bottom:8px;">Tıkla → seçenekleri editöre yükle, düzenleyip güncelle (<b>kredi kesilmez</b>).</div>
         <div id="decLibList" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
     </div>
@@ -2104,7 +2094,7 @@
     <div>
       <div class="panel">
         <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg> 360 Panorama Yükle</h2>
-        <p style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
+        <p data-i18n-html="pano_hint" style="font-size:12px; color:#8A7E74; margin:0 0 12px; line-height:1.5;">
           Kendi <b>equirectangular 360</b> panoramanı yükle (2:1 oran — Enscape, Lumion, 360 kamera vb.).
           Doğrudan tura ekleyebilir ya da önce AI ile fotorealistik render alabilirsin.</p>
         <div class="upload-zone" style="padding:18px 12px;">
@@ -2145,7 +2135,7 @@
     <div>
       <div class="panel">
         <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/></svg> Tur Sahneleri</h2>
-        <div id="tourEmptyHint" style="font-size:12px; color:#8A7E74; line-height:1.5;">
+        <div id="tourEmptyHint" data-i18n-html="tour_empty" style="font-size:12px; color:#8A7E74; line-height:1.5;">
           Henüz sahne yok — soldan panorama yükleyip <b>Tura Ekle</b> ile başla.
           Eklenen odaya tıklayınca geçiş noktalarını ayarlayabilirsin.</div>
         <div id="tourPanoList" style="display:flex; flex-direction:column; gap:8px;"></div>
@@ -2199,7 +2189,7 @@
         <div id="planWrap" style="display:none; position:relative; margin-top:12px; cursor:crosshair; border:1px solid #D8D2C8; border-radius:10px; overflow:hidden;">
           <img id="tourPlanPrev" style="width:100%; display:block;" />
         </div>
-        <div id="planHint" style="display:none; font-size:11px; color:#8A7E74; margin-top:6px; line-height:1.5;">
+        <div id="planHint" data-i18n="tour_room_hint" style="display:none; font-size:11px; color:#8A7E74; margin-top:6px; line-height:1.5;">
           Listeden bir oda seç, sonra plana tıkla → odanın yeri işaretlenir. Turda gezerken aktif oda planda yanar.</div>
         <div class="error-msg" id="assetError"></div>
       </div>
@@ -2209,7 +2199,7 @@
         <input type="text" id="tourTitle" placeholder="Tur başlığı: örn. Villa Projesi"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:14px;" />
         <button class="render-btn" onclick="createTour()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> 360 Tur Oluştur <span style="font-size:11px;opacity:0.8;">· 50 kredi</span></button>
-        <div style="font-size:11px; color:#8A7E74; margin-top:8px;">Aboneliğin devam ettiği sürece link aktif kalır; aboneliğin biterse link 1 ay daha aktif kalır, bu sürede tekrar abone olmazsan silinir.</div>
+        <div data-i18n="tour_link_note" style="font-size:11px; color:#8A7E74; margin-top:8px;">Aboneliğin devam ettiği sürece link aktif kalır; aboneliğin biterse link 1 ay daha aktif kalır, bu sürede tekrar abone olmazsan silinir.</div>
         <div id="tourEditBadge" onclick="clearTourEditing()" style="display:none; font-size:11px; color:#9A6558; margin-top:6px; cursor:pointer;">✏️ Mevcut tur düzenleniyor — tıkla: yeni tur olarak oluştur</div>
         <div class="error-msg" id="tourError"></div>
         <div id="tourLinkBox" style="display:none; margin-top:14px; padding:14px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px;">
@@ -2396,8 +2386,8 @@
   function setAuthMode(mode) {
     authMode = mode;
     const isLogin = mode === 'login';
-    document.getElementById('authTitle').textContent = isLogin ? 'Giriş Yap' : 'Kayıt Ol';
-    document.getElementById('authSubmitBtn').textContent = isLogin ? 'Giriş Yap' : 'Kayıt Ol';
+    document.getElementById('authTitle').textContent = L(isLogin ? 'Giriş Yap' : 'Kayıt Ol');
+    document.getElementById('authSubmitBtn').textContent = L(isLogin ? 'Giriş Yap' : 'Kayıt Ol');
     document.getElementById('authTabLogin').style.background = isLogin ? '#FAFAF8' : 'transparent';
     document.getElementById('authTabLogin').style.color = isLogin ? '#2A2520' : '#8A7E74';
     document.getElementById('authTabSignup').style.background = isLogin ? 'transparent' : '#FAFAF8';
@@ -2462,9 +2452,10 @@
   }
 
   async function deleteAccount() {
-    if (!confirm('Üyeliğini KALICI olarak silmek üzeresin.\n\n• Tüm işlerin ve kalan kredilerin silinir, geri alınamaz.\n• Aktif aboneliğin varsa iptal edilir, kartın bir daha çekilmez.\n\nDevam etmek istiyor musun?')) return;
-    const sure = prompt('Bu işlem geri alınamaz. Onaylamak için SİL yaz:');
-    if (!sure || sure.trim().toLocaleUpperCase('tr-TR') !== 'SİL') return;
+    if (!confirm(L('Üyeliğini KALICI olarak silmek üzeresin.\n\n• Tüm işlerin ve kalan kredilerin silinir, geri alınamaz.\n• Aktif aboneliğin varsa iptal edilir, kartın bir daha çekilmez.\n\nDevam etmek istiyor musun?'))) return;
+    const sure = prompt(L('Bu işlem geri alınamaz. Onaylamak için SİL yaz:'));
+    const sureUp = (sure || '').trim().toLocaleUpperCase('tr-TR');
+    if (!sure || (sureUp !== 'SİL' && sureUp !== 'DELETE')) return;
     const m = document.getElementById('accMsg');
     const show = (txt, color) => { m.textContent = txt; m.style.color = color; m.style.display = 'block'; };
     show('Üyeliğin siliniyor…', '#8A7E74');
@@ -2479,15 +2470,520 @@
     } catch (e) { show('Hata: ' + e.message, '#B5483A'); }
   }
 
-  // Dil: özel dropdown → gizli Google Translate motorunu sürer
-  function setLang(lang) {
-    const tryset = (n) => {
-      const combo = document.querySelector('.goog-te-combo');
-      if (combo) { combo.value = lang; combo.dispatchEvent(new Event('change')); }
-      else if (n < 20) setTimeout(() => tryset(n + 1), 300);   // widget yüklenene kadar bekle
-    };
-    tryset(0);
+  // ─── DİL (i18n) MOTORU ───────────────────────────────────────────────────
+  // ÖNEMLİ: Bu motor SADECE data-i18n / data-i18n-ph / data-i18n-title ile
+  // İŞARETLENMİŞ elemanların GÖRÜNEN metnini değiştirir. AI promptlarına,
+  // data-prompt / data-key alanlarına ve backend'e giden hiçbir metne DOKUNMAZ.
+  // TR = HTML'deki orijinal metin (otomatik yakalanır), EN = I18N_EN sözlüğü.
+  const I18N_EN = {
+    // Header / navigasyon
+    nav_render: "Render", nav_staging: "Virtual Staging", nav_model3d: "3D Model",
+    nav_upscale: "Upscale", nav_enhance: "Enhance", nav_video: "Video",
+    nav_floorplan: "Floor Plan", nav_place: "Place", nav_pano: "360° Tour",
+    nav_decision: "Decision Link", nav_works: "My Works", nav_egitim: "Tutorial",
+    nav_pafta: "Board / Presentation",
+    hdr_packages: "Packages", hdr_login: "Log In", hdr_account: "Account", hdr_logout: "Log Out",
+    lang_title: "Language / Dil",
+    support_btn: "Support", support_title: "Help & Support",
+
+    // Fiyat / paket modalı
+    pr_title: "Membership Plans",
+    pr_sub: "Get a monthly subscription and your credits refill every month. Payment is processed securely via Lemon Squeezy.",
+    pr_per_mo: "/mo", pr_popular: "MOST POPULAR",
+    pr_starter: "Starter", pr_starter_cr: "300 credits / month",
+    pr_pro: "Pro", pr_pro_cr: "1000 credits / month",
+    pr_studio: "Studio", pr_studio_cr: "2000 credits / month",
+    pr_select: "Choose",
+    pr_extra: "Extra Credit Packs", pr_extra_note: "(for active subscribers)",
+    pk_mini: "Mini", pk_mini_d: "80 credits · $9",
+    pk_med: "Medium", pk_med_d: "250 credits · $24",
+    pk_large: "Large", pk_large_d: "600 credits · $49",
+    pk_buy: "Buy",
+    get pr_feat_starter() { return CHK + " All render tools<br>" + CHK + " 300 credits / month<br>" + CHK + " Commercial use"; },
+    get pr_feat_pro() { return CHK + " Everything in Starter<br>" + CHK + " 1000 credits / month<br>" + CHK + " Lower cost per credit<br>" + CHK + " Priority processing"; },
+    get pr_feat_studio() { return CHK + " Everything in Pro<br>" + CHK + " 2000 credits / month<br>" + CHK + " Lowest credit cost<br>" + CHK + " Ideal for agencies/studios"; },
+    get pr_terms() {
+      return 'By purchasing you accept the <a href="terms.html" target="_blank" style="color:#9A6558;">Terms of Service</a>, '
+        + '<a href="privacy.html" target="_blank" style="color:#9A6558;">Privacy Policy</a> and '
+        + '<a href="refund.html" target="_blank" style="color:#9A6558;">Refund &amp; Distance Sales</a> terms.';
+    },
+
+    // Hesap modalı
+    acc_title: "My Account", acc_email_label: "Email", acc_changepw: "Change Password",
+    acc_pw1_ph: "New password (at least 6 characters)", acc_pw2_ph: "New password (again)",
+    acc_update_pw: "Update Password", acc_logout: "Log Out",
+    acc_manage_sub: "Manage / cancel subscription", acc_delete: "Delete my account",
+
+    // Yardım modalı
+    help_title: "Help / Contact",
+    help_sub: 'Write your question, issue or suggestion — pressing "Send" reaches us through your email app.',
+    help_ph: "Your message...", help_send: "Send",
+    help_direct: "Or directly: <b>bynaiapp@gmail.com</b>",
+
+    // Eğitim
+    edu_title: "Tutorial Videos",
+    edu_sub: "The most efficient ways to use BynAi — step-by-step videos.",
+    edu_soon: "Tutorial videos coming soon",
+
+    // Giriş / kayıt modalı (statik kısımlar)
+    auth_tab_login: "Log In", auth_tab_signup: "Sign Up",
+    auth_email_ph: "Email", auth_pass_ph: "Password (at least 6 characters)",
+    get auth_consent() {
+      return 'I have read and accept the <a href="terms.html" target="_blank" style="color:#9A6558;">Terms of Service</a>, '
+        + '<a href="privacy.html" target="_blank" style="color:#9A6558;">Privacy Policy</a>, '
+        + '<a href="kvkk.html" target="_blank" style="color:#9A6558;">GDPR Notice</a>, '
+        + '<a href="cerez.html" target="_blank" style="color:#9A6558;">Cookie Policy</a> and '
+        + '<a href="refund.html" target="_blank" style="color:#9A6558;">Refund Terms</a>.';
+    },
+    get auth_note() {
+      return 'By signing in you accept the <a href="terms.html" target="_blank" style="color:#9A6558;">Terms of Service</a> and '
+        + '<a href="privacy.html" target="_blank" style="color:#9A6558;">Privacy Policy</a>.';
+    },
+
+    // Render — yapısal düzenleme uyarısı (inline <b> içerir)
+    constr_warn: '⚠ Structural changes <b>work exclusively</b> — they don\'t combine with other (Creative) settings. For best results apply them <b>on their own</b>, over an existing render/photo. When one is selected, Creative choices turn off automatically.',
+
+    // Karar Linki — açıklamalar (inline <b> içerir)
+    dec_how: '<b style="color:#9A6558;">How does it work?</b> Upload a render → generate different material/color variations (e.g. walnut parquet, grey parquet) → add the ones you like to the client link → send the link to your client. The client marks their favorite in the link with <b>"I Choose This"</b>, and you instantly see which one was chosen.',
+    dec_edit_hint: 'Click → load the options into the editor, edit and update (<b>no credits charged</b>).',
+    // 360 Tur — boş durum ipucu (inline <b> içerir)
+    tour_empty: 'No scenes yet — upload a panorama on the left and start with <b>Add to Tour</b>.',
+
+    // Uzun statik paragraflar (sekme açıklamaları)
+    rndr_4mat_hint: "Generates the same building with 4 different facade materials (stone/composite/plaster/wood), then with one click you create a decision link.",
+    enh_color_hint: "Only surfaces of the selected color are changed. Anthracite/white and other colors, shadow and light are preserved.",
+    place_loc_hint: "Mark a location with one click, or open <b>Draw Parcel</b> and trace the boundary by clicking the corners of the plot. After drawing the parcel you can turn the satellite image directly into a scene — no need to photograph the plot.",
+    place_pres_hint: "Your montages + map + 360 in a single link: whoever opens it sees the parcel on the satellite map, reviews the montage images, and walks in front of the building in 360. The link stays active as long as your subscription continues; if it ends the link stays active for 1 more month, and is deleted if you don't resubscribe within that time.",
+    pano_hint: "Upload your own <b>equirectangular 360</b> panorama (2:1 ratio — Enscape, Lumion, 360 camera, etc.). You can add it directly to the tour or first get a photorealistic render with AI.",
+    tour_room_hint: "Select a room from the list, then click the plan → the room's location is marked. While touring, the active room lights up on the plan.",
+    model3d_hint: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.1"/></svg> Best results are for <strong>a single object</strong> (sofa, product, building exterior mass). In a full interior scene the model stays rough. Processing takes ~1-2 minutes.',
+    dec_link_note: "At least 2 options are required. The link stays active as long as your subscription continues; if it ends the link stays active for 1 more month, and is deleted if you don't resubscribe within that time.",
+    tour_link_note: "The link stays active as long as your subscription continues; if it ends the link stays active for 1 more month, and is deleted if you don't resubscribe within that time."
+  };
+
+  const _i18nBase = { text: {}, html: {}, ph: {}, title: {} };
+  let RA_LANG = (localStorage.getItem('ra_lang') === 'en') ? 'en' : 'tr';
+
+  // İşaret (✓) ikonu — data-i18n-html bloklarında EN metniyle birlikte yeniden kullanılır.
+  const CHK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M5 12.5l4 4L19 6.5"/></svg>';
+
+  // ─── METİN-DÜĞÜMÜ SÖZLÜĞÜ (çip etiketleri, panel başlıkları, mini-label vb.) ───
+  // SADECE birebir eşleşen Türkçe görünen metni çevirir. data-prompt ve diğer
+  // attribute'lara DOKUNMAZ (onlar metin düğümü değil). data-i18n öğeleri atlanır.
+  const TR2EN = {
+    // İç mekan stilleri
+    "Modern": "Modern", "Minimalist": "Minimalist", "Lüks & Premium": "Luxury & Premium",
+    "İskandinav": "Scandinavian", "Endüstriyel": "Industrial", "Akdeniz": "Mediterranean",
+    "Japandi": "Japandi", "Klasik & Şık": "Classic & Elegant",
+    // Dış cephe stilleri (JS ile üretilir)
+    "Modern Dış Cephe": "Modern Exterior", "Çağdaş": "Contemporary",
+    "Lüks Villa": "Luxury Villa", "Ticari Bina": "Commercial Building",
+    // Preset sekme başlıkları (iç + dış)
+    "Işık": "Light", "Atmosfer": "Atmosphere", "Mevsim": "Season", "Zaman": "Time",
+    "Hava": "Weather", "Gökyüzü": "Sky", "Çevre": "Environment", "Görüntü": "Look",
+    // Işık
+    "Sabah Işığı": "Morning Light", "Gün Işığı": "Daylight", "Altın Saat": "Golden Hour",
+    "Akşam Lambası": "Evening Lamp", "Gece": "Night", "Dramatik": "Dramatic",
+    // Atmosfer
+    "Sıcak & Samimi": "Warm & Cozy", "Ferah & Minimal": "Airy & Minimal",
+    "Sofistike & Lüks": "Sophisticated & Luxe", "Doğal & Organik": "Natural & Organic",
+    "Dramatik & Koyu": "Dramatic & Dark",
+    // Zemin / duvar / dekor
+    "Parke": "Parquet", "Mermer Zemin": "Marble Floor", "Seramik Zemin": "Ceramic Floor",
+    "Mikro Çimento": "Micro Cement", "Düz Boya": "Flat Paint", "Duvar Kağıdı": "Wallpaper",
+    "Beton Duvar": "Concrete Wall", "Taş Kaplama": "Stone Cladding", "Ahşap Panel": "Wood Panel",
+    "Yeşil Bitkiler": "Green Plants", "Sanat & Dekor": "Art & Decor",
+    "Tekstil & Perdeler": "Textiles & Curtains", "Kitaplar & Raflar": "Books & Shelves",
+    // Mevsim / zaman / hava / gökyüzü
+    "Yaz": "Summer", "İlkbahar": "Spring", "Sonbahar": "Autumn", "Kış": "Winter",
+    "Sabah": "Morning", "Öğlen": "Noon", "Öğleden Sonra": "Afternoon",
+    "Akşamüstü": "Late Afternoon", "Dusk": "Dusk", "Mavi Saat": "Blue Hour",
+    "Güneşli": "Sunny", "Sisli": "Foggy", "Bulutlu": "Cloudy", "Yağmurlu": "Rainy", "Karlı": "Snowy",
+    "Temiz Gökyüzü": "Clear Sky", "Bulutlu Gökyüzü": "Cloudy Sky", "Günbatımı": "Sunset",
+    "Gece Mavisi": "Night Blue", "Beyazımsı Gökyüzü": "Whitish Sky",
+    // Işık kaynağı / tonu / çevre / görüntü / malzeme
+    "Doğal Işık": "Natural Light", "Yapay Işık": "Artificial Light", "Ambiyans Işığı": "Ambient Light",
+    "Global Işık": "Global Light", "Cephe Aydınlatması": "Facade Lighting", "İç Mekan Işığı": "Interior Light",
+    "Amber": "Amber", "Beyaz Işık": "White Light", "Neon": "Neon", "Kırmızı": "Red", "Sarı": "Yellow",
+    "Günışığı": "Sunlight", "Kalabalık Şehir": "Busy City", "İnsan/Araç Kaldır": "Remove People/Cars",
+    "Köy": "Village", "Şehir": "City", "Villa Bölgesi": "Villa Area", "Apartman Çevresi": "Apartment Area",
+    "Kamusal Alan": "Public Space", "Park": "Park", "Deniz Kenarı": "Seaside", "Dağ": "Mountain",
+    "Otel": "Hotel", "Dini": "Religious", "Sinematik": "Cinematic", "Gerçekçi & Temiz": "Realistic & Clean",
+    "Eskiz": "Sketch", "Editöryal": "Editorial", "Drone": "Drone", "Taş Doku": "Stone Texture",
+    "Kompozit Panel": "Composite Panel", "Mekanik Seramik": "Mechanical Ceramic",
+    "Sıvalı Boya": "Plastered Paint", "Ahşap": "Wood", "Logo / İsim Kaldır": "Remove Logo / Name",
+    "Göl": "Lake", "Deniz": "Sea", "Havuz": "Pool", "Deck": "Deck", "Yürüyüş Yolu": "Walkway",
+    "Asfalt": "Asphalt", "Temiz Çim": "Clean Lawn", "Çiçekler": "Flowers", "Ağaçlar": "Trees",
+    // Oda tipleri
+    "Oturma Odası": "Living Room", "Yatak Odası": "Bedroom", "Mutfak": "Kitchen",
+    "Yemek Odası": "Dining Room", "Çocuk Odası": "Kids' Room", "Ofis": "Office",
+    // Panel / mini etiketler
+    "Mod": "Mode", "Kalite": "Quality", "Stil": "Style", "Çözünürlük": "Resolution",
+    "Ne değişsin?": "What to change?", "Kaynak Renk": "Source Color", "Hedef Renk": "Target Color",
+    "Malzeme": "Material", "Zemin Kaplaması": "Floor Covering", "Duvar Yüzeyi": "Wall Surface",
+    "Dekorasyon": "Decoration", "Stillerim": "My Styles", "Işık Kaynağı": "Light Source",
+    "Işık Tonu": "Light Tone",
+    "Bina Malzemeleri — renk ve doku modelden alınır": "Building Materials — color and texture taken from the model",
+    "Peyzaj Öğeleri": "Landscape Elements", "Konstrüksiyon — Yapısal Düzenleme": "Construction — Structural Arrangement",
+    // Başlıklar
+    "Eğitim Videoları": "Tutorial Videos", "Görsel Yükle": "Upload Image", "Render Tipi": "Render Type",
+    "Render Ayarları": "Render Settings", "Creative Preset": "Creative Preset", "Büyütme Ayarları": "Upscale Settings",
+    "GÖRSEL YÜKLE": "UPLOAD IMAGE", "GELİŞTİRME TİPİ": "ENHANCEMENT TYPE", "BOŞ ODA FOTOĞRAFI": "EMPTY ROOM PHOTO",
+    "ODA TİPİ": "ROOM TYPE", "MOBİLYA STİLİ": "FURNITURE STYLE", "3D MODEL OLUŞTUR": "CREATE 3D MODEL",
+    "PLAN YÜKLE": "UPLOAD PLAN", "Mod Seçin": "Select Mode",
+    "1 — İç Mekan Görseli": "1 — Interior Image", "2 — Yerleştirilecek Ürün": "2 — Product to Place",
+    "Konum & Parsel (isteğe bağlı)": "Location & Parcel (optional)", "İsteğe Bağlı Talimat": "Optional Instruction",
+    "Proje Sunum Linki": "Project Presentation Link", "1 — Render Yükle": "1 — Upload Render",
+    "2 — Varyasyon Talimatı": "2 — Variation Instruction", "Müşteriye Sunulacak Seçenekler": "Options to Present to Client",
+    "Karar Linki Oluştur": "Create Decision Link", "Önceki Karar Linklerim": "My Previous Decision Links",
+    "360 Panorama Yükle": "Upload 360 Panorama", "Fotorealistik Sonuç": "Photorealistic Result",
+    "Tur Sahneleri": "Tour Scenes", "Geçiş Noktaları —": "Transition Points —",
+    "Kat Planı & Firma Logosu (isteğe bağlı — turda sağ köşede)": "Floor Plan & Company Logo (optional — top-right corner in the tour)",
+    "Önceki Turlarım": "My Previous Tours", "İşlerim": "My Works",
+
+    // ── Render sekmesi gövde metinleri ──
+    "Görsel seçin": "Select an image", "veya sürükleyin": "or drag it here",
+    "PNG, JPG — 3D model, perspektif eskiz, kat planı": "PNG, JPG — 3D model, perspective sketch, floor plan",
+    "İç Mekan": "Interior", "Dış Cephe": "Exterior",
+    "Realistik": "Realistic", "Yaratıcı": "Creative", "Oto": "Auto", "Yüksek": "High",
+    "+ Mevcut ayarı kaydet": "+ Save current setting", "Render Oluştur": "Create Render",
+    "· 8 kredi": "· 8 credits", "· 15 kredi": "· 15 credits", "· 50 kredi": "· 50 credits", "· 4×8 kredi": "· 4×8 credits",
+    "−1 Kat": "−1 Floor", "+1 Kat": "+1 Floor", "Cam Cephe / Pencere Büyüt": "Glass Facade / Enlarge Window",
+    "Balkon Ekle": "Add Balcony", "Balkon Kaldır": "Remove Balcony", "Zemin Ticari Vitrin": "Ground-floor Storefront",
+    "Çatı: Düz → Eğimli": "Roof: Flat → Pitched", "Çatı: Eğimli → Düz": "Roof: Pitched → Flat",
+    "Aks Genişlet": "Widen Bay", "Aks Daralt": "Narrow Bay",
+    "4 Malzeme Varyasyonu Üret": "Generate 4 Material Variations", "4 Malzeme Varyasyonu": "4 Material Variations",
+    "Render sonucu burada görünecek": "The render result will appear here",
+    "Render oluşturuluyor...": "Generating render...",
+    "İlk istekte sunucu uyanıyor, 60-90 saniye sürebilir": "On the first request the server wakes up; it may take 60-90 seconds",
+    "ÖNCE": "BEFORE", "SONRA": "AFTER", "İndir": "Download", "↔ Önce/Sonra": "↔ Before/After",
+    "Bu render'ı düzenle": "Edit this render",
+    "Yazdığın değişiklik uygulanır, sahnenin geri kalanı (açı, mobilya, ışık) birebir korunur.": "The change you write is applied; the rest of the scene (angle, furniture, lighting) is preserved exactly.",
+    "Geliştir": "Enhance",
+    "Bu 4 Varyasyonla Karar Linki Oluştur": "Create a Decision Link with these 4 Variations", "Kopyala": "Copy",
+
+    // ── Büyüt ──
+    "Render görselinizi seçin": "Select your render image",
+    "Render çıktısı, fotoğraf veya herhangi bir görsel": "Render output, photo, or any image",
+    "Hızlı büyütme · ~1 dk": "Quick upscale · ~1 min", "Doku · ~2-3 dk": "Texture · ~2-3 min", "Ultra · ~3-5 dk": "Ultra · ~3-5 min",
+    "— Hızlı piksel büyütme": "— Fast pixel upscale",
+    "— Malzeme analizi → gerçekçi doku sentezi → 2x çözünürlük": "— Material analysis → realistic texture synthesis → 2x resolution",
+    "— Malzeme analizi → gerçekçi doku sentezi → 4x çözünürlük": "— Material analysis → realistic texture synthesis → 4x resolution",
+    "Büyüt & Geliştir": "Upscale & Enhance", "· 2K: 5 / 4K-8K: 10 kredi": "· 2K: 5 / 4K-8K: 10 credits",
+    "Büyütülmüş görsel burada görünecek": "The upscaled image will appear here",
+    "Görüntü büyütülüyor...": "Upscaling image...", "Detaylar işleniyor": "Processing details",
+    // ── Geliştir ──
+    "Render görselinizi seçin veya sürükleyin": "Select or drag your render image",
+    "Görseline uygulamak istediğin efekti seç — AI ile işlenir": "Choose the effect to apply to your image — processed by AI",
+    "İnsan · Araç · Bitki ekler": "Adds people · vehicles · plants", "Işık · Gölge · Derinlik": "Light · Shadow · Depth",
+    "Fotorealizm · Atmosfer": "Photorealism · Atmosphere", "Doku · Malzeme derinliği": "Texture · Material depth",
+    "Renk grading · Kontrast": "Color grading · Contrast", "Özel": "Custom", "Kendi promptun": "Your own prompt",
+    "Renk Değiştir": "Change Color",
+    "Görseldeki belirli bir rengi seç → hedef renge/RAL koduna çevir": "Pick a specific color in the image → convert it to a target color/RAL code",
+    "Yüklediğin görsele tıkla → renk otomatik seçilir. Veya hex kodunu elle gir.": "Click your uploaded image → the color is picked automatically. Or enter a hex code manually.",
+    "← Görsele de tıklayabilirsin": "← You can also click the image", "RAL Uygula": "Apply RAL", "Otomatik": "Automatic",
+    "Sıva / Boya": "Plaster / Paint", "Kompozit": "Composite", "Beton": "Concrete", "Seramik": "Ceramic", "Taş": "Stone", "Uygula": "Apply",
+    "Geliştirilmiş görsel burada görünecek": "The enhanced image will appear here",
+    "Geliştirme uygulanıyor...": "Applying enhancement...", "AI işliyor": "AI is working",
+    // ── Sanal Mobilyalama ──
+    "Boş dairenin oda fotoğrafını seçin veya sürükleyin": "Select or drag a photo of the empty room",
+    "Boş ya da yarı boş oda — mimari korunur, mobilya eklenir": "Empty or semi-empty room — architecture preserved, furniture added",
+    "Mobilyala": "Furnish", "Mobilyalı oda burada görünecek": "The furnished room will appear here", "Oda mobilyalanıyor...": "Furnishing room...",
+    // ── 3D Model ──
+    "Tek bir objenin fotoğrafını seçin veya sürükleyin": "Select or drag a photo of a single object",
+    "Koltuk, mobilya, ürün ya da bina dış kütlesi": "Sofa, furniture, product, or building exterior mass",
+    "Görselinizi döndürülebilir 3D modele (GLB) çevirir — AI ile işlenir.": "Turns your image into a rotatable 3D model (GLB) — processed by AI.",
+    "En iyi sonuç": "Best results", "tek obje": "a single object", "Modeli Oluştur": "Create Model",
+    "3D model burada görünecek — fareyle döndürebilirsiniz": "The 3D model will appear here — you can rotate it with the mouse",
+    "3D model oluşturuluyor...": "Generating 3D model...", "GLB İndir": "Download GLB",
+    "⬇ OBJ İndir (SketchUp / 3ds Max)": "⬇ Download OBJ (SketchUp / 3ds Max)",
+    // ── Video ──
+    "Render yükle → mevsim, zaman, hareket ve kamera seç → AI 5 saniyelik video üretir": "Upload a render → choose season, time, motion and camera → AI creates a 5-second video",
+    "Hareketleri sen seçersin — istemediğin hareket (örn. araç) eklenmez": "You choose the motions — unwanted motion (e.g. vehicles) is not added",
+    "PNG, JPG · Tek görsel · AI ile canlandırılır": "PNG, JPG · Single image · Animated by AI",
+    "MEVSİM": "SEASON", "Nötr": "Neutral", "ZAMAN": "TIME", "Gündüz": "Day",
+    "HAREKET ÖĞELERİ": "MOTION ELEMENTS", "Sadece seçtiklerin hareket eder — istemediğini ekleme": "Only what you select moves — don't add what you don't want",
+    "İnsanlar": "People", "Araçlar": "Vehicles", "Gökyüzü / Bulutlar": "Sky / Clouds", "Ağaçlar / Bitkiler": "Trees / Plants",
+    "KAMERA HAREKETİ": "CAMERA MOVEMENT", "Sabit": "Static", "Sola Kaydır": "Pan Left", "Sağa Kaydır": "Pan Right", "Yörünge": "Orbit",
+    "Video Oluştur": "Create Video", "· 40 kredi · ~60-90 sn": "· 40 credits · ~60-90 s",
+    "Oluşturulan video burada görünecek": "The generated video will appear here", "AI işliyor...": "AI is working...",
+    "Lütfen bekleyin": "Please wait", "Video İndir (MP4)": "Download Video (MP4)",
+    // ── Kat Planı ──
+    "2D plan çizimi yükleyin → AI profesyonel renkli sunum planına dönüştürür": "Upload a 2D plan drawing → AI converts it into a professional colored presentation plan",
+    "Çizgiler korunur · Alanlar renklenir · Profesyonel sunum kalitesi": "Lines preserved · Areas colored · Professional presentation quality",
+    "Plan görselini seçin veya sürükleyin": "Select or drag the plan image",
+    "PNG, JPG — Kat planı, vaziyet planı, AutoCAD export": "PNG, JPG — Floor plan, site plan, AutoCAD export",
+    "PLAN TİPİ": "PLAN TYPE", "Kat Planı": "Floor Plan", "İç mekan, odalar": "Interior, rooms",
+    "Vaziyet Planı": "Site Plan", "Dış alan, peyzaj": "Outdoor area, landscape",
+    "BOYAMA STİLİ": "COLORING STYLE", "Boyalı Sunum": "Colored Presentation", "Tek ton gri zemin · çizgi tefriş": "Single-tone grey base · line furnishing",
+    "Fonksiyon Haritası": "Function Map", "Aynı işlev = aynı renk · lejant": "Same function = same color · legend",
+    "Fotorealistik": "Photorealistic", "Mobilya · parke · ışık · gölge": "Furniture · parquet · light · shadow",
+    "3D Derinlik": "3D Depth", "İzometrik · duvar yüksekliği": "Isometric · wall height", "İpucu:": "Tip:",
+    "Plan üzerine oda isimlerini yazmanız durumunda daha doğru sonuçlar elde edersiniz.": "You get more accurate results if you write the room names on the plan.",
+    "PARKE TONU": "PARQUET TONE", "Açık Meşe — Scandinavian blonde": "Light Oak — Scandinavian blonde",
+    "SERAMİK TONU": "CERAMIC TONE", "Beyaz Seramik — classic clean": "White Ceramic — classic clean",
+    "DUVAR KESİTİ": "WALL SECTION", "Siyah": "Black", "Beyaz": "White", "YAZI": "TEXT", "Koru": "Keep", "Kaldır": "Remove",
+    "KAT TİPİ": "FLOOR TYPE", "Zemin Kat": "Ground Floor", "Peyzaj eklenir": "Landscape added", "Üst Kat": "Upper Floor", "Sadece iç mekan": "Interior only",
+    "Plan Renklendir": "Colorize Plan", "· 7 kredi": "· 7 credits",
+    "Renklendirilmiş kat planı burada görünecek": "The colorized floor plan will appear here",
+    "Plan analiz ediliyor...": "Analyzing plan...", "Aşama 1/3 — Plan analiz ediliyor (~10 sn)": "Stage 1/3 — Analyzing plan (~10 s)",
+    "Kat Planı İndir (PNG)": "Download Floor Plan (PNG)",
+    // ── Yerleştir ──
+    "Ürün Yerleştir": "Place Product", "Mobilya/ürünü iç mekana koy": "Place furniture/product into the interior",
+    "Dijital İkiz": "Digital Twin", "Projeyi gerçek ortama monte et": "Mount the project into a real environment",
+    "Render veya oda fotoğrafı seçin": "Select a render or room photo", "Ürün fotoğrafı seçin": "Select a product photo",
+    "Ürün Kataloğum": "My Product Catalog", "+ Bu ürünü kataloğa ekle": "+ Add this product to the catalog",
+    "Konum & Parsel": "Location & Parcel", "(isteğe bağlı)": "(optional)",
+    "Tek tıkla konum işaretle, ya da": "Mark a location with one click, or", "Parsel Çiz": "Draw Parcel",
+    "Ara": "Search", "Haritaya Geç": "Go to Map", "Temizle": "Clear",
+    "Uydu Görüntüsünü Sahne Yap": "Use Satellite Image as Scene", "Yerleştir": "Place", "İptal": "Cancel", "· 20 kredi": "· 20 credits", "Sunum Linki Oluştur": "Create Presentation Link",
+    "SUNUM YAYINDA": "PRESENTATION LIVE", "Entegre edilmiş görsel burada görünecek": "The integrated image will appear here",
+    "AI yerleştiriyor...": "AI is placing...", "Perspektif, ışık ve gölgeler eşleştiriliyor (~30-60 sn)": "Matching perspective, light and shadows (~30-60 s)",
+    "İndir (PNG)": "Download (PNG)",
+    // ── Karar Linki ──
+    "Render veya mekan görseli seçin": "Select a render or space image", "Orijinali (ham render) linke ekle": "Add the original (raw render) to the link",
+    "ÖRNEK GÖRSEL (isteğe bağlı)": "SAMPLE IMAGE (optional)", "Malzeme/ürün örneği (parke, kumaş, mobilya...)": "Material/product sample (parquet, fabric, furniture...)",
+    "Varyasyon Üret": "Generate Variation", "Varyasyon üretiliyor...": "Generating variation...",
+    "Sadece istenen değişiklik uygulanıyor (~30-60 sn)": "Only the requested change is applied (~30-60 s)",
+    "Müşteri Linkine Ekle": "Add to Client Link", "Henüz seçenek eklenmedi.": "No options added yet.",
+    "Solda varyasyon üretip \"Müşteri Linkine Ekle\" ile buraya taşı.": "Generate a variation on the left and move it here with \"Add to Client Link\".",
+    "✏️ Mevcut link düzenleniyor — tıkla: yeni link olarak oluştur": "✏️ Editing current link — click: create as a new link",
+    "KARAR LİNKİ HAZIR": "DECISION LINK READY", "Müşteri henüz seçim yapmadı — bu kutu otomatik güncellenir.": "The client hasn't chosen yet — this box updates automatically.",
+    // ── 360 Tur ──
+    "Kendi": "Own", "360 panorama seç / sürükle": "Select / drag a 360 panorama", "Tura Ekle": "Add to Tour", "· ücretsiz": "· free",
+    "Fotorealistik Render": "Photorealistic Render", "· 30 kredi": "· 30 credits", "360° render üretiliyor...": "Generating 360° render...", "~60-90 saniye": "~60-90 seconds",
+    "Eklenen odaya tıklayınca geçiş noktalarını ayarlayabilirsin.": "Click an added room to set its transition points.",
+    "Geçiş Noktası Ekle": "Add Transition Point",
+    "Butona bas, sonra panoramada kapının/geçidin olduğu yere tıkla — hedef odayı seç.": "Press the button, then click where the door/passage is in the panorama — select the target room.",
+    "Hedef oda:": "Target room:", "Ekle": "Add", "Vazgeç": "Cancel", "Açılış açısı:": "Opening angle:", "Bu Açıyı Kaydet": "Save This Angle",
+    "Kat Planı & Firma Logosu": "Floor Plan & Company Logo", "(isteğe bağlı — turda sağ köşede)": "(optional — top-right corner in the tour)",
+    "KAT PLANI": "FLOOR PLAN", "Seç / sürükle": "Select / drag", "FİRMA LOGOSU": "COMPANY LOGO", "360 Tur Oluştur": "Create 360 Tour",
+    "✏️ Mevcut tur düzenleniyor — tıkla: yeni tur olarak oluştur": "✏️ Editing current tour — click: create as a new tour", "TUR YAYINDA": "TOUR LIVE",
+    "Giriş yapınca önceki 360 turların burada görünür.": "Your previous 360 tours appear here once you sign in.",
+    // ── İşlerim ──
+    "Yaptığın son çalışmalar — tıklayınca büyür": "Your recent work — click to enlarge", "Yenile": "Refresh", "Tümü": "All",
+    "Büyüt": "Upscale", "Yerleştirme": "Placement", "📁 Tüm Projeler": "📁 All Projects", "Atanmamış": "Unassigned", "+ Proje": "+ Project",
+    "Henüz kaydedilmiş iş yok.": "No saved work yet.",
+    "Render, kat planı veya video oluşturduğunda burada görünecek.": "It will appear here when you create a render, floor plan or video.",
+    "Daha Fazla Yükle": "Load More",
+    // ── Footer ──
+    "Kullanıcı Sözleşmesi": "Terms of Service", "Gizlilik Politikası": "Privacy Policy", "KVKK Aydınlatma": "GDPR Notice",
+    "Çerez Politikası": "Cookie Policy", "İade & Mesafeli Satış": "Refund & Distance Sales", "AI Etik Politikası": "AI Ethics Policy",
+    "Veri İşleme (DPA)": "Data Processing (DPA)", "Paketler": "Packages",
+    "© 2026 BynAi · Tüm hakları saklıdır · İletişim:": "© 2026 BynAi · All rights reserved · Contact:",
+    // ── Placeholder'lar ──
+    "Örn: yazıları kaldır · zemini ahşap parke yap · duvarı antrasit boya · gökyüzünü gün batımı yap": "e.g. remove the text · make the floor wood parquet · paint the wall anthracite · make the sky a sunset",
+    "RAL kodu (örn: 8023)": "RAL code (e.g. 8023)",
+    "örn: gri kanepe, ahşap yemek masası ekle (opsiyonel)": "e.g. add a grey sofa, wooden dining table (optional)",
+    "Adres / mahalle / şehir ara...": "Search address / district / city...",
+    "örn: yataktaki örtüyü de değiştir / binayı arsanın soluna yerleştir": "e.g. also change the bedspread / place the building on the left of the plot",
+    "Sunum başlığı: örn. Villa Projesi — Bodrum": "Presentation title: e.g. Villa Project — Bodrum",
+    "örn: parkeyi ceviz rengine çevir, duvar rengini değiştirme": "e.g. change the parquet to walnut, don't change the wall color",
+    "Bu varyasyona ad ver: örn. Ceviz Parke": "Name this variation: e.g. Walnut Parquet",
+    "Link başlığı: örn. Salon Zemin Seçimi": "Link title: e.g. Living Room Floor Choice",
+    "Oda adı (turda görünür): örn. Salon": "Room name (shown in tour): e.g. Living Room",
+    "İsteğe bağlı not: örn. akşam ışığı": "Optional note: e.g. evening light",
+    "Tur başlığı: örn. Villa Projesi": "Tour title: e.g. Villa Project",
+
+    // ── Dinamik (JS) metinler: auth, modal butonları, boş durumlar ──
+    "Giriş Yap": "Log In", "Kayıt Ol": "Sign Up", "Tamam": "OK", "Kaydet": "Save",
+    "Henüz kayıtlı stil yok — bir kombinasyon seçip \"Mevcut ayarı kaydet\"e bas.": "No saved styles yet — pick a combination and press \"Save current setting\".",
+    "Kataloğun boş — bir ürün yükleyip \"Bu ürünü kataloğa ekle\"ye bas, sonra tekrar tekrar kullan.": "Your catalog is empty — upload a product, press \"Add this product to the catalog\", then reuse it again and again.",
+
+    // ── Dinamik uyarı / onay / hata mesajları (uiAlert/uiConfirm/showError/panoErr'den geçer) ──
+    "Bu paket yakında aktif olacak.": "This pack will be available soon.",
+    "Satın almadan önce giriş yapmalısın.": "You must log in before purchasing.",
+    "Şifre en az 6 karakter olmalı.": "Password must be at least 6 characters.",
+    "Şifreler eşleşmiyor.": "Passwords don't match.",
+    "Şifre değiştirilemedi": "Could not change password", "Şifren güncellendi ✓": "Your password has been updated ✓",
+    "Abonelik sayfası açılıyor…": "Opening subscription page…", "Abonelik sayfası açılamadı.": "Could not open subscription page.",
+    "Abonelik yönetim sayfan yeni sekmede açıldı — iptal işlemini orada yapabilirsin.": "Your subscription management page opened in a new tab — you can cancel there.",
+    "Üyeliğin siliniyor…": "Deleting your account…", "Üyelik silinemedi.": "Could not delete account.",
+    "Üyeliğin silindi. Bizi tercih ettiğin için teşekkürler.": "Your account has been deleted. Thank you for choosing us.",
+    "Devam etmek için sözleşmeleri kabul etmelisin.": "You must accept the agreements to continue.",
+    "E-posta ve şifre gerekli.": "Email and password are required.", "İşlem başarısız.": "Operation failed.",
+    "📧 Onay e-postası gönderildi — gelen kutunu kontrol et, sonra giriş yap.": "📧 Confirmation email sent — check your inbox, then log in.",
+    "Önce birkaç preset/ayar seç, sonra kaydet.": "Pick a few presets/settings first, then save.",
+    "Mevcut ayarı kaydet": "Save current setting", "Modern İç Mekan": "Modern Interior",
+    "Lütfen önce bir görsel yükleyin.": "Please upload an image first.",
+    "Başlatılamadı": "Could not start", "Render başarısız": "Render failed",
+    "6 dakika aşıldı, lütfen tekrar deneyin": "Exceeded 6 minutes, please try again",
+    "5 dakika aşıldı, lütfen tekrar deneyin": "Exceeded 5 minutes, please try again",
+    "7 dakika aşıldı, lütfen tekrar deneyin": "Exceeded 7 minutes, please try again",
+    "10 dakika aşıldı, lütfen tekrar deneyin": "Exceeded 10 minutes, please try again",
+    "20 dakika aşıldı": "Exceeded 20 minutes", "Süre aşıldı": "Timed out",
+    "Bu özellik için giriş yapmalısın.": "You must log in to use this feature.",
+    "Aynı görsel 4 farklı cephe malzemesiyle render edilecek (4×8 = 32 kredi). Devam edilsin mi?": "The same image will be rendered with 4 different facade materials (4×8 = 32 credits). Continue?",
+    "Üret": "Generate", "Önce varyasyonları üret.": "Generate the variations first.", "Cephe Malzeme Seçenekleri": "Facade Material Options",
+    "Karar linki oluşturulamadı": "Could not create decision link", "Önce bir render oluştur.": "Create a render first.",
+    "Lütfen yapmak istediğin değişikliği yaz.": "Please write the change you want to make.",
+    "Geliştirme başarısız": "Enhancement failed",
+    "1 — Arsa / Ortam Fotoğrafı": "1 — Plot / Environment Photo", "Arsanın/caddenin gerçek fotoğrafını seçin": "Select a real photo of the plot/street",
+    "2 — Proje Görselleri": "2 — Project Images",
+    "Arsanın/caddenin fotoğrafları — birden fazla açı seçebilirsin (ilki ana açı)": "Photos of the plot/street — you can select multiple angles (the first is the main angle)",
+    "Ana görsel (ön cephe) — bu açıdan montajlanır": "Main image (front facade) — montaged from this angle", "Ana görsel yapmak için tıkla": "Click to make it the main image",
+    "Önce bir ürün görseli yükle, sonra kataloğa ekle.": "Upload a product image first, then add it to the catalog.",
+    "Ürün adı:": "Product name:", "Görsel okunamadı.": "Could not read image.", "Bu ürünü kataloğa ekle": "Add this product to the catalog",
+    "Hata: Sahne gerekli — haritada parseli çiz (uydu sahnesi otomatik kullanılır) ya da arsa fotoğrafı yükle.": "Error: A scene is required — draw the parcel on the map (the satellite scene is used automatically) or upload a plot photo.",
+    "Hata: İki görsel de gerekli — sahne ve yerleştirilecek öğe.": "Error: Both images are required — the scene and the item to place.",
+    "Yerleştirme başarısız": "Placement failed", "Hata: Önce bir render yükle.": "Error: Upload a render first.", "Yükleme başarısız": "Upload failed",
+    "Hata: Bir değişiklik yaz veya örnek görsel yükle.": "Error: Write a change or upload a sample image.", "Varyasyon başarısız": "Variation failed",
+    "Bu varyasyon kalıcı depoya kaydedilemedi — linke eklenemez. Tekrar üret.": "This variation couldn't be saved to permanent storage — it can't be added to the link. Generate again.",
+    "Seçenek": "Option", "Karar linki oluşturmak için giriş yapmalısın.": "You must log in to create a decision link.",
+    "En az 2 seçenek ekle (müşteri seçim yapabilsin).": "Add at least 2 options (so the client can choose).",
+    "Sunum linki oluşturmak için giriş yapmalısın.": "You must log in to create a presentation link.",
+    "Linke eklenebilecek kalıcı kayıtlı montaj yok — yeni bir montaj üret.": "No permanently saved montage to add to the link — generate a new montage.",
+    "Sunum oluşturulamadı": "Could not create presentation", "Önce 360 panoramanı yükle.": "Upload your 360 panorama first.",
+    "Bu panorama kalıcı depoya kaydedilemedi — tura eklenemez. Tekrar üretmeyi dene.": "This panorama couldn't be saved to permanent storage — it can't be added to the tour. Try generating again.",
+    "Sahne adını düzenle": "Edit scene name", "Sahne adı:": "Scene name:",
+    "Panoramayı istediğin yöne çevirip kaydet.": "Rotate the panorama to the desired direction and save.",
+    "⚠️ Geçiş eklemek için turda en az 2 sahne olmalı.": "⚠️ You need at least 2 scenes in the tour to add a transition.",
+    "Plan/logo yüklemek için giriş yapmalısın.": "You must log in to upload a plan/logo.",
+    "Tur linki oluşturmak için giriş yapmalısın.": "You must log in to create a tour link.",
+    "Önce en az bir panoramayı \"Tura Ekle\" ile listeye al.": "First add at least one panorama to the list with \"Add to Tour\".",
+    "Tur oluşturulamadı": "Could not create tour", "Bu turun süresi dolmuş; üyeliğin aktifse tekrar açılır.": "This tour has expired; if your membership is active it reopens.",
+    "Bu kayıt düzenlenebilir bir 360 tur değil.": "This record is not an editable 360 tour.",
+    "Tur düzenlemeye yüklendi. Değişikliği yapıp \"360 Tur Oluştur\" ile güncelle (kredi kesilmez).": "Loaded for tour editing. Make your change and update with \"Create 360 Tour\" (no credits charged).",
+    "Bu 360 tur kalıcı olarak silinsin mi?": "Permanently delete this 360 tour?", "Bu karar linki kalıcı olarak silinsin mi?": "Permanently delete this decision link?",
+    "Yeni proje adı:": "New project name:", "Önce silmek istediğin projeyi listeden seç.": "First select the project you want to delete from the list.", "Atanamadı": "Could not assign",
+    "Büyütme başarısız": "Upscale failed", "Lütfen bir görsel yükleyin.": "Please upload an image.",
+    "Renk örnekleme hatası:": "Color sampling error:", "Lütfen geçerli kaynak ve hedef renk gir (örn: #A65E2E).": "Please enter valid source and target colors (e.g. #A65E2E).",
+    "Lütfen önce bir oda fotoğrafı yükleyin.": "Please upload a room photo first.", "Mobilyalama başarısız": "Furnishing failed",
+    "OBJ dönüşümü başarısız": "OBJ conversion failed", "3D model başarısız": "3D model failed", "Video oluşturma başarısız": "Video creation failed",
+    "Boyama başarısız": "Coloring failed", "Renklendirilmiş vaziyet planı burada görünecek": "The colorized site plan will appear here",
+    "⬇ Vaziyet Planı İndir (PNG)": "⬇ Download Site Plan (PNG)", "⬇ Kat Planı İndir (PNG)": "⬇ Download Floor Plan (PNG)",
+
+    // ── İşlerim filtre/kart etiketleri (emoji) ──
+    "🏗️ Dış Cephe": "🏗️ Exterior", "🔍 Büyüt": "🔍 Upscale", "✨ Geliştir": "✨ Enhance",
+    "📐 Kat Planı": "📐 Floor Plan", "🧩 Yerleştirme": "🧩 Placement", "🖼 Sadece Sonuç": "🖼 Result Only",
+    // ── Harita / parsel bilgi mesajları ──
+    "📍 Konum işaretlendi — bölge bilgisi alınıyor...": "📍 Location marked — fetching area info...",
+    "📍 Konum işaretlendi": "📍 Location marked", "🔍 Aranıyor...": "🔍 Searching...",
+    "⚠ Sonuç bulunamadı — \"mahalle, ilçe, şehir\" gibi daha açık yazmayı dene.": "⚠ No results — try writing more clearly like \"district, town, city\".",
+    "⚠ Arama şu an çalışmadı — birkaç saniye sonra tekrar dene.": "⚠ Search didn't work right now — try again in a few seconds.",
+    "📐 Parsel çizimi açık — arsanın köşelerine sırayla tıkla (en az 3 nokta).": "📐 Parcel drawing on — click the plot corners in order (at least 3 points).",
+    "🗺️ Haritaya Geç": "🗺️ Go to Map", "🛰️ Uyduya Geç": "🛰️ Go to Satellite",
+    // ── Başlangıç yükleme etiketleri (HTML, dinamik olmayan) ──
+    "Render başlatılıyor...<br><span style=\"font-size:12px;color:#ABA49C;\">İşlem başlıyor</span>": "Starting render...<br><span style=\"font-size:12px;color:#ABA49C;\">Process beginning</span>",
+    "Geliştirme uygulanıyor...<br><span style=\"font-size:12px;color:#ABA49C;\">AI görüntü işliyor</span>": "Applying enhancement...<br><span style=\"font-size:12px;color:#ABA49C;\">AI processing the image</span>",
+    // ── Hesap silme onayı (kod 'SİL' VE 'DELETE' kabul eder) ──
+    "Bu işlem geri alınamaz. Onaylamak için SİL yaz:": "This action cannot be undone. Type DELETE to confirm:",
+    "Üyeliğini KALICI olarak silmek üzeresin.\n\n• Tüm işlerin ve kalan kredilerin silinir, geri alınamaz.\n• Aktif aboneliğin varsa iptal edilir, kartın bir daha çekilmez.\n\nDevam etmek istiyor musun?": "You are about to PERMANENTLY delete your account.\n\n• All your work and remaining credits will be deleted, irreversibly.\n• If you have an active subscription it will be cancelled and your card won't be charged again.\n\nDo you want to continue?"
+  };
+
+  const _phOrig = new WeakMap();
+  function _translatePlaceholders() {
+    const en = RA_LANG === 'en';
+    document.querySelectorAll('[placeholder]').forEach(el => {
+      if (el.hasAttribute('data-i18n-ph')) return;   // bunlar I18N_EN ile yönetilir
+      if (en) {
+        if (_phOrig.has(el)) return;
+        const cur = el.getAttribute('placeholder'), t = (cur || '').trim();
+        const v = TR2EN[t];
+        if (v != null && v !== t) { _phOrig.set(el, cur); el.setAttribute('placeholder', cur.replace(t, v)); }
+      } else if (_phOrig.has(el)) {
+        el.setAttribute('placeholder', _phOrig.get(el));
+        _phOrig.delete(el);
+      }
+    });
   }
+
+  const _txtOrig = new WeakMap();
+  function _translateTextNodes() {
+    const en = RA_LANG === 'en';
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(n) {
+        if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const p = n.parentElement;
+        if (!p) return NodeFilter.FILTER_REJECT;
+        const tag = p.tagName;
+        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA') return NodeFilter.FILTER_REJECT;
+        if (p.closest('[data-i18n],[data-i18n-html]')) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n => {
+      if (en) {
+        if (_txtOrig.has(n)) return;                 // zaten çevrildi
+        const raw = n.nodeValue, t = raw.trim();
+        const v = TR2EN[t];
+        if (v != null && v !== t) { _txtOrig.set(n, raw); n.nodeValue = raw.replace(t, v); }
+      } else if (_txtOrig.has(n)) {
+        n.nodeValue = _txtOrig.get(n);               // TR'ye geri yükle
+        _txtOrig.delete(n);
+      }
+    });
+  }
+
+  function _i18nCapture() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.getAttribute('data-i18n');
+      if (!(k in _i18nBase.text)) _i18nBase.text[k] = el.textContent;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const k = el.getAttribute('data-i18n-html');
+      if (!(k in _i18nBase.html)) _i18nBase.html[k] = el.innerHTML;
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+      const k = el.getAttribute('data-i18n-ph');
+      if (!(k in _i18nBase.ph)) _i18nBase.ph[k] = el.getAttribute('placeholder') || '';
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const k = el.getAttribute('data-i18n-title');
+      if (!(k in _i18nBase.title)) _i18nBase.title[k] = el.getAttribute('title') || '';
+    });
+  }
+
+  function applyI18n() {
+    const en = RA_LANG === 'en';
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.getAttribute('data-i18n');
+      const v = en ? I18N_EN[k] : _i18nBase.text[k];
+      if (v != null) el.textContent = v;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const k = el.getAttribute('data-i18n-html');
+      const v = en ? I18N_EN[k] : _i18nBase.html[k];
+      if (v != null) el.innerHTML = v;
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+      const k = el.getAttribute('data-i18n-ph');
+      const v = en ? I18N_EN[k] : _i18nBase.ph[k];
+      if (v != null) el.setAttribute('placeholder', v);
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const k = el.getAttribute('data-i18n-title');
+      const v = en ? I18N_EN[k] : _i18nBase.title[k];
+      if (v != null) el.setAttribute('title', v);
+    });
+    _translateTextNodes();
+    _translatePlaceholders();
+    document.documentElement.lang = RA_LANG;
+  }
+
+  function setLang(lang) {
+    RA_LANG = (lang === 'en') ? 'en' : 'tr';
+    localStorage.setItem('ra_lang', RA_LANG);
+    applyI18n();
+  }
+
+  // JS ile üretilen metinler için: TR string ver → EN ise TR2EN karşılığını döndür.
+  // Sözlükte yoksa olduğu gibi (TR) döner. data-prompt'a/AI'a ASLA uygulanmaz.
+  function L(s) {
+    if (RA_LANG !== 'en' || s == null) return s;
+    const v = TR2EN[String(s).trim()];
+    return (v != null) ? v : s;
+  }
+
+  // DOM hazır olunca: TR baseline'ı yakala, dropdown'u eşitle, dili uygula
+  document.addEventListener('DOMContentLoaded', () => {
+    _i18nCapture();
+    const sel = document.getElementById('langSelect');
+    if (sel) sel.value = RA_LANG;
+    applyI18n();
+  });
   function openHelp() { document.getElementById('helpModal').style.display = 'flex'; }
   function sendHelp() {
     const msg = document.getElementById('helpMsg').value.trim();
@@ -2701,6 +3197,7 @@
         ? list.map(s => `<span class="chip-tag" style="cursor:pointer;" onclick="applyStyle('${s.id}')" title="Uygula">${s.name} <button onclick="deleteStyle('${s.id}',event)" title="Sil">×</button></span>`).join('')
         : '<span style="font-size:11px;color:#ABA49C;">Henüz kayıtlı stil yok — bir kombinasyon seçip "Mevcut ayarı kaydet"e bas.</span>';
     });
+    if (typeof applyI18n === 'function') applyI18n();   // yeni üretilen etiketleri/boş durumu çevir
   }
   renderMyStyles();
 
@@ -2763,6 +3260,7 @@
       grid.innerHTML = styles.map((s, i) =>
         `<button class="style-btn ${i === 0 ? 'active' : ''}" data-style="${s.key}" onclick="selectStyle(this, '${s.key}')">${s.label}</button>`
       ).join('');
+      if (typeof applyI18n === 'function') applyI18n();   // yeni üretilen stil butonlarını da çevir
     }
   }
 
@@ -2854,13 +3352,13 @@
   function _uiModal(o) {
     return new Promise(resolve => {
       const bg = document.getElementById('uiModalBg');
-      document.getElementById('uiModalMsg').textContent = o.message || '';
+      document.getElementById('uiModalMsg').textContent = L(o.message || '');
       const inp = document.getElementById('uiModalInput');
       inp.style.display = o.input ? 'block' : 'none';
       if (o.input) inp.value = o.defaultVal || '';
       const ok = document.getElementById('uiModalOk'), cancel = document.getElementById('uiModalCancel');
-      ok.textContent = o.okText || 'Tamam';
-      cancel.textContent = o.cancelText || 'İptal';
+      ok.textContent = L(o.okText || 'Tamam');
+      cancel.textContent = L(o.cancelText || 'İptal');
       cancel.style.display = o.alertOnly ? 'none' : '';
       ok.style.background = o.danger ? '#C2554D' : '#9A6558';
       bg.style.display = 'flex';
@@ -2914,7 +3412,7 @@
 
     try {
       // Render başlat — hemen ID al
-      document.querySelector('.loading p').innerHTML = 'Render başlatılıyor...<br><span style="font-size:12px;color:#ABA49C;">İşlem başlıyor</span>';
+      document.querySelector('.loading p').innerHTML = L('Render başlatılıyor...<br><span style="font-size:12px;color:#ABA49C;">İşlem başlıyor</span>');
       const startRes = await fetch(`${API}/render/start`, { method: 'POST', headers: authHeaders(), body: formData });
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
@@ -2927,7 +3425,7 @@
       while (true) {
         await new Promise(r => setTimeout(r, 3000));
         elapsed += 3;
-        document.querySelector('.loading p').innerHTML = `Render oluşturuluyor... ${elapsed}sn<br><span style="font-size:12px;color:#ABA49C;">AI görüntü işliyor</span>`;
+        document.querySelector('.loading p').innerHTML = `${RA_LANG === 'en' ? 'Rendering' : 'Render oluşturuluyor'}... ${elapsed}${RA_LANG === 'en' ? 's' : 'sn'}<br><span style="font-size:12px;color:#ABA49C;">${RA_LANG === 'en' ? 'AI processing the image' : 'AI görüntü işliyor'}</span>`;
 
         const statusRes = await fetch(`${API}/render/status/${predictionId}`);
         const statusData = await statusRes.json();
@@ -3012,7 +3510,7 @@
     try {
       for (let i = 0; i < VAR_DEFS.length; i++) {
         const v = VAR_DEFS[i];
-        document.querySelector('.loading p').innerHTML = `Varyasyon ${i+1}/4 — ${v.label}<br><span style="font-size:12px;color:#ABA49C;">AI görüntü işliyor</span>`;
+        document.querySelector('.loading p').innerHTML = `${RA_LANG === 'en' ? 'Variation' : 'Varyasyon'} ${i+1}/4 — ${v.label}<br><span style="font-size:12px;color:#ABA49C;">${RA_LANG === 'en' ? 'AI processing the image' : 'AI görüntü işliyor'}</span>`;
         const fd = new FormData();
         fd.append('image', imageToSend);
         fd.append('style', selectedStyle);
@@ -3075,7 +3573,7 @@
     document.getElementById('downloadBtn').style.display = 'none';
     document.getElementById('renderEditBox').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
-    document.querySelector('.loading p').innerHTML = 'Geliştirme uygulanıyor...<br><span style="font-size:12px;color:#ABA49C;">AI görüntü işliyor</span>';
+    document.querySelector('.loading p').innerHTML = L('Geliştirme uygulanıyor...<br><span style="font-size:12px;color:#ABA49C;">AI görüntü işliyor</span>');
 
     try {
       // Mevcut renderı dosyaya çevirip Özel (custom) geliştirme pipeline'ına gönder
@@ -3140,7 +3638,7 @@
   function showError(msg) {
     const errId = renderType === 'interior' ? 'errorMsgInterior' : 'errorMsg';
     const el = document.getElementById(errId);
-    el.textContent = msg;
+    el.textContent = L(msg);
     el.style.display = 'block';
   }
 
@@ -3232,7 +3730,7 @@
       placeMapMarker = L.marker(e.latlng).addTo(placeMapObj);
       const info = document.getElementById('placeMapInfo');
       info.style.display = 'block';
-      info.textContent = '📍 Konum işaretlendi — bölge bilgisi alınıyor...';
+      info.textContent = L('📍 Konum işaretlendi — bölge bilgisi alınıyor...');
       placeLocationText = `coordinates ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
       try {
         const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${e.latlng.lat}&lon=${e.latlng.lng}&format=json&accept-language=tr`);
@@ -3242,7 +3740,7 @@
           info.textContent = '📍 ' + d.display_name;
         }
       } catch (_) {
-        info.textContent = '📍 Konum işaretlendi';
+        info.textContent = L('📍 Konum işaretlendi');
       }
     });
     setTimeout(() => placeMapObj.invalidateSize(), 300);
@@ -3253,7 +3751,7 @@
     if (!q || !placeMapObj) return;
     const info = document.getElementById('placeMapInfo');
     info.style.display = 'block';
-    info.textContent = '🔍 Aranıyor...';
+    info.textContent = L('🔍 Aranıyor...');
     try {
       const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1&accept-language=tr`);
       const d = await r.json();
@@ -3261,10 +3759,10 @@
         placeMapObj.setView([+d[0].lat, +d[0].lon], 17);
         info.textContent = '📍 ' + d[0].display_name + ' — yakınlaş, sonra parseli çiz veya konumu tıkla.';
       } else {
-        info.textContent = '⚠ Sonuç bulunamadı — "mahalle, ilçe, şehir" gibi daha açık yazmayı dene.';
+        info.textContent = L('⚠ Sonuç bulunamadı — "mahalle, ilçe, şehir" gibi daha açık yazmayı dene.');
       }
     } catch (_) {
-      info.textContent = '⚠ Arama şu an çalışmadı — birkaç saniye sonra tekrar dene.';
+      info.textContent = L('⚠ Arama şu an çalışmadı — birkaç saniye sonra tekrar dene.');
     }
   }
 
@@ -3272,10 +3770,10 @@
     placeSatOn = !placeSatOn;
     if (placeSatOn) {
       placeMapObj.removeLayer(placeOsmLayer); placeSatLayer.addTo(placeMapObj);
-      document.getElementById('placeLayerBtn').textContent = '🗺️ Haritaya Geç';
+      document.getElementById('placeLayerBtn').textContent = L('🗺️ Haritaya Geç');
     } else {
       placeMapObj.removeLayer(placeSatLayer); placeOsmLayer.addTo(placeMapObj);
-      document.getElementById('placeLayerBtn').textContent = '🛰️ Uyduya Geç';
+      document.getElementById('placeLayerBtn').textContent = L('🛰️ Uyduya Geç');
     }
   }
 
@@ -3287,7 +3785,7 @@
     const info = document.getElementById('placeMapInfo');
     if (placeDrawOn) {
       info.style.display = 'block';
-      info.textContent = '📐 Parsel çizimi açık — arsanın köşelerine sırayla tıkla (en az 3 nokta).';
+      info.textContent = L('📐 Parsel çizimi açık — arsanın köşelerine sırayla tıkla (en az 3 nokta).');
     }
   }
 
@@ -3500,6 +3998,7 @@
     box.innerHTML = list.length
       ? list.map(it => `<div style="position:relative; width:64px;" title="${it.name}"><img src="${it.dataUrl}" onclick="useCatalogItem('${it.id}')" style="width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid #D8D2C8; cursor:pointer; background:#fff;"><button onclick="deleteCatalogItem('${it.id}',event)" title="Sil" style="position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; border:none; background:#C2554D; color:#fff; font-size:11px; line-height:1; cursor:pointer;">×</button><div style="font-size:10px; color:#8A7E74; text-align:center; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${it.name}</div></div>`).join('')
       : '<span style="font-size:11px; color:#ABA49C;">Kataloğun boş — bir ürün yükleyip "Bu ürünü kataloğa ekle"ye bas, sonra tekrar tekrar kullan.</span>';
+    if (typeof applyI18n === 'function') applyI18n();   // boş durumu / yeni öğeleri çevir
   }
   renderCatalog();
 
@@ -4003,7 +4502,7 @@
 
   function panoErr(msg) {
     const errEl = document.getElementById('panoError');
-    errEl.textContent = msg ? 'Hata: ' + msg : '';
+    errEl.textContent = msg ? (RA_LANG === 'en' ? 'Error: ' : 'Hata: ') + L(msg) : '';
     errEl.style.display = msg ? 'block' : 'none';
   }
 
@@ -4607,7 +5106,7 @@
       items.forEach(r => {
         const isVideo = r.render_type === 'video' || (r.result_url || '').endsWith('.mp4');
         const date = r.created_at ? new Date(r.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
-        const label = WORKS_LABELS[r.render_type] || r.render_type || '';
+        const label = L(WORKS_LABELS[r.render_type] || r.render_type || '');
         const card = document.createElement('div');
         card.style.cssText = 'background:#FAFAF8; border:1px solid #E0DAD0; border-radius:14px; overflow:hidden; cursor:pointer; transition:transform 0.15s, box-shadow 0.15s;';
         card.onmouseenter = () => { card.style.transform = 'translateY(-2px)'; card.style.boxShadow = '0 6px 20px rgba(42,37,32,0.10)'; };
@@ -4676,7 +5175,7 @@
       document.getElementById('baAfter').src = document.getElementById('resultImg').src;
       document.getElementById('resultImg').style.display = 'none';
       w.style.display = 'block'; baSet(50);
-      document.getElementById('baBtn').textContent = '🖼 Sadece Sonuç';
+      document.getElementById('baBtn').textContent = L('🖼 Sadece Sonuç');
     } else {
       w.style.display = 'none';
       document.getElementById('resultImg').style.display = 'block';
@@ -5899,35 +6398,15 @@
 </script>
 
 <!-- ─── SAĞ-ALT YÜZEN DESTEK BUTONU ─────────────────────────────────────── -->
-<button onclick="openHelp()" title="Yardım & Destek"
+<button onclick="openHelp()" title="Yardım & Destek" data-i18n-title="support_title"
   style="position:fixed; right:22px; bottom:22px; z-index:1000; display:flex; align-items:center; gap:8px;
          padding:12px 18px; border:none; border-radius:30px; background:#9A6558; color:#FAFAF8;
          font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 6px 20px rgba(26,26,22,0.3);">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M9.1 9a3 3 0 1 1 5.8 1c0 2-3 2.5-3 4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
-  Destek
+  <span data-i18n="support_btn">Destek</span>
 </button>
 
-<!-- ─── DİL SEÇENEĞİ (Google Translate — tüm sayfayı çevirir) ─────────────── -->
-<style>
-  .goog-te-banner-frame, .skiptranslate iframe { display:none !important; }
-  body { top:0 !important; position:static !important; }
-  #gtranslate .goog-te-gadget { font-size:0; color:transparent; line-height:1; }
-  #gtranslate .goog-te-gadget .goog-te-combo {
-    font-size:12px; color:#2A2520; padding:6px 8px; border:1px solid #D8D2C8;
-    border-radius:10px; background:#fff; cursor:pointer; margin:0;
-  }
-</style>
-<script type="text/javascript">
-  function googleTranslateElementInit() {
-    new google.translate.TranslateElement({
-      pageLanguage: 'tr',
-      includedLanguages: 'tr,en,de,fr,es,it,ar,ru,nl,pt,az',
-      layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-      autoDisplay: false
-    }, 'gtranslate');
-  }
-</script>
-<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<!-- Dil seçeneği kendi i18n motorumuzla yürür (üstteki applyI18n / setLang). -->
 <!-- Şık modal (alert/confirm/prompt) -->
 <div id="uiModalBg" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(26,26,22,.45); align-items:center; justify-content:center; padding:20px; font-family:inherit;">
   <div style="background:#FAFAF8; border-radius:16px; box-shadow:0 24px 64px rgba(26,26,22,.35); max-width:400px; width:100%; padding:24px 24px 18px;">
