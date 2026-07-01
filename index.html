@@ -2408,10 +2408,13 @@
   }
 
   async function forgotPassword() {
-    const email = (document.getElementById('authEmailInput').value || '').trim();
+    let email = (document.getElementById('authEmailInput').value || '').trim();
     const errEl = document.getElementById('authError'), infoEl = document.getElementById('authInfo');
     errEl.style.display = 'none'; infoEl.style.display = 'none';
-    if (!email) { errEl.textContent = L('Önce e-posta adresini yaz.'); errEl.style.display = 'block'; return; }
+    if (!email) {
+      email = (prompt(L('Hesabının e-posta adresini yaz:')) || '').trim();
+      if (!email) return;
+    }
     try {
       await fetch(`${API}/auth/forgot-password`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -2963,7 +2966,7 @@
     "Henüz kredi hareketi yok.": "No credit activity yet.",
     "Kredi geçmişi yüklenemedi.": "Couldn't load credit history.",
     // ── Şifremi unuttum ──
-    "Önce e-posta adresini yaz.": "Enter your email address first.",
+    "Hesabının e-posta adresini yaz:": "Enter your account's email address:",
     "Bu e-posta kayıtlıysa, şifre sıfırlama linki gönderildi. Gelen kutunu (ve spam klasörünü) kontrol et.":
       "If this email is registered, a password reset link has been sent. Check your inbox (and spam folder)."
   };
