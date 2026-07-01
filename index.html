@@ -2332,7 +2332,9 @@
     document.getElementById('pricingModal').style.display = 'flex';
   }
 
-  function goCheckout(key) {
+  const PACK_KEYS = new Set(['pack_mini', 'pack_medium', 'pack_large']);
+
+  async function goCheckout(key) {
     const url = LS_CHECKOUT[key];
     if (!url) { uiAlert('Bu paket yakında aktif olacak.'); return; }
     const token = localStorage.getItem('ra_token');
@@ -2343,6 +2345,21 @@
       uiAlert('Satın almadan önce giriş yapmalısın.');
       openAuthModal('login');
       return;
+    }
+    if (PACK_KEYS.has(key)) {
+      // Ek kredi paketleri sadece aktif abonelere açık — satın almadan önce doğrula
+      try {
+        const r = await fetch(`${API}/me`, { headers: authHeaders() });
+        const d = await r.json();
+        const su = d.subscription_until ? new Date(d.subscription_until) : null;
+        if (!su || su <= new Date()) {
+          uiAlert('Ek kredi paketleri sadece aktif abonelere açıktır. Önce bir abonelik planı seçmelisin.');
+          return;
+        }
+      } catch (_) {
+        uiAlert('Abonelik durumun doğrulanamadı, birazdan tekrar dene.');
+        return;
+      }
     }
     const email = localStorage.getItem('ra_email') || '';
     const sep = url.includes('?') ? '&' : '?';
@@ -2965,6 +2982,10 @@
     "Kredi geçmişi yükleniyor…": "Loading credit history…",
     "Henüz kredi hareketi yok.": "No credit activity yet.",
     "Kredi geçmişi yüklenemedi.": "Couldn't load credit history.",
+    // ── Ek kredi paketi — abonelik zorunluluğu ──
+    "Ek kredi paketleri sadece aktif abonelere açıktır. Önce bir abonelik planı seçmelisin.":
+      "Extra credit packs are only available to active subscribers. Please choose a subscription plan first.",
+    "Abonelik durumun doğrulanamadı, birazdan tekrar dene.": "Couldn't verify your subscription status, please try again shortly.",
     // ── Şifremi unuttum ──
     "Hesabının e-posta adresini yaz:": "Enter your account's email address:",
     "Bu e-posta kayıtlıysa, şifre sıfırlama linki gönderildi. Gelen kutunu (ve spam klasörünü) kontrol et.":
