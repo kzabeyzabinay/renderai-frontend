@@ -743,7 +743,10 @@
     <input id="authEmailInput" type="email" data-i18n-ph="auth_email_ph" placeholder="E-posta" autocomplete="email"
       style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:10px; color:#2A2520;" />
     <input id="authPassInput" type="password" data-i18n-ph="auth_pass_ph" placeholder="Şifre (en az 6 karakter)" autocomplete="current-password"
-      style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:14px; color:#2A2520;" />
+      style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:6px; color:#2A2520;" />
+    <div id="authForgotRow" style="text-align:right; margin-bottom:12px;">
+      <a onclick="forgotPassword()" data-i18n="auth_forgot" style="font-size:12px; color:#9A6558; cursor:pointer;">Şifremi unuttum?</a>
+    </div>
     <div id="authError" style="display:none; font-size:12px; color:#B5483A; margin-bottom:12px;"></div>
     <div id="authInfo" style="display:none; font-size:12px; color:#7A8B6A; margin-bottom:12px;"></div>
     <label id="authConsentRow" style="display:none; gap:8px; align-items:flex-start; font-size:11px; color:#8A7E74; margin-bottom:12px; line-height:1.5; cursor:pointer;">
@@ -2401,6 +2404,22 @@
     document.getElementById('authTabSignup').style.color = isLogin ? '#8A7E74' : '#2A2520';
     document.getElementById('authConsentRow').style.display = isLogin ? 'none' : 'flex';
     document.getElementById('authConsentNote').style.display = isLogin ? 'block' : 'none';
+    document.getElementById('authForgotRow').style.display = isLogin ? 'block' : 'none';
+  }
+
+  async function forgotPassword() {
+    const email = (document.getElementById('authEmailInput').value || '').trim();
+    const errEl = document.getElementById('authError'), infoEl = document.getElementById('authInfo');
+    errEl.style.display = 'none'; infoEl.style.display = 'none';
+    if (!email) { errEl.textContent = L('Önce e-posta adresini yaz.'); errEl.style.display = 'block'; return; }
+    try {
+      await fetch(`${API}/auth/forgot-password`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+    } catch (_) { /* ağ hatası olsa da aynı mesajı göster — hesap sızıntısı olmasın */ }
+    infoEl.textContent = L('Bu e-posta kayıtlıysa, şifre sıfırlama linki gönderildi. Gelen kutunu (ve spam klasörünü) kontrol et.');
+    infoEl.style.display = 'block';
   }
 
   let _creditLogLoaded = false;
@@ -2593,6 +2612,7 @@
     // Giriş / kayıt modalı (statik kısımlar)
     auth_tab_login: "Log In", auth_tab_signup: "Sign Up",
     auth_email_ph: "Email", auth_pass_ph: "Password (at least 6 characters)",
+    auth_forgot: "Forgot password?",
     get auth_consent() {
       return 'I have read and accept the <a href="terms.html" target="_blank" style="color:#9A6558;">Terms of Service</a>, '
         + '<a href="privacy.html" target="_blank" style="color:#9A6558;">Privacy Policy</a>, '
@@ -2941,7 +2961,11 @@
     "İade": "Refund", "Diğer": "Other",
     "Kredi geçmişi yükleniyor…": "Loading credit history…",
     "Henüz kredi hareketi yok.": "No credit activity yet.",
-    "Kredi geçmişi yüklenemedi.": "Couldn't load credit history."
+    "Kredi geçmişi yüklenemedi.": "Couldn't load credit history.",
+    // ── Şifremi unuttum ──
+    "Önce e-posta adresini yaz.": "Enter your email address first.",
+    "Bu e-posta kayıtlıysa, şifre sıfırlama linki gönderildi. Gelen kutunu (ve spam klasörünü) kontrol et.":
+      "If this email is registered, a password reset link has been sent. Check your inbox (and spam folder)."
   };
 
   const _phOrig = new WeakMap();
