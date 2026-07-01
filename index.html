@@ -681,8 +681,15 @@
     </div>
     <div data-i18n="acc_email_label" style="font-size:12px; color:#8A7E74;">E-posta</div>
     <div id="accEmail" style="font-size:14px; color:#2A2520; font-weight:600; margin-bottom:8px;"></div>
-    <div id="accCredits" style="font-size:13px; color:#7A8B6A; margin-bottom:4px;"></div>
-    <div id="accSub" style="font-size:13px; color:#7A8B6A; margin-bottom:18px;"></div>
+    <div id="accCredits" style="font-size:13px; color:#7A8B6A; margin-bottom:2px;"></div>
+    <div id="accCreditsBreak" style="display:none; font-size:11px; color:#8A7E74; margin-bottom:4px;"></div>
+    <div id="accSub" style="font-size:13px; color:#7A8B6A; margin-bottom:6px;"></div>
+    <div style="margin-bottom:16px;">
+      <a onclick="goChangePlan()" data-i18n="acc_change_plan" style="font-size:12px; color:#9A6558; cursor:pointer;">Planı değiştir</a>
+      <span style="color:#D8D2C8;"> · </span>
+      <a onclick="toggleCreditLog()" data-i18n="acc_credit_history" style="font-size:12px; color:#9A6558; cursor:pointer;">Kredi geçmişi</a>
+      <div id="accCreditLog" style="display:none; max-height:150px; overflow-y:auto; background:#fff; border:1px solid #ECE7DE; border-radius:8px; padding:8px 10px; margin-top:8px; font-size:11px; color:#8A7E74;"></div>
+    </div>
     <div data-i18n="acc_changepw" style="font-size:13px; font-weight:700; color:#2A2520; margin-bottom:8px;">Şifre Değiştir</div>
     <input id="accPass1" type="password" data-i18n-ph="acc_pw1_ph" placeholder="Yeni şifre (en az 6 karakter)" autocomplete="new-password"
       style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:14px; margin-bottom:10px; color:#2A2520;" />
@@ -692,7 +699,7 @@
     <button onclick="changePassword()" style="width:100%; padding:13px; border:none; border-radius:10px; background:#9A6558; color:#FAFAF8; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;"><span data-i18n="acc_update_pw">Şifreyi Güncelle</span></button>
     <button onclick="authLogout()" style="width:100%; padding:11px; border:1px solid #D8D2C8; border-radius:10px; background:transparent; color:#8A7E74; font-size:13px; cursor:pointer;"><span data-i18n="acc_logout">Çıkış Yap</span></button>
     <div style="margin-top:16px; padding-top:14px; border-top:1px solid #ECE7DE; display:flex; flex-direction:column; gap:9px; align-items:center;">
-      <a onclick="manageSubscription()" data-i18n="acc_manage_sub" style="font-size:12px; color:#8A7E74; cursor:pointer; text-decoration:underline; text-underline-offset:2px;">Aboneliği yönet / iptal et</a>
+      <a onclick="manageSubscription()" data-i18n="acc_manage_sub" style="font-size:11px; color:#8A7E74; cursor:pointer;">Abonelik ayarları</a>
       <a onclick="deleteAccount()" data-i18n="acc_delete" style="font-size:11px; color:#B79B94; cursor:pointer;">Üyeliğimi sil</a>
     </div>
   </div>
@@ -2396,18 +2403,30 @@
     document.getElementById('authConsentNote').style.display = isLogin ? 'block' : 'none';
   }
 
+  let _creditLogLoaded = false;
   async function openAccount() {
     document.getElementById('accountModal').style.display = 'flex';
     document.getElementById('accEmail').textContent = localStorage.getItem('ra_email') || '';
     const m = document.getElementById('accMsg'); m.style.display = 'none';
     document.getElementById('accPass1').value = ''; document.getElementById('accPass2').value = '';
     document.getElementById('accCredits').textContent = 'Kredi: …';
+    document.getElementById('accCreditsBreak').style.display = 'none';
     document.getElementById('accSub').textContent = '';
+    _creditLogLoaded = false;
+    const logBox = document.getElementById('accCreditLog');
+    logBox.style.display = 'none'; logBox.innerHTML = '';
     try {
       const res = await fetch(`${API}/me`, { headers: authHeaders() });
       const d = await res.json();
       document.getElementById('accEmail').textContent = d.email || localStorage.getItem('ra_email') || '';
       document.getElementById('accCredits').textContent = 'Kredi: ' + (d.credits ?? '—');
+      const pack = Number(d.pack_credits || 0);
+      if (pack > 0 && d.credits != null) {
+        const subPart = Math.max(0, Number(d.credits) - pack);
+        const breakEl = document.getElementById('accCreditsBreak');
+        breakEl.textContent = L('Abonelik kredisi') + ': ' + subPart + ' · ' + L('Paket kredisi') + ': ' + pack;
+        breakEl.style.display = 'block';
+      }
       const su = d.subscription_until ? new Date(d.subscription_until) : null;
       const subEl = document.getElementById('accSub');
       if (su && su > new Date()) {
@@ -2419,6 +2438,51 @@
         subEl.style.color = '#8A7E74';
       }
     } catch (_) {}
+  }
+
+  function goChangePlan() {
+    document.getElementById('accountModal').style.display = 'none';
+    openPricingModal();
+  }
+
+  function _creditReasonLabel(r) {
+    r = String(r || '');
+    if (r === 'signup') return L('Kayıt hediyesi');
+    if (r === 'spend') return L('Kullanım');
+    if (r.indexOf('pack:') === 0) return L('Paket satın alma');
+    if (r === 'sub:subscription_created') return L('Abonelik başlangıcı');
+    if (r === 'sub:subscription_payment_success') return L('Abonelik yenileme');
+    if (r.indexOf('refund:') === 0) return L('İade');
+    return r || L('Diğer');
+  }
+
+  async function toggleCreditLog() {
+    const box = document.getElementById('accCreditLog');
+    const isOpen = box.style.display !== 'none';
+    if (isOpen) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    if (_creditLogLoaded) return;
+    box.textContent = L('Kredi geçmişi yükleniyor…');
+    try {
+      const r = await fetch(`${API}/me/credits/log`, { headers: authHeaders() });
+      const d = await r.json();
+      const entries = d.entries || [];
+      box.innerHTML = '';
+      if (!entries.length) { box.textContent = L('Henüz kredi hareketi yok.'); _creditLogLoaded = true; return; }
+      entries.forEach(e => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; justify-content:space-between; gap:8px; padding:4px 0; border-bottom:1px solid #F2EEE6;';
+        const dt = e.created_at ? new Date(e.created_at).toLocaleDateString(RA_LANG === 'en' ? 'en-US' : 'tr-TR') : '';
+        const sign = e.delta > 0 ? '+' : '';
+        const label = document.createElement('span'); label.textContent = _creditReasonLabel(e.reason);
+        const amt = document.createElement('span'); amt.textContent = sign + e.delta;
+        amt.style.cssText = 'font-weight:600; white-space:nowrap; color:' + (e.delta > 0 ? '#7A8B6A' : '#B5483A');
+        const date = document.createElement('span'); date.textContent = dt; date.style.cssText = 'color:#ABA49C; white-space:nowrap;';
+        row.append(label, amt, date);
+        box.appendChild(row);
+      });
+      _creditLogLoaded = true;
+    } catch (_) { box.textContent = L('Kredi geçmişi yüklenemedi.'); }
   }
   async function changePassword() {
     const p1 = document.getElementById('accPass1').value, p2 = document.getElementById('accPass2').value;
@@ -2512,7 +2576,8 @@
     acc_title: "My Account", acc_email_label: "Email", acc_changepw: "Change Password",
     acc_pw1_ph: "New password (at least 6 characters)", acc_pw2_ph: "New password (again)",
     acc_update_pw: "Update Password", acc_logout: "Log Out",
-    acc_manage_sub: "Manage / cancel subscription", acc_delete: "Delete my account",
+    acc_manage_sub: "Subscription settings", acc_delete: "Delete my account",
+    acc_change_plan: "Change plan", acc_credit_history: "Credit history",
 
     // Yardım modalı
     help_title: "Help / Contact",
@@ -2868,7 +2933,15 @@
     "Geliştirme uygulanıyor...<br><span style=\"font-size:12px;color:#ABA49C;\">AI görüntü işliyor</span>": "Applying enhancement...<br><span style=\"font-size:12px;color:#ABA49C;\">AI processing the image</span>",
     // ── Hesap silme onayı (kod 'SİL' VE 'DELETE' kabul eder) ──
     "Bu işlem geri alınamaz. Onaylamak için SİL yaz:": "This action cannot be undone. Type DELETE to confirm:",
-    "Üyeliğini KALICI olarak silmek üzeresin.\n\n• Tüm işlerin ve kalan kredilerin silinir, geri alınamaz.\n• Aktif aboneliğin varsa iptal edilir, kartın bir daha çekilmez.\n\nDevam etmek istiyor musun?": "You are about to PERMANENTLY delete your account.\n\n• All your work and remaining credits will be deleted, irreversibly.\n• If you have an active subscription it will be cancelled and your card won't be charged again.\n\nDo you want to continue?"
+    "Üyeliğini KALICI olarak silmek üzeresin.\n\n• Tüm işlerin ve kalan kredilerin silinir, geri alınamaz.\n• Aktif aboneliğin varsa iptal edilir, kartın bir daha çekilmez.\n\nDevam etmek istiyor musun?": "You are about to PERMANENTLY delete your account.\n\n• All your work and remaining credits will be deleted, irreversibly.\n• If you have an active subscription it will be cancelled and your card won't be charged again.\n\nDo you want to continue?",
+    // ── Hesabım: kredi dökümü + kredi geçmişi (dinamik, L() ile) ──
+    "Abonelik kredisi": "Subscription credits", "Paket kredisi": "Pack credits",
+    "Kayıt hediyesi": "Signup bonus", "Kullanım": "Usage", "Paket satın alma": "Pack purchase",
+    "Abonelik başlangıcı": "Subscription start", "Abonelik yenileme": "Subscription renewal",
+    "İade": "Refund", "Diğer": "Other",
+    "Kredi geçmişi yükleniyor…": "Loading credit history…",
+    "Henüz kredi hareketi yok.": "No credit activity yet.",
+    "Kredi geçmişi yüklenemedi.": "Couldn't load credit history."
   };
 
   const _phOrig = new WeakMap();
