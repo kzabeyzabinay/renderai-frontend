@@ -84,10 +84,11 @@
       (withHome ? `<a href="/">BynAi ile kendi karar linkini oluştur</a>` : '') + `</div>`;
   }
 
-  function zoom(url) {
-    document.getElementById('lightboxImg').src = url;
+  function zoom(urlEnc) {
+    document.getElementById('lightboxImg').src = decodeURIComponent(urlEnc);
     document.getElementById('lightbox').style.display = 'flex';
   }
+  function esc(s) { return String(s).replace(/[&<>"]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[m])); }
 
   async function load() {
     if (!decisionId) { msg('❓', 'Link bulunamadı', 'Bağlantı eksik veya hatalı.', true); return; }
@@ -107,16 +108,16 @@
     if (!opts.length) { msg('📭', 'Seçenek yok', 'Bu linke henüz varyasyon eklenmemiş.', true); return; }
     const sel = d.selected_label;
 
-    let html = `<div class="head"><h1>${d.title || 'Seçiminizi Yapın'}</h1>
+    let html = `<div class="head"><h1>${esc(d.title || 'Seçiminizi Yapın')}</h1>
       <p>Aşağıdaki seçeneklerden beğendiğinizi onaylayın. Seçiminiz mimarınıza iletilecektir.</p></div>`;
     html += `<div class="selected-banner" id="selBanner"></div>`;
     html += `<div class="grid">`;
     opts.forEach((o, i) => {
       const isChosen = sel && o.label === sel;
       html += `<div class="card ${isChosen ? 'chosen' : ''}" id="card-${i}">
-        <img src="${o.url}" onclick="zoom('${o.url}')" />
+        <img src="${esc(o.url)}" onclick="zoom('${encodeURIComponent(o.url)}')" />
         <div class="body">
-          <span class="lbl">${o.label || ('Seçenek ' + (i+1))}</span>
+          <span class="lbl">${esc(o.label || ('Seçenek ' + (i+1)))}</span>
           <span class="chosen-tag">✓ Seçiminiz</span>
           <button onclick="choose('${encodeURIComponent(o.label)}', ${i})">Bunu Seçiyorum</button>
         </div></div>`;
@@ -137,7 +138,6 @@
     renderComments(d.comments || []);
   }
 
-  function esc(s) { return String(s).replace(/[&<>"]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[m])); }
   function renderComments(list) {
     const box = document.getElementById('commentList'); if (!box) return;
     if (!list.length) { box.innerHTML = '<div style="color:#8A7E74; font-size:13px;">Henüz yorum yok. İlk görüşü siz bırakın.</div>'; return; }

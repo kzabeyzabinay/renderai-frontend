@@ -126,6 +126,7 @@
   const presId = new URLSearchParams(location.search).get('id');
   let images = [], panos = [], imgIdx = 0, panoViewer = null;
 
+  function esc(s) { return String(s).replace(/[&<>"]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[m])); }
   function showMsg(icon, title, text, withHome) {
     document.getElementById('msgBox').style.display = 'flex';
     document.querySelector('#msgBox .icon').textContent = icon;
@@ -255,7 +256,7 @@
       images.forEach((im, i) => {
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `<img src="${im.url}" loading="lazy" /><div class="lbl">${im.label || ('Görsel ' + (i + 1))}</div>`;
+        card.innerHTML = `<img src="${esc(im.url)}" loading="lazy" /><div class="lbl">${esc(im.label || ('Görsel ' + (i + 1)))}</div>`;
         card.onclick = () => openImg(i);
         gal.appendChild(card);
       });
