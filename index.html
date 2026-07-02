@@ -645,6 +645,7 @@
     <button class="main-nav-btn" id="nav-model3d" onclick="switchMainSection('model3d')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg><span data-i18n="nav_model3d">3D Model</span></button>
     <button class="main-nav-btn" id="nav-upscale" onclick="switchMainSection('upscale')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg><span data-i18n="nav_upscale">Büyüt</span></button>
     <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 3v5M12 16v5M3 12h5M16 12h5"/><path d="m6 6 3 3M15 15l3 3M18 6l-3 3M9 15l-3 3"/></svg><span data-i18n="nav_enhance">Geliştir</span></button>
+    <button class="main-nav-btn" id="nav-photo" onclick="switchMainSection('photo')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg><span data-i18n="nav_photo">Foto Stüdyo</span></button>
     <button class="main-nav-btn" id="nav-video" onclick="switchMainSection('video')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 6 3.5-6 3.5Z"/></svg><span data-i18n="nav_video">Video</span></button>
     <button class="main-nav-btn" id="nav-floorplan" onclick="switchMainSection('floorplan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 14h7V3M10 14v7M21 10h-5"/></svg><span data-i18n="nav_floorplan">Kat Planı</span></button>
     <button class="main-nav-btn" id="nav-place" onclick="switchMainSection('place')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg><span data-i18n="nav_place">Yerleştir</span></button>
@@ -1392,6 +1393,91 @@
       <div style="width:100%; text-align:center;">
         <img id="enhanceResultImg" class="result-img" style="display:none;" />
         <a id="enhanceDownloadBtn" class="download-btn" download="enhanced.png" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> İndir</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 📷 Foto Stüdyo Bölümü -->
+<div id="section-photo" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+
+    <!-- Sol: Yükle + Mod Seçim -->
+    <div>
+      <div class="panel">
+        <h2>FOTOĞRAF YÜKLE</h2>
+        <div class="upload-zone" id="photoUploadZone">
+          <input type="file" id="photoFileInput" accept="image/*" />
+          <div class="upload-icon" id="photoIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg></div>
+          <p class="upload-text">Telefonla çektiğin fotoğrafı seç veya sürükle</p>
+          <p class="upload-sub">Oda, villa, dış cephe, sokak veya ürün — satışa koyacağın her fotoğraf</p>
+          <img id="photoPreview" class="preview-img" />
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>ÇEKİM MODU</h2>
+        <p style="font-size:12px; color:#8A7E74; margin-bottom:16px; line-height:1.6;">Fotoğraftaki objeler birebir korunur — sadece ışık, kompozisyon ve fotoğraf kalitesi profesyonelleşir</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+
+          <div class="enhance-card active" id="pcard-keep" onclick="setPhotoMode('keep')">
+            <div style="font-size:28px; margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg></div>
+            <div style="font-size:13px; font-weight:600; color:#2A2520;">Gerçek Arka Plan</div>
+            <div style="font-size:10px; color:#8A7E74; margin-top:4px; line-height:1.4;">Mekan aynı kalır — profesyonel fotoğrafçı çekmiş gibi görünür (oda, cephe, sokak, ürün)</div>
+          </div>
+
+          <div class="enhance-card" id="pcard-bg" onclick="setPhotoMode('bg')">
+            <div style="font-size:28px; margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+            <div style="font-size:13px; font-weight:600; color:#2A2520;">Arka Planı Değiştir</div>
+            <div style="font-size:10px; color:#8A7E74; margin-top:4px; line-height:1.4;">Ürün fotoğrafları için — obje stüdyoya veya doğal sahneye taşınır</div>
+          </div>
+
+        </div>
+
+        <div id="photoBgBox" style="display:none; margin-bottom:20px;">
+          <div class="mini-label" style="margin-bottom:8px;">Arka Plan Seç</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="enhance-card active" id="pbg-studio_white" onclick="setPhotoBg('studio_white')">
+              <div style="font-size:13px; font-weight:600; color:#2A2520;">Beyaz Stüdyo</div>
+              <div style="font-size:10px; color:#8A7E74; margin-top:4px; line-height:1.4;">Kesintisiz beyaz fon · yumuşak gölge</div>
+            </div>
+            <div class="enhance-card" id="pbg-studio_gray" onclick="setPhotoBg('studio_gray')">
+              <div style="font-size:13px; font-weight:600; color:#2A2520;">Gri Stüdyo</div>
+              <div style="font-size:10px; color:#8A7E74; margin-top:4px; line-height:1.4;">Degrade gri fon · ürün odaklı</div>
+            </div>
+            <div class="enhance-card" id="pbg-wood" onclick="setPhotoBg('wood')">
+              <div style="font-size:13px; font-weight:600; color:#2A2520;">Ahşap Yüzey</div>
+              <div style="font-size:10px; color:#8A7E74; margin-top:4px; line-height:1.4;">Ahşap zemin · sıcak bulanık fon</div>
+            </div>
+            <div class="enhance-card" id="pbg-lifestyle" onclick="setPhotoBg('lifestyle')">
+              <div style="font-size:13px; font-weight:600; color:#2A2520;">Doğal Sahne</div>
+              <div style="font-size:10px; color:#8A7E74; margin-top:4px; line-height:1.4;">Ürüne uygun gerçekçi ortam</div>
+            </div>
+          </div>
+        </div>
+
+        <p style="font-size:11px; color:#8A7E74; margin-bottom:16px; line-height:1.5;">🔒 Fotoğraftaki objeler değiştirilmez — alıcı ne görüyorsa onu alır.</p>
+
+        <button class="render-btn" id="photoBtn" onclick="startPhoto()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg> Profesyonelleştir <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
+        <div class="error-msg" id="photoError"></div>
+      </div>
+    </div>
+
+    <!-- Sağ: Sonuç -->
+    <div class="panel result-panel" id="photoResultPanel">
+      <div class="result-placeholder" id="photoPlaceholder">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg></div>
+        <p>Profesyonel fotoğraf burada görünecek</p>
+      </div>
+      <div class="loading" id="photoLoading" style="display:none;">
+        <div class="spinner"></div>
+        <p>Fotoğraf profesyonelleştiriliyor...<br><span style="font-size:12px; color:#ABA49C;">AI işliyor</span></p>
+      </div>
+      <div style="width:100%; text-align:center;">
+        <img id="photoResultImg" class="result-img" style="display:none;" />
+        <a id="photoDownloadBtn" class="download-btn" download="foto-studyo.png" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> İndir</a>
       </div>
     </div>
 
@@ -2258,6 +2344,7 @@
         <option value="exterior">Dış Cephe</option>
         <option value="upscale">Büyüt</option>
         <option value="enhance">Geliştir</option>
+        <option value="photo">Foto Stüdyo</option>
         <option value="video">Video</option>
         <option value="floorplan">Kat Planı</option>
         <option value="place">Yerleştirme</option>
@@ -2581,7 +2668,7 @@
   const I18N_EN = {
     // Header / navigasyon
     nav_render: "Render", nav_staging: "Virtual Staging", nav_model3d: "3D Model",
-    nav_upscale: "Upscale", nav_enhance: "Enhance", nav_video: "Video",
+    nav_upscale: "Upscale", nav_enhance: "Enhance", nav_photo: "Photo Studio", nav_video: "Video",
     nav_floorplan: "Floor Plan", nav_place: "Place", nav_pano: "360° Tour",
     nav_decision: "Decision Link", nav_works: "My Works", nav_egitim: "Tutorial",
     nav_pafta: "Board / Presentation",
@@ -2790,6 +2877,27 @@
     "Sıva / Boya": "Plaster / Paint", "Kompozit": "Composite", "Beton": "Concrete", "Seramik": "Ceramic", "Taş": "Stone", "Uygula": "Apply",
     "Geliştirilmiş görsel burada görünecek": "The enhanced image will appear here",
     "Geliştirme uygulanıyor...": "Applying enhancement...", "AI işliyor": "AI is working",
+    // ── Foto Stüdyo ──
+    "Foto Stüdyo": "Photo Studio", "📷 Foto Stüdyo": "📷 Photo Studio",
+    "FOTOĞRAF YÜKLE": "UPLOAD PHOTO",
+    "Telefonla çektiğin fotoğrafı seç veya sürükle": "Select or drag the photo you took with your phone",
+    "Oda, villa, dış cephe, sokak veya ürün — satışa koyacağın her fotoğraf": "A room, villa, exterior, street or product — any photo you want to list for sale",
+    "ÇEKİM MODU": "SHOOTING MODE",
+    "Fotoğraftaki objeler birebir korunur — sadece ışık, kompozisyon ve fotoğraf kalitesi profesyonelleşir": "The objects in your photo are preserved exactly — only lighting, composition and photo quality become professional",
+    "Gerçek Arka Plan": "Real Background",
+    "Mekan aynı kalır — profesyonel fotoğrafçı çekmiş gibi görünür (oda, cephe, sokak, ürün)": "The space stays the same — it just looks professionally shot (room, facade, street, product)",
+    "Arka Planı Değiştir": "Change Background",
+    "Ürün fotoğrafları için — obje stüdyoya veya doğal sahneye taşınır": "For product photos — the item is moved to a studio or natural scene",
+    "Arka Plan Seç": "Choose Background",
+    "Beyaz Stüdyo": "White Studio", "Kesintisiz beyaz fon · yumuşak gölge": "Seamless white backdrop · soft shadow",
+    "Gri Stüdyo": "Gray Studio", "Degrade gri fon · ürün odaklı": "Gradient gray backdrop · product focused",
+    "Ahşap Yüzey": "Wooden Surface", "Ahşap zemin · sıcak bulanık fon": "Wooden surface · warm blurred background",
+    "Doğal Sahne": "Natural Scene", "Ürüne uygun gerçekçi ortam": "A realistic setting that suits the item",
+    "🔒 Fotoğraftaki objeler değiştirilmez — alıcı ne görüyorsa onu alır.": "🔒 The objects in the photo are never altered — buyers get exactly what they see.",
+    "Profesyonelleştir": "Make It Pro",
+    "Profesyonel fotoğraf burada görünecek": "The professional photo will appear here",
+    "Fotoğraf profesyonelleştiriliyor...": "Making your photo professional...",
+    "Fotoğraf işlemi başarısız": "Photo processing failed",
     // ── Sanal Mobilyalama ──
     "Boş dairenin oda fotoğrafını seçin veya sürükleyin": "Select or drag a photo of the empty room",
     "Boş ya da yarı boş oda — mimari korunur, mobilya eklenir": "Empty or semi-empty room — architecture preserved, furniture added",
@@ -3770,6 +3878,7 @@
     document.getElementById('section-model3d').style.display   = section === 'model3d'   ? 'block' : 'none';
     document.getElementById('section-upscale').style.display   = section === 'upscale'   ? 'block' : 'none';
     document.getElementById('section-enhance').style.display   = section === 'enhance'   ? 'block' : 'none';
+    document.getElementById('section-photo').style.display     = section === 'photo'     ? 'block' : 'none';
     document.getElementById('section-video').style.display     = section === 'video'     ? 'block' : 'none';
     document.getElementById('section-floorplan').style.display = section === 'floorplan' ? 'block' : 'none';
     document.getElementById('section-place').style.display     = section === 'place'     ? 'block' : 'none';
@@ -3777,7 +3886,7 @@
     document.getElementById('section-decision').style.display  = section === 'decision' ? 'block' : 'none';
     document.getElementById('section-works').style.display     = section === 'works'     ? 'block' : 'none';
     document.getElementById('section-egitim').style.display    = section === 'egitim'    ? 'block' : 'none';
-    ['render','staging','model3d','upscale','enhance','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
+    ['render','staging','model3d','upscale','enhance','photo','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
     if (section === 'works') {
@@ -5145,7 +5254,7 @@
 
   const WORKS_LABELS = {
     gpt: '🏢 Render', exterior: '🏗️ Dış Cephe', upscale: '🔍 Büyüt',
-    enhance: '✨ Geliştir', video: '🎬 Video', floorplan: '📐 Kat Planı',
+    enhance: '✨ Geliştir', photo: '📷 Foto Stüdyo', video: '🎬 Video', floorplan: '📐 Kat Planı',
     place: '🧩 Yerleştirme', pano: '🌐 360 Panorama'
   };
 
@@ -5867,6 +5976,116 @@
       document.getElementById('enhancePlaceholder').style.display = 'block';
       document.getElementById('enhanceError').textContent = 'Hata: ' + err.message;
       document.getElementById('enhanceError').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ─── 📷 FOTO STÜDYO ──────────────────────────────────────────────────────
+  let photoFile = null;
+  let photoMode = 'keep';            // keep = gerçek arka plan · bg = arka plan değiştir
+  let photoBgStyle = 'studio_white';
+
+  function setPhotoMode(mode) {
+    photoMode = mode;
+    document.getElementById('pcard-keep').classList.toggle('active', mode === 'keep');
+    document.getElementById('pcard-bg').classList.toggle('active', mode === 'bg');
+    document.getElementById('photoBgBox').style.display = (mode === 'bg') ? 'block' : 'none';
+  }
+
+  function setPhotoBg(style) {
+    photoBgStyle = style;
+    ['studio_white','studio_gray','wood','lifestyle'].forEach(s =>
+      document.getElementById('pbg-' + s).classList.toggle('active', s === style));
+  }
+
+  document.getElementById('photoFileInput').addEventListener('change', e => {
+    photoFile = e.target.files[0];
+    if (!photoFile) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const preview = document.getElementById('photoPreview');
+      preview.src = ev.target.result;
+      preview.style.display = 'block';
+      document.querySelector('#photoUploadZone').style.padding = '12px';
+      document.getElementById('photoIcon').style.display = 'none';
+    };
+    reader.readAsDataURL(photoFile);
+  });
+
+  const photoZone = document.getElementById('photoUploadZone');
+  photoZone.addEventListener('dragover', e => { e.preventDefault(); photoZone.classList.add('drag-over'); });
+  photoZone.addEventListener('dragleave', () => photoZone.classList.remove('drag-over'));
+  photoZone.addEventListener('drop', e => {
+    e.preventDefault();
+    photoZone.classList.remove('drag-over');
+    photoFile = e.dataTransfer.files[0];
+    document.getElementById('photoFileInput').files = e.dataTransfer.files;
+    document.getElementById('photoFileInput').dispatchEvent(new Event('change'));
+  });
+
+  async function startPhoto() {
+    if (!photoFile) {
+      document.getElementById('photoError').textContent = L('Lütfen önce bir görsel yükleyin.');
+      document.getElementById('photoError').style.display = 'block';
+      return;
+    }
+
+    const btn = document.getElementById('photoBtn');
+    btn.disabled = true;
+    document.getElementById('photoPlaceholder').style.display = 'none';
+    document.getElementById('photoLoading').style.display = 'block';
+    document.getElementById('photoResultImg').style.display = 'none';
+    document.getElementById('photoDownloadBtn').style.display = 'none';
+    document.getElementById('photoError').style.display = 'none';
+
+    const formData = new FormData();
+    const photoToSend = await resizeIfNeeded(photoFile);
+    formData.append('image', photoToSend);
+    formData.append('mode', photoMode);
+    if (photoMode === 'bg') formData.append('bg_style', photoBgStyle);
+
+    try {
+      const startRes = await fetch(`${API}/photo/start`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || L('Başlatılamadı'));
+      refreshCredits();
+
+      const jobId = startData.prediction_id;
+      let elapsed = 0;
+
+      while (true) {
+        await new Promise(r => setTimeout(r, 4000));
+        elapsed += 4;
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+
+        if (statusData.stage_label) {
+          document.querySelector('#photoLoading p').innerHTML =
+            `${statusData.stage_label}<br><span style="font-size:12px;color:#ABA49C;">${elapsed}sn geçti</span>`;
+        }
+
+        if (statusData.status === 'succeeded') {
+          const img = document.getElementById('photoResultImg');
+          img.src = statusData.render_url;
+          img.style.display = 'block';
+          img.onload = () => {
+            document.getElementById('photoLoading').style.display = 'none';
+            const dl = document.getElementById('photoDownloadBtn');
+            dl.href = statusData.render_url;
+            dl.style.display = 'inline-block';
+          };
+          break;
+        } else if (statusData.status === 'failed') {
+          throw new Error(statusData.error || L('Fotoğraf işlemi başarısız'));
+        }
+        if (elapsed > 300) throw new Error(L('5 dakika aşıldı, lütfen tekrar deneyin'));
+      }
+    } catch (err) {
+      document.getElementById('photoLoading').style.display = 'none';
+      document.getElementById('photoPlaceholder').style.display = 'block';
+      document.getElementById('photoError').textContent = 'Hata: ' + err.message;
+      document.getElementById('photoError').style.display = 'block';
     } finally {
       btn.disabled = false;
     }
