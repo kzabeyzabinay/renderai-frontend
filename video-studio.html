@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BynAi — Video Stüdyo</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,700;1,600&family=Montserrat:wght@600;700&family=Oswald:wght@500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Lora:wght@500;600&family=Bebas+Neue&family=Dancing+Script:wght@600&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,700;1,600&family=Montserrat:wght@600;700;800&family=Poppins:wght@500;600;700&family=Oswald:wght@500;600;700&family=Anton&family=Archivo+Black&family=Bebas+Neue&family=Kanit:wght@600;700&family=Teko:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Abril+Fatface&family=Lora:wght@500;600;700&family=Merriweather:wght@700;900&family=Pacifico&family=Dancing+Script:wght@600;700&family=Caveat:wght@600;700&family=Righteous&family=Fredoka:wght@500;600&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #E8E4DC; --panel: #FAFAF8; --header: #1A1A16;
@@ -102,6 +102,10 @@
   .auchip.sel { border-color:#1A1A16; }
   .tlempty { font-size:11px; color:var(--muted); align-self:center; padding-left:8px; }
   #playhead { position:absolute; top:0; bottom:0; width:2px; background:var(--acc); pointer-events:none; z-index:5; }
+  .trmark { position:absolute; top:50%; transform:translate(-50%,-50%); width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer; z-index:6; border:2px solid var(--panel); box-shadow:0 1px 4px rgba(0,0,0,.25); }
+  .trmark.cut { background:var(--panel); color:var(--muted); border-color:var(--line); }
+  .trmark.on  { background:var(--acc); color:#fff; }
+  .trmark:hover { transform:translate(-50%,-50%) scale(1.18); }
 
   .modalBg { display:none; position:fixed; inset:0; z-index:900; background:rgba(26,26,22,.55); align-items:center; justify-content:center; padding:20px; }
   .modal { background:var(--panel); border-radius:16px; padding:24px; width:min(460px,94vw); box-shadow:0 24px 64px rgba(0,0,0,.4); }
@@ -308,7 +312,11 @@ const TR2EN = {
   'Ters çevirme önizlemede düz oynar; dışa aktarmada ters çevrilir. Uzun kliplerde (8sn+) bellek yetmeyebilir — önce bölmeyi dene.':
     'Reverse plays forward in preview; it is reversed on export. Long clips (8s+) may run out of memory — try splitting first.',
   'Proje': 'Project', 'Kenar dolgusu': 'Edge fill', 'Siyah': 'Black', 'Bulanık': 'Blur',
-  'Zaman Çizelgesi': 'Timeline'
+  'Zaman Çizelgesi': 'Timeline',
+  'Video sesi': 'Video audio', 'Aç': 'On', 'Kapat': 'Off',
+  '🎵 Sesi ayrı katmana ayıkla': '🎵 Extract audio to layer',
+  'Ses ayrı katmana ayıklandı.': 'Audio extracted to a separate layer.',
+  'Geçiş ekle / değiştir': 'Add / change transition'
 };
 function L(s) { return (RA_LANG === 'en' && TR2EN[s]) ? TR2EN[s] : s; }
 function applyI18n() {
@@ -337,6 +345,7 @@ let audios = [];  // {id,name,url,file,start,volume,fade,dur,_el}
 let selected = null;
 let aspect = '16:9';
 const project = { bgBlur: false };
+let openTransPicker = null;   // timeline geçiş işaretine tıklanınca ilgili klip id'si
 let uid = 1;
 const nid = () => 'e' + (uid++);
 
@@ -345,6 +354,7 @@ function newClip(o) {
     id: nid(), type: 'image', name: '', url: '', file: null,
     srcDur: 3, in: 0, out: 3, imgDur: 3,
     speed: 1, reverse: false, rot: 0, flipH: false, flipV: false,
+    keepAudio: true, clipVol: 1,   // video: orijinal sesi kullan + düzeyi
     fx: { bri: 1, con: 1, sat: 1, preset: 'none', vig: false },
     kb: 'none',
     tr: { type: 'cut', dur: 0.5 },
@@ -539,19 +549,20 @@ function renderTimeline() {
   const inW = tlVirtualW - 8;  // şerit iç genişliği (padding 4+4)
 
   const strip = document.getElementById('clipStrip');
-  strip.querySelectorAll('.clip,.tlempty').forEach(n => n.remove());
+  strip.querySelectorAll('.clip,.tlempty,.trmark').forEach(n => n.remove());
   if (!clips.length) {
     const d = document.createElement('div'); d.className = 'tlempty';
     d.textContent = L('Önce zaman çizelgesine klip ekle.'); strip.appendChild(d);
   }
+  let cx = 4; // padding-left (birikimli x — geçiş işaretleri için)
   clips.forEach((c, i) => {
+    const w = Math.max(24, tot ? (clipDur(c) / tot) * inW - 4 : 58);
     const el = document.createElement('div'); el.className = 'clip';
-    el.style.width = Math.max(24, tot ? (clipDur(c) / tot) * inW - 4 : 58) + 'px';
+    el.style.width = w + 'px';
     el.style.height = clipH + 'px';
     if (selected && selected.kind === 'clip' && selected.id === c.id) el.classList.add('sel');
     if (c.thumb) { const im = document.createElement('img'); im.src = c.thumb; el.appendChild(im); }
     const dl = document.createElement('span'); dl.className = 'cdur'; dl.textContent = clipDur(c).toFixed(1) + 's'; el.appendChild(dl);
-    if (c.tr.type !== 'cut' && i < clips.length - 1) { const tr = document.createElement('span'); tr.className = 'ctr'; tr.textContent = trLabel(c.tr.type); el.appendChild(tr); }
     const badges = [];
     if (c.speed !== 1) badges.push(c.speed + 'x');
     if (c.reverse) badges.push('⇤');
@@ -569,6 +580,18 @@ function renderTimeline() {
       const [m] = clips.splice(from, 1); clips.splice(i, 0, m); renderAll();
     };
     strip.appendChild(el);
+    cx += w;
+    // Klipler arası geçiş işareti (CapCut gibi tıklanabilir)
+    if (i < clips.length - 1) {
+      const mk = document.createElement('div');
+      mk.className = 'trmark ' + (c.tr.type === 'cut' ? 'cut' : 'on');
+      mk.style.left = (cx + 2) + 'px';
+      mk.textContent = c.tr.type === 'cut' ? '+' : '⇄';
+      mk.title = c.tr.type === 'cut' ? L('Geçiş ekle / değiştir') : trLabel(c.tr.type);
+      mk.onclick = ev => { ev.stopPropagation(); selected = { kind: 'clip', id: c.id }; openTransPicker = c.id; renderAll(); };
+      strip.appendChild(mk);
+    }
+    cx += 4; // gap
   });
 
   const ts = document.getElementById('textStrip');
@@ -625,7 +648,7 @@ function updatePlayhead() {
 /* ═══ ÖZELLİK PANELİ ═══ */
 function el(html) { const d = document.createElement('div'); d.innerHTML = html; return d.firstElementChild; }
 const FX_PRESETS = [['none','Normal'],['bw','S/B'],['sepia','Sepya'],['warm','Sıcak'],['cool','Soğuk'],['cinema','Sinematik'],['vivid','Canlı'],['vintage','Nostalji']];
-const FONTS = ['Inter','Montserrat','Oswald','Playfair Display','Lora','Bebas Neue','Dancing Script','Roboto Mono'];
+const FONTS = ['Inter','Montserrat','Poppins','Oswald','Anton','Archivo Black','Bebas Neue','Kanit','Teko','Playfair Display','Abril Fatface','Lora','Merriweather','Pacifico','Dancing Script','Caveat','Righteous','Fredoka','Roboto Mono'];
 const SPEEDS = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
 
 function chipRow(pairs, cur, cb, small) {
@@ -696,6 +719,26 @@ function renderProps() {
     add(spw);
 
     if (c.type === 'video') {
+      // Video sesi (kapat / kullan + düzey) + ayrı katmana ayıkla
+      const av = el(`<div class="prow"><span class="plabel">${L('Video sesi')}</span></div>`);
+      av.appendChild(chipRow([[1,'Aç'],[0,'Kapat']], c.keepAudio ? 1 : 0, v => { c.keepAudio = !!+v; renderAll(); }, true));
+      add(av);
+      if (c.keepAudio) {
+        const avv = el(`<div class="prow"><label class="plabel">${L('Ses düzeyi')} — ${Math.round(c.clipVol*100)}%</label><input type="range" class="prange" min="0" max="1" step="0.05" value="${c.clipVol}"></div>`);
+        avv.querySelector('input').oninput = e => { c.clipVol = parseFloat(e.target.value); avv.querySelector('.plabel').textContent = `${L('Ses düzeyi')} — ${Math.round(c.clipVol*100)}%`; };
+        add(avv);
+      }
+      const ax = el(`<button class="pact">${L('🎵 Sesi ayrı katmana ayıkla')}</button>`);
+      ax.onclick = () => {
+        audios.push({ id: nid(), name: (c.name || 'video') + ' — ' + L('Ses'), url: c.url, file: c.file || null,
+                      start: clipStarts()[clips.indexOf(c)] || 0, volume: 1, fade: false, dur: clipDur(c),
+                      srcIn: c.in, srcSpeed: c.speed });
+        c.keepAudio = false;
+        selected = { kind: 'audio', id: audios[audios.length - 1].id };
+        toast(L('Ses ayrı katmana ayıklandı.'));
+        renderAll();
+      };
+      add(ax);
       const rvw = toggleRow('Ters çevir', c.reverse, v => { c.reverse = v; renderAll(); });
       add(rvw);
       if (c.reverse) add(el(`<div class="prow"><div class="phint">⚠ ${L('Ters çevirme önizlemede düz oynar; dışa aktarmada ters çevrilir. Uzun kliplerde (8sn+) bellek yetmeyebilir — önce bölmeyi dene.')}</div></div>`));
@@ -727,7 +770,8 @@ function renderProps() {
 
     // Geçiş
     if (i < clips.length - 1) {
-      add(el(`<div class="psec">${L('Sonraki klibe geçiş')}</div>`));
+      const sec = el(`<div class="psec">${L('Sonraki klibe geçiş')}</div>`);
+      add(sec);
       const trw = el(`<div class="prow"></div>`);
       trw.appendChild(chipRow(TRANSITIONS, c.tr.type, v => { c.tr.type = v; renderAll(); }, true));
       add(trw);
@@ -735,6 +779,11 @@ function renderProps() {
         const td = el(`<div class="prow"><label class="plabel">${L('Geçiş süresi (sn)')}</label><input type="number" class="pin" min="0.2" max="2" step="0.1" value="${c.tr.dur}"></div>`);
         td.querySelector('input').onchange = e => { c.tr.dur = Math.min(2, Math.max(0.2, parseFloat(e.target.value) || 0.5)); renderAll(); };
         add(td);
+      }
+      // timeline geçiş işaretinden gelindiyse bölümü göze getir
+      if (openTransPicker === c.id) {
+        openTransPicker = null;
+        setTimeout(() => { try { sec.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) {} sec.style.outline = '2px solid var(--acc)'; sec.style.borderRadius = '6px'; setTimeout(() => sec.style.outline = '', 1200); }, 30);
       }
     }
 
@@ -1071,6 +1120,8 @@ function syncMedia() {
   if (sc && sc.c.type === 'video') {
     const v = getVideoEl(sc.c);
     v.playbackRate = Math.min(4, Math.max(0.25, sc.c.speed));
+    v.muted = !sc.c.keepAudio;                 // "video sesini kapat"
+    v.volume = Math.max(0, Math.min(1, sc.c.clipVol));
     const want = sc.c.in + sc.local * sc.c.speed;
     if (Math.abs(v.currentTime - want) > 0.35) { try { v.currentTime = Math.min(want, sc.c.srcDur - 0.05); } catch (e) {} }
     if (playing && v.paused) v.play().catch(() => {});
@@ -1086,8 +1137,10 @@ function syncMedia() {
     m.volume = a.volume;
     const local = playT - a.start;
     const inRange = local >= 0 && local < a.dur;
+    const srcT = (a.srcIn || 0) + local * (a.srcSpeed || 1); // ayıklanmış seste kaynak ofseti
     if (playing && inRange) {
-      if (Math.abs(m.currentTime - local) > 0.4) { try { m.currentTime = local; } catch (e) {} }
+      m.playbackRate = a.srcSpeed || 1;
+      if (Math.abs(m.currentTime - srcT) > 0.4) { try { m.currentTime = srcT; } catch (e) {} }
       if (m.paused) m.play().catch(() => {});
     } else if (!m.paused) m.pause();
   });
@@ -1166,6 +1219,15 @@ function exportDims() {
     '4:5':  [res === 1080 ? 1080 : 720, res === 1080 ? 1350 : 900],
   };
   return m[aspect];
+}
+
+/* Ses hızı: atempo tek örnekte 0.5-2 arası → zincirle (0.25 ve 4 için) */
+function atempoChain(speed) {
+  let s = speed, parts = [];
+  while (s < 0.5) { parts.push('atempo=0.5'); s /= 0.5; }
+  while (s > 2)   { parts.push('atempo=2.0'); s /= 2; }
+  parts.push('atempo=' + s.toFixed(3));
+  return parts.join(',');
 }
 
 /* ffmpeg efekt zinciri (canvas fxFilterCss ile eşleşir) */
@@ -1337,9 +1399,18 @@ async function startExport() {
     }
     for (const n of segNames) { try { await ff.deleteFile(n); } catch (e) {} }
 
-    /* 3) Yazılar (animasyonlu PNG overlay) + ses katmanları */
+    /* 3) Yazılar (animasyonlu PNG overlay) + ses (katmanlar + orijinal sesi açık video klipleri) */
     const overlays = await textOverlayPng(W, H);
-    const hasTx = overlays.length > 0, hasAu = audios.length > 0;
+    // Tüm ses kaynakları: açık ses katmanları + keepAudio video klipleri
+    const cstarts = clipStarts();
+    const allAudio = [
+      ...audios,
+      ...clips.map((c, i) => (c.type === 'video' && c.keepAudio)
+        ? { name: c.name, file: c.file, url: c.url, start: cstarts[i] || 0,
+            volume: c.clipVol, fade: false, dur: clipDur(c), srcIn: c.in, srcSpeed: c.speed }
+        : null).filter(Boolean)
+    ];
+    const hasTx = overlays.length > 0, hasAu = allAudio.length > 0;
     let outName = mergedName;
     if (hasTx || hasAu) {
       expLog(L('Yazılar ve sesler ekleniyor…'));
@@ -1350,9 +1421,9 @@ async function startExport() {
         const d = Math.max(0.2, overlays[k].t.end - overlays[k].t.start);
         args.push('-loop', '1', '-t', d.toFixed(2), '-i', pn);
       }
-      for (let k = 0; k < audios.length; k++) {
-        const a = audios[k];
-        const ext = (a.name.match(/\.\w+$/) || ['.mp3'])[0];
+      for (let k = 0; k < allAudio.length; k++) {
+        const a = allAudio[k];
+        const ext = ((a.name || '').match(/\.\w+$/) || ['.mp3'])[0];
         const an = `au${k}${ext}`;
         await ff.writeFile(an, await FFmpegUtil.fetchFile(a.file || a.url));
         args.push('-i', an);
@@ -1377,9 +1448,16 @@ async function startExport() {
       });
       if (hasAu) {
         const aLbls = [];
-        audios.forEach((a, k) => {
+        allAudio.forEach((a, k) => {
           const idx = 1 + overlays.length + k;
-          let ch = `[${idx}:a]volume=${a.volume.toFixed(2)}`;
+          let ch = `[${idx}:a]`;
+          const sIn = a.srcIn || 0, sp = a.srcSpeed || 1;
+          if (sIn > 0.01 || sp !== 1) {
+            const srcEnd = sIn + a.dur * sp;
+            ch += `atrim=${sIn.toFixed(2)}:${srcEnd.toFixed(2)},asetpts=PTS-STARTPTS,`;
+            if (sp !== 1) ch += atempoChain(sp) + ',';
+          }
+          ch += `volume=${(a.volume != null ? a.volume : 1).toFixed(2)}`;
           const trackEnd = Math.min(a.dur, Math.max(0.5, tot - a.start));
           if (a.fade && trackEnd > 2.5) ch += `,afade=t=out:st=${(trackEnd - 2).toFixed(2)}:d=2`;
           ch += `,atrim=0:${trackEnd.toFixed(2)}`;
