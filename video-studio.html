@@ -148,10 +148,6 @@
   <!-- SOL: Medya -->
   <div class="col">
     <h3 data-i18n="vs_media">Medya</h3>
-    <div class="mtabs">
-      <button class="mtab on" id="mtabWorks" onclick="setMediaTab('works')" data-i18n="vs_works">İşlerim</button>
-      <button class="mtab" id="mtabLocal" onclick="setMediaTab('local')" data-i18n="vs_device">Cihazımdan</button>
-    </div>
     <div class="upzone" id="upZone">
       <input type="file" id="mediaInput" accept="video/*,image/*,audio/*" multiple />
       <span data-i18n="vs_upload_hint"><b>Video / görsel / müzik</b> seç ya da sürükle</span>
@@ -279,6 +275,7 @@ const TR2EN = {
   'İşlerim boş — önce Render/Video sekmesinde üretim yap ya da cihazından dosya yükle.':
     'My Works is empty — generate renders/videos first, or upload files from your device.',
   'Henüz medya yok': 'No media yet', 'Yeni Yazı': 'New Text',
+  'Henüz medya yok — yukarıdan video, görsel veya müzik yükle.': 'No media yet — upload video, image or music above.',
   'Klip': 'Clip', 'Görsel': 'Image', 'Yazı': 'Text', 'Ses': 'Audio',
   'Süre (sn)': 'Duration (s)', 'Başlangıç kırpma (sn)': 'Trim start (s)', 'Bitiş kırpma (sn)': 'Trim end (s)',
   'Sonraki klibe geçiş': 'Transition to next clip', 'Geçiş süresi (sn)': 'Transition duration (s)',
@@ -384,49 +381,16 @@ function totalDur() {
   return st[clips.length - 1] + clipDur(clips[clips.length - 1]);
 }
 
-/* ═══ MEDYA PANELİ ═══ */
-let mediaTab = 'works';
-let worksItems = null;
+/* ═══ MEDYA PANELİ (sadece cihazdan yükleme) ═══ */
 let localItems = [];
-
-function setMediaTab(t) {
-  mediaTab = t;
-  document.getElementById('mtabWorks').classList.toggle('on', t === 'works');
-  document.getElementById('mtabLocal').classList.toggle('on', t === 'local');
-  renderMediaList();
-  if (t === 'works' && worksItems === null) loadWorksMedia();
-}
-
-async function loadWorksMedia() {
-  worksItems = [];
-  try {
-    const r = await fetch(`${API}/renders`, { headers: authHeaders() });
-    if (!r.ok) throw new Error('http ' + r.status);
-    const arr = await r.json();
-    (Array.isArray(arr) ? arr : (arr.renders || [])).forEach(x => {
-      const url = x.result_url || x.url; if (!url) return;
-      const rt = (x.render_type || '').toLowerCase();
-      if (rt === 'model3d' || rt === 'tour') return;
-      const isVid = rt === 'video' || /\.mp4($|\?)/i.test(url);
-      const isImg = /^data:image/.test(url) || /\.(png|jpe?g|webp)($|\?)/i.test(url) || (!isVid && rt !== '');
-      if (!isVid && !isImg) return;
-      worksItems.push({ id: nid(), kind: isVid ? 'video' : 'image', name: x.style || rt || 'render', url, thumb: isVid ? null : url });
-    });
-  } catch (e) {
-    toast(L('İşlerim yüklenemedi (giriş gerekli olabilir).'));
-  }
-  renderMediaList();
-}
 
 function renderMediaList() {
   const box = document.getElementById('mediaList');
-  const items = mediaTab === 'works' ? (worksItems || []) : localItems;
+  const items = localItems;
   box.innerHTML = '';
   if (!items.length) {
     const d = document.createElement('div'); d.className = 'mempty';
-    d.textContent = mediaTab === 'works'
-      ? L('İşlerim boş — önce Render/Video sekmesinde üretim yap ya da cihazından dosya yükle.')
-      : L('Henüz medya yok');
+    d.textContent = L('Henüz medya yok — yukarıdan video, görsel veya müzik yükle.');
     box.appendChild(d); return;
   }
   items.forEach(it => {
@@ -465,7 +429,7 @@ function addLocalFile(f) {
   if (!kind) { toast(L('Bu dosya türü desteklenmiyor.')); return; }
   const it = { id: nid(), kind, name: f.name, url, file: f, thumb: kind === 'image' ? url : null };
   localItems.unshift(it);
-  setMediaTab('local');
+  renderMediaList();
   if (kind === 'audio') addMediaToProject(it);
 }
 
@@ -1474,7 +1438,7 @@ function closeExport() { document.getElementById('expModal').style.display = 'no
 function renderAll() { renderTimeline(); renderProps(); updateTimeLbl(); drawFrame(); }
 
 window.addEventListener('resize', renderTimeline);
-setMediaTab('works');
+renderMediaList();
 renderAll();
 applyI18n();
 // İlk boyama layout'tan önce olursa (clientWidth 0) bir kez daha ölç
