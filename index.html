@@ -2849,7 +2849,7 @@
     "Render sonucu burada görünecek": "The render result will appear here",
     "Render oluşturuluyor...": "Generating render...",
     "İlk istekte sunucu uyanıyor, 60-90 saniye sürebilir": "On the first request the server wakes up; it may take 60-90 seconds",
-    "ÖNCE": "BEFORE", "SONRA": "AFTER", "İndir": "Download", "↔ Önce/Sonra": "↔ Before/After",
+    "ÖNCE": "BEFORE", "SONRA": "AFTER", "İndir": "Download", "İndiriliyor...": "Downloading...", "↔ Önce/Sonra": "↔ Before/After",
     "Bu render'ı düzenle": "Edit this render",
     "Yazdığın değişiklik uygulanır, sahnenin geri kalanı (açı, mobilya, ışık) birebir korunur.": "The change you write is applied; the rest of the scene (angle, furniture, lighting) is preserved exactly.",
     "Geliştir": "Enhance",
@@ -3440,6 +3440,13 @@
     if (e.target.classList.contains('chip')) {
       toggleChip(e.target);
     }
+  });
+
+  // Dosya seçici açılmadan önce değeri temizle — aynı dosya ikinci kez
+  // seçildiğinde tarayıcı 'change' olayını tetiklemiyor, bu yüzden
+  // "dosya seçimi çalışmıyor" görünüyordu (sürükleme ayrı yoldan çalışıyor).
+  document.addEventListener('click', e => {
+    if (e.target instanceof HTMLInputElement && e.target.type === 'file') e.target.value = '';
   });
 
   // Mobil hamburger menü
@@ -5448,8 +5455,38 @@
     inner.innerHTML = isVideo
       ? `<video src="${url}" controls autoplay loop style="max-width:100%; max-height:80vh; border-radius:12px;"></video>`
       : `<img src="${url}" style="max-width:100%; max-height:80vh; border-radius:12px;" />`;
-    inner.innerHTML += `<div style="margin-top:14px;"><a href="${url}" download target="_blank" onclick="event.stopPropagation()" style="display:inline-block; padding:10px 24px; background:#9A6558; color:#FAFAF8; border-radius:10px; font-size:13px; font-weight:600; text-decoration:none;">⬇ İndir</a></div>`;
+    // Cross-origin (Supabase) link'te tarayıcı download attribute'ünü yok sayar →
+    // blob ile zorla indir (3D model GLB indirme düzeltmesiyle aynı yöntem)
+    const dlWrap = document.createElement('div');
+    dlWrap.style.marginTop = '14px';
+    const dlBtn = document.createElement('a');
+    dlBtn.href = '#';
+    dlBtn.style.cssText = 'display:inline-block; padding:10px 24px; background:#9A6558; color:#FAFAF8; border-radius:10px; font-size:13px; font-weight:600; text-decoration:none;';
+    dlBtn.textContent = '⬇ ' + L('İndir');
+    dlBtn.onclick = ev => { ev.stopPropagation(); ev.preventDefault(); worksDownload(url, isVideo, dlBtn); };
+    dlWrap.appendChild(dlBtn);
+    inner.appendChild(dlWrap);
     box.style.display = 'flex';
+  }
+
+  async function worksDownload(url, isVideo, btn) {
+    const orig = btn ? btn.textContent : '';
+    try {
+      if (btn) btn.textContent = '⏳ ' + L('İndiriliyor...');
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('fetch ' + r.status);
+      const blob = await r.blob();
+      const u = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = u;
+      a.download = isVideo ? 'bynai-video.mp4' : 'bynai-render.png';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(u), 4000);
+    } catch (e) {
+      window.open(url, '_blank'); // CORS vb. engellerse en azından yeni sekmede aç
+    } finally {
+      if (btn) btn.textContent = orig;
+    }
   }
 
   // ─── BÜYÜT & GELİŞTİR ────────────────────────────────────────────────────
