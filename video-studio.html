@@ -74,10 +74,21 @@
   .addtx { margin:0 14px 10px; padding:9px; border:1px dashed var(--acc); color:var(--acc); background:transparent; border-radius:9px; font-size:12.5px; font-weight:600; cursor:pointer; }
   .addtx:hover { background:rgba(154,101,88,.06); }
 
-  .vs-tl { flex-shrink:0; background:var(--panel); border-top:1px solid var(--line); padding:10px 14px 12px; }
-  .tl-row { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
-  .tl-tag { width:26px; height:26px; border-radius:7px; background:var(--bg); color:var(--muted); font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .tl-strip { flex:1; min-height:54px; background:var(--bg); border-radius:9px; display:flex; gap:4px; padding:4px; overflow-x:auto; position:relative; }
+  .vs-tl { flex-shrink:0; background:var(--panel); border-top:1px solid var(--line); padding:8px 14px 12px; }
+  .tl-toolbar { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+  .tl-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); }
+  .tl-sp { flex:1; }
+  .tl-btn { min-width:26px; height:24px; padding:0 6px; border-radius:7px; border:1px solid var(--line); background:#fff; color:var(--text); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .tl-btn:hover { border-color:var(--acc); color:var(--acc); }
+  .tl-zlbl { font-size:11px; font-weight:600; color:var(--muted); min-width:40px; text-align:center; font-variant-numeric:tabular-nums; }
+  .tl-div { width:1px; height:18px; background:var(--line); margin:0 4px; }
+  .tl-body { display:flex; gap:8px; }
+  .tl-labels { display:flex; flex-direction:column; gap:7px; flex-shrink:0; }
+  .tl-tag { width:26px; height:26px; border-radius:7px; background:var(--bg); color:var(--muted); font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .tl-scroll { flex:1; overflow-x:auto; overflow-y:hidden; }
+  .tl-tracks { position:relative; min-width:100%; }
+  .tl-strip { width:100%; box-sizing:border-box; min-height:54px; background:var(--bg); border-radius:9px; display:flex; gap:4px; padding:4px; position:relative; margin-bottom:7px; }
+  .tl-strip.mu { margin-bottom:0; }
   .tl-strip.tx, .tl-strip.mu { min-height:26px; }
   .clip { height:46px; border-radius:7px; overflow:hidden; position:relative; cursor:pointer; border:2px solid transparent; flex-shrink:0; background:#1A1A16; display:flex; }
   .clip img { height:100%; width:100%; object-fit:cover; opacity:.85; pointer-events:none; }
@@ -170,17 +181,31 @@
 
 <!-- ALT: Zaman çizelgesi -->
 <div class="vs-tl">
-  <div class="tl-row">
-    <div class="tl-tag" title="Video/Görsel">V</div>
-    <div class="tl-strip" id="clipStrip"><div id="playhead" style="left:0"></div></div>
+  <div class="tl-toolbar">
+    <span class="tl-title" data-i18n="vs_timeline">Zaman Çizelgesi</span>
+    <span class="tl-sp"></span>
+    <button class="tl-btn" onclick="tlHeightBy(-1)" title="Şeridi incelt">▁</button>
+    <button class="tl-btn" onclick="tlHeightBy(1)" title="Şeridi kalınlaştır">▇</button>
+    <span class="tl-div"></span>
+    <button class="tl-btn" onclick="tlZoomBy(1/1.4)" title="Uzaklaştır">−</button>
+    <span class="tl-zlbl" id="tlZoomLbl">100%</span>
+    <button class="tl-btn" onclick="tlZoomBy(1.4)" title="Yakınlaştır">+</button>
+    <button class="tl-btn" onclick="tlFit()" title="Ekrana sığdır">⤢</button>
   </div>
-  <div class="tl-row">
-    <div class="tl-tag" title="Yazı">T</div>
-    <div class="tl-strip tx" id="textStrip"></div>
-  </div>
-  <div class="tl-row" style="margin-bottom:0;">
-    <div class="tl-tag" title="Ses">M</div>
-    <div class="tl-strip mu" id="audioStrip"></div>
+  <div class="tl-body">
+    <div class="tl-labels">
+      <div class="tl-tag" id="tagV" title="Video/Görsel">V</div>
+      <div class="tl-tag" id="tagT" title="Yazı">T</div>
+      <div class="tl-tag" id="tagM" title="Ses">M</div>
+    </div>
+    <div class="tl-scroll" id="tlScroll">
+      <div class="tl-tracks" id="tlTracks">
+        <div id="playhead" style="left:0"></div>
+        <div class="tl-strip" id="clipStrip"></div>
+        <div class="tl-strip tx" id="textStrip"></div>
+        <div class="tl-strip mu" id="audioStrip"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -285,7 +310,8 @@ const TR2EN = {
   'Anlatım': 'Voice-over',
   'Ters çevirme önizlemede düz oynar; dışa aktarmada ters çevrilir. Uzun kliplerde (8sn+) bellek yetmeyebilir — önce bölmeyi dene.':
     'Reverse plays forward in preview; it is reversed on export. Long clips (8s+) may run out of memory — try splitting first.',
-  'Proje': 'Project', 'Kenar dolgusu': 'Edge fill', 'Siyah': 'Black', 'Bulanık': 'Blur'
+  'Proje': 'Project', 'Kenar dolgusu': 'Edge fill', 'Siyah': 'Black', 'Bulanık': 'Blur',
+  'Zaman Çizelgesi': 'Timeline'
 };
 function L(s) { return (RA_LANG === 'en' && TR2EN[s]) ? TR2EN[s] : s; }
 function applyI18n() {
@@ -521,18 +547,43 @@ const TRANSITIONS = [
 ];
 const trLabel = t => { const f = TRANSITIONS.find(x => x[0] === t); return f ? L(f[1]) : t; };
 
+/* ── Timeline zoom (yatay) + yükseklik (dikey) ── */
+let tlZoom = 1;       // 1 = ekrana sığdır, 8 = maks yakınlaştırma
+let clipH = 46;       // klip şerit yüksekliği (px), 30..110
+let tlVirtualW = 200; // renderTimeline'ın hesapladığı sanal genişlik (playhead ile paylaşılır)
+
+function tlZoomBy(f) { tlZoom = Math.max(1, Math.min(8, tlZoom * f)); renderTimeline(); }
+function tlFit() { tlZoom = 1; document.getElementById('tlScroll').scrollLeft = 0; renderTimeline(); }
+function tlHeightBy(d) { clipH = Math.max(30, Math.min(110, clipH + d * 16)); renderTimeline(); }
+function applyTlSize() {
+  const strip = document.getElementById('clipStrip');
+  if (strip) strip.style.minHeight = (clipH + 8) + 'px';
+  const tagV = document.getElementById('tagV');
+  if (tagV) tagV.style.height = (clipH + 8) + 'px';
+  const zl = document.getElementById('tlZoomLbl');
+  if (zl) zl.textContent = Math.round(tlZoom * 100) + '%';
+}
+
 function renderTimeline() {
+  applyTlSize();
+  const tot = totalDur();
+  const scroll = document.getElementById('tlScroll');
+  const tracks = document.getElementById('tlTracks');
+  const baseW = Math.max(200, scroll.clientWidth);
+  tlVirtualW = baseW * tlZoom;
+  tracks.style.width = tlVirtualW + 'px';
+  const inW = tlVirtualW - 8;  // şerit iç genişliği (padding 4+4)
+
   const strip = document.getElementById('clipStrip');
   strip.querySelectorAll('.clip,.tlempty').forEach(n => n.remove());
-  const tot = totalDur();
   if (!clips.length) {
     const d = document.createElement('div'); d.className = 'tlempty';
     d.textContent = L('Önce zaman çizelgesine klip ekle.'); strip.appendChild(d);
   }
-  const stripW = Math.max(200, strip.clientWidth - 10);
   clips.forEach((c, i) => {
     const el = document.createElement('div'); el.className = 'clip';
-    el.style.width = Math.max(58, tot ? (clipDur(c) / tot) * stripW - 4 : 58) + 'px';
+    el.style.width = Math.max(24, tot ? (clipDur(c) / tot) * inW - 4 : 58) + 'px';
+    el.style.height = clipH + 'px';
     if (selected && selected.kind === 'clip' && selected.id === c.id) el.classList.add('sel');
     if (c.thumb) { const im = document.createElement('img'); im.src = c.thumb; el.appendChild(im); }
     const dl = document.createElement('span'); dl.className = 'cdur'; dl.textContent = clipDur(c).toFixed(1) + 's'; el.appendChild(dl);
@@ -561,10 +612,10 @@ function renderTimeline() {
   texts.forEach(t => {
     const ch = document.createElement('div'); ch.className = 'txchip';
     if (selected && selected.kind === 'text' && selected.id === t.id) ch.classList.add('sel');
-    const tw = Math.max(200, ts.clientWidth - 10);
-    ch.style.left = (tot ? (t.start / tot) * tw : 0) + 4 + 'px';
+    ch.style.left = (tot ? (t.start / tot) * inW : 0) + 4 + 'px';
     ch.style.minWidth = '40px';
-    ch.style.width = (tot ? Math.max(40, ((t.end - t.start) / tot) * tw) : 60) + 'px';
+    ch.style.maxWidth = 'none';
+    ch.style.width = (tot ? Math.max(24, ((t.end - t.start) / tot) * inW) : 60) + 'px';
     ch.textContent = t.content || '…';
     ch.onclick = ev => { ev.stopPropagation(); selected = { kind: 'text', id: t.id }; renderAll(); };
     ts.appendChild(ch);
@@ -575,9 +626,9 @@ function renderTimeline() {
   audios.forEach(a => {
     const ch = document.createElement('div'); ch.className = 'auchip';
     if (selected && selected.kind === 'audio' && selected.id === a.id) ch.classList.add('sel');
-    const aw = Math.max(200, as.clientWidth - 10);
-    ch.style.left = (tot ? (a.start / tot) * aw : 0) + 4 + 'px';
-    ch.style.width = (tot ? Math.max(50, (Math.min(a.dur, Math.max(0.5, tot - a.start)) / tot) * aw) : 80) + 'px';
+    ch.style.left = (tot ? (a.start / tot) * inW : 0) + 4 + 'px';
+    ch.style.maxWidth = 'none';
+    ch.style.width = (tot ? Math.max(40, (Math.min(a.dur, Math.max(0.5, tot - a.start)) / tot) * inW) : 80) + 'px';
     ch.textContent = '♪ ' + a.name;
     ch.onclick = ev => { ev.stopPropagation(); selected = { kind: 'audio', id: a.id }; renderAll(); };
     as.appendChild(ch);
@@ -585,21 +636,26 @@ function renderTimeline() {
   updatePlayhead();
 }
 
-/* Şerit boşluğuna tıkla → o ana atla */
-document.getElementById('clipStrip').addEventListener('click', e => {
-  if (e.target.id !== 'clipStrip') return;
-  const r = e.currentTarget.getBoundingClientRect();
-  const frac = (e.clientX - r.left - 4) / Math.max(1, r.width - 10);
+/* Şerit boşluğuna tıkla → o ana atla (klip/yazı/ses stopPropagation yapar) */
+document.getElementById('tlTracks').addEventListener('click', e => {
+  const r = document.getElementById('tlTracks').getBoundingClientRect();
+  const frac = (e.clientX - r.left - 4) / Math.max(1, r.width - 8);
   playT = Math.max(0, Math.min(1, frac)) * totalDur();
   syncScrub(); drawFrame(); syncMedia();
 });
 
 function updatePlayhead() {
-  const strip = document.getElementById('clipStrip');
   const ph = document.getElementById('playhead');
   const tot = totalDur();
-  const w = Math.max(200, strip.clientWidth - 10);
-  ph.style.left = (tot ? Math.min(1, playT / tot) * w : 0) + 4 + 'px';
+  const inW = tlVirtualW - 8;
+  const x = (tot ? Math.min(1, playT / tot) * inW : 0) + 4;
+  ph.style.left = x + 'px';
+  // yakınlaştırılmışken oynatma sırasında playhead'i görünür tut
+  if (playing && tlZoom > 1) {
+    const sc = document.getElementById('tlScroll');
+    if (x < sc.scrollLeft + 20 || x > sc.scrollLeft + sc.clientWidth - 20)
+      sc.scrollLeft = Math.max(0, x - sc.clientWidth / 2);
+  }
 }
 
 /* ═══ ÖZELLİK PANELİ ═══ */
@@ -1421,6 +1477,9 @@ window.addEventListener('resize', renderTimeline);
 setMediaTab('works');
 renderAll();
 applyI18n();
+// İlk boyama layout'tan önce olursa (clientWidth 0) bir kez daha ölç
+requestAnimationFrame(() => renderTimeline());
+window.addEventListener('load', () => renderTimeline());
 </script>
 </body>
 </html>
