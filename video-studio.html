@@ -156,6 +156,7 @@
       <input type="file" id="mediaInput" accept="video/*,image/*,audio/*" multiple />
       <span data-i18n="vs_upload_hint"><b>Video / görsel / müzik</b> seç ya da sürükle</span>
     </div>
+    <button class="micbtn" id="musicLibBtn" onclick="openMusicLib()" style="border-color:var(--acc); color:var(--acc);">🎵 <span data-i18n="vs_music_lib">Telifsiz Müzik Kütüphanesi</span></button>
     <button class="micbtn" id="micBtn" onclick="toggleMic()">🎙 <span data-i18n="vs_mic">Sesli Anlatım Kaydet</span></button>
     <div class="mlist" id="mediaList"></div>
   </div>
@@ -220,6 +221,18 @@
       <button class="pchip" id="expCancel" onclick="cancelExport()" data-i18n="vs_cancel">İptal</button>
       <a class="pchip on" id="expDl" style="display:none; text-decoration:none;" data-i18n="vs_download">⬇ İndir</a>
       <button class="pchip" id="expClose" style="display:none;" onclick="closeExport()" data-i18n="vs_close">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Telifsiz Müzik Kütüphanesi modalı -->
+<div class="modalBg" id="musicModal">
+  <div class="modal" style="width:min(440px,94vw);">
+    <h3 data-i18n="vs_music_title">🎵 Telifsiz Müzik</h3>
+    <p class="phint" data-i18n="vs_music_note" style="margin-bottom:12px;">Bu parçalar BynAi için özel üretildi — tamamen telifsiz, ticari kullanımda sorun yok. Dinle, beğendiğini zaman çizelgesine ekle.</p>
+    <div id="musicList" style="display:flex; flex-direction:column; gap:8px; max-height:56vh; overflow-y:auto;"></div>
+    <div style="text-align:right; margin-top:14px;">
+      <button class="pchip" onclick="closeMusicLib()" data-i18n="vs_close">Kapat</button>
     </div>
   </div>
 </div>
@@ -316,7 +329,15 @@ const TR2EN = {
   'Video sesi': 'Video audio', 'Aç': 'On', 'Kapat': 'Off',
   '🎵 Sesi ayrı katmana ayıkla': '🎵 Extract audio to layer',
   'Ses ayrı katmana ayıklandı.': 'Audio extracted to a separate layer.',
-  'Geçiş ekle / değiştir': 'Add / change transition'
+  'Geçiş ekle / değiştir': 'Add / change transition',
+  'Telifsiz Müzik Kütüphanesi': 'Royalty-Free Music Library',
+  '🎵 Telifsiz Müzik': '🎵 Royalty-Free Music', 'Ekle': 'Add', 'Müzik eklendi: ': 'Music added: ',
+  'Bu parçalar BynAi için özel üretildi — tamamen telifsiz, ticari kullanımda sorun yok. Dinle, beğendiğini zaman çizelgesine ekle.':
+    'These tracks were made for BynAi — fully royalty-free, safe for commercial use. Preview and add the one you like to the timeline.',
+  'Yumuşak ambient — sunum, konut': 'Soft ambient — presentation, residential',
+  'Ferah, ilerleyen — ofis, ticari': 'Bright, uplifting — office, commercial',
+  'Sakin, sıcak — sosyal medya': 'Calm, warm — social media',
+  'Atmosferik, duygusal — tanıtım': 'Atmospheric, emotional — promo'
 };
 function L(s) { return (RA_LANG === 'en' && TR2EN[s]) ? TR2EN[s] : s; }
 function applyI18n() {
@@ -510,6 +531,49 @@ async function toggleMic() {
   } catch (e) {
     toast(L('Mikrofon erişimi reddedildi.'));
   }
+}
+
+/* ── Telifsiz müzik kütüphanesi (BynAi için üretilmiş, /music/ altında) ── */
+const MUSIC_LIB = [
+  { file: 'music/sakin.wav',     label: 'Sakin',     mood: 'Yumuşak ambient — sunum, konut' },
+  { file: 'music/kurumsal.wav',  label: 'Kurumsal',  mood: 'Ferah, ilerleyen — ofis, ticari' },
+  { file: 'music/lofi.wav',      label: 'Lo-Fi',     mood: 'Sakin, sıcak — sosyal medya' },
+  { file: 'music/sinematik.wav', label: 'Sinematik', mood: 'Atmosferik, duygusal — tanıtım' },
+];
+let musicPreviewEl = null;
+function openMusicLib() { document.getElementById('musicModal').style.display = 'flex'; renderMusicList(); }
+function closeMusicLib() { if (musicPreviewEl) { musicPreviewEl.pause(); musicPreviewEl = null; } document.getElementById('musicModal').style.display = 'none'; }
+function renderMusicList() {
+  const box = document.getElementById('musicList'); box.innerHTML = '';
+  MUSIC_LIB.forEach(m => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:10px; padding:9px 11px; background:#fff;';
+    row.innerHTML = `<button class="pchip" data-play style="width:34px;">▶</button>
+      <div style="flex:1; min-width:0;"><div style="font-weight:700; font-size:13px;">${m.label}</div><div class="phint" style="font-size:11px;">${L(m.mood)}</div></div>
+      <button class="pchip on" data-add>${L('Ekle')}</button>`;
+    const playBtn = row.querySelector('[data-play]');
+    playBtn.onclick = () => {
+      if (musicPreviewEl && musicPreviewEl._src === m.file) { musicPreviewEl.pause(); musicPreviewEl = null; renderMusicList(); return; }
+      if (musicPreviewEl) musicPreviewEl.pause();
+      musicPreviewEl = new Audio(m.file); musicPreviewEl._src = m.file; musicPreviewEl.volume = 0.85;
+      musicPreviewEl.play().catch(() => {});
+      musicPreviewEl.onended = () => { musicPreviewEl = null; renderMusicList(); };
+      playBtn.textContent = '⏸';
+    };
+    if (musicPreviewEl && musicPreviewEl._src === m.file) playBtn.textContent = '⏸';
+    row.querySelector('[data-add]').onclick = () => addMusicTrack(m);
+    box.appendChild(row);
+  });
+}
+function addMusicTrack(m) {
+  const a = { id: nid(), name: m.label, url: m.file, file: null,
+              start: Math.min(playT, Math.max(0, totalDur())), volume: 0.7, fade: audios.length === 0, dur: 20, _el: null };
+  const probe = new Audio(m.file);
+  probe.onloadedmetadata = () => { a.dur = probe.duration || 20; renderAll(); };
+  audios.push(a);
+  selected = { kind: 'audio', id: a.id };
+  toast(L('Müzik eklendi: ') + m.label);
+  closeMusicLib(); renderAll();
 }
 
 /* ═══ ZAMAN ÇİZELGESİ ═══ */
