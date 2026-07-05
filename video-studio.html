@@ -349,9 +349,9 @@ function applyI18n() {
   });
 }
 
-if (!localStorage.getItem('ra_token')) {
-  document.getElementById('authGate').style.display = 'flex';
-}
+// Video editörü %100 tarayıcıda çalışır (backend'e hiç bağlanmaz, bize maliyeti yok)
+// → giriş şartı YOK, herkes kullanabilir. İleride paylaşım linki eklenirse SADECE
+// o özellik giriş+aktif abonelik ister (madde 8.B kuralı).
 
 function toast(m) {
   const t = document.getElementById('toast');
