@@ -148,6 +148,8 @@
     <span data-i18n="vs_bg">Zemin</span>
     <input type="color" id="bgColorInput" value="#000000" onchange="project.bgColor=this.value; drawFrame();" style="width:24px; height:20px; border:none; background:none; padding:0; cursor:pointer;" />
   </label>
+  <span id="saveStatus" style="font-size:11px; color:#9A9284; min-width:70px; text-align:right;"></span>
+  <button class="hbtn" onclick="newProject()" title="Kaydı temizle, sıfırdan başla">🆕 <span data-i18n="vs_new">Yeni</span></button>
   <a class="hbtn" href="/" data-i18n="vs_back">← Siteye Dön</a>
   <button class="hbtn primary" onclick="startExport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> <span data-i18n="vs_export">MP4 Dışa Aktar</span></button>
 </header>
@@ -368,7 +370,10 @@ const TR2EN = {
   'Bindirme (logo/görsel)': 'Overlay (logo/image)',
   'Dolgu: Renk': 'Fill: Color', 'Dolgu: Bulanık': 'Fill: Blur', 'Zemin': 'BG',
   '🔄 Medyayı Değiştir': '🔄 Replace media', 'Medya değiştirildi.': 'Media replaced.',
-  'Bindirme, yazı ve ses ekleniyor…': 'Adding overlays, text & audio…'
+  'Bindirme, yazı ve ses ekleniyor…': 'Adding overlays, text & audio…',
+  'Yeni': 'New', 'Kaydedildi': 'Saved', 'Yeni proje': 'New project',
+  'Bu projeyi silip sıfırdan başlansın mı? Bu geri alınamaz.': 'Delete this project and start over? This cannot be undone.',
+  'Önceki projen geri yüklendi': 'Your previous project was restored'
 };
 function L(s) { return (RA_LANG === 'en' && TR2EN[s]) ? TR2EN[s] : s; }
 function applyI18n() {
@@ -1333,11 +1338,23 @@ function drawFrame() {
   drawTextsOn(ctx, cv.width, cv.height, playT, true);
 }
 
+/* Bindirme medya elemanını tembel oluştur (restore sonrası _el null olur) */
+function getOverlayEl(o) {
+  if (!o._el && o.url) {
+    if (o.type === 'video') {
+      const v = document.createElement('video'); v.crossOrigin = 'anonymous'; v.muted = true; v.playsInline = true; v.loop = true; v.src = o.url;
+      v.onloadedmetadata = () => { o.srcDur = v.duration || o.srcDur; };
+      o._el = v;
+    } else { const im = new Image(); im.crossOrigin = 'anonymous'; im.src = o.url; o._el = im; }
+  }
+  return o._el;
+}
+
 /* Bindirmeler (logo/görsel/video) — ana görüntünün üstünde, konum+ölçek+zaman */
 function drawOverlaysOn(c2d, W, H, T) {
   overlays.forEach(o => {
     if (T < o.start || T > o.end) return;
-    const media = o._el;
+    const media = getOverlayEl(o);
     if (!media) return;
     let mw = o.type === 'image' ? media.naturalWidth : media.videoWidth;
     let mh = o.type === 'image' ? media.naturalHeight : media.videoHeight;
@@ -1791,8 +1808,111 @@ function cancelExport() {
 }
 function closeExport() { document.getElementById('expModal').style.display = 'none'; }
 
+/* ═══ OTOMATİK KAYDETME (IndexedDB — medya blobları + proje yapısı) ═══
+   Dosyalar blob URL olduğu için sayfa kapanınca URL'ler ölür; blob'ları
+   IndexedDB'de saklarız, açılışta geri yükleyip yeni URL üretiriz. */
+let _db = null, _loading = false, _saveT = null;
+function idb() {
+  return new Promise((res, rej) => {
+    if (_db) return res(_db);
+    const r = indexedDB.open('bynai_video_studio', 1);
+    r.onupgradeneeded = () => { const d = r.result;
+      if (!d.objectStoreNames.contains('media')) d.createObjectStore('media');
+      if (!d.objectStoreNames.contains('project')) d.createObjectStore('project'); };
+    r.onsuccess = () => { _db = r.result; res(_db); };
+    r.onerror = () => rej(r.error);
+  });
+}
+function idbPut(store, key, val) { return idb().then(d => new Promise((res, rej) => {
+  const t = d.transaction(store, 'readwrite'); t.objectStore(store).put(val, key);
+  t.oncomplete = () => res(); t.onerror = () => rej(t.error); })); }
+function idbGet(store, key) { return idb().then(d => new Promise((res, rej) => {
+  const t = d.transaction(store, 'readonly'); const rq = t.objectStore(store).get(key);
+  rq.onsuccess = () => res(rq.result); rq.onerror = () => rej(rq.error); })); }
+function idbClear(store) { return idb().then(d => new Promise((res, rej) => {
+  const t = d.transaction(store, 'readwrite'); t.objectStore(store).clear();
+  t.oncomplete = () => res(); t.onerror = () => rej(t.error); })); }
+
+async function serializeItem(it) {
+  const o = Object.assign({}, it); delete o._el;
+  if (it.file) {
+    if (!it._fid) { it._fid = 'f' + (uid++); await idbPut('media', it._fid, it.file); }
+    o.fileId = it._fid; delete o.file; delete o.url; // url açılışta yeniden üretilir
+  }
+  return o;
+}
+async function serializeState() {
+  return {
+    clips: await Promise.all(clips.map(serializeItem)),
+    texts: texts.map(t => Object.assign({}, t)),
+    audios: await Promise.all(audios.map(serializeItem)),
+    overlays: await Promise.all(overlays.map(serializeItem)),
+    aspect, project: { bgBlur: project.bgBlur, bgColor: project.bgColor },
+    uid
+  };
+}
+async function restoreItem(o) {
+  o._el = null;
+  if (o.fileId) { try { const blob = await idbGet('media', o.fileId);
+    if (blob) { o.file = blob; o.url = URL.createObjectURL(blob); o._fid = o.fileId; } } catch (e) {} }
+  return o;
+}
+async function deserializeState(s) {
+  clips = await Promise.all((s.clips || []).map(restoreItem));
+  texts = (s.texts || []).map(t => t);
+  audios = await Promise.all((s.audios || []).map(restoreItem));
+  overlays = await Promise.all((s.overlays || []).map(restoreItem));
+  if (s.uid && s.uid > uid) uid = s.uid;
+  if (s.project) { project.bgBlur = !!s.project.bgBlur; project.bgColor = s.project.bgColor || '#000000';
+    document.getElementById('bgColorInput').value = project.bgColor;
+    document.getElementById('fillSel').value = project.bgBlur ? 'blur' : 'black'; }
+  if (s.aspect) { document.getElementById('aspectSel').value = s.aspect; setAspect(s.aspect); }
+}
+
+function showSaved(txt) {
+  const el = document.getElementById('saveStatus'); if (!el) return;
+  el.textContent = txt || ('✓ ' + L('Kaydedildi'));
+  el.style.color = '#7A8B6A';
+  clearTimeout(el._t); el._t = setTimeout(() => { el.style.color = '#9A9284'; }, 1500);
+}
+async function saveProject() {
+  if (_loading || exporting) return;
+  try { const state = await serializeState();
+    await idbPut('project', 'current', { state, savedAt: Date.now() });
+    showSaved(); } catch (e) { /* kota/gizli mod → sessiz geç */ }
+}
+function scheduleSave() { if (_loading) return; clearTimeout(_saveT); _saveT = setTimeout(saveProject, 1500); }
+
+async function newProject() {
+  if (clips.length || audios.length || overlays.length || texts.length) {
+    if (!confirm(L('Bu projeyi silip sıfırdan başlansın mı? Bu geri alınamaz.'))) return;
+  }
+  clips = []; texts = []; audios = []; overlays = []; selected = null; playT = 0;
+  project.bgColor = '#000000'; project.bgBlur = false;
+  document.getElementById('bgColorInput').value = '#000000';
+  try { await idbClear('project'); await idbClear('media'); } catch (e) {}
+  renderAll();
+  showSaved(L('Yeni proje'));
+}
+
+async function tryRestore() {
+  _loading = true;
+  try {
+    const rec = await idbGet('project', 'current');
+    if (rec && rec.state && ((rec.state.clips || []).length || (rec.state.audios || []).length || (rec.state.overlays || []).length)) {
+      await deserializeState(rec.state);
+      renderAll();
+      toast(L('Önceki projen geri yüklendi'));
+    }
+  } catch (e) {}
+  _loading = false;
+}
+// sekme gizlenince/kapanınca son hali kaydet (debounce beklemeden)
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveProject(); });
+window.addEventListener('pagehide', () => { saveProject(); });
+
 /* ═══ GENEL ═══ */
-function renderAll() { renderTimeline(); renderProps(); updateTimeLbl(); drawFrame(); }
+function renderAll() { renderTimeline(); renderProps(); updateTimeLbl(); drawFrame(); scheduleSave(); }
 
 window.addEventListener('resize', renderTimeline);
 renderMediaList();
@@ -1801,6 +1921,8 @@ applyI18n();
 // İlk boyama layout'tan önce olursa (clientWidth 0) bir kez daha ölç
 requestAnimationFrame(() => renderTimeline());
 window.addEventListener('load', () => renderTimeline());
+// Önceki projeyi geri yükle (varsa)
+tryRestore();
 </script>
 </body>
 </html>
