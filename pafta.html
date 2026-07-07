@@ -349,7 +349,7 @@
 <div class="modalBg" id="libModal">
   <div class="modal" style="width:min(620px,94vw);">
     <h3>Sunumlarım</h3>
-    <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;">Önceki sunumun üzerine tıkla → editöre yüklenir, düzenleyip tekrar kaydedersin (<b>kredi kesilmez</b>).</p>
+    <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;">Önceki sunumun üzerine tıkla → editöre yüklenir, düzenleyip tekrar kaydedersin (<b>kredi kesilmez</b>). En fazla <b>50 sunum</b> saklanır; sınır aşılınca en eski (önce paylaşılmamış) sunum otomatik silinir.</p>
     <div id="libList" style="display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;"></div>
     <div style="text-align:right;margin-top:14px;"><button class="tbtn" onclick="closeModal('libModal')">Kapat</button></div>
   </div>
@@ -1379,7 +1379,7 @@ async function loadLibrary() {
     items.forEach(p => {
       const el = document.createElement('div'); el.className = 'libItem';
       const date = p.created_at ? new Date(p.created_at).toLocaleDateString('tr-TR') : '';
-      const pasif = p.active === false ? ' <span style="color:#c98;">· pasif</span>' : '';
+      const pasif = (p.shared && p.active === false) ? ' <span style="color:#c98;">· link pasif</span>' : '';
       el.innerHTML = `<img src="${p.thumb||''}" onerror="this.style.visibility='hidden'"><div class="li-meta"><b>${p.title||'Sunum'}</b><span>${date}${pasif}</span></div>`
         + `<button class="li-act" title="Kopyala" style="background:none;border:none;cursor:pointer;color:#7A8B6A;padding:4px;"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>`
         + `<button class="li-del" title="Sil">🗑</button>`;
@@ -1402,7 +1402,7 @@ async function deletePresentation(id) {
 async function loadPresentation(id, title) {
   toast('Sunum açılıyor…', 'info');
   try {
-    const res = await fetch(`${API}/tours/${id}`);
+    const res = await fetch(`${API}/tours/${id}`, { headers: authHeaders() });
     const data = await res.json();
     const pl = (data.panoramas || [])[0] || {};
     const bj = pl.boardJson;
@@ -1418,7 +1418,7 @@ async function loadPresentation(id, title) {
 async function duplicatePresentation(id) {
   toast('Kopya hazırlanıyor…', 'info');
   try {
-    const res = await fetch(`${API}/tours/${id}`);
+    const res = await fetch(`${API}/tours/${id}`, { headers: authHeaders() });
     const data = await res.json();
     const pl = (data.panoramas || [])[0] || {};
     const bj = pl.boardJson;
