@@ -1145,7 +1145,7 @@
 
       <button class="render-btn" id="renderBtn" onclick="startRender()" style="margin-top:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 4v3M20.5 5.5h-3"/></svg> Render Oluştur <span style="font-size:11px;opacity:0.8;">· 8 kredi</span></button>
       <button class="render-btn" id="varBtn" onclick="startVariations()" style="margin-top:10px; background:transparent; color:#9A6558; border:1px solid #9A6558;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> 4 Malzeme Varyasyonu Üret <span style="font-size:11px;opacity:0.8;">· 4×8 kredi</span></button>
-      <p data-i18n="rndr_4mat_hint" style="font-size:11px; color:#8A7E74; margin:8px 0 0; line-height:1.5;">Aynı binayı 4 farklı cephe malzemesiyle üretir (taş/kompozit/sıvalı/ahşap), sonra tek tıkla karar linkine basarsın.</p>
+      <p data-i18n="rndr_4mat_hint" style="font-size:11px; color:#8A7E74; margin:8px 0 0; line-height:1.5;">Aynı binayı 4 farklı cephe malzemesiyle üretir (taş/kompozit/sıvalı/ahşap).</p>
       <div class="error-msg" id="errorMsg"></div>
     </div>
   </div>
@@ -1187,12 +1187,6 @@
     <div id="variationsResult" style="display:none; width:100%; margin-top:6px;">
       <div style="font-size:13px; font-weight:700; color:#2A2520; margin-bottom:10px;">4 Malzeme Varyasyonu</div>
       <div id="variationsGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
-      <button class="render-btn" id="varDecisionBtn" onclick="variationsToDecision()" style="margin-top:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 13a4 4 0 0 0 6 0l3-3a4 4 0 1 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-3 3a4 4 0 1 0 6 6l1-1"/></svg> Bu 4 Varyasyonla Karar Linki Oluştur <span style="font-size:11px;opacity:0.8;">· 50 kredi</span></button>
-      <div id="varDecisionLink" style="display:none; margin-top:10px; gap:8px;">
-        <input id="varLinkInput" readonly style="flex:1; padding:9px 11px; border:1px solid #D8D2C8; border-radius:8px; background:#FAFAF8; color:#2A2520; font-size:12px;">
-        <button onclick="navigator.clipboard.writeText(document.getElementById('varLinkInput').value)" style="padding:9px 14px; border:none; border-radius:8px; background:#9A6558; color:#fff; font-size:12px; font-weight:600; cursor:pointer;">Kopyala</button>
-      </div>
-      <div class="error-msg" id="varError"></div>
     </div>
   </div>
 </main>
@@ -2745,7 +2739,7 @@
     tour_empty: 'No scenes yet — upload a panorama on the left and start with <b>Add to Tour</b>.',
 
     // Uzun statik paragraflar (sekme açıklamaları)
-    rndr_4mat_hint: "Generates the same building with 4 different facade materials (stone/composite/plaster/wood), then with one click you create a decision link.",
+    rndr_4mat_hint: "Generates the same building with 4 different facade materials (stone/composite/plaster/wood).",
     enh_color_hint: "Only surfaces of the selected color are changed. Anthracite/white and other colors, shadow and light are preserved.",
     place_loc_hint: "Mark a location with one click, or open <b>Draw Parcel</b> and trace the boundary by clicking the corners of the plot. After drawing the parcel you can turn the satellite image directly into a scene — no need to photograph the plot.",
     place_pres_hint: "Your montages + map + 360 in a single link: whoever opens it sees the parcel on the satellite map, reviews the montage images, and walks in front of the building in 360. The link stays active as long as your subscription continues; if it ends the link stays active for 1 more month, and is deleted if you don't resubscribe within that time.",
@@ -3781,7 +3775,6 @@
       document.getElementById('variationsGrid').innerHTML = lastVariations.map(v =>
         `<div style="border:1px solid #E0DAD0; border-radius:10px; overflow:hidden; background:#FAFAF8;"><a href="${v.url}" target="_blank"><img src="${v.url}" style="width:100%; display:block;"></a><div style="padding:6px 8px; font-size:12px; font-weight:600; color:#2A2520; text-align:center;">${v.label}</div></div>`
       ).join('');
-      document.getElementById('varDecisionLink').style.display = 'none';
       document.getElementById('variationsResult').style.display = 'block';
     } catch (err) {
       document.getElementById('loading').style.display = 'none';
@@ -3790,23 +3783,6 @@
     } finally {
       vbtn.disabled = false; rbtn.disabled = false;
     }
-  }
-
-  async function variationsToDecision() {
-    const errEl = document.getElementById('varError'); errEl.style.display = 'none';
-    if (lastVariations.length < 2) { errEl.textContent = 'Önce varyasyonları üret.'; errEl.style.display = 'block'; return; }
-    const dbtn = document.getElementById('varDecisionBtn'); dbtn.disabled = true;
-    try {
-      const res = await fetch(`${API}/decisions`, { method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({ title: 'Cephe Malzeme Seçenekleri', options: lastVariations.map(v => ({ url: v.url, label: v.label })) }) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Karar linki oluşturulamadı');
-      refreshCredits();
-      document.getElementById('varLinkInput').value = `${location.origin}/karar.html?id=${data.decision_id}`;
-      document.getElementById('varDecisionLink').style.display = 'flex';
-    } catch (e) { errEl.textContent = 'Hata: ' + e.message; errEl.style.display = 'block'; }
-    finally { dbtn.disabled = false; }
   }
 
   // ─── RENDER'I PROMPTLA DÜZENLE (oluşan renderı tekrar geliştir) ────────────

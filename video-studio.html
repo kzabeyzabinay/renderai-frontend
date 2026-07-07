@@ -150,6 +150,7 @@
   </label>
   <span id="saveStatus" style="font-size:11px; color:#9A9284; min-width:70px; text-align:right;"></span>
   <button class="hbtn" onclick="newProject()" title="Kaydı temizle, sıfırdan başla">🆕 <span data-i18n="vs_new">Yeni</span></button>
+  <button class="hbtn" onclick="openVideoLib()" title="Dışa aktardığın son 10 video">🎞 <span data-i18n="vs_myvideos">Videolarım</span></button>
   <a class="hbtn" href="/" data-i18n="vs_back">← Siteye Dön</a>
   <button class="hbtn primary" onclick="startExport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> <span data-i18n="vs_export">MP4 Dışa Aktar</span></button>
 </header>
@@ -233,6 +234,18 @@
   </div>
 </div>
 
+<!-- Videolarım modalı (dışa aktarılan son 10 video — IndexedDB, cihazda saklanır) -->
+<div class="modalBg" id="vidLibModal">
+  <div class="modal" style="width:min(520px,94vw);">
+    <h3 data-i18n="vs_myvideos_t">🎞 Videolarım</h3>
+    <p class="phint" data-i18n="vs_myvideos_hint">Dışa aktardığın son 10 video bu tarayıcıda saklanır — sınır aşılınca en eski silinir. Videolar cihazına özeldir, sunucuya yüklenmez.</p>
+    <div id="vidLibList" style="display:flex; flex-direction:column; gap:8px; max-height:56vh; overflow-y:auto;"></div>
+    <div style="display:flex; justify-content:flex-end; margin-top:14px;">
+      <button class="pchip" onclick="closeVideoLib()" data-i18n="vs_myvideos_close">Kapat</button>
+    </div>
+  </div>
+</div>
+
 <!-- Telifsiz Müzik Kütüphanesi modalı -->
 <div class="modalBg" id="musicModal">
   <div class="modal" style="width:min(440px,94vw);">
@@ -287,7 +300,14 @@ const TR2EN = {
   'Video hazırlanıyor…': 'Preparing video…',
   'Tüm işlem tarayıcında yapılır, sunucuya hiçbir şey gönderilmez. Süre proje uzunluğuna göre birkaç dakikayı bulabilir — sekmeyi kapatma.':
     'Everything runs in your browser, nothing is uploaded. It may take a few minutes depending on project length — keep this tab open.',
-  'İptal': 'Cancel', '⬇ İndir': '⬇ Download', 'Kapat': 'Close',
+  'İptal': 'Cancel', '⬇ İndir': '⬇ Download', 'Kapat': 'Close', 'İndir': 'Download',
+  'Videolarım': 'My Videos', '🎞 Videolarım': '🎞 My Videos',
+  'Dışa aktardığın son 10 video bu tarayıcıda saklanır — sınır aşılınca en eski silinir. Videolar cihazına özeldir, sunucuya yüklenmez.':
+    'Your last 10 exported videos are kept in this browser — when the limit is exceeded the oldest is deleted. Videos stay on your device, nothing is uploaded.',
+  'Henüz kayıtlı video yok — MP4 dışa aktardığında son 10 video burada birikir.':
+    'No saved videos yet — your last 10 exported MP4s will collect here.',
+  'Videolarım listesine kaydedildi (son 10 video saklanır).':
+    'Saved to My Videos (last 10 videos are kept).',
   'Video Stüdyo üyelere özel': 'Video Studio is members-only',
   'Bu modülü kullanmak için BynAi hesabınla giriş yapmalısın.': 'Sign in with your BynAi account to use this module.',
   'Giriş yap / Kayıt ol': 'Sign in / Sign up',
@@ -1784,6 +1804,7 @@ async function startExport() {
     document.getElementById('expCancel').style.display = 'none';
     expPrg(1);
     expLog(L('Bitti! ✓') + ` (${(blob.size / 1048576).toFixed(1)} MB, ${W}x${H})`);
+    if (await saveExportedVideo(blob)) expLog('🎞 ' + L('Videolarım listesine kaydedildi (son 10 video saklanır).'));
     toast('🎬 ' + L('video hazır'));
   } catch (e) {
     if (String(e && e.message).includes('cancelled') || exportCancelled) {
@@ -1815,10 +1836,11 @@ let _db = null, _loading = false, _saveT = null;
 function idb() {
   return new Promise((res, rej) => {
     if (_db) return res(_db);
-    const r = indexedDB.open('bynai_video_studio', 1);
+    const r = indexedDB.open('bynai_video_studio', 2);
     r.onupgradeneeded = () => { const d = r.result;
       if (!d.objectStoreNames.contains('media')) d.createObjectStore('media');
-      if (!d.objectStoreNames.contains('project')) d.createObjectStore('project'); };
+      if (!d.objectStoreNames.contains('project')) d.createObjectStore('project');
+      if (!d.objectStoreNames.contains('videos')) d.createObjectStore('videos'); };
     r.onsuccess = () => { _db = r.result; res(_db); };
     r.onerror = () => rej(r.error);
   });
@@ -1832,6 +1854,63 @@ function idbGet(store, key) { return idb().then(d => new Promise((res, rej) => {
 function idbClear(store) { return idb().then(d => new Promise((res, rej) => {
   const t = d.transaction(store, 'readwrite'); t.objectStore(store).clear();
   t.oncomplete = () => res(); t.onerror = () => rej(t.error); })); }
+function idbDel(store, key) { return idb().then(d => new Promise((res, rej) => {
+  const t = d.transaction(store, 'readwrite'); t.objectStore(store).delete(key);
+  t.oncomplete = () => res(); t.onerror = () => rej(t.error); })); }
+function idbAll(store) { return idb().then(d => new Promise((res, rej) => {
+  const out = []; const t = d.transaction(store, 'readonly');
+  const rq = t.objectStore(store).openCursor();
+  rq.onsuccess = () => { const c = rq.result;
+    if (c) { out.push({ key: c.key, val: c.value }); c.continue(); } else res(out); };
+  rq.onerror = () => rej(rq.error); })); }
+
+/* ═══ VİDEOLARIM (dışa aktarılan son 10 video — cihazda, sunucuya gitmez) ═══ */
+const VIDEO_KEEP_MAX = 10;
+async function saveExportedVideo(blob) {
+  try {
+    const d = new Date();
+    const stamp = d.toLocaleDateString('tr-TR') + ' ' + d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    await idbPut('videos', 'v' + Date.now(), { blob, name: 'bynai-video-' + d.toISOString().slice(0, 10) + '.mp4', label: stamp, savedAt: Date.now(), size: blob.size });
+    const all = await idbAll('videos');
+    all.sort((a, b) => (a.val.savedAt || 0) - (b.val.savedAt || 0));
+    while (all.length > VIDEO_KEEP_MAX) { await idbDel('videos', all[0].key); all.shift(); }
+    return true;
+  } catch (e) { return false; } // kota/gizli mod → sessiz geç, indirme linki zaten hazır
+}
+let _vidUrls = [];
+async function openVideoLib() {
+  const list = document.getElementById('vidLibList');
+  _vidUrls.forEach(u => URL.revokeObjectURL(u)); _vidUrls = [];
+  let items = [];
+  try { items = await idbAll('videos'); } catch (e) {}
+  items.sort((a, b) => (b.val.savedAt || 0) - (a.val.savedAt || 0));
+  if (!items.length) {
+    list.innerHTML = `<p class="phint" style="margin:6px 0;">${L('Henüz kayıtlı video yok — MP4 dışa aktardığında son 10 video burada birikir.')}</p>`;
+  } else {
+    list.innerHTML = items.map(it => {
+      const url = URL.createObjectURL(it.val.blob); _vidUrls.push(url);
+      const mb = ((it.val.size || 0) / 1048576).toFixed(1);
+      return `<div style="display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:10px; padding:8px 10px;">
+        <video src="${url}" preload="metadata" muted style="width:74px; height:44px; object-fit:cover; border-radius:6px; background:#000; flex:none;"></video>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:12px; font-weight:600;">${it.val.label || ''}</div>
+          <div style="font-size:11px; color:var(--muted);">${mb} MB</div>
+        </div>
+        <a class="pchip on" href="${url}" download="${it.val.name || 'bynai-video.mp4'}" style="text-decoration:none;">${L('İndir')}</a>
+        <button class="pchip" onclick="deleteLibVideo('${it.key}')">${L('Sil')}</button>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('vidLibModal').style.display = 'flex';
+}
+function closeVideoLib() {
+  document.getElementById('vidLibModal').style.display = 'none';
+  _vidUrls.forEach(u => URL.revokeObjectURL(u)); _vidUrls = [];
+}
+async function deleteLibVideo(key) {
+  try { await idbDel('videos', key); } catch (e) {}
+  openVideoLib();
+}
 
 async function serializeItem(it) {
   const o = Object.assign({}, it); delete o._el;
