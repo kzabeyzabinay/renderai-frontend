@@ -1778,10 +1778,10 @@
           ondragover="event.preventDefault(); document.getElementById('fpDropZone').style.borderColor='#9A6558'"
           ondragleave="document.getElementById('fpDropZone').style.borderColor='#D8D2C8'"
           ondrop="handleFpDrop(event)">
-          <input type="file" id="fpFileInput" accept="image/*" style="display:none" onchange="handleFpFile(this.files[0])" />
+          <input type="file" id="fpFileInput" accept="image/*,.pdf,application/pdf" style="display:none" onchange="handleFpFile(this.files[0])" />
           <div id="fpIcon" style="font-size:36px; margin-bottom:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 14h7V3M10 14v7M21 10h-5"/></svg></div>
           <div style="font-size:14px; color:#9A6558; font-weight:600;">Plan görselini seçin veya sürükleyin</div>
-          <div style="font-size:12px; color:#ABA49C; margin-top:4px;">PNG, JPG — Kat planı, vaziyet planı, AutoCAD export</div>
+          <div style="font-size:12px; color:#ABA49C; margin-top:4px;">PNG, JPG, PDF — Kat planı, vaziyet planı, AutoCAD export</div>
           <img id="fpPreview" style="display:none; max-width:100%; border-radius:8px; margin-top:10px;" />
         </div>
 
@@ -2928,7 +2928,9 @@
     "2D plan çizimi yükleyin → AI profesyonel renkli sunum planına dönüştürür": "Upload a 2D plan drawing → AI converts it into a professional colored presentation plan",
     "Çizgiler korunur · Alanlar renklenir · Profesyonel sunum kalitesi": "Lines preserved · Areas colored · Professional presentation quality",
     "Plan görselini seçin veya sürükleyin": "Select or drag the plan image",
-    "PNG, JPG — Kat planı, vaziyet planı, AutoCAD export": "PNG, JPG — Floor plan, site plan, AutoCAD export",
+    "PNG, JPG, PDF — Kat planı, vaziyet planı, AutoCAD export": "PNG, JPG, PDF — Floor plan, site plan, AutoCAD export",
+    "PDF okunamadı. Lütfen planı PNG/JPG olarak yükleyin.": "Could not read the PDF. Please upload the plan as PNG/JPG.",
+    "PDF hazırlanıyor...": "Preparing PDF...",
     "PLAN TİPİ": "PLAN TYPE", "Kat Planı": "Floor Plan", "İç mekan, odalar": "Interior, rooms",
     "Vaziyet Planı": "Site Plan", "Dış alan, peyzaj": "Outdoor area, landscape",
     "BOYAMA STİLİ": "COLORING STYLE", "Boyalı Sunum": "Colored Presentation", "Tek ton gri zemin · çizgi tefriş": "Single-tone grey base · line furnishing",
@@ -6593,8 +6595,66 @@
     selectedFpFloor = btn.dataset.floor;
   }
 
-  function handleFpFile(file) {
+  // PDF desteği: pdf.js sadece bir PDF yüklendiğinde CDN'den çekilir (lazy)
+  let fpPdfJsPromise = null;
+  function loadPdfJs() {
+    if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+    if (!fpPdfJsPromise) {
+      fpPdfJsPromise = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+        s.onload = () => {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+          resolve(window.pdfjsLib);
+        };
+        s.onerror = () => { fpPdfJsPromise = null; reject(new Error('pdfjs yüklenemedi')); };
+        document.head.appendChild(s);
+      });
+    }
+    return fpPdfJsPromise;
+  }
+
+  async function pdfFirstPageToJpeg(file, maxDim = 2400) {
+    const pdfjs = await loadPdfJs();
+    const buf = await file.arrayBuffer();
+    const doc = await pdfjs.getDocument({ data: buf }).promise;
+    const page = await doc.getPage(1);
+    let vp = page.getViewport({ scale: 1 });
+    const scale = Math.min(maxDim / Math.max(vp.width, vp.height), 8);
+    vp = page.getViewport({ scale });
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(vp.width);
+    canvas.height = Math.round(vp.height);
+    const ctx = canvas.getContext('2d');
+    // PDF arka planı şeffaf olabilir — beyaz zemin bas
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.92));
+    if (!blob) throw new Error('canvas boş');
+    return new File([blob], file.name.replace(/\.pdf$/i, '') + '.jpg', { type: 'image/jpeg' });
+  }
+
+  async function handleFpFile(file) {
     if (!file) return;
+    const errEl = document.getElementById('fpError');
+    if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+      const hintEl = document.getElementById('fpDropZone').querySelector('div[style*="font-weight:600"]');
+      const hintOld = hintEl ? hintEl.textContent : '';
+      try {
+        if (errEl) errEl.style.display = 'none';
+        if (hintEl) hintEl.textContent = L('PDF hazırlanıyor...');
+        file = await pdfFirstPageToJpeg(file);
+      } catch (e) {
+        if (errEl) {
+          errEl.textContent = L('PDF okunamadı. Lütfen planı PNG/JPG olarak yükleyin.');
+          errEl.style.display = 'block';
+        }
+        return;
+      } finally {
+        if (hintEl) hintEl.textContent = hintOld;
+      }
+    }
     fpFile = file;
     const reader = new FileReader();
     reader.onload = ev => {
