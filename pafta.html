@@ -1670,14 +1670,42 @@ document.addEventListener('keydown', e => {
   }
 });
 
-/* ═══ OTOMATİK KAYIT (localStorage) ═══ */
-const AUTOSAVE_KEY = 'bynai_pafta_autosave';
+/* ═══ OTOMATİK KAYIT (IndexedDB) ═══
+   ESKİDEN localStorage'a yazılıyordu: görseller sayfa JSON'unda data-URL taşındığından
+   birkaç fotoğraflı pafta bile ~5MB kotayı aşıyor, QuotaExceeded SESSİZCE yutuluyor,
+   kayıt HİÇ oluşmuyordu (100 sayfalık sunum kaybı — 14 Tem). IndexedDB'de pratik sınır
+   yok; hata artık görünür uyarı verir. Eski localStorage kaydı varsa yine okunur. */
+const AUTOSAVE_KEY = 'bynai_pafta_autosave';       // eski (legacy) kayıtlar için okuma + temizlik
+const AS_DB = 'bynai_pafta_autosave_db';
+const AS_STORE = 'autosave';                       // anahtarlar: 'current' + 'declined' (yedek)
+function _asDb() {
+  return new Promise((res, rej) => {
+    const q = indexedDB.open(AS_DB, 1);
+    q.onupgradeneeded = () => q.result.createObjectStore(AS_STORE);
+    q.onsuccess = () => res(q.result);
+    q.onerror = () => rej(q.error);
+  });
+}
+function _asOp(mode, fn) {
+  return _asDb().then(db => new Promise((res, rej) => {
+    const tx = db.transaction(AS_STORE, mode);
+    const rq = fn(tx.objectStore(AS_STORE));
+    tx.oncomplete = () => { db.close(); res(rq && rq.result); };
+    tx.onerror = () => { db.close(); rej(tx.error); };
+    tx.onabort = () => { db.close(); rej(tx.error); };
+  }));
+}
+const _asPut = (key, val) => _asOp('readwrite', st => st.put(val, key));
+const _asGet = (key) => _asOp('readonly', st => st.get(key));
+const _asDel = (key) => _asOp('readwrite', st => st.delete(key));
+
 let _autoSaveTimer = null;
+let _asErrWarned = false;
 function triggerAutoSave() {
   clearTimeout(_autoSaveTimer);
   _autoSaveTimer = setTimeout(doAutoSave, 4000);
 }
-function doAutoSave() {
+async function doAutoSave() {
   try {
     snapshotActive();
     const data = {
@@ -1686,24 +1714,39 @@ function doAutoSave() {
       presentationId: currentPresentationId,
       pages: pages.map(p => ({ id: p.id, board: p.board, json: p.json }))
     };
-    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
+    await _asPut('current', data);
+    _asErrWarned = false;
     const el = document.getElementById('autoSaveLbl');
     if (el) { const t = new Date().toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}); el.textContent = '● ' + t + ' otomatik kaydedildi'; }
-  } catch (_) {}
+  } catch (_) {
+    const el = document.getElementById('autoSaveLbl');
+    if (el) el.textContent = '⚠ otomatik kayıt YAPILAMIYOR';
+    if (!_asErrWarned) { _asErrWarned = true; toast('Otomatik kayıt yapılamıyor — çalışmanı kaybetmemek için şimdi Kaydet\'e bas!', 'err'); }
+  }
 }
-function clearAutoSave() { try { localStorage.removeItem(AUTOSAVE_KEY); const el = document.getElementById('autoSaveLbl'); if (el) el.textContent = ''; } catch (_) {} }
-function checkAutoSave() {
+function clearAutoSave() {
+  _asDel('current').catch(() => {});
+  try { localStorage.removeItem(AUTOSAVE_KEY); } catch (_) {}
+  const el = document.getElementById('autoSaveLbl'); if (el) el.textContent = '';
+}
+async function checkAutoSave() {
   try {
-    const raw = localStorage.getItem(AUTOSAVE_KEY);
-    if (!raw) return;
-    const data = JSON.parse(raw);
+    let data = await _asGet('current').catch(() => null);
+    if (!data) {   // eski localStorage kaydı (tek seferlik geçiş)
+      try { const raw = localStorage.getItem(AUTOSAVE_KEY); if (raw) data = JSON.parse(raw); } catch (_) {}
+    }
     if (!data || !data.pages || !data.pages.length) return;
     const ago = Math.round((Date.now() - data.savedAt) / 60000);
-    if (ago > 1440) { localStorage.removeItem(AUTOSAVE_KEY); return; }
-    const label = ago < 1 ? 'az önce' : ago + ' dakika önce';
+    if (ago > 7 * 1440) { clearAutoSave(); return; }   // 7 günden eski otomatik kaydı temizle
+    const label = ago < 1 ? 'az önce' : (ago < 60 ? ago + ' dakika önce' : Math.round(ago / 60) + ' saat önce');
     setTimeout(async () => {
       const ok = await uiConfirm(`Kaydedilmemiş çalışma var (${label}).\n"${data.title || 'İsimsiz Pafta'}" — ${data.pages.length} sayfa.\nKaldığın yerden devam etmek ister misin?`, { okText: 'Devam Et' });
-      if (!ok) { localStorage.removeItem(AUTOSAVE_KEY); return; }
+      if (!ok) {   // artık SİLİNMEZ: yedeğe taşınır (gerekirse geri getirilebilir)
+        _asPut('declined', data).catch(() => {});
+        _asDel('current').catch(() => {});
+        try { localStorage.removeItem(AUTOSAVE_KEY); } catch (_) {}
+        return;
+      }
       pages = data.pages.map(p => ({ id: p.id || crypto.randomUUID(), board: p.board, json: p.json }));
       activeIdx = 0;
       currentPresentationId = data.presentationId || null;
@@ -1716,6 +1759,11 @@ function checkAutoSave() {
 canvas.on('object:added',    () => triggerAutoSave());
 canvas.on('object:modified', () => triggerAutoSave());
 canvas.on('object:removed',  () => triggerAutoSave());
+/* Sekme kapanır/arka plana geçerken 4 sn debounce'u BEKLEMEDEN anında kaydet */
+window.addEventListener('pagehide', () => { clearTimeout(_autoSaveTimer); doAutoSave(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') { clearTimeout(_autoSaveTimer); doAutoSave(); }
+});
 
 /* ═══ ALT-SÜRÜKLE ÇOĞALT ═══ */
 canvas.on('mouse:down', opt => {
