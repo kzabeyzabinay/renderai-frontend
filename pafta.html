@@ -383,6 +383,38 @@ const authHeaders = () => {
   return t ? { 'Authorization': 'Bearer ' + t } : {};
 };
 
+/* ── Oturum yenileme — access token ~1 saatte ölür; uzun pafta çalışmasında
+   Kaydet 401'e düşmesin diye refresh_token ile sessizce tazelenir.
+   Supabase refresh token TEK KULLANIMLIK: yanıttaki yenisi hemen saklanır. ── */
+async function refreshSession() {
+  const rt = localStorage.getItem('ra_refresh');
+  if (!rt || !localStorage.getItem('ra_token')) return false;
+  try {
+    const r = await fetch(`${API}/auth/refresh`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: rt })
+    });
+    const d = await r.json();
+    if (!r.ok || !d.access_token) return false;
+    localStorage.setItem('ra_token', d.access_token);
+    if (d.refresh_token) localStorage.setItem('ra_refresh', d.refresh_token);
+    return true;
+  } catch (_) { return false; }
+}
+refreshSession();
+setInterval(refreshSession, 40 * 60 * 1000);
+
+/* fetch sarmalayıcı: 401 gelirse token'ı bir kez yenileyip AYNI isteği tekrar dener.
+   Başarısızsa yanıt aynen döner (mevcut hata akışları değişmez). */
+async function authFetch(url, opts = {}) {
+  let r = await fetch(url, opts);
+  if (r.status === 401 && await refreshSession()) {
+    r = await fetch(url, { ...opts, headers: { ...(opts.headers || {}), ...authHeaders() } });
+  }
+  return r;
+}
+const SESSION_EXPIRED_MSG = 'Oturumun süresi dolmuş. Bu sekmeyi KAPATMADAN yeni bir sekmede bynai.app\'e giriş yap, sonra buraya dönüp tekrar dene — çalışman kaybolmaz.';
+
 /* ── Minimal reaktif store (Zustand'a birebir taşınabilir şema) ── */
 function createStore(initial) {
   let state = initial; const subs = new Set();
@@ -1299,7 +1331,8 @@ async function persistPresentation() {
     off.dispose();
     const fd = new FormData();
     fd.append('image', new File([blob], 'pafta' + (i+1) + '.jpg', { type:'image/jpeg' }));
-    const up = await fetch(`${API}/tours/asset`, { method:'POST', headers:authHeaders(), body:fd });
+    const up = await authFetch(`${API}/tours/asset`, { method:'POST', headers:authHeaders(), body:fd });
+    if (up.status === 401) throw new Error(SESSION_EXPIRED_MSG);
     const upData = await up.json();
     if (!up.ok) throw new Error(upData.detail || 'Yükleme başarısız');
     images.push({ url: upData.url, label: boardTitleVal() + (pages.length>1 ? ' — Sayfa ' + (i+1) : '') });
@@ -1307,16 +1340,18 @@ async function persistPresentation() {
   const payloadPano = [{ kind:'presentation', url: images[0].url, images, panos: [], map: {}, shared: currentShared,
     boardJson: { pages: pages.map(p => ({ board:p.board, json:p.json })) } }];
   if (currentPresentationId) {
-    const res = await fetch(`${API}/tours/${currentPresentationId}`, { method:'PATCH',
+    const res = await authFetch(`${API}/tours/${currentPresentationId}`, { method:'PATCH',
       headers:{ 'Content-Type':'application/json', ...authHeaders() },
       body: JSON.stringify({ title: boardTitleVal(), panoramas: payloadPano }) });
+    if (res.status === 401) throw new Error(SESSION_EXPIRED_MSG);
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Güncellenemedi');
     return currentPresentationId;
   }
-  const res = await fetch(`${API}/tours`, { method:'POST',
+  const res = await authFetch(`${API}/tours`, { method:'POST',
     headers:{ 'Content-Type':'application/json', ...authHeaders() },
     body: JSON.stringify({ title: boardTitleVal(), panoramas: payloadPano, draft: true }) });
+  if (res.status === 401) throw new Error(SESSION_EXPIRED_MSG);
   const data = await res.json();
   if (!res.ok) throw new Error(data.detail || 'Kayıt başarısız');
   currentPresentationId = data.tour_id; updateEditingBadge();
@@ -1340,7 +1375,8 @@ async function sharePresentation() {
   toast('Paylaşıma hazırlanıyor…', 'info');
   try {
     const id = await persistPresentation();
-    const res = await fetch(`${API}/tours/${id}/publish`, { method:'POST', headers:authHeaders() });
+    const res = await authFetch(`${API}/tours/${id}/publish`, { method:'POST', headers:authHeaders() });
+    if (res.status === 401) throw new Error(SESSION_EXPIRED_MSG);
     const d = await res.json();
     if (!res.ok) throw new Error(d.detail || 'Paylaşılamadı');
     currentShared = true;
@@ -1371,7 +1407,7 @@ async function loadLibrary() {
   const wrap = document.getElementById('libList');
   wrap.innerHTML = '<div class="hint">Yükleniyor…</div>';
   try {
-    const res = await fetch(`${API}/my/library`, { headers: authHeaders() });
+    const res = await authFetch(`${API}/my/library`, { headers: authHeaders() });
     const data = await res.json();
     const items = data.presentations || [];
     if (!items.length) { wrap.innerHTML = '<div class="empty">Henüz kayıtlı sunum yok.</div>'; return; }
@@ -1393,7 +1429,7 @@ async function loadLibrary() {
 async function deletePresentation(id) {
   if (!await uiConfirm('Bu sunum kalıcı olarak silinsin mi?', { okText: 'Sil', danger: true })) return;
   try {
-    const r = await fetch(`${API}/tours/${id}`, { method:'DELETE', headers: authHeaders() });
+    const r = await authFetch(`${API}/tours/${id}`, { method:'DELETE', headers: authHeaders() });
     const d = await r.json(); if (!r.ok) throw new Error(d.detail || 'Silinemedi');
     if (currentPresentationId === id) { currentPresentationId = null; updateEditingBadge(); }
     toast('Sunum silindi'); loadLibrary();
@@ -1402,7 +1438,7 @@ async function deletePresentation(id) {
 async function loadPresentation(id, title) {
   toast('Sunum açılıyor…', 'info');
   try {
-    const res = await fetch(`${API}/tours/${id}`, { headers: authHeaders() });
+    const res = await authFetch(`${API}/tours/${id}`, { headers: authHeaders() });
     const data = await res.json();
     const pl = (data.panoramas || [])[0] || {};
     const bj = pl.boardJson;
@@ -1418,7 +1454,7 @@ async function loadPresentation(id, title) {
 async function duplicatePresentation(id) {
   toast('Kopya hazırlanıyor…', 'info');
   try {
-    const res = await fetch(`${API}/tours/${id}`, { headers: authHeaders() });
+    const res = await authFetch(`${API}/tours/${id}`, { headers: authHeaders() });
     const data = await res.json();
     const pl = (data.panoramas || [])[0] || {};
     const bj = pl.boardJson;

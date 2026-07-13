@@ -3257,6 +3257,7 @@
         setAuthMode('login');
       } else {
         localStorage.setItem('ra_token', data.access_token);
+        if (data.refresh_token) localStorage.setItem('ra_refresh', data.refresh_token);
         localStorage.setItem('ra_email', data.email);
         if (data.user_id) localStorage.setItem('ra_uid', data.user_id);
         updateAuthUI();
@@ -3273,12 +3274,33 @@
 
   function authLogout() {
     localStorage.removeItem('ra_token');
+    localStorage.removeItem('ra_refresh');
     localStorage.removeItem('ra_email');
     localStorage.removeItem('ra_uid');
     updateAuthUI();
   }
 
   updateAuthUI();
+
+  /* Oturum yenileme — access token ~1 saatte ölür; refresh_token ile sessizce tazele.
+     Supabase refresh token TEK KULLANIMLIK: yanıttaki yenisi hemen saklanır. */
+  async function refreshSession() {
+    const rt = localStorage.getItem('ra_refresh');
+    if (!rt || !localStorage.getItem('ra_token')) return false;
+    try {
+      const r = await fetch(`${API}/auth/refresh`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: rt })
+      });
+      const d = await r.json();
+      if (!r.ok || !d.access_token) return false;
+      localStorage.setItem('ra_token', d.access_token);
+      if (d.refresh_token) localStorage.setItem('ra_refresh', d.refresh_token);
+      return true;
+    } catch (_) { return false; }
+  }
+  refreshSession();                                   // sayfa açılışında tazele
+  setInterval(refreshSession, 40 * 60 * 1000);        // her 40 dakikada (token 60 dk yaşar)
 
   // Sayfa açılınca sunucuyu uyandır — kullanıcı ayarları seçerken hazır olur
   fetch(`${API}/`).catch(() => {});
