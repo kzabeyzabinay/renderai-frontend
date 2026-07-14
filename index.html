@@ -1729,6 +1729,13 @@
           </button>
         </div>
 
+        <!-- ✏️ SERBEST İSTEK (isteğe bağlı) — Geliştir'deki özel prompt gibi, video promptuna eklenir -->
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11px; color:#8A7E74; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;" data-i18n="vid_note_lbl">✏️ ÖZEL İSTEK (İSTEĞE BAĞLI)</div>
+          <textarea id="videoNote" rows="2" maxlength="300" data-i18n-ph="vid_note_ph" placeholder="Videoda özellikle olmasını istediğini yaz — örn: havuzdaki su hafifçe dalgalansın · bayrak rüzgârda sallansın · şömine alevi titresin" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; font-family:inherit; resize:vertical; line-height:1.5;"></textarea>
+          <div style="font-size:11px; color:#ABA49C; margin-top:4px;" data-i18n="vid_note_hint">Boş bırakabilirsin — seçtiğin hareket ve kamera ayarlarına ek olarak uygulanır.</div>
+        </div>
+
         <button class="render-btn" id="videoBtn" onclick="startVideo()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 6 3.5-6 3.5Z"/></svg> Video Oluştur <span style="font-size:11px;opacity:0.8;">· 40 kredi · ~60-90 sn</span></button>
         <div class="error-msg" id="videoError"></div>
       </div>
@@ -2662,6 +2669,10 @@
   // data-pkey / data-key alanlarına ve backend'e giden hiçbir metne DOKUNMAZ.
   // TR = HTML'deki orijinal metin (otomatik yakalanır), EN = I18N_EN sözlüğü.
   const I18N_EN = {
+    // Video sekmesi — serbest istek kutusu (14 Tem)
+    vid_note_lbl: "✏️ CUSTOM REQUEST (OPTIONAL)",
+    vid_note_ph: "Describe what you specifically want in the video — e.g. pool water ripples gently · flag waves in the wind · fireplace flame flickers",
+    vid_note_hint: "You can leave it empty — it is applied in addition to your motion and camera choices.",
     // Header / navigasyon
     nav_render: "Render", nav_staging: "Virtual Staging", nav_model3d: "3D Model",
     nav_upscale: "Upscale", nav_enhance: "Enhance", nav_photo: "Photo Studio", nav_video: "Video",
@@ -6469,6 +6480,8 @@
     formData.append('time_of_day', selectedVideoTime);
     formData.append('motion', selectedVideoMotion.join(','));
     formData.append('camera', selectedVideoCamera);
+    const videoNote = (document.getElementById('videoNote')?.value || '').trim();
+    if (videoNote) formData.append('note', videoNote);   // ✏️ serbest istek — prompta eklenir
 
     try {
       const startRes = await fetch(`${API}/video/start`, { method: 'POST', headers: authHeaders(), body: formData });
