@@ -167,7 +167,7 @@
   <button class="tbtn" onclick="openTemplates()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Şablon</button>
   <button class="tbtn" onclick="exportPNG()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg>PNG</button>
   <button class="tbtn" onclick="exportPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg>PDF</button>
-  <button class="tbtn" onclick="saveOnly()" title="Çalışmanı kaydet — ücretsiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Kaydet</button>
+  <button class="tbtn" onclick="saveOnly()" title="Çalışmanı kaydet — ücretsiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Kaydet · ücretsiz</button>
   <button class="tbtn primary" onclick="sharePresentation()" title="Paylaşım linki oluştur — ilk paylaşımda 50 kredi, sonraki güncellemeler ücretsiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Paylaş · 50 kredi</button>
 </div>
 
@@ -212,6 +212,9 @@
   <!-- ════ ORTA: CANVAS ════ -->
   <div class="canvasArea">
     <div class="toolbar">
+      <button class="tool" onclick="undo()" title="Geri Al (Ctrl+Z)">↶</button>
+      <button class="tool" onclick="redo()" title="Yinele (Ctrl+Y)">↷</button>
+      <span class="sep"></span>
       <button class="tool" onclick="addText()">+ Metin</button>
       <button class="tool" onclick="addShape('rect')">▭ Kutu</button>
       <button class="tool" onclick="addShape('circle')">○ Daire</button>
@@ -225,6 +228,9 @@
       <button class="tool" onclick="zoomBy(1.1)">＋</button>
       <button class="tool" onclick="fitToScreen()">Sığdır</button>
       <button class="tool" onclick="zoomBy(0.9)">－</button>
+      <span class="sep"></span>
+      <button class="tool" id="snapBtn" onclick="toggleSnap()" title="Akıllı hizalama — sürüklerken yakın kenara/ortaya yapışır (Alt = geçici kapat)">🧲 Hizala</button>
+      <button class="tool" id="gridBtn" onclick="toggleGrid()" title="Izgara — 10mm aralıklı görsel kılavuz (baskıya/PDF'e girmez)">▦ Izgara</button>
       <span class="sep"></span>
       <span style="font-size:11px;color:var(--muted)" id="boardSizeLbl"></span>
     </div>
@@ -528,6 +534,7 @@ async function handleFiles(fileList) {
       thumbUrl, fullUrl: URL.createObjectURL(file),   // orijinal File blob URL'i
       naturalWidth: nW, naturalHeight: nH, _file: file,
       meta:{ mime:file.type, bytes:file.size } });
+    if (nW && nW < 1000 && nH < 1000) toast(`"${file.name.slice(0,18)}" düşük çözünürlüklü (${nW}×${nH}) — büyük paftada/baskıda pikselleşebilir`, 'info');
     grid.appendChild(assetCard(store.get().assets[id]));
   }
 }
@@ -740,6 +747,10 @@ function addText() {
   const t = new fabric.Textbox('Başlık', { left:B.widthPx/2, top:B.heightPx/2, originX:'center',
     originY:'center', fontSize:48, fill:'#1A1A16', fontFamily:'Segoe UI', width:400, textAlign:'center' });
   t.id=crypto.randomUUID(); t.objType='text'; t.name='Metin';
+  if (!localStorage.getItem('bynai_pafta_texthint')) {   // ilk kullanıma tek seferlik ipucu
+    localStorage.setItem('bynai_pafta_texthint', '1');
+    toast('İpucu: yazıya ÇİFT TIKLAYARAK içeriğini düzenleyebilirsin', 'info');
+  }
   canvas.add(t).setActiveObject(t); refreshLayers();
 }
 /* Şekil kütüphanesi — kutu/daire/elips/üçgen/çizgi (dolgulu veya içi boş) */
@@ -923,6 +934,13 @@ function refreshLayers() {
       }
       canvas.setActiveObject(o); canvas.requestRenderAll(); refreshLayers(); renderProps();
     };
+    // çift tık → katmanı yeniden adlandır (30 nesneli paftada "image image image" bitsin)
+    row.querySelector('.lname').ondblclick = async e => {
+      e.stopPropagation();
+      const yeni = await uiPrompt('Katman adı:', o.name || o.objType || '');
+      if (yeni && yeni.trim()) { o.name = yeni.trim().slice(0, 40); refreshLayers(); }
+    };
+    row.querySelector('.lname').title = 'Çift tık: yeniden adlandır';
     ics[0].onclick = e => { e.stopPropagation(); o.visible = o.visible===false; canvas.requestRenderAll(); refreshLayers(); };
     ics[1].onclick = e => { e.stopPropagation(); const lk=!o.lockMovementX;
       o.set({ lockMovementX:lk, lockMovementY:lk, lockRotation:lk, lockScalingX:lk, lockScalingY:lk, selectable:!lk });
@@ -1560,10 +1578,16 @@ function loadPageInto(i) {
   });
   renderPageBar();
 }
-function gotoPage(i) { if (i === activeIdx) return; snapshotActive(); loadPageInto(i); }
-function addPage() { snapshotActive(); pages.push(blankPage()); loadPageInto(pages.length - 1); toast('Yeni sayfa eklendi'); }
+/* sayfa mini önizlemesi — sadece sayfadan AYRILIRKEN üretilir (otosave'i yavaşlatmaz) */
+function pageThumb() {
+  try { return canvas.toDataURL({ format:'jpeg', quality:0.5, multiplier: Math.min(1, 160 / (canvas.getWidth() || 160)) }); }
+  catch (_) { return ''; }
+}
+function gotoPage(i) { if (i === activeIdx) return; snapshotActive(); if (pages[activeIdx]) pages[activeIdx].thumb = pageThumb(); loadPageInto(i); }
+function addPage() { snapshotActive(); if (pages[activeIdx]) pages[activeIdx].thumb = pageThumb(); pages.push(blankPage()); loadPageInto(pages.length - 1); toast('Yeni sayfa eklendi'); }
 function duplicatePage() {
   snapshotActive();
+  if (pages[activeIdx]) pages[activeIdx].thumb = pageThumb();
   const src = pages[activeIdx];
   const copy = { id:crypto.randomUUID(), board:{ ...src.board }, json: JSON.parse(JSON.stringify(src.json)) };
   pages.splice(activeIdx + 1, 0, copy);
@@ -1582,7 +1606,13 @@ function renderPageBar() {
   pages.forEach((pg, i) => {
     const b = document.createElement('button');
     b.className = 'pagechip' + (i === activeIdx ? ' on' : '');
-    b.textContent = 'Sayfa ' + (i + 1);
+    if (pg.thumb) {
+      const im = document.createElement('img');
+      im.src = pg.thumb;
+      im.style.cssText = 'width:38px;height:26px;object-fit:cover;border-radius:3px;vertical-align:middle;margin-right:6px;background:#fff;';
+      b.appendChild(im);
+    }
+    b.appendChild(document.createTextNode('Sayfa ' + (i + 1)));
     b.draggable = true;
     b.title = 'Sürükle → sıra değiştir';
     b.onclick = () => gotoPage(i);
@@ -1774,44 +1804,104 @@ canvas.on('mouse:down', opt => {
   }
 });
 
-/* ═══ SNAP — kullanıcı isteğiyle KAPATILDI (sürüklerken kılavuz çizgisi/yapışma yok) ═══ */
-const SNAP_TOL = -1;
+/* ═══ SNAP v2 + IZGARA ═══
+   v1 şikâyeti "aşırı fazla çizgi": 6px toleransla HER nesnenin her kenarına karşı
+   sürekli yapışıyordu → kalabalık paftada çizgi hiç kaybolmuyordu. v2 çözümleri:
+   (1) aday filtre — nesne kılavuzu SADECE diğer eksende kesişen (hizada anlamlı)
+       nesnelerden gelir; alakasız uzak nesneye çizgi çıkmaz.
+   (2) tolerans 6→4px + histerezis — yapışınca 8px'e kadar bırakmaz, titremez.
+   (3) eksen başına EN FAZLA 1 çizgi (toplam max 2) ve sadece yapışma ANINDA.
+   (4) 🧲 toolbar'dan kalıcı aç/kapa (localStorage) + Alt basılıyken geçici kapalı.
+   ▦ Izgara: 10mm görsel kılavuz (contextTop'ta — export/PDF'e ASLA girmez). */
+const SNAP_TOL = 4;
+let snapOn = localStorage.getItem('bynai_pafta_snap') !== '0';
+let gridOn = localStorage.getItem('bynai_pafta_grid') === '1';
 let _snapGuides = [];
+let _snapHold = { x: null, y: null };
+function syncToggleBtns() {
+  [['snapBtn', snapOn], ['gridBtn', gridOn]].forEach(([id, on]) => {
+    const b = document.getElementById(id); if (!b) return;
+    b.style.background = on ? '#7A8B6A' : ''; b.style.color = on ? '#fff' : '';
+    b.style.borderColor = on ? '#7A8B6A' : '';
+  });
+}
+function toggleSnap() { snapOn = !snapOn; localStorage.setItem('bynai_pafta_snap', snapOn ? '1' : '0'); syncToggleBtns(); toast(snapOn ? 'Akıllı hizalama açık' : 'Akıllı hizalama kapalı', 'info'); }
+function toggleGrid() { gridOn = !gridOn; localStorage.setItem('bynai_pafta_grid', gridOn ? '1' : '0'); syncToggleBtns(); canvas.requestRenderAll(); }
+syncToggleBtns();
 canvas.on('object:moving', e => {
   const o = e.target; if (!o) return;
+  if (!snapOn || (e.e && e.e.altKey)) { _snapGuides = []; _snapHold.x = _snapHold.y = null; return; }
   const B = store.get().board;
   const r = o.getBoundingRect(true, true);
   const ax = [r.left, r.left + r.width/2, r.left + r.width];
   const ay = [r.top, r.top + r.height/2, r.top + r.height];
   const tX = [0, B.widthPx/2, B.widthPx];
   const tY = [0, B.heightPx/2, B.heightPx];
-  canvas.getObjects().forEach(ob => { if (ob === o || ob.excludeFromExport) return;
+  const selSet = o.type === 'activeSelection' && o._objects ? new Set(o._objects) : null;
+  canvas.getObjects().forEach(ob => {
+    if (ob === o || ob.excludeFromExport || (selSet && selSet.has(ob))) return;
     const b = ob.getBoundingRect(true, true);
-    tX.push(b.left, b.left + b.width/2, b.left + b.width);
-    tY.push(b.top, b.top + b.height/2, b.top + b.height); });
+    // yalnız İLGİLİ kılavuzlar: dikeyde kesişmeyen nesneye X çizgisi çıkarma (v1'in "her yerde çizgi" sorunu)
+    if (b.top < r.top + r.height && b.top + b.height > r.top) tX.push(b.left, b.left + b.width/2, b.left + b.width);
+    if (b.left < r.left + r.width && b.left + b.width > r.left) tY.push(b.top, b.top + b.height/2, b.top + b.height);
+  });
   _snapGuides = [];
-  let dx = null, dxd = SNAP_TOL + 1, gx = null;
-  ax.forEach(v => tX.forEach(t => { const d = Math.abs(v - t); if (d < dxd) { dxd = d; dx = t - v; gx = t; } }));
-  if (dx !== null && dxd <= SNAP_TOL) { o.left += dx; _snapGuides.push({ x: gx }); }
-  let dy = null, dyd = SNAP_TOL + 1, gy = null;
-  ay.forEach(v => tY.forEach(t => { const d = Math.abs(v - t); if (d < dyd) { dyd = d; dy = t - v; gy = t; } }));
-  if (dy !== null && dyd <= SNAP_TOL) { o.top += dy; _snapGuides.push({ y: gy }); }
+  const pick = (vals, targets, held) => {
+    let best = null, bd = SNAP_TOL + 1;
+    vals.forEach(v => targets.forEach(t => { const d = Math.abs(v - t); if (d < bd) { bd = d; best = { t, delta: t - v }; } }));
+    if (!best && held !== null) {   // histerezis: aynı hedefe 2x tolerans içinde tutun
+      vals.forEach(v => { const d = Math.abs(v - held); if (d <= SNAP_TOL * 2 && (!best || d < bd)) { bd = d; best = { t: held, delta: held - v }; } });
+    }
+    return best;
+  };
+  const bx = pick(ax, tX, _snapHold.x);
+  if (bx) { o.left += bx.delta; _snapGuides.push({ x: bx.t }); _snapHold.x = bx.t; } else _snapHold.x = null;
+  const by = pick(ay, tY, _snapHold.y);
+  if (by) { o.top += by.delta; _snapGuides.push({ y: by.t }); _snapHold.y = by.t; } else _snapHold.y = null;
   o.setCoords();
 });
+let _topDrawn = false;   // son karede contextTop'a çizdiysek, kapatınca temizlenmeli
 canvas.on('after:render', () => {
-  if (!_snapGuides.length) return;
   const ctx = canvas.contextTop; if (!ctx) return;
+  const need = gridOn || _snapGuides.length;
+  if (!need && !_topDrawn) return;
+  try { canvas.clearContext(ctx); } catch (_) {}
+  _topDrawn = !!need;
+  if (!need) return;
   const vt = canvas.viewportTransform;
-  ctx.save(); ctx.strokeStyle = '#7A8B6A'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
-  _snapGuides.forEach(g => {
-    ctx.beginPath();
-    if (g.x !== undefined) { const px = g.x * vt[0] + vt[4]; ctx.moveTo(px, 0); ctx.lineTo(px, ctx.canvas.height); }
-    if (g.y !== undefined) { const py = g.y * vt[3] + vt[5]; ctx.moveTo(0, py); ctx.lineTo(ctx.canvas.width, py); }
-    ctx.stroke();
-  });
+  const B = store.get().board;
+  ctx.save();
+  if (gridOn && B.w_mm) {
+    const pxPerMm = B.widthPx / B.w_mm;
+    const stepPx = 10 * pxPerMm;             // 10 mm
+    const x0 = vt[4], y0 = vt[5], zx = vt[0], zy = vt[3];
+    for (let gx = 0, i = 0; gx <= B.widthPx + 0.5; gx += stepPx, i++) {
+      const px = gx * zx + x0;
+      if (px < -2 || px > ctx.canvas.width + 2) continue;
+      ctx.strokeStyle = i % 5 === 0 ? 'rgba(122,139,106,0.30)' : 'rgba(122,139,106,0.13)';
+      ctx.lineWidth = 1; ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(px, 0 * zy + y0); ctx.lineTo(px, B.heightPx * zy + y0); ctx.stroke();
+    }
+    for (let gy = 0, i = 0; gy <= B.heightPx + 0.5; gy += stepPx, i++) {
+      const py = gy * zy + y0;
+      if (py < -2 || py > ctx.canvas.height + 2) continue;
+      ctx.strokeStyle = i % 5 === 0 ? 'rgba(122,139,106,0.30)' : 'rgba(122,139,106,0.13)';
+      ctx.lineWidth = 1; ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(0 * zx + x0, py); ctx.lineTo(B.widthPx * zx + x0, py); ctx.stroke();
+    }
+  }
+  if (_snapGuides.length) {
+    ctx.strokeStyle = '#7A8B6A'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+    _snapGuides.forEach(g => {
+      ctx.beginPath();
+      if (g.x !== undefined) { const px = g.x * vt[0] + vt[4]; ctx.moveTo(px, 0); ctx.lineTo(px, ctx.canvas.height); }
+      if (g.y !== undefined) { const py = g.y * vt[3] + vt[5]; ctx.moveTo(0, py); ctx.lineTo(ctx.canvas.width, py); }
+      ctx.stroke();
+    });
+  }
   ctx.restore();
 });
-canvas.on('mouse:up', () => { if (_snapGuides.length) { _snapGuides = []; try { canvas.clearContext(canvas.contextTop); } catch(_){} canvas.requestRenderAll(); } });
+canvas.on('mouse:up', () => { if (_snapGuides.length) { _snapGuides = []; _snapHold.x = _snapHold.y = null; try { canvas.clearContext(canvas.contextTop); } catch(_){} canvas.requestRenderAll(); } });
 
 /* ═══ DAĞIT — eşit aralıkla diz ═══ */
 function distribute(axis) {
@@ -1844,6 +1934,18 @@ refreshLayers();
 renderBrandColors();
 resetHist();                                         // ilk geri-al anlık görüntüsü
 checkAutoSave();
+
+/* mobil bilgilendirme — pafta masaüstü odaklı, dar ekranda bir kez uyar */
+if (window.innerWidth < 900 && !localStorage.getItem('bynai_pafta_mobilnot')) {
+  const n = document.createElement('div');
+  n.style.cssText = 'position:fixed;left:10px;right:10px;bottom:12px;z-index:99;background:#1A1A16;color:#FAFAF8;border-radius:12px;padding:12px 14px;font-size:12.5px;line-height:1.5;box-shadow:0 6px 24px rgba(0,0,0,.35);';
+  n.innerHTML = 'Pafta Stüdyosu en iyi <b>masaüstünde</b> çalışır — telefonda paneller sıkışabilir.';
+  const b = document.createElement('button');
+  b.textContent = 'Anladım';
+  b.style.cssText = 'margin-left:10px;background:#9A6558;color:#fff;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;';
+  b.onclick = () => { n.remove(); localStorage.setItem('bynai_pafta_mobilnot', '1'); };
+  n.appendChild(b); document.body.appendChild(n);
+}
 </script>
 </body>
 </html>

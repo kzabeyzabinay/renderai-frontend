@@ -122,6 +122,15 @@
     .vs-main { grid-template-columns:1fr; grid-template-rows:auto 1fr auto; overflow-y:auto; }
     body { overflow:auto; }
   }
+  /* dar ekranda header sıkışsın — 224px yer yemesin */
+  @media (max-width: 700px) {
+    .vs-header { gap:6px; padding:7px 10px; }
+    .hbtn { padding:6px 9px; font-size:11.5px; border-radius:8px; }
+    select.hsel { padding:5px 7px; font-size:11px; }
+    .vs-badge { display:none; }
+    #saveStatus { min-width:0; }
+    #projName { width:86px; font-size:11px; }
+  }
 </style>
 </head>
 <body>
@@ -148,8 +157,14 @@
     <span data-i18n="vs_bg">Zemin</span>
     <input type="color" id="bgColorInput" value="#000000" onchange="project.bgColor=this.value; drawFrame();" style="width:24px; height:20px; border:none; background:none; padding:0; cursor:pointer;" />
   </label>
+  <input id="projName" placeholder="Proje adı" data-i18n-ph maxlength="40" onchange="scheduleSave()"
+         style="width:120px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.18); border-radius:8px; color:#FAFAF8; font-size:12px; padding:5px 9px;" />
   <span id="saveStatus" style="font-size:11px; color:#9A9284; min-width:70px; text-align:right;"></span>
-  <button class="hbtn" onclick="newProject()" title="Kaydı temizle, sıfırdan başla">🆕 <span data-i18n="vs_new">Yeni</span></button>
+  <button class="hbtn" onclick="undoVS()" title="Geri Al (Ctrl+Z)" aria-label="Geri Al">↶</button>
+  <button class="hbtn" onclick="redoVS()" title="Yinele (Ctrl+Y)" aria-label="Yinele">↷</button>
+  <button class="hbtn" onclick="saveNamedProject()" title="Projeyi isimle kaydet — sonra Projelerim'den açarsın">💾 <span data-i18n="vs_save">Kaydet</span></button>
+  <button class="hbtn" onclick="openProjLib()" title="Kayıtlı projelerin">📁 <span data-i18n="vs_myprojects">Projelerim</span></button>
+  <button class="hbtn" onclick="newProject()" title="Yeni projeye başla (mevcut çalışma Projelerim'e kayıtlıysa korunur)">🆕 <span data-i18n="vs_new">Yeni</span></button>
   <button class="hbtn" onclick="openVideoLib()" title="Dışa aktardığın son 10 video">🎞 <span data-i18n="vs_myvideos">Videolarım</span></button>
   <a class="hbtn" href="/" data-i18n="vs_back">← Siteye Dön</a>
   <button class="hbtn primary" onclick="startExport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> <span data-i18n="vs_export">MP4 Dışa Aktar</span></button>
@@ -230,6 +245,18 @@
       <button class="pchip" id="expCancel" onclick="cancelExport()" data-i18n="vs_cancel">İptal</button>
       <a class="pchip on" id="expDl" style="display:none; text-decoration:none;" data-i18n="vs_download">⬇ İndir</a>
       <button class="pchip" id="expClose" style="display:none;" onclick="closeExport()" data-i18n="vs_close">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Projelerim modalı (isimli projeler — IndexedDB, cihazda saklanır) -->
+<div class="modalBg" id="projLibModal">
+  <div class="modal" style="width:min(520px,94vw);">
+    <h3 data-i18n="vs_myprojects_t">📁 Projelerim</h3>
+    <p class="phint" data-i18n="vs_myprojects_hint">Projelerin bu tarayıcıda saklanır — cihazına özeldir, sunucuya yüklenmez. Açtığın proje üzerinde çalışırken değişiklikler otomatik kaydedilir.</p>
+    <div id="projLibList" style="display:flex; flex-direction:column; gap:8px; max-height:56vh; overflow-y:auto;"></div>
+    <div style="display:flex; justify-content:flex-end; margin-top:14px;">
+      <button class="pchip" onclick="closeProjLib()" data-i18n="vs_close2">Kapat</button>
     </div>
   </div>
 </div>
@@ -393,7 +420,25 @@ const TR2EN = {
   'Bindirme, yazı ve ses ekleniyor…': 'Adding overlays, text & audio…',
   'Yeni': 'New', 'Kaydedildi': 'Saved', 'Yeni proje': 'New project',
   'Bu projeyi silip sıfırdan başlansın mı? Bu geri alınamaz.': 'Delete this project and start over? This cannot be undone.',
-  'Önceki projen geri yüklendi': 'Your previous project was restored'
+  'Önceki projen geri yüklendi': 'Your previous project was restored',
+  // Projelerim + geri al + kısayollar (14 Tem)
+  'Kaydet': 'Save', 'Projelerim': 'My Projects', '📁 Projelerim': '📁 My Projects', 'Proje adı': 'Project name',
+  'Projelerin bu tarayıcıda saklanır — cihazına özeldir, sunucuya yüklenmez. Açtığın proje üzerinde çalışırken değişiklikler otomatik kaydedilir.':
+    'Projects are stored in this browser — private to your device, nothing is uploaded. While a project is open, changes are saved automatically.',
+  'Proje adı:': 'Project name:', 'İsimsiz proje': 'Untitled project', 'kaydedildi': 'saved',
+  'Proje kaydedildi — Projelerim\'den her zaman açabilirsin: ': 'Project saved — open it anytime from My Projects: ',
+  'Kaydedilemedi — tarayıcı depolama izni/kota sorunu olabilir': 'Could not save — browser storage permission/quota issue',
+  'Henüz kayıtlı proje yok — 💾 Kaydet ile mevcut çalışmanı isimle sakla.': 'No saved projects yet — use 💾 Save to store your current work with a name.',
+  'klip': 'clips', 'Aç': 'Open', 'Sil': 'Delete',
+  'Bu proje kalıcı olarak silinsin mi?': 'Delete this project permanently?',
+  'Proje açılamadı': 'Could not open project', 'Proje açıldı: ': 'Project opened: ',
+  'Yeni projeye başlansın mı?': 'Start a new project?',
+  ' (mevcut çalışma Projelerim\'de kayıtlı, korunur)': ' (current work is saved in My Projects and will be kept)',
+  ' (kaydedilmemiş çalışma silinir — önce 💾 Kaydet\'e basabilirsin)': ' (unsaved work will be lost — you can press 💾 Save first)',
+  'Geri alındı': 'Undone', 'Yinelendi': 'Redone', 'Geri alınacak adım yok': 'Nothing to undo', 'Yinelenecek adım yok': 'Nothing to redo',
+  'Silindi — Ctrl+Z ile geri alabilirsin': 'Deleted — press Ctrl+Z to undo',
+  'Önce zaman çizelgesinden bir öğe seç': 'Select an item on the timeline first',
+  'Proje': 'Project', 'tahmini süre: proje uzunluğunun ~1-2 katı': 'estimated time: about 1-2x the project length'
 };
 function L(s) { return (RA_LANG === 'en' && TR2EN[s]) ? TR2EN[s] : s; }
 function applyI18n() {
@@ -402,6 +447,9 @@ function applyI18n() {
     const k = el.innerHTML.trim(), plain = el.textContent.trim();
     if (TR2EN[k]) el.innerHTML = TR2EN[k];
     else if (TR2EN[plain]) el.textContent = TR2EN[plain];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {   // placeholder çevirisi
+    if (TR2EN[el.placeholder]) el.placeholder = TR2EN[el.placeholder];
   });
 }
 
@@ -590,16 +638,19 @@ async function toggleMic() {
   }
 }
 
-/* ── Telifsiz müzik kütüphanesi (BynAi için üretilmiş, /music/ altında) ── */
+/* ── Telifsiz müzik kütüphanesi (BynAi için üretilmiş, /music/ altında) ──
+   v2 (14 Tem): 20-30 sn'lik benzer wav'lar yerine 1.5-5 dk'lık, karakteri gerçekten
+   farklı MP3 parçalar (ayrı tempo/ton/enstrüman/yapı). Eski .wav dosyaları REPODA
+   DURUYOR — kayıtlı projelerdeki referanslar kırılmasın. `len` = listede gösterilen süre. */
 const MUSIC_LIB = [
-  { file: 'music/sakin.wav',     label: 'Sakin',     mood: 'Yumuşak ambient — sunum, konut' },
-  { file: 'music/kurumsal.wav',  label: 'Kurumsal',  mood: 'Ferah, ilerleyen — ofis, ticari' },
-  { file: 'music/lofi.wav',      label: 'Lo-Fi',     mood: 'Sakin, sıcak — sosyal medya' },
-  { file: 'music/sinematik.wav', label: 'Sinematik', mood: 'Atmosferik, duygusal — tanıtım' },
-  { file: 'music/enerjik.wav',   label: 'Enerjik',   mood: 'Hızlı, neşeli — reels, tanıtım' },
-  { file: 'music/huzurlu.wav',   label: 'Huzurlu',   mood: 'Sakin, yumuşak — doğa, villa' },
-  { file: 'music/modern.wav',    label: 'Modern',    mood: 'Ritmik, çağdaş — teknoloji' },
-  { file: 'music/epik.wav',      label: 'Epik',      mood: 'Görkemli, duygusal — büyük proje' },
+  { file: 'music/sakin.mp3',     label: 'Sakin',     len: '3:00', mood: 'Yumuşak ambient — sunum, konut' },
+  { file: 'music/kurumsal.mp3',  label: 'Kurumsal',  len: '2:00', mood: 'Ferah, ilerleyen — ofis, ticari' },
+  { file: 'music/lofi.mp3',      label: 'Lo-Fi',     len: '2:30', mood: 'Sakin, sıcak — sosyal medya' },
+  { file: 'music/sinematik.mp3', label: 'Sinematik', len: '4:00', mood: 'Atmosferik, duygusal — tanıtım' },
+  { file: 'music/enerjik.mp3',   label: 'Enerjik',   len: '1:30', mood: 'Hızlı, neşeli — reels, tanıtım' },
+  { file: 'music/huzurlu.mp3',   label: 'Huzurlu',   len: '5:00', mood: 'Sakin, yumuşak — doğa, villa' },
+  { file: 'music/modern.mp3',    label: 'Modern',    len: '2:00', mood: 'Ritmik, çağdaş — teknoloji' },
+  { file: 'music/epik.mp3',      label: 'Epik',      len: '3:30', mood: 'Görkemli, duygusal — büyük proje' },
 ];
 const SFX_LIB = [
   { file: 'sfx/click.wav',  label: 'Tık',        mood: 'Kısa buton/tık' },
@@ -629,7 +680,7 @@ function renderMusicList() {
     const row = document.createElement('div');
     row.style.cssText = 'display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:10px; padding:9px 11px; background:#fff;';
     row.innerHTML = `<button class="pchip" data-play style="width:34px;">▶</button>
-      <div style="flex:1; min-width:0;"><div style="font-weight:700; font-size:13px;">${m.label}</div><div class="phint" style="font-size:11px;">${L(m.mood)}</div></div>
+      <div style="flex:1; min-width:0;"><div style="font-weight:700; font-size:13px;">${m.label}${m.len ? ` <span style="font-weight:400; font-size:11px; color:var(--muted);">· ${m.len}</span>` : ''}</div><div class="phint" style="font-size:11px;">${L(m.mood)}</div></div>
       <button class="pchip on" data-add>${L('Ekle')}</button>`;
     const playBtn = row.querySelector('[data-play]');
     playBtn.onclick = () => {
@@ -800,12 +851,58 @@ function renderTimeline() {
     if (selected && selected.kind === 'audio' && selected.id === a.id) ch.classList.add('sel');
     ch.style.left = (tot ? (a.start / tot) * inW : 0) + 4 + 'px';
     ch.style.maxWidth = 'none';
-    ch.style.width = (tot ? Math.max(40, (Math.min(a.dur, Math.max(0.5, tot - a.start)) / tot) * inW) : 80) + 'px';
-    ch.textContent = '♪ ' + a.name;
+    const chW = (tot ? Math.max(40, (Math.min(a.dur, Math.max(0.5, tot - a.start)) / tot) * inW) : 80);
+    ch.style.width = chW + 'px';
+    // dalga formu (arka katman) + isim (ön katman)
+    if (a._peaks) ch.appendChild(peaksCanvas(a, chW, 18)); else ensurePeaks(a);
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'position:relative; z-index:2; text-shadow:0 1px 2px rgba(0,0,0,.5);';
+    lbl.textContent = '♪ ' + a.name;
+    ch.appendChild(lbl);
+    if (a.fade) {   // fade-out görsel işareti
+      const f = document.createElement('div');
+      f.title = 'Fade out (sonda yumuşar)';
+      f.style.cssText = 'position:absolute; right:0; top:0; bottom:0; width:24%; max-width:60px; background:linear-gradient(to right, transparent, rgba(0,0,0,.5)); pointer-events:none; z-index:1;';
+      ch.appendChild(f);
+    }
     ch.onclick = ev => { ev.stopPropagation(); selected = { kind: 'audio', id: a.id }; renderAll(); };
     as.appendChild(ch);
   });
   updatePlayhead();
+}
+
+/* ── ses dalga formu: bir kez çözülür, a._peaks'te önbellek (projeyle birlikte saklanır) ── */
+const _peaksPending = new Set();
+function peaksCanvas(a, w, h) {
+  const cv = document.createElement('canvas');
+  cv.width = Math.max(2, Math.round(w)); cv.height = h;
+  const g = cv.getContext('2d'); g.fillStyle = 'rgba(255,255,255,0.5)';
+  const N = a._peaks.length, bw = cv.width / N;
+  for (let i = 0; i < N; i++) {
+    const ph = Math.max(1, a._peaks[i] * (h - 3));
+    g.fillRect(i * bw, (h - ph) / 2, Math.max(1, bw - 0.6), ph);
+  }
+  cv.style.cssText = 'position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; z-index:0;';
+  return cv;
+}
+async function ensurePeaks(a) {
+  if (a._peaks || _peaksPending.has(a.id)) return;
+  _peaksPending.add(a.id);
+  try {
+    const buf = a.file ? await a.file.arrayBuffer() : await (await fetch(a.url)).arrayBuffer();
+    window._peakAC = window._peakAC || new (window.AudioContext || window.webkitAudioContext)();
+    const audio = await window._peakAC.decodeAudioData(buf);
+    const d = audio.getChannelData(0);
+    const N = 120, out = new Array(N), step = Math.floor(d.length / N) || 1;
+    for (let i = 0; i < N; i++) {
+      let m = 0; const s1 = Math.min(d.length, i * step + step);
+      for (let j = i * step; j < s1; j += 16) { const v = Math.abs(d[j]); if (v > m) m = v; }
+      out[i] = m;
+    }
+    a._peaks = out;
+    renderTimeline();   // hazır → şerit bir kez tazelenir
+  } catch (e) {}
+  finally { _peaksPending.delete(a.id); }
 }
 
 /* Şerit boşluğuna tıkla → o ana atla (klip/yazı/ses stopPropagation yapar) */
@@ -1583,6 +1680,7 @@ async function startExport() {
     const [W, H] = exportDims();
     const tot = totalDur();
     const st = clipStarts();
+    expLog(`${L('Proje')}: ${Math.round(tot)} sn · ${W}x${H} — ${L('tahmini süre: proje uzunluğunun ~1-2 katı')}`);
 
     /* 1) Her klip → normalize sessiz segment (efekt/hız/ters/dönüş/KB/dolgu dahil) */
     const segNames = [];
@@ -1836,11 +1934,12 @@ let _db = null, _loading = false, _saveT = null;
 function idb() {
   return new Promise((res, rej) => {
     if (_db) return res(_db);
-    const r = indexedDB.open('bynai_video_studio', 2);
+    const r = indexedDB.open('bynai_video_studio', 3);
     r.onupgradeneeded = () => { const d = r.result;
       if (!d.objectStoreNames.contains('media')) d.createObjectStore('media');
       if (!d.objectStoreNames.contains('project')) d.createObjectStore('project');
-      if (!d.objectStoreNames.contains('videos')) d.createObjectStore('videos'); };
+      if (!d.objectStoreNames.contains('videos')) d.createObjectStore('videos');
+      if (!d.objectStoreNames.contains('projects')) d.createObjectStore('projects'); };  // v3: isimli çoklu proje
     r.onsuccess = () => { _db = r.result; res(_db); };
     r.onerror = () => rej(r.error);
   });
@@ -1954,22 +2053,104 @@ function showSaved(txt) {
   el.style.color = '#7A8B6A';
   clearTimeout(el._t); el._t = setTimeout(() => { el.style.color = '#9A9284'; }, 1500);
 }
+let currentProjId = null;   // Projelerim'de açık olan kayıt (null = isimsiz çalışma)
+const projNameVal = () => (document.getElementById('projName') ? document.getElementById('projName').value.trim() : '');
 async function saveProject() {
   if (_loading || exporting) return;
   try { const state = await serializeState();
-    await idbPut('project', 'current', { state, savedAt: Date.now() });
-    showSaved(); } catch (e) { /* kota/gizli mod → sessiz geç */ }
+    await idbPut('project', 'current', { state, savedAt: Date.now(), projId: currentProjId, projName: projNameVal() });
+    // isimli projeye bağlıysak onu da güncelle — kullanıcı "kaydet"e basmayı unutsa bile proje güncel kalır
+    if (currentProjId) await idbPut('projects', currentProjId, { name: projNameVal() || L('İsimsiz proje'), savedAt: Date.now(), state });
+    showSaved(projNameVal() ? ('✓ "' + projNameVal().slice(0, 14) + '" ' + L('kaydedildi')) : undefined);
+  } catch (e) { /* kota/gizli mod → sessiz geç */ }
 }
 function scheduleSave() { if (_loading) return; clearTimeout(_saveT); _saveT = setTimeout(saveProject, 1500); }
 
+/* ── PROJELERİM: isimli çoklu proje (IndexedDB 'projects') ── */
+async function saveNamedProject() {
+  let name = projNameVal();
+  if (!name) { name = (prompt(L('Proje adı:')) || '').trim(); if (!name) return; document.getElementById('projName').value = name; }
+  if (!currentProjId) currentProjId = 'p' + Date.now();
+  try {
+    const state = await serializeState();
+    await idbPut('projects', currentProjId, { name, savedAt: Date.now(), state });
+    await idbPut('project', 'current', { state, savedAt: Date.now(), projId: currentProjId, projName: name });
+    showSaved('✓ "' + name.slice(0, 14) + '" ' + L('kaydedildi'));
+    toast(L('Proje kaydedildi — Projelerim\'den her zaman açabilirsin: ') + name);
+  } catch (e) { toast(L('Kaydedilemedi — tarayıcı depolama izni/kota sorunu olabilir'), 'err'); }
+}
+async function openProjLib() {
+  const list = document.getElementById('projLibList');
+  let items = [];
+  try { items = await idbAll('projects'); } catch (e) {}
+  items.sort((a, b) => (b.val.savedAt || 0) - (a.val.savedAt || 0));
+  if (!items.length) {
+    list.innerHTML = `<p class="phint" style="margin:6px 0;">${L('Henüz kayıtlı proje yok — 💾 Kaydet ile mevcut çalışmanı isimle sakla.')}</p>`;
+  } else {
+    list.innerHTML = '';
+    items.forEach(it => {
+      const st = it.val.state || {};
+      const n = (st.clips || []).length, d = new Date(it.val.savedAt || 0);
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:10px; padding:9px 11px;';
+      row.innerHTML = `<div style="flex:1; min-width:0;">
+          <div style="font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${(it.val.name || '—')}</div>
+          <div style="font-size:11px; color:var(--muted);">${d.toLocaleDateString('tr-TR')} ${d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} · ${n} ${L('klip')}</div>
+        </div>
+        <button class="pchip on" data-open>${L('Aç')}</button>
+        <button class="pchip" data-del>${L('Sil')}</button>`;
+      row.querySelector('[data-open]').onclick = () => loadNamedProject(it.key);
+      row.querySelector('[data-del]').onclick = async () => {
+        if (!confirm(L('Bu proje kalıcı olarak silinsin mi?'))) return;
+        try { await idbDel('projects', it.key); } catch (e) {}
+        if (currentProjId === it.key) currentProjId = null;
+        gcMedia(); openProjLib();
+      };
+      list.appendChild(row);
+    });
+  }
+  document.getElementById('projLibModal').style.display = 'flex';
+}
+function closeProjLib() { document.getElementById('projLibModal').style.display = 'none'; }
+async function loadNamedProject(id) {
+  try {
+    const rec = await idbGet('projects', id);
+    if (!rec || !rec.state) { toast(L('Proje açılamadı'), 'err'); return; }
+    _loading = true;
+    await deserializeState(rec.state);
+    _loading = false;
+    currentProjId = id;
+    document.getElementById('projName').value = rec.name || '';
+    selected = null; playT = 0;
+    renderAll(); closeProjLib();
+    toast(L('Proje açıldı: ') + (rec.name || ''));
+    saveProject();   // otosave'i bu projeye bağla
+  } catch (e) { _loading = false; toast(L('Proje açılamadı'), 'err'); }
+}
+/* media deposu çöp toplama — hiçbir projenin (ve mevcut çalışmanın) kullanmadığı blobları sil.
+   ESKİDEN newProject idbClear('media') yapıyordu → kayıtlı projelerin dosyaları da gidiyordu (BUG). */
+async function gcMedia() {
+  try {
+    const used = new Set();
+    const collect = st => ['clips', 'audios', 'overlays'].forEach(k => (st[k] || []).forEach(it => it && it.fileId && used.add(it.fileId)));
+    (await idbAll('projects')).forEach(p => p.val && p.val.state && collect(p.val.state));
+    const cur = await idbGet('project', 'current'); if (cur && cur.state) collect(cur.state);
+    [...clips, ...audios, ...overlays].forEach(it => it && it._fid && used.add(it._fid));
+    for (const m of await idbAll('media')) if (!used.has(m.key)) await idbDel('media', m.key);
+  } catch (e) {}
+}
+
 async function newProject() {
   if (clips.length || audios.length || overlays.length || texts.length) {
-    if (!confirm(L('Bu projeyi silip sıfırdan başlansın mı? Bu geri alınamaz.'))) return;
+    const kayitli = currentProjId ? L(' (mevcut çalışma Projelerim\'de kayıtlı, korunur)') : L(' (kaydedilmemiş çalışma silinir — önce 💾 Kaydet\'e basabilirsin)');
+    if (!confirm(L('Yeni projeye başlansın mı?') + kayitli)) return;
   }
   clips = []; texts = []; audios = []; overlays = []; selected = null; playT = 0;
   project.bgColor = '#000000'; project.bgBlur = false;
   document.getElementById('bgColorInput').value = '#000000';
-  try { await idbClear('project'); await idbClear('media'); } catch (e) {}
+  currentProjId = null;
+  const pn = document.getElementById('projName'); if (pn) pn.value = '';
+  try { await idbClear('project'); await gcMedia(); } catch (e) {}   // kayıtlı projelerin medyası KORUNUR
   renderAll();
   showSaved(L('Yeni proje'));
 }
@@ -1980,6 +2161,8 @@ async function tryRestore() {
     const rec = await idbGet('project', 'current');
     if (rec && rec.state && ((rec.state.clips || []).length || (rec.state.audios || []).length || (rec.state.overlays || []).length)) {
       await deserializeState(rec.state);
+      currentProjId = rec.projId || null;
+      if (rec.projName) { const pn = document.getElementById('projName'); if (pn) pn.value = rec.projName; }
       renderAll();
       toast(L('Önceki projen geri yüklendi'));
     }
@@ -1990,8 +2173,81 @@ async function tryRestore() {
 document.addEventListener('visibilitychange', () => { if (document.hidden) saveProject(); });
 window.addEventListener('pagehide', () => { saveProject(); });
 
+/* ═══ GERİ AL / YİNELE ═══
+   Anlık görüntü tabanlı: _el hariç sığ klon (File/blob referansları paylaşılır —
+   element'ler lazy yeniden kurulur). renderAll'dan debounce'la beslenir; imza
+   eşleşirse (değişiklik yoksa / undo sonrası) yığına eklenmez. Max 30 adım. */
+let _hist = [], _histI = -1, _histLock = false, _histT = null;
+function _histStrip(it) { const o = { ...it }; delete o._el; return o; }
+function _histSnap() {
+  return { clips: clips.map(_histStrip), texts: texts.map(t => ({ ...t })), audios: audios.map(_histStrip),
+           overlays: overlays.map(_histStrip), aspect, bgColor: project.bgColor, bgBlur: project.bgBlur, uid };
+}
+function _histSig(s) {
+  try { return JSON.stringify(s, (k, v) => (v instanceof File || v instanceof Blob) ? '[f]' : v); }
+  catch (_) { return 'x' + Math.random(); }
+}
+function pushHistVS() {
+  if (_histLock || _loading || exporting) return;
+  clearTimeout(_histT);
+  _histT = setTimeout(() => {
+    if (_histLock || _loading || exporting) return;
+    const s = _histSnap(), sig = _histSig(s);
+    if (_hist[_histI] && _hist[_histI].sig === sig) return;
+    _hist = _hist.slice(0, _histI + 1);
+    _hist.push({ s, sig });
+    if (_hist.length > 30) _hist.shift();
+    _histI = _hist.length - 1;
+  }, 500);
+}
+function _histApply(s) {
+  _histLock = true;
+  clips = s.clips.map(o => ({ ...o }));
+  texts = s.texts.map(o => ({ ...o }));
+  audios.forEach(a => { if (a._el) a._el.pause(); });
+  audios = s.audios.map(o => ({ ...o }));
+  overlays = s.overlays.map(o => ({ ...o }));
+  project.bgColor = s.bgColor; project.bgBlur = s.bgBlur;
+  document.getElementById('bgColorInput').value = s.bgColor || '#000000';
+  document.getElementById('fillSel').value = s.bgBlur ? 'blur' : 'black';
+  if (s.uid && s.uid > uid) uid = s.uid;
+  if (s.aspect && s.aspect !== aspect) { document.getElementById('aspectSel').value = s.aspect; setAspect(s.aspect); }
+  selected = null; setPlaying(false); playT = Math.min(playT, totalDur());
+  _histLock = false;
+  renderAll();
+}
+function undoVS() { if (_histI <= 0) { showSaved(L('Geri alınacak adım yok')); return; } _histI--; _histApply(_hist[_histI].s); showSaved('↶ ' + L('Geri alındı')); }
+function redoVS() { if (_histI >= _hist.length - 1) { showSaved(L('Yinelenecek adım yok')); return; } _histI++; _histApply(_hist[_histI].s); showSaved('↷ ' + L('Yinelendi')); }
+
+/* ═══ KLAVYE KISAYOLLARI ═══ Space oynat/durdur · Delete sil · ←/→ kare (Shift=1sn) · Ctrl+Z/Y */
+function deleteSelectedVS() {
+  if (!selected) { toast(L('Önce zaman çizelgesinden bir öğe seç')); return; }
+  if (selected.kind === 'clip') clips = clips.filter(c => c.id !== selected.id);
+  else if (selected.kind === 'text') texts = texts.filter(t => t.id !== selected.id);
+  else if (selected.kind === 'audio') { const a = audios.find(x => x.id === selected.id); if (a && a._el) a._el.pause(); audios = audios.filter(x => x.id !== selected.id); }
+  else if (selected.kind === 'overlay') overlays = overlays.filter(o => o.id !== selected.id);
+  selected = null; renderAll();
+  toast(L('Silindi — Ctrl+Z ile geri alabilirsin'));
+}
+document.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
+  if (exporting) return;
+  const k = e.key.toLowerCase();
+  if ((e.ctrlKey || e.metaKey) && k === 'z' && !e.shiftKey) { e.preventDefault(); undoVS(); return; }
+  if ((e.ctrlKey || e.metaKey) && (k === 'y' || (e.shiftKey && k === 'z'))) { e.preventDefault(); redoVS(); return; }
+  if (e.key === ' ') { e.preventDefault(); setPlaying(!playing); return; }
+  if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteSelectedVS(); return; }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+    e.preventDefault();
+    const step = e.shiftKey ? 1 : 1 / 30;
+    playT = Math.max(0, Math.min(totalDur(), playT + (e.key === 'ArrowRight' ? step : -step)));
+    syncScrub(); drawFrame(); syncMedia(); updateTimeLbl();
+  }
+});
+
 /* ═══ GENEL ═══ */
-function renderAll() { renderTimeline(); renderProps(); updateTimeLbl(); drawFrame(); scheduleSave(); }
+function renderAll() { renderTimeline(); renderProps(); updateTimeLbl(); drawFrame(); scheduleSave(); pushHistVS(); }
 
 window.addEventListener('resize', renderTimeline);
 renderMediaList();
