@@ -1742,6 +1742,7 @@ async function doAutoSave() {
       savedAt: Date.now(),
       title: boardTitleVal(),
       presentationId: currentPresentationId,
+      shared: currentShared,   // paylaşım bayrağı restore'da kaybolmasın (link kilitlenme bug'ı)
       pages: pages.map(p => ({ id: p.id, board: p.board, json: p.json }))
     };
     await _asPut('current', data);
@@ -1780,6 +1781,7 @@ async function checkAutoSave() {
       pages = data.pages.map(p => ({ id: p.id || crypto.randomUUID(), board: p.board, json: p.json }));
       activeIdx = 0;
       currentPresentationId = data.presentationId || null;
+      currentShared = !!data.shared;
       if (data.title) document.getElementById('boardTitle').value = data.title;
       loadPageInto(0); updateEditingBadge();
       toast('Kaldığın yerden devam ediyorsun ✓', 'ok');
