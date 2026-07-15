@@ -1426,7 +1426,15 @@ async function loadLibrary() {
   wrap.innerHTML = '<div class="hint">Yükleniyor…</div>';
   try {
     const res = await authFetch(`${API}/my/library`, { headers: authHeaders() });
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+    // ★ 401 "sunum yok" DEĞİLDİR — eskiden ikisi aynı görünüyordu, kullanıcı
+    //   "eski sunumlarım kayboldu" sanıyordu. Artık gerçek neden söylenir.
+    if (!res.ok) {
+      wrap.innerHTML = '<div class="empty">' + (res.status === 401
+        ? '🔑 Oturumun süresi dolmuş.<br><br>Ana sayfada <b>Çıkış Yap</b> → <b>yeniden Giriş Yap</b>, sonra bu pencereyi tekrar aç.<br>Sunumların silinmedi — güvende.'
+        : (data.detail || 'Liste yüklenemedi — birkaç saniye sonra tekrar dene.')) + '</div>';
+      return;
+    }
     const items = data.presentations || [];
     if (!items.length) { wrap.innerHTML = '<div class="empty">Henüz kayıtlı sunum yok.</div>'; return; }
     wrap.innerHTML = '';
