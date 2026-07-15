@@ -163,6 +163,7 @@
   <span id="editBadge" onclick="clearEditing()" title="Tıkla: yeni sunum olarak kaydet" style="display:none;cursor:pointer;font-size:11px;color:var(--accent);border:1px solid var(--terra);border-radius:14px;padding:4px 10px;"></span>
   <span id="autoSaveLbl" style="font-size:10px;color:var(--muted);white-space:nowrap;"></span>
   <div class="spacer"></div>
+  <button class="tbtn" onclick="newPresentation()" title="Boş sunuma başla"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M12 5v14M5 12h14"/></svg>Yeni</button>
   <button class="tbtn" onclick="openLibrary()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Sunumlarım</button>
   <button class="tbtn" onclick="openTemplates()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Şablon</button>
   <button class="tbtn" onclick="exportPNG()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block;margin-right:4px"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg>PNG</button>
@@ -1417,6 +1418,21 @@ function updateEditingBadge() {
   else b.style.display='none';
 }
 function clearEditing() { currentPresentationId = null; currentShared = false; updateEditingBadge(); toast('Bundan sonra yeni bir sunum olarak kaydedilecek', 'info'); }
+/* 🆕 YENİ SUNUM — boş sayfayla başla. Kayıtlı sunuma bağlıysa o korunur (Sunumlarım'da);
+   kaydedilmemiş çalışma varsa kullanıcı onaylamadan silinmez. */
+async function newPresentation() {
+  const uyari = currentPresentationId
+    ? 'Yeni boş sunuma başlansın mı?\n(Şu anki sunum Sunumlarım\'da kayıtlı — korunur.)'
+    : 'Yeni boş sunuma başlansın mı?\n(Kaydedilmemiş değişiklikler silinir — istersen önce Kaydet\'e bas.)';
+  if (!await uiConfirm(uyari, { okText: 'Yeni Sunum' })) return;
+  pages = [blankPage()];
+  activeIdx = 0;
+  currentPresentationId = null; currentShared = false;
+  document.getElementById('boardTitle').value = 'İsimsiz Pafta';
+  clearAutoSave();
+  loadPageInto(0); updateEditingBadge();
+  toast('Yeni boş sunum açıldı — eskilere Sunumlarım\'dan dönebilirsin', 'ok');
+}
 function openLibrary() {
   if (!localStorage.getItem('ra_token')) { toast('Giriş gerekli'); return; }
   document.getElementById('libModal').classList.add('open'); loadLibrary();
