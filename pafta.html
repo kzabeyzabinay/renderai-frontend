@@ -385,6 +385,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const API = 'https://web-production-8c34d.up.railway.app';
+fetch(`${API}/`).catch(() => {});   // sayfa açılır açılmaz sunucuyu uyandır (Railway uyku modu — index.html'deki ile aynı)
 const authHeaders = () => {
   const t = localStorage.getItem('ra_token');
   return t ? { 'Authorization': 'Bearer ' + t } : {};
@@ -1440,9 +1441,11 @@ function openLibrary() {
 async function loadLibrary() {
   const wrap = document.getElementById('libList');
   wrap.innerHTML = '<div class="hint">Yükleniyor…</div>';
+  const _t0 = performance.now();
   try {
     const res = await authFetch(`${API}/my/library`, { headers: authHeaders() });
     const data = await res.json().catch(() => ({}));
+    const _sn = ((performance.now() - _t0) / 1000).toFixed(1);
     // ★ 401 "sunum yok" DEĞİLDİR — eskiden ikisi aynı görünüyordu, kullanıcı
     //   "eski sunumlarım kayboldu" sanıyordu. Artık gerçek neden söylenir.
     if (!res.ok) {
@@ -1458,7 +1461,7 @@ async function loadLibrary() {
       const el = document.createElement('div'); el.className = 'libItem';
       const date = p.created_at ? new Date(p.created_at).toLocaleDateString('tr-TR') : '';
       const pasif = (p.shared && p.active === false) ? ' <span style="color:#c98;">· link pasif</span>' : '';
-      el.innerHTML = `<img src="${p.thumb||''}" onerror="this.style.visibility='hidden'"><div class="li-meta"><b>${p.title||'Sunum'}</b><span>${date}${pasif}</span></div>`
+      el.innerHTML = `<img src="${p.thumb||''}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"><div class="li-meta"><b>${p.title||'Sunum'}</b><span>${date}${pasif}</span></div>`
         + `<button class="li-act" title="Kopyala" style="background:none;border:none;cursor:pointer;color:#7A8B6A;padding:4px;"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>`
         + `<button class="li-del" title="Sil">🗑</button>`;
       el.querySelector('.li-act').onclick = (e) => { e.stopPropagation(); duplicatePresentation(p.id); };
@@ -1466,6 +1469,11 @@ async function loadLibrary() {
       el.onclick = () => loadPresentation(p.id, p.title);
       wrap.appendChild(el);
     });
+    // teşhis satırı: süre + backend'in kullandığı listeleme yolu (rpc=hızlı, tam=yavaş yedek)
+    const dbg = document.createElement('div');
+    dbg.style.cssText = 'font-size:10px;color:var(--muted);text-align:right;margin-top:8px;';
+    dbg.textContent = `⏱ ${_sn} sn · yol: ${data.kaynak || '?'}${data.kaynak_rpc_hata ? ' (rpc hata ' + data.kaynak_rpc_hata + ')' : ''}${data.kaynak_ince_hata ? ' (ince hata ' + data.kaynak_ince_hata + ')' : ''}`;
+    wrap.appendChild(dbg);
   } catch (e) { wrap.innerHTML = '<div class="empty">Yüklenemedi</div>'; }
 }
 async function deletePresentation(id) {
