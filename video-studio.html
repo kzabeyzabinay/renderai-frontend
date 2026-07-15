@@ -782,10 +782,18 @@ function renderTimeline() {
     const d = document.createElement('div'); d.className = 'tlempty';
     d.textContent = L('Önce zaman çizelgesine klip ekle.'); strip.appendChild(d);
   }
-  let cx = 4; // padding-left (birikimli x — geçiş işaretleri için)
+  // Klipler ZAMANA göre mutlak konumlanır (ses/yazı şeritleri + playhead ile birebir hizalı).
+  // Genişlik = klibin zaman çizelgesindeki ilerleyişi (geçiş bindirmesi düşülmüş) → geçişli
+  // kliplerde toplam artık totalDur'u aşmaz, şerit taşmaz.
+  const cst = clipStarts();
   clips.forEach((c, i) => {
-    const w = Math.max(24, tot ? (clipDur(c) / tot) * inW - 4 : 58);
+    const nextStart = (i < clips.length - 1) ? cst[i + 1] : tot;
+    const adv = Math.max(0.01, nextStart - cst[i]);
+    const left = (tot ? cst[i] / tot * inW : 0) + 4;
+    const w = Math.max(18, tot ? (adv / tot) * inW - 2 : 58);
     const el = document.createElement('div'); el.className = 'clip';
+    el.style.position = 'absolute';
+    el.style.left = left + 'px';
     el.style.width = w + 'px';
     el.style.height = clipH + 'px';
     if (selected && selected.kind === 'clip' && selected.id === c.id) el.classList.add('sel');
@@ -808,18 +816,17 @@ function renderTimeline() {
       const [m] = clips.splice(from, 1); clips.splice(i, 0, m); renderAll();
     };
     strip.appendChild(el);
-    cx += w;
-    // Klipler arası geçiş işareti (CapCut gibi tıklanabilir)
+    // Klipler arası geçiş işareti (CapCut gibi tıklanabilir) — sınır zaman noktasına konur
     if (i < clips.length - 1) {
+      const bx = (tot ? nextStart / tot * inW : 0) + 4;
       const mk = document.createElement('div');
       mk.className = 'trmark ' + (c.tr.type === 'cut' ? 'cut' : 'on');
-      mk.style.left = (cx + 2) + 'px';
+      mk.style.left = bx + 'px';
       mk.textContent = c.tr.type === 'cut' ? '+' : '⇄';
       mk.title = c.tr.type === 'cut' ? L('Geçiş ekle / değiştir') : trLabel(c.tr.type);
       mk.onclick = ev => { ev.stopPropagation(); selected = { kind: 'clip', id: c.id }; openTransPicker = c.id; renderAll(); };
       strip.appendChild(mk);
     }
-    cx += 4; // gap
   });
 
   const os = document.getElementById('overlayStrip');
@@ -1514,12 +1521,10 @@ function drawTextsOn(c2d, W, H, T, animate) {
     if (t.outline) { c2d.lineWidth = Math.max(1, fs * 0.08); c2d.strokeStyle = t.outColor; c2d.strokeText(t.content, cx, y); }
     c2d.fillStyle = t.color;
     c2d.fillText(t.content, cx, y);
-    // seçili yazıya kesikli çerçeve (yalnız önizleme — export'a girmez)
+    // seçili yazıya temiz seçim kutusu (yalnız önizleme — export'a girmez)
     if (animate && selected && selected.kind === 'text' && selected.id === t.id) {
       const tw2 = c2d.measureText(t.content).width, pad2 = fs * 0.55;
-      c2d.globalAlpha = 1; c2d.shadowColor = 'transparent'; c2d.shadowBlur = 0; c2d.shadowOffsetY = 0;
-      c2d.setLineDash([6, 4]); c2d.strokeStyle = '#9A6558'; c2d.lineWidth = 2;
-      c2d.strokeRect(cx - tw2 / 2 - pad2, y - fs * 0.75 - 3, tw2 + pad2 * 2, fs * 1.5 + 6);
+      drawSelBox(c2d, cx - tw2 / 2 - pad2, y - fs * 0.75 - 3, tw2 + pad2 * 2, fs * 1.5 + 6, false);
     }
     c2d.restore();
   });
@@ -1591,10 +1596,30 @@ function drawOverlaysOn(c2d, W, H, T) {
     try { c2d.drawImage(media, cx - dw / 2, cy - dh / 2, dw, dh); } catch (e) {}
     c2d.restore();
     if (selected && selected.kind === 'overlay' && selected.id === o.id) {
-      c2d.save(); c2d.strokeStyle = '#9A6558'; c2d.lineWidth = 2; c2d.setLineDash([6, 4]);
-      c2d.strokeRect(cx - dw / 2, cy - dh / 2, dw, dh); c2d.restore();
+      drawSelBox(c2d, cx - dw / 2, cy - dh / 2, dw, dh, true);   // köşe tutamaçlı (yeniden boyutlandırma)
     }
   });
+}
+
+/* Temiz seçim kutusu: ince yarı saydam çerçeve + (istenirse) köşe tutamaçları.
+   Yalnız önizlemede çizilir — dışa aktarmaya girmez. */
+const SEL_HANDLE = 9;   // köşe tutamacı kenarı (canvas px)
+function drawSelBox(c2d, x, y, w, h, handles) {
+  c2d.save();
+  c2d.globalAlpha = 1;
+  c2d.shadowColor = 'transparent'; c2d.shadowBlur = 0; c2d.shadowOffsetX = 0; c2d.shadowOffsetY = 0;
+  c2d.setLineDash([]);
+  c2d.strokeStyle = 'rgba(255,255,255,0.9)'; c2d.lineWidth = 1.5;
+  c2d.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  if (handles) {
+    const hs = SEL_HANDLE;
+    c2d.fillStyle = '#9A6558'; c2d.strokeStyle = '#fff'; c2d.lineWidth = 1.5;
+    [[x, y], [x + w, y], [x, y + h], [x + w, y + h]].forEach(([px, py]) => {
+      c2d.fillRect(px - hs / 2, py - hs / 2, hs, hs);
+      c2d.strokeRect(px - hs / 2, py - hs / 2, hs, hs);
+    });
+  }
+  c2d.restore();
 }
 
 /* ── Önizlemede sürükleyerek konumlandırma (yazı + bindirme) ── */
@@ -1637,9 +1662,34 @@ function canvasHitAt(px, py) {
   }
   return null;
 }
+/* Seçili bindirmenin köşe tutamacına isabet: 'nw'|'ne'|'sw'|'se' ya da null */
+function overlayCornerAt(px, py) {
+  if (!selected || selected.kind !== 'overlay') return null;
+  const o = overlays.find(x => x.id === selected.id); if (!o) return null;
+  if (playT < o.start || playT > o.end) return null;
+  const b = overlayHitBox(o, cv.width, cv.height); if (!b) return null;
+  const tol = SEL_HANDLE + 4;
+  const corners = { nw: [b.x, b.y], ne: [b.x + b.w, b.y], sw: [b.x, b.y + b.h], se: [b.x + b.w, b.y + b.h] };
+  for (const k in corners) {
+    const [hx, hy] = corners[k];
+    if (Math.abs(px - hx) <= tol && Math.abs(py - hy) <= tol) return { o, corner: k, b };
+  }
+  return null;
+}
+const CURSOR_FOR = { nw: 'nwse-resize', se: 'nwse-resize', ne: 'nesw-resize', sw: 'nesw-resize' };
 let cvDrag = null;
 cv.addEventListener('pointerdown', e => {
   const [px, py] = canvasPos(e);
+  // 1) Seçili bindirmenin köşesindeysek → yeniden boyutlandır
+  const corner = overlayCornerAt(px, py);
+  if (corner) {
+    e.preventDefault();
+    const o = corner.o, cx = o.x * cv.width, cy = o.y * cv.height;
+    const d0 = Math.max(4, Math.hypot(px - cx, py - cy));
+    cvDrag = { mode: 'resize', obj: o, scale0: o.scale, cx, cy, d0, moved: false };
+    return;
+  }
+  // 2) Yoksa taşıma için isabet testi
   const hit = canvasHitAt(px, py);
   if (!hit) return;
   e.preventDefault();
@@ -1649,13 +1699,18 @@ cv.addEventListener('pointerdown', e => {
   const y0 = hit.kind === 'text'
     ? (t.y != null ? t.y : (t.pos === 'top' ? 0.12 : t.pos === 'mid' ? 0.5 : 0.86))
     : t.y;
-  cvDrag = { obj: t, px, py, x0, y0, moved: false };
+  cvDrag = { mode: 'move', obj: t, px, py, x0, y0, moved: false };
   renderTimeline(); renderProps(); drawFrame();
 });
 window.addEventListener('pointermove', e => {
   if (cvDrag) {
     const d = cvDrag;
     const [px, py] = canvasPos(e);
+    if (d.mode === 'resize') {
+      const dist = Math.max(4, Math.hypot(px - d.cx, py - d.cy));
+      d.obj.scale = Math.max(0.05, Math.min(1, d.scale0 * dist / d.d0));
+      d.moved = true; drawFrame(); return;
+    }
     if (Math.abs(px - d.px) + Math.abs(py - d.py) > 2) d.moved = true;
     d.obj.x = Math.max(0, Math.min(1, d.x0 + (px - d.px) / cv.width));
     d.obj.y = Math.max(0, Math.min(1, d.y0 + (py - d.py) / cv.height));
@@ -1664,7 +1719,8 @@ window.addEventListener('pointermove', e => {
   }
   if (e.target === cv) {
     const [px, py] = canvasPos(e);
-    cv.style.cursor = canvasHitAt(px, py) ? 'move' : 'default';
+    const corner = overlayCornerAt(px, py);
+    cv.style.cursor = corner ? CURSOR_FOR[corner.corner] : (canvasHitAt(px, py) ? 'move' : 'default');
   }
 });
 window.addEventListener('pointerup', () => {
