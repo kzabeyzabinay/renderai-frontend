@@ -2039,48 +2039,50 @@ async function startExport() {
       await ff.writeFile('list.txt', new TextEncoder().encode(listTxt));
       await ff.exec(['-f', 'concat', '-safe', '0', '-i', 'list.txt', '-c', 'copy', mergedName]);
     } else {
-      // RUN-TABANLI: ardışık CUT'lar concat (hızlı, re-encode YOK), yalnız GERÇEK
-      // geçişler xfade (re-encode). Böylece tek geçiş tüm projeyi yavaşlatmaz ve
-      // her xfade'te yalnız 2 girdi açık kalır (çok-girdili xfade belleği şişiriyordu).
-      // 1) segmentleri gerçek-geçiş sınırlarında run'lara böl
-      const runs = [];
-      let run = { segs: [segNames[0]], dur: clipDur(clips[0]), trIn: null };
-      for (let k = 1; k < clips.length; k++) {
-        const tr = clips[k - 1].tr;
-        if (tr.type === 'cut') { run.segs.push(segNames[k]); run.dur += clipDur(clips[k]); }
-        else { runs.push(run); run = { segs: [segNames[k]], dur: clipDur(clips[k]), trIn: { tr, prevLast: clips[k - 1], first: clips[k] } }; }
-      }
-      runs.push(run);
-      // 2) her run → tek dosya (tek segmentliyse segmentin kendisi)
-      const runFiles = [];
-      for (let r = 0; r < runs.length; r++) {
-        if (runs[r].segs.length === 1) { runFiles.push(runs[r].segs[0]); continue; }
-        if (exportCancelled) throw new Error('cancelled');
-        expLog(`${L('Bölüm birleştiriliyor')} ${r + 1}/${runs.length}`);
-        const rf = `run${r}.mp4`;
-        await ff.writeFile(`rl${r}.txt`, new TextEncoder().encode(runs[r].segs.map(n => `file '${n}'`).join('\n')));
-        await ff.exec(['-f', 'concat', '-safe', '0', '-i', `rl${r}.txt`, '-c', 'copy', rf]);
-        runFiles.push(rf);
-      }
-      // 3) run'ları GERÇEK geçişlerle ikişer ikişer xfade (>=2 run garanti)
+      // PARÇA-TABANLI birleştirme (CapCut mantığı): her GERÇEK geçiş için yalnızca
+      // KISA kesişim penceresi (A'nın kuyruğu ⨯ B'nin başı, ~0.5sn) xfade ile kodlanır;
+      // klip gövdeleri gerektiği kadar kırpılır; hepsi concat-copy ile dizilir.
+      // Eski artımlı xfade her adımda BÜYÜYEN videonun tamamını yeniden kodluyordu —
+      // çok geçişli projede iş karesel büyüyüp "takıldı" hissi veriyordu (24 klip/23
+      // geçişte ~20dk). Şimdi toplam iş klip sayısıyla DOĞRUSAL.
       expLog(L('Geçişler uygulanıyor…'));
-      let cur = runFiles[0], curDur = runs[0].dur;
-      for (let r = 1; r < runFiles.length; r++) {
-        if (exportCancelled) throw new Error('cancelled');
-        expLog(`${L('Geçiş')} ${r}/${runFiles.length - 1}`);
-        const info = runs[r].trIn;
-        const trDur = Math.min(info.tr.dur, clipDur(info.prevLast) * 0.5, clipDur(info.first) * 0.5);
-        const offset = Math.max(0, curDur - trDur);
-        const outName = (r === runFiles.length - 1) ? mergedName : `xf${r}.mp4`;
-        await ff.exec(['-i', cur, '-i', runFiles[r],
-          '-filter_complex', `[0:v][1:v]xfade=transition=${info.tr.type}:duration=${trDur.toFixed(3)}:offset=${offset.toFixed(3)}[v]`,
-          '-map', '[v]', '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23', '-an', outName]);
-        // tüketilen girdileri sil (segment ise sondaki toplu temizliğe bırak)
-        if (!segNames.includes(cur)) { try { await ff.deleteFile(cur); } catch (e) {} }
-        if (!segNames.includes(runFiles[r])) { try { await ff.deleteFile(runFiles[r]); } catch (e) {} }
-        cur = outName;
-        curDur = curDur + runs[r].dur - trDur;
+      const durs = clips.map(c => clipDur(c));
+      const dIn = clips.map(() => 0), dOut = clips.map(() => 0), trD = [];
+      for (let k = 0; k < clips.length - 1; k++) {
+        const tr = clips[k].tr;
+        const d = tr.type === 'cut' ? 0 : Math.min(tr.dur, durs[k] * 0.5, durs[k + 1] * 0.5);
+        trD.push(d);
+        if (d > 0) { dOut[k] = d; dIn[k + 1] = d; }
       }
+      const parts = [];
+      const trCount = trD.filter(d => d > 0).length;
+      let trDone = 0;
+      for (let i = 0; i < clips.length; i++) {
+        if (exportCancelled) throw new Error('cancelled');
+        // gövde: geçişe giren uçları kırpılmış klip (kırpma yoksa segment olduğu gibi — re-encode YOK)
+        const bodyDur = durs[i] - dIn[i] - dOut[i];
+        if (dIn[i] === 0 && dOut[i] === 0) parts.push(segNames[i]);
+        else if (bodyDur > 0.05) {
+          const bn = `body${i}.mp4`;
+          await ff.exec(['-ss', dIn[i].toFixed(3), '-i', segNames[i], '-t', bodyDur.toFixed(3),
+                         '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23', '-an', bn]);
+          parts.push(bn);
+        }
+        // bu sınırın geçiş penceresi
+        if (i < clips.length - 1 && trD[i] > 0) {
+          trDone++;
+          expLog(`${L('Geçiş')} ${trDone}/${trCount}`);
+          const d = trD[i], tn = `tr${i}.mp4`;
+          await ff.exec(['-ss', (durs[i] - d).toFixed(3), '-i', segNames[i], '-t', d.toFixed(3), '-i', segNames[i + 1],
+            '-filter_complex', `[0:v][1:v]xfade=transition=${clips[i].tr.type}:duration=${d.toFixed(3)}:offset=0[v]`,
+            '-map', '[v]', '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23', '-an', tn]);
+          parts.push(tn);
+        }
+      }
+      expLog(L('Klipler birleştiriliyor…'));
+      await ff.writeFile('list.txt', new TextEncoder().encode(parts.map(n => `file '${n}'`).join('\n')));
+      await ff.exec(['-f', 'concat', '-safe', '0', '-i', 'list.txt', '-c', 'copy', mergedName]);
+      for (const n of parts) { if (!segNames.includes(n)) { try { await ff.deleteFile(n); } catch (e) {} } }
     }
     for (const n of segNames) { try { await ff.deleteFile(n); } catch (e) {} }
 
