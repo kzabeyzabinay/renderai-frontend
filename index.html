@@ -19,13 +19,14 @@
     }
 
     header {
-      padding: 0 40px;
+      padding: 6px 24px;
       display: flex;
+      flex-wrap: wrap;               /* sekmeler sığmazsa alt satıra sarar — sayfa asla yana taşmaz */
       justify-content: space-between;
       align-items: center;
       background: #1A1A16;
       border-bottom: 1px solid #2A2820;
-      height: 56px;
+      min-height: 56px;
     }
 
     .logo {
@@ -34,6 +35,7 @@
       letter-spacing: -0.6px;
       color: #ECE7DF;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      flex-shrink: 0;
     }
     .logo .ai {
       background: linear-gradient(135deg, #9A6558, #B8956A);
@@ -522,16 +524,17 @@
 
     /* Ana Sekme Nav */
     .main-nav-btn {
-      padding: 12px 24px;
+      padding: 12px 13px;
       border: none;
       border-bottom: 2px solid transparent;
       background: transparent;
       color: #A89E94;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
       margin-bottom: -1px;
+      white-space: nowrap;           /* buton içi iki satıra kırılmasın — sığmazsa buton bütün olarak alt satıra iner */
     }
     .main-nav-btn:hover { color: #E8E4DC; }
     .main-nav-btn.active {
@@ -578,17 +581,22 @@
     .recolor-mat-btn:hover { border-color: #9A6558; color: #9A6558; }
     .recolor-mat-btn.active { border-color: #9A6558; background: rgba(154,101,88,0.1); color: #9A6558; font-weight: 600; }
 
-    /* Nav container (masaüstü: yatay sıra) */
-    #mainNav { display: flex; gap: 8px; align-items: center; }
+    /* Nav container (masaüstü: yatay sıra; sığmazsa butonlar alt satıra sarar) */
+    #mainNav { display: flex; gap: 4px; align-items: center; flex: 1 1 auto; min-width: 0; flex-wrap: wrap; padding: 0 10px; }
+    /* Sağdaki kontroller (dil/paketler/giriş) sıkışmasın */
+    header > div:last-child { flex-shrink: 0; }
     /* Mobil menü butonu — masaüstünde gizli */
     .nav-toggle { display: none; background: transparent; border: none; color: #E8E4DC; cursor: pointer; padding: 6px; }
 
-    /* Orta ekran / televizyon: nav sığmazsa küçült + yatay kaydır */
+    /* Orta genişlik: sekme ikonları gizlenir ki 15 sekme tek satıra sığsın (telefon menüsünde ikonlar kalır) */
+    @media (min-width: 769px) and (max-width: 2000px) {
+      .main-nav-btn svg { display: none; }
+    }
+
+    /* Dar ekran / televizyon: daha da kompakt */
     @media (max-width: 1300px) {
-      header { padding: 0 16px; }
-      .main-nav-btn { padding: 10px 10px; font-size: 12px; }
-      #mainNav { gap: 0; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
-      #mainNav::-webkit-scrollbar { display: none; }
+      header { padding: 6px 14px; }
+      .main-nav-btn { padding: 9px 9px; font-size: 12px; }
       .main { padding: 0 16px 60px; gap: 20px; }
     }
 
@@ -604,7 +612,7 @@
       #mainNav {
         display: none;
         position: absolute; top: 100%; left: 0; right: 0;
-        flex-direction: column; align-items: stretch !important;
+        flex-direction: column; flex-wrap: nowrap; align-items: stretch !important;
         gap: 2px !important; padding: 6px;
         background: #1A1A16; border-bottom: 1px solid #2A2820;
         box-shadow: 0 12px 30px rgba(0,0,0,0.5); z-index: 1000;
