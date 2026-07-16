@@ -444,7 +444,19 @@ const TR2EN = {
   'Geri alındı': 'Undone', 'Yinelendi': 'Redone', 'Geri alınacak adım yok': 'Nothing to undo', 'Yinelenecek adım yok': 'Nothing to redo',
   'Silindi — Ctrl+Z ile geri alabilirsin': 'Deleted — press Ctrl+Z to undo',
   'Önce zaman çizelgesinden bir öğe seç': 'Select an item on the timeline first',
-  'Proje': 'Project', 'tahmini süre: proje uzunluğunun ~1-2 katı': 'estimated time: about 1-2x the project length'
+  'Proje': 'Project', 'tahmini süre: proje uzunluğunun ~1-2 katı': 'estimated time: about 1-2x the project length',
+  // Export teşhis + geçiş (15 Tem 3. tur)
+  'Geçiş': 'Transition', 'motor yükleme': 'engine load', 'klip işleme': 'clip processing',
+  'klipleri birleştirme': 'merging clips', 'bindirme/yazı/ses ekleme': 'adding overlay/text/audio',
+  'videoyu indirme': 'reading video',
+  'Dışa aktarma ': 'Export failed at the ', 'adımında başarısız oldu.': 'step.',
+  'En olası neden: proje uzun/yüksek çözünürlüklü olduğu için tarayıcının belleği yetmedi (video tamamen tarayıcıda işlenir).':
+    'Most likely cause: the project is long/high-resolution so the browser ran out of memory (video is processed entirely in the browser).',
+  'Çözüm: yukarıdan çözünürlüğü 720p yap ve yeniden indir — bellek yarıya iner, genelde tamamlanır.':
+    'Fix: set the resolution to 720p above and export again — this halves memory use and usually completes.',
+  'Çözüm: projeyi 2 parçaya bölüp ayrı ayrı indir, ya da geçiş/efekt sayısını azalt (her geçiş belleği artırır).':
+    'Fix: split the project into 2 parts and export separately, or reduce the number of transitions/effects (each transition adds memory).',
+  'Teknik ayrıntı: ': 'Technical detail: '
 };
 function L(s) { return (RA_LANG === 'en' && TR2EN[s]) ? TR2EN[s] : s; }
 function applyI18n() {
@@ -1913,6 +1925,7 @@ async function startExport() {
   document.getElementById('expCancel').style.display = '';
   expPrg(0);
 
+  let stage = L('motor yükleme');
   try {
     const ff = await ensureFFmpeg();
     if (exportCancelled) throw new Error('cancelled');
@@ -1922,6 +1935,7 @@ async function startExport() {
     expLog(`${L('Proje')}: ${Math.round(tot)} sn · ${W}x${H} — ${L('tahmini süre: proje uzunluğunun ~1-2 katı')}`);
 
     /* 1) Her klip → normalize sessiz segment (efekt/hız/ters/dönüş/KB/dolgu dahil) */
+    stage = L('klip işleme');
     const segNames = [];
     for (let i = 0; i < clips.length; i++) {
       if (exportCancelled) throw new Error('cancelled');
@@ -1994,6 +2008,7 @@ async function startExport() {
     }
 
     /* 2) Birleştirme: geçiş yoksa concat copy, varsa xfade zinciri */
+    stage = L('klipleri birleştirme');
     const anyTrans = clips.some((c, i) => i < clips.length - 1 && c.tr.type !== 'cut');
     let mergedName = 'merged.mp4';
     if (!anyTrans || clips.length === 1) {
@@ -2003,27 +2018,32 @@ async function startExport() {
       await ff.exec(['-f', 'concat', '-safe', '0', '-i', 'list.txt', '-c', 'copy', mergedName]);
     } else {
       expLog(L('Geçişler uygulanıyor…'));
-      // xfade zinciri: cut → 1 karelik çözülme (0.034sn)
-      const args = [];
-      segNames.forEach(n => args.push('-i', n));
-      const fc = [];
-      let last = '0:v';
-      // export offset hesabı (cut için minik bindirme)
-      const CUTD = 0.034;
-      let acc = clipDur(clips[0]);
-      for (let k = 0; k < clips.length - 1; k++) {
-        const trType = clips[k].tr.type === 'cut' ? 'fade' : clips[k].tr.type;
-        const trDur = clips[k].tr.type === 'cut' ? CUTD
-          : Math.min(clips[k].tr.dur, clipDur(clips[k]) * 0.5, clipDur(clips[k + 1]) * 0.5);
-        const offset = Math.max(0, acc - trDur);
-        const outL = `x${k + 1}`;
-        fc.push(`[${last}][${k + 1}:v]xfade=transition=${trType}:duration=${trDur.toFixed(3)}:offset=${offset.toFixed(3)}[${outL}]`);
-        last = outL;
-        acc = offset + trDur + (clipDur(clips[k + 1]) - trDur);
+      // İKİŞER İKİŞER xfade: her adımda yalnız 2 girdi açık kalır. Eski hâlde tüm
+      // segmentler (-i seg0 -i seg1 …) tek exec'te açılıyordu → uzun projede hepsi
+      // birden çözülünce tarayıcı belleği taşıp "FS error"a yol açıyordu.
+      const CUTD = 0.034;   // cut → 1 karelik çözülme
+      let cur = segNames[0];
+      let curDur = clipDur(clips[0]);
+      let prevTemp = null;
+      for (let k = 1; k < clips.length; k++) {
+        if (exportCancelled) throw new Error('cancelled');
+        expLog(`${L('Geçiş')} ${k}/${clips.length - 1}`);
+        const trType = clips[k - 1].tr.type === 'cut' ? 'fade' : clips[k - 1].tr.type;
+        const trDur = clips[k - 1].tr.type === 'cut' ? CUTD
+          : Math.min(clips[k - 1].tr.dur, clipDur(clips[k - 1]) * 0.5, clipDur(clips[k]) * 0.5);
+        const offset = Math.max(0, curDur - trDur);
+        const outName = (k === clips.length - 1) ? mergedName : `xf${k}.mp4`;
+        await ff.exec(['-i', cur, '-i', segNames[k],
+          '-filter_complex', `[0:v][1:v]xfade=transition=${trType}:duration=${trDur.toFixed(3)}:offset=${offset.toFixed(3)}[v]`,
+          '-map', '[v]', '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23', '-an', outName]);
+        // tüketilen girdileri MEMFS'ten sil (bellek düşük kalsın)
+        try { await ff.deleteFile(segNames[k]); } catch (e) {}
+        if (k === 1) { try { await ff.deleteFile(segNames[0]); } catch (e) {} }
+        if (prevTemp) { try { await ff.deleteFile(prevTemp); } catch (e) {} }
+        prevTemp = (outName === mergedName) ? null : outName;
+        cur = outName;
+        curDur = curDur + clipDur(clips[k]) - trDur;
       }
-      args.push('-filter_complex', fc.join(';'), '-map', `[${last}]`,
-                '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23', '-an', mergedName);
-      await ff.exec(args);
     }
     for (const n of segNames) { try { await ff.deleteFile(n); } catch (e) {} }
 
@@ -2043,6 +2063,7 @@ async function startExport() {
     const reencode = hasBind || hasTx;
     let outName = mergedName;
     if (hasBind || hasTx || hasAu) {
+      stage = L('bindirme/yazı/ses ekleme');
       expLog(L('Bindirme, yazı ve ses ekleniyor…'));
       const args = ['-i', mergedName];
       // [1..NB] bindirme medyaları
@@ -2132,7 +2153,9 @@ async function startExport() {
     }
 
     /* 4) İndir */
+    stage = L('videoyu indirme');
     const data = await ff.readFile(outName);
+    try { if (outName !== mergedName) await ff.deleteFile(mergedName); } catch (e) {}
     const blob = new Blob([data.buffer], { type: 'video/mp4' });
     const url = URL.createObjectURL(blob);
     const dl = document.getElementById('expDl');
@@ -2144,10 +2167,20 @@ async function startExport() {
     if (await saveExportedVideo(blob)) expLog('🎞 ' + L('Videolarım listesine kaydedildi (son 10 video saklanır).'));
     toast('🎬 ' + L('video hazır'));
   } catch (e) {
-    if (String(e && e.message).includes('cancelled') || exportCancelled) {
+    const msg = String(e && e.message ? e.message : e);
+    if (msg.includes('cancelled') || exportCancelled) {
       expLog(L('Dışa aktarma iptal edildi.'));
     } else {
-      expLog(L('Dışa aktarma hatası: ') + (e && e.message ? e.message : e));
+      // "FS error"/abort/OOM → neredeyse her zaman tarayıcı belleğinin yetmemesi
+      const looksMemory = /FS error|abort|memory|out of bounds|RangeError|allocation/i.test(msg);
+      expLog('⚠ ' + L('Dışa aktarma ') + '"' + stage + '" ' + L('adımında başarısız oldu.'));
+      if (looksMemory) {
+        const res = document.getElementById('resSel') ? document.getElementById('resSel').value : '720';
+        expLog(L('En olası neden: proje uzun/yüksek çözünürlüklü olduğu için tarayıcının belleği yetmedi (video tamamen tarayıcıda işlenir).'));
+        if (res === '1080') expLog('👉 ' + L('Çözüm: yukarıdan çözünürlüğü 720p yap ve yeniden indir — bellek yarıya iner, genelde tamamlanır.'));
+        else expLog('👉 ' + L('Çözüm: projeyi 2 parçaya bölüp ayrı ayrı indir, ya da geçiş/efekt sayısını azalt (her geçiş belleği artırır).'));
+      }
+      expLog(L('Teknik ayrıntı: ') + msg);
     }
     document.getElementById('expClose').style.display = '';
     document.getElementById('expCancel').style.display = 'none';
