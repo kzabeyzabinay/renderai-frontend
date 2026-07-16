@@ -448,7 +448,7 @@ const TR2EN = {
   // Export teşhis + geçiş (15 Tem 3. tur)
   'Geçiş': 'Transition', 'motor yükleme': 'engine load', 'klip işleme': 'clip processing',
   'klipleri birleştirme': 'merging clips', 'bindirme/yazı/ses ekleme': 'adding overlay/text/audio',
-  'videoyu indirme': 'reading video',
+  'videoyu indirme': 'reading video', 'bellek sıfırlama': 'freeing memory', 'Bellek temizleniyor…': 'Freeing memory…',
   'Dışa aktarma ': 'Export failed at the ', 'adımında başarısız oldu.': 'step.',
   'En olası neden: proje uzun/yüksek çözünürlüklü olduğu için tarayıcının belleği yetmedi (video tamamen tarayıcıda işlenir).':
     'Most likely cause: the project is long/high-resolution so the browser ran out of memory (video is processed entirely in the browser).',
@@ -1927,7 +1927,7 @@ async function startExport() {
 
   let stage = L('motor yükleme');
   try {
-    const ff = await ensureFFmpeg();
+    let ff = await ensureFFmpeg();
     if (exportCancelled) throw new Error('cancelled');
     const [W, H] = exportDims();
     const tot = totalDur();
@@ -2063,6 +2063,20 @@ async function startExport() {
     const reencode = hasBind || hasTx;
     let outName = mergedName;
     if (hasBind || hasTx || hasAu) {
+      // ⭐ BELLEK SIFIRLAMA: geçişli/uzun projelerde birleştirme boyunca biriken
+      // ffmpeg.wasm belleği son (en ağır) birleştirmeye yer bırakmayıp "FS error"
+      // veriyordu. merged.mp4'ü dışarı al → motoru yeniden kur → geri yaz → temiz heap.
+      if (anyTrans || tot > 20) {
+        try {
+          stage = L('bellek sıfırlama');
+          expLog(L('Bellek temizleniyor…'));
+          const mdata = await ff.readFile(mergedName);
+          try { await ffmpeg.terminate(); } catch (e) {}
+          ffmpeg = null;
+          ff = await ensureFFmpeg();
+          await ff.writeFile(mergedName, mdata);
+        } catch (e) { ff = await ensureFFmpeg(); }   // sıfırlama olmazsa mevcut motorla devam
+      }
       stage = L('bindirme/yazı/ses ekleme');
       expLog(L('Bindirme, yazı ve ses ekleniyor…'));
       const args = ['-i', mergedName];
