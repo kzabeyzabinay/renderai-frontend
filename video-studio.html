@@ -475,8 +475,7 @@ function applyI18n() {
 }
 
 // Video editörü %100 tarayıcıda çalışır (backend'e hiç bağlanmaz, bize maliyeti yok)
-// → giriş şartı YOK, herkes kullanabilir. İleride paylaşım linki eklenirse SADECE
-// o özellik giriş+aktif abonelik ister (madde 8.B kuralı).
+// ama modül ÜYELERE ÖZEL: pafta ile aynı ra_token kontrolü, yoksa authGate açılır.
 
 function toast(m) {
   const t = document.getElementById('toast');
@@ -2635,6 +2634,9 @@ window.addEventListener('resize', renderTimeline);
 renderMediaList();
 renderAll();
 applyI18n();
+if (!localStorage.getItem('ra_token')) {           // üyelik duvarı (pafta ile aynı)
+  document.getElementById('authGate').style.display = 'flex';
+}
 // İlk boyama layout'tan önce olursa (clientWidth 0) bir kez daha ölç
 requestAnimationFrame(() => renderTimeline());
 window.addEventListener('load', () => renderTimeline());
