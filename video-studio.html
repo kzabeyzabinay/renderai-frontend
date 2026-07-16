@@ -450,6 +450,8 @@ const TR2EN = {
   'klipleri birleştirme': 'merging clips', 'bindirme/yazı/ses ekleme': 'adding overlay/text/audio',
   'videoyu indirme': 'reading video', 'bellek sıfırlama': 'freeing memory', 'Bellek temizleniyor…': 'Freeing memory…',
   'Bölüm birleştiriliyor': 'Merging section',
+  'bindirme/yazı ekleme': 'adding overlay/text', 'ses ekleme': 'adding audio',
+  'Bindirme ve yazılar ekleniyor…': 'Adding overlays & text…', 'Ses ekleniyor…': 'Adding audio…',
   'Dışa aktarma ': 'Export failed at the ', 'adımında başarısız oldu.': 'step.',
   'En olası neden: proje uzun/yüksek çözünürlüklü olduğu için tarayıcının belleği yetmedi (video tamamen tarayıcıda işlenir).':
     'Most likely cause: the project is long/high-resolution so the browser ran out of memory (video is processed entirely in the browser).',
@@ -1938,6 +1940,7 @@ async function startExport() {
     /* 1) Her klip → normalize sessiz segment (efekt/hız/ters/dönüş/KB/dolgu dahil) */
     stage = L('klip işleme');
     const segNames = [];
+    const clipAudioData = {};   // klip sesleri: kaynaktan ayıklanmış küçük AAC (JS'te tutulur — motor sıfırlamadan etkilenmez)
     for (let i = 0; i < clips.length; i++) {
       if (exportCancelled) throw new Error('cancelled');
       const c = clips[i];
@@ -1946,6 +1949,24 @@ async function startExport() {
       const inName = `in${i}.${ext}`;
       await ff.writeFile(inName, await FFmpegUtil.fetchFile(c.file || c.url));
       const outDur = clipDur(c);
+
+      // Video sesi: kaynak zaten bellekteyken KÜÇÜK AAC olarak ayıkla (kırpma+hız uygulanmış).
+      // İki kritik neden: (a) son adımda koca video dosyalarını yeniden yazmamak (bellek);
+      // (b) SES AKIŞI OLMAYAN videolar (AI üretimi kliplerin çoğu) son adımda [k:a] girişi
+      // olarak verilince ffmpeg TÜM komutu iptal edip "FS error"a yol açıyordu — burada
+      // ayıklama başarısız olursa klip sessiz sayılır, export sorunsuz devam eder.
+      if (c.type === 'video' && c.keepAudio && c.clipVol > 0) {
+        const audName = `caud${i}.m4a`;
+        try {
+          const aargs = ['-ss', c.in.toFixed(2), '-t', (outDur * c.speed).toFixed(2), '-i', inName, '-vn'];
+          if (c.speed !== 1) aargs.push('-af', atempoChain(c.speed));
+          aargs.push('-c:a', 'aac', '-b:a', '128k', audName);
+          await ff.exec(aargs);
+          const ad = await ff.readFile(audName);   // ses akışı yoksa dosya oluşmaz → catch
+          if (ad.length > 200) clipAudioData[i] = ad;
+        } catch (e) {}
+        try { await ff.deleteFile(audName); } catch (e) {}
+      }
       const segName = `seg${i}.mp4`;
       const pre = [];      // giriş öncesi argümanlar
       const chain = [];    // [0:v] zinciri
@@ -2063,44 +2084,47 @@ async function startExport() {
     }
     for (const n of segNames) { try { await ff.deleteFile(n); } catch (e) {} }
 
-    /* 3) Bindirmeler (logo/görsel/video) + Yazılar (PNG) + ses (katmanlar + keepAudio klipler) */
+    /* 3) Bindirme + yazı + ses — İKİ AYRI GEÇİŞ (tek dev komut hem videoyu kodlayıp
+       hem N sesi karıştırınca bellek taşıyordu; ayrıca klip sesleri artık 1. adımda
+       ayıklanmış küçük AAC'ler — koca video dosyaları yeniden yazılmaz). */
     const txOverlays = await textOverlayPng(W, H);
     const bind = overlays;   // global bindirme dizisi
-    // Tüm ses kaynakları: açık ses katmanları + keepAudio video klipleri
+    // Tüm ses kaynakları: açık ses katmanları + (sesi GERÇEKTEN olan) keepAudio klipleri
     const cstarts = clipStarts();
     const allAudio = [
       ...audios,
-      ...clips.map((c, i) => (c.type === 'video' && c.keepAudio)
-        ? { name: c.name, file: c.file, url: c.url, start: cstarts[i] || 0,
-            volume: c.clipVol, fade: false, dur: clipDur(c), srcIn: c.in, srcSpeed: c.speed }
+      ...clips.map((c, i) => (c.type === 'video' && c.keepAudio && clipAudioData[i])
+        ? { name: 'klip' + i, data: clipAudioData[i], start: cstarts[i] || 0,
+            volume: c.clipVol, fade: false, dur: clipDur(c) }   // kırpma+hız ayıklamada uygulandı
         : null).filter(Boolean)
     ];
     const hasBind = bind.length > 0, hasTx = txOverlays.length > 0, hasAu = allAudio.length > 0;
-    const reencode = hasBind || hasTx;
     let outName = mergedName;
-    if (hasBind || hasTx || hasAu) {
-      // ⭐ BELLEK SIFIRLAMA: geçişli/uzun projelerde birleştirme boyunca biriken
-      // ffmpeg.wasm belleği son (en ağır) birleştirmeye yer bırakmayıp "FS error"
-      // veriyordu. merged.mp4'ü dışarı al → motoru yeniden kur → geri yaz → temiz heap.
-      if (anyTrans || tot > 20) {
-        try {
-          stage = L('bellek sıfırlama');
-          expLog(L('Bellek temizleniyor…'));
-          const mdata = await ff.readFile(mergedName);
-          try { await ffmpeg.terminate(); } catch (e) {}
-          ffmpeg = null;
-          ff = await ensureFFmpeg();
-          await ff.writeFile(mergedName, mdata);
-        } catch (e) { ff = await ensureFFmpeg(); }   // sıfırlama olmazsa mevcut motorla devam
-      }
-      stage = L('bindirme/yazı/ses ekleme');
-      expLog(L('Bindirme, yazı ve ses ekleniyor…'));
-      const args = ['-i', mergedName];
+
+    // ⭐ BELLEK SIFIRLAMA: geçişli/uzun projelerde birleştirme boyunca biriken
+    // ffmpeg.wasm belleği son adımlara yer bırakmayıp "FS error" veriyordu.
+    // merged.mp4'ü dışarı al → motoru yeniden kur → geri yaz → temiz heap.
+    if ((hasBind || hasTx || hasAu) && (anyTrans || tot > 20)) {
+      try {
+        stage = L('bellek sıfırlama');
+        expLog(L('Bellek temizleniyor…'));
+        const mdata = await ff.readFile(mergedName);
+        try { await ffmpeg.terminate(); } catch (e) {}
+        ffmpeg = null;
+        ff = await ensureFFmpeg();
+        await ff.writeFile(mergedName, mdata);
+      } catch (e) { ff = await ensureFFmpeg(); }   // sıfırlama olmazsa mevcut motorla devam
+    }
+
+    /* 3a) GÖRÜNTÜ GEÇİŞİ: bindirme + yazı (video yeniden kodlanır, ses yok) */
+    if (hasBind || hasTx) {
+      stage = L('bindirme/yazı ekleme');
+      expLog(L('Bindirme ve yazılar ekleniyor…'));
+      const args = ['-i', outName];
       // [1..NB] bindirme medyaları
       for (let k = 0; k < bind.length; k++) {
         const o = bind[k];
-        const ext = o.type === 'video' ? 'mp4' : 'png';
-        const bn = `bind${k}.${ext}`;
+        const bn = `bind${k}.${o.type === 'video' ? 'mp4' : 'png'}`;
         await ff.writeFile(bn, await FFmpegUtil.fetchFile(o.file || o.url));
         if (o.type === 'image') args.push('-loop', '1', '-t', tot.toFixed(2), '-i', bn);
         else args.push('-i', bn);
@@ -2111,14 +2135,6 @@ async function startExport() {
         await ff.writeFile(pn, new Uint8Array(await txOverlays[k].blob.arrayBuffer()));
         const d = Math.max(0.2, txOverlays[k].t.end - txOverlays[k].t.start);
         args.push('-loop', '1', '-t', d.toFixed(2), '-i', pn);
-      }
-      // [NB+NT+1 ..] ses girişleri
-      for (let k = 0; k < allAudio.length; k++) {
-        const a = allAudio[k];
-        const ext = ((a.name || '').match(/\.\w+$/) || ['.mp3'])[0];
-        const an = `au${k}${ext}`;
-        await ff.writeFile(an, await FFmpegUtil.fetchFile(a.file || a.url));
-        args.push('-i', an);
       }
       const fc = [];
       let vlast = '0:v';
@@ -2150,35 +2166,56 @@ async function startExport() {
         fc.push(`[${vlast}][tx${k}]overlay=x=0:y=${yExpr}:eof_action=pass:enable='between(t,${t.start.toFixed(2)},${t.end.toFixed(2)})'[${outL}]`);
         vlast = outL;
       });
-      if (hasAu) {
-        const aLbls = [];
-        allAudio.forEach((a, k) => {
-          const idx = 1 + bind.length + txOverlays.length + k;
-          let ch = `[${idx}:a]`;
-          const sIn = a.srcIn || 0, sp = a.srcSpeed || 1;
-          if (sIn > 0.01 || sp !== 1) {
-            const srcEnd = sIn + a.dur * sp;
-            ch += `atrim=${sIn.toFixed(2)}:${srcEnd.toFixed(2)},asetpts=PTS-STARTPTS,`;
-            if (sp !== 1) ch += atempoChain(sp) + ',';
-          }
-          ch += `volume=${(a.volume != null ? a.volume : 1).toFixed(2)}`;
-          const trackEnd = Math.min(a.dur, Math.max(0.5, tot - a.start));
-          if (a.fade && trackEnd > 2.5) ch += `,afade=t=out:st=${(trackEnd - 2).toFixed(2)}:d=2`;
-          ch += `,atrim=0:${trackEnd.toFixed(2)}`;
-          if (a.start > 0.01) { const ms = Math.round(a.start * 1000); ch += `,adelay=${ms}|${ms}`; }
-          ch += `[au${k}]`;
-          fc.push(ch); aLbls.push(`[au${k}]`);
-        });
-        if (aLbls.length === 1) fc.push(`${aLbls[0]}anull[aout]`);
-        else fc.push(`${aLbls.join('')}amix=inputs=${aLbls.length}:duration=longest:normalize=0[aout]`);
-      }
-      if (fc.length) args.push('-filter_complex', fc.join(';'));
-      args.push('-map', reencode ? `[${vlast}]` : '0:v');
-      if (hasAu) args.push('-map', '[aout]', '-c:a', 'aac', '-b:a', '192k');
-      if (reencode) args.push('-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23');
-      else args.push('-c:v', 'copy');
-      args.push('-t', tot.toFixed(2), 'final.mp4');
+      args.push('-filter_complex', fc.join(';'), '-map', `[${vlast}]`, '-an',
+                '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23', '-t', tot.toFixed(2), 'vid.mp4');
       await ff.exec(args);
+      // görüntü geçişi girdilerini temizle
+      for (let k = 0; k < bind.length; k++) { try { await ff.deleteFile(`bind${k}.${bind[k].type === 'video' ? 'mp4' : 'png'}`); } catch (e) {} }
+      for (let k = 0; k < txOverlays.length; k++) { try { await ff.deleteFile(`tx${k}.png`); } catch (e) {} }
+      try { await ff.deleteFile(outName); } catch (e) {}
+      outName = 'vid.mp4';
+    }
+
+    /* 3b) SES GEÇİŞİ: video KOPYALANIR (yeniden kodlama yok — hızlı ve hafif), sesler karışır */
+    if (hasAu) {
+      stage = L('ses ekleme');
+      expLog(L('Ses ekleniyor…'));
+      const args = ['-i', outName];
+      for (let k = 0; k < allAudio.length; k++) {
+        const a = allAudio[k];
+        const ext = a.data ? '.m4a' : (((a.name || '').match(/\.\w+$/) || ['.mp3'])[0]);
+        const an = `au${k}${ext}`;
+        await ff.writeFile(an, a.data ? a.data : await FFmpegUtil.fetchFile(a.file || a.url));
+        args.push('-i', an);
+      }
+      const fc = [], aLbls = [];
+      allAudio.forEach((a, k) => {
+        const idx = 1 + k;
+        let ch = `[${idx}:a]`;
+        const sIn = a.srcIn || 0, sp = a.srcSpeed || 1;
+        if (sIn > 0.01 || sp !== 1) {
+          const srcEnd = sIn + a.dur * sp;
+          ch += `atrim=${sIn.toFixed(2)}:${srcEnd.toFixed(2)},asetpts=PTS-STARTPTS,`;
+          if (sp !== 1) ch += atempoChain(sp) + ',';
+        }
+        ch += `volume=${(a.volume != null ? a.volume : 1).toFixed(2)}`;
+        const trackEnd = Math.min(a.dur, Math.max(0.5, tot - a.start));
+        if (a.fade && trackEnd > 2.5) ch += `,afade=t=out:st=${(trackEnd - 2).toFixed(2)}:d=2`;
+        ch += `,atrim=0:${trackEnd.toFixed(2)}`;
+        if (a.start > 0.01) { const ms = Math.round(a.start * 1000); ch += `,adelay=${ms}|${ms}`; }
+        ch += `[au${k}]`;
+        fc.push(ch); aLbls.push(`[au${k}]`);
+      });
+      if (aLbls.length === 1) fc.push(`${aLbls[0]}anull[aout]`);
+      else fc.push(`${aLbls.join('')}amix=inputs=${aLbls.length}:duration=longest:normalize=0[aout]`);
+      args.push('-filter_complex', fc.join(';'), '-map', '0:v', '-c:v', 'copy',
+                '-map', '[aout]', '-c:a', 'aac', '-b:a', '192k', '-t', tot.toFixed(2), 'final.mp4');
+      await ff.exec(args);
+      for (let k = 0; k < allAudio.length; k++) {
+        const a = allAudio[k];
+        try { await ff.deleteFile(`au${k}${a.data ? '.m4a' : (((a.name || '').match(/\.\w+$/) || ['.mp3'])[0])}`); } catch (e) {}
+      }
+      try { if (outName !== 'final.mp4') await ff.deleteFile(outName); } catch (e) {}
       outName = 'final.mp4';
     }
 
