@@ -1901,6 +1901,24 @@ function rotFlipFF(c) {
   return out;
 }
 
+/* Büyük görseli ffmpeg'e vermeden ÖNCE tarayıcıda küçült. Render PNG'leri 4-8K
+   olabiliyor; ffmpeg.wasm bunları ham açınca (8K kare ≈ 256MB) bellek parçalanıp
+   birikiyor ve sonraki adımlar "memory access out of bounds" ile çöküyordu.
+   Çıktı en fazla 2× hedef boyut olduğundan (Ken Burns dahil) kalite kaybı yok. */
+async function shrinkImageForExport(fileOrUrl, cap) {
+  try {
+    const blob = fileOrUrl instanceof Blob ? fileOrUrl : await (await fetch(fileOrUrl)).blob();
+    const bmp = await createImageBitmap(blob);
+    if (Math.max(bmp.width, bmp.height) <= cap) { bmp.close(); return null; }   // zaten küçük
+    const s = cap / Math.max(bmp.width, bmp.height);
+    const cw = Math.max(2, Math.round(bmp.width * s)), chh = Math.max(2, Math.round(bmp.height * s));
+    const oc = document.createElement('canvas'); oc.width = cw; oc.height = chh;
+    oc.getContext('2d').drawImage(bmp, 0, 0, cw, chh);
+    bmp.close();
+    return await new Promise(r => oc.toBlob(r, 'image/png'));
+  } catch (e) { return null; }   // küçültme olmazsa orijinalle devam
+}
+
 async function textOverlayPng(W, H) {
   const out = [];
   const saved = texts;
@@ -1947,7 +1965,12 @@ async function startExport() {
       expLog(`${L('Klip işleniyor')} ${i + 1}/${clips.length}: ${c.name}`);
       const ext = c.type === 'image' ? 'png' : 'mp4';
       const inName = `in${i}.${ext}`;
-      await ff.writeFile(inName, await FFmpegUtil.fetchFile(c.file || c.url));
+      let srcMedia = c.file || c.url;
+      if (c.type === 'image') {
+        const small = await shrinkImageForExport(srcMedia, Math.max(W, H) * 2);
+        if (small) srcMedia = small;
+      }
+      await ff.writeFile(inName, await FFmpegUtil.fetchFile(srcMedia));
       const outDur = clipDur(c);
 
       // Video sesi: kaynak zaten bellekteyken KÜÇÜK AAC olarak ayıkla (kırpma+hız uygulanmış).
@@ -2027,6 +2050,24 @@ async function startExport() {
       await ff.exec(args);
       try { await ff.deleteFile(inName); } catch (e) {}
       segNames.push(segName);
+    }
+
+    /* 1.5) Uzun projede motoru TAZELE: klip işleme sırasında (özellikle büyük render
+       PNG'leri) biriken/parçalanan wasm belleği geçiş-birleştirme adımlarını
+       "memory access out of bounds" ile çökertiyordu. Segmentler + liste JS'e alınır,
+       motor yeniden kurulur, geri yazılır → birleştirme temiz bellekle başlar. */
+    if (clips.length > 6 || tot > 20) {
+      try {
+        stage = L('bellek sıfırlama');
+        expLog(L('Bellek temizleniyor…'));
+        const segData = [];
+        for (const n of segNames) segData.push(await ff.readFile(n));
+        try { await ffmpeg.terminate(); } catch (e) {}
+        ffmpeg = null;
+        ff = await ensureFFmpeg();
+        for (let i2 = 0; i2 < segNames.length; i2++) await ff.writeFile(segNames[i2], segData[i2]);
+        segData.length = 0;
+      } catch (e) { ff = await ensureFFmpeg(); }   // tazeleme olmazsa mevcut motorla devam
     }
 
     /* 2) Birleştirme: geçiş yoksa concat copy, varsa xfade zinciri */
