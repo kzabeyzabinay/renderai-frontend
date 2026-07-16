@@ -2151,6 +2151,11 @@
         <div id="decOptionsEmpty" style="text-align:center; padding:40px 20px; color:#ABA49C; font-size:13px;">
           Henüz seçenek eklenmedi.<br>Solda varyasyon üretip "Müşteri Linkine Ekle" ile buraya taşı.
         </div>
+        <div class="upload-zone" id="decFreeZone" style="padding:14px 12px; margin-top:12px;">
+          <input type="file" id="decFreeInput" accept="image/*" multiple />
+          <p id="decFreeZoneTxt" data-i18n-html="dec_free_zone" style="font-size:12px;"><strong>+ Serbest foto ekle</strong> — bu sekmede üretilmemiş görselleri de seçenek yap (örn. RAL kodunu değiştirdiğin renderlar). Birden fazla seçebilirsin.</p>
+        </div>
+        <div class="error-msg" id="decFreeError"></div>
       </div>
 
       <div class="panel">
@@ -2746,6 +2751,7 @@
     // Karar Linki — açıklamalar (inline <b> içerir)
     dec_how: '<b style="color:#9A6558;">How does it work?</b> Upload a render → generate different material/color variations (e.g. walnut parquet, grey parquet) → add the ones you like to the client link → send the link to your client. The client marks their favorite in the link with <b>"I Choose This"</b>, and you instantly see which one was chosen.',
     dec_edit_hint: 'Click → load the options into the editor, edit and update (<b>no credits charged</b>).',
+    dec_free_zone: '<strong>+ Add your own photo</strong> — use images not generated in this tab as options too (e.g. renders where you changed the RAL code). You can select multiple files.',
     // 360 Tur — boş durum ipucu (inline <b> içerir)
     tour_empty: 'No scenes yet — upload a panorama on the left and start with <b>Add to Tour</b>.',
 
@@ -2972,6 +2978,7 @@
     "Solda varyasyon üretip \"Müşteri Linkine Ekle\" ile buraya taşı.": "Generate a variation on the left and move it here with \"Add to Client Link\".",
     "✏️ Mevcut link düzenleniyor — tıkla: yeni link olarak oluştur": "✏️ Editing current link — click: create as a new link",
     "KARAR LİNKİ HAZIR": "DECISION LINK READY", "Müşteri henüz seçim yapmadı — bu kutu otomatik güncellenir.": "The client hasn't chosen yet — this box updates automatically.",
+    "Yükleniyor...": "Uploading...", "Seçenek adı": "Option name", "Foto eklemek için giriş yapmalısın.": "You must log in to add photos.",
     // ── 360 Tur ──
     "Kendi": "Own", "360 panorama seç / sürükle": "Select / drag a 360 panorama", "Tura Ekle": "Add to Tour", "· ücretsiz": "· free",
     "Fotorealistik Render": "Photorealistic Render", "· 30 kredi": "· 30 credits", "360° render üretiliyor...": "Generating 360° render...", "~60-90 saniye": "~60-90 seconds",
@@ -4393,6 +4400,38 @@
     }
   }
 
+  // Serbest foto: bu sekmede üretilmemiş görselleri de seçenek olarak ekle (çoklu seçim)
+  document.getElementById('decFreeInput').addEventListener('change', async e => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (!files.length) return;
+    const errEl = document.getElementById('decFreeError');
+    errEl.style.display = 'none';
+    if (!localStorage.getItem('ra_token')) {
+      errEl.textContent = L('Foto eklemek için giriş yapmalısın.');
+      errEl.style.display = 'block'; openAuthModal('login'); return;
+    }
+    const txt = document.getElementById('decFreeZoneTxt');
+    const orig = txt.innerHTML;
+    for (let i = 0; i < files.length; i++) {
+      txt.textContent = L('Yükleniyor...') + ' ' + (i + 1) + '/' + files.length;
+      try {
+        const formData = new FormData();
+        formData.append('image', await resizeIfNeeded(files[i]));
+        const res = await fetch(`${API}/tours/asset`, { method: 'POST', headers: authHeaders(), body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Yükleme başarısız');
+        const label = (files[i].name || '').replace(/\.[^.]+$/, '').slice(0, 40) || (L('Seçenek') + ' ' + (decOptions.length + 1));
+        decOptions.push({ url: data.url, label });
+        renderDecOptions();
+      } catch (err) {
+        errEl.textContent = 'Hata: ' + err.message;
+        errEl.style.display = 'block';
+      }
+    }
+    txt.innerHTML = orig;
+  });
+
   document.getElementById('decItemInput').addEventListener('change', e => {
     decItemFile = e.target.files[0] || null;
     if (!decItemFile) { document.getElementById('decItemPreview').style.display = 'none'; return; }
@@ -4487,8 +4526,12 @@
       row.style.cssText = 'display:flex; align-items:center; gap:10px; padding:8px 10px; background:#E8E4DC; border-radius:8px;';
       row.innerHTML = `
         <img src="${o.url}" style="width:60px; height:44px; object-fit:cover; border-radius:6px;" />
-        <span style="flex:1; font-size:13px; color:#2A2520; font-weight:600;">${o.label}</span>
+        <input class="decOptLabel" style="flex:1; min-width:0; font-size:13px; color:#2A2520; font-weight:600; background:#fff; border:1px solid #D8D2C8; border-radius:6px; padding:6px 8px;" />
         <button onclick="removeDecOption(${i})" style="border:none; background:none; color:#B5483A; cursor:pointer; font-size:14px;">✕</button>`;
+      const inp = row.querySelector('.decOptLabel');
+      inp.value = o.label;                                   // innerHTML'e gömülmez — dosya adındaki tırnak vb. güvenli
+      inp.placeholder = L('Seçenek adı');
+      inp.onchange = () => { decOptions[i].label = inp.value.trim() || (L('Seçenek') + ' ' + (i + 1)); inp.value = decOptions[i].label; };
       wrap.appendChild(row);
     });
   }
