@@ -21,7 +21,7 @@
     header {
       padding: 6px 24px;
       display: flex;
-      flex-wrap: wrap;               /* sekmeler sığmazsa alt satıra sarar — sayfa asla yana taşmaz */
+      flex-wrap: nowrap;             /* HER ZAMAN tek satır — sığmayan sekmeler "Daha Fazla" menüsüne gider */
       justify-content: space-between;
       align-items: center;
       background: #1A1A16;
@@ -581,10 +581,20 @@
     .recolor-mat-btn:hover { border-color: #9A6558; color: #9A6558; }
     .recolor-mat-btn.active { border-color: #9A6558; background: rgba(154,101,88,0.1); color: #9A6558; font-weight: 600; }
 
-    /* Nav container (masaüstü: yatay sıra; sığmazsa butonlar alt satıra sarar) */
-    #mainNav { display: flex; gap: 4px; align-items: center; flex: 1 1 auto; min-width: 0; flex-wrap: wrap; padding: 0 10px; }
+    /* Nav container (masaüstü: HER ZAMAN tek satır; sığmayan sekmeler "⋯ Daha Fazla" menüsüne taşınır) */
+    #mainNav { display: flex; gap: 4px; align-items: center; flex: 1 1 auto; min-width: 0; flex-wrap: nowrap; overflow: hidden; padding: 0 10px; }
     /* Sağdaki kontroller (dil/paketler/giriş) sıkışmasın */
     header > div:last-child { flex-shrink: 0; }
+    /* "⋯ Daha Fazla" — sığmayan sekmelerin açılır menüsü */
+    #navMore { position: relative; display: none; flex-shrink: 0; }
+    #navMoreMenu {
+      display: none; position: absolute; top: 100%; right: 0;
+      background: #1A1A16; border: 1px solid #2A2820; border-radius: 12px; padding: 6px;
+      z-index: 1001; box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      min-width: 200px; max-height: 70vh; overflow-y: auto;
+    }
+    #navMoreMenu .main-nav-btn { display: block; width: 100%; text-align: left; border-bottom: none; padding: 11px 14px; }
+    @media (max-width: 768px) { #navMore { display: none !important; } }
     /* Mobil menü butonu — masaüstünde gizli */
     .nav-toggle { display: none; background: transparent; border: none; color: #E8E4DC; cursor: pointer; padding: 6px; }
 
@@ -663,6 +673,10 @@
     <button class="main-nav-btn" id="nav-egitim" onclick="switchMainSection('egitim')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span data-i18n="nav_egitim">Eğitim</span></button>
     <a class="main-nav-btn" id="nav-pafta" href="pafta.html" style="text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 4h18"/><path d="M20 4v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4"/><path d="m8 20 4-4 4 4"/><path d="M9 11l2.2-2.2L13 10.5 15 8"/></svg><span data-i18n="nav_pafta">Pafta / Sunum</span></a>
     <a class="main-nav-btn" id="nav-video-studio" href="video-studio.html" style="text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3"/><path d="M5 9h4"/></svg><span data-i18n="nav_video_studio">Video Stüdyo</span></a>
+  </div>
+  <div id="navMore">
+    <button class="main-nav-btn" id="navMoreBtn" onclick="toggleNavMore(event)"><span data-i18n="nav_more">Daha Fazla</span> ▾</button>
+    <div id="navMoreMenu"></div>
   </div>
   <div style="display:flex; gap:10px; align-items:center;">
     <svg viewBox="0 0 24 24" fill="none" stroke="#E8E4DC" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;margin-right:-4px;vertical-align:middle;"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>
@@ -2690,7 +2704,7 @@
     nav_render: "Render", nav_staging: "Virtual Staging", nav_model3d: "3D Model",
     nav_upscale: "Upscale", nav_enhance: "Enhance", nav_photo: "Photo Studio", nav_video: "Video",
     nav_floorplan: "Floor Plan", nav_place: "Place", nav_pano: "360° Tour",
-    nav_decision: "Decision Link", nav_works: "My Works", nav_egitim: "Tutorial",
+    nav_decision: "Decision Link", nav_works: "My Works", nav_egitim: "Tutorial", nav_more: "More",
     nav_pafta: "Board / Presentation",
     nav_video_studio: "Video Studio",
     hdr_packages: "Packages", hdr_login: "Log In", hdr_account: "Account", hdr_logout: "Log Out",
@@ -3221,6 +3235,7 @@
     RA_LANG = (lang === 'en') ? 'en' : 'tr';
     localStorage.setItem('ra_lang', RA_LANG);
     applyI18n();
+    if (typeof relayoutNav === 'function') setTimeout(relayoutNav, 0);  // etiket genişlikleri değişti
   }
 
   // JS ile üretilen metinler için: TR string ver → EN ise TR2EN karşılığını döndür.
@@ -3502,6 +3517,43 @@
   document.getElementById('mainNav').addEventListener('click', e => {
     if (e.target.closest('.main-nav-btn')) document.getElementById('mainNav').classList.remove('open');
   });
+
+  // ─── Nav taşma yönetimi: sığmayan sekmeler "⋯ Daha Fazla" menüsüne taşınır ───
+  // Header böylece her ekran genişliğinde TEK satır kalır (telefonda hamburger devrede).
+  function relayoutNav() {
+    const nav = document.getElementById('mainNav');
+    const moreWrap = document.getElementById('navMore');
+    const menu = document.getElementById('navMoreMenu');
+    while (menu.firstChild) nav.appendChild(menu.firstChild);   // hepsini geri koy, temiz ölç
+    moreWrap.style.display = 'none';
+    closeNavMore();
+    if (window.innerWidth <= 768) return;                       // telefonda hamburger menü var
+    if (nav.scrollWidth <= nav.clientWidth) return;             // hepsi sığıyor
+    moreWrap.style.display = 'block';
+    let guard = 0;
+    while (nav.scrollWidth > nav.clientWidth && guard++ < 30) {
+      const btns = nav.querySelectorAll('.main-nav-btn');
+      if (btns.length <= 1) break;
+      menu.insertBefore(btns[btns.length - 1], menu.firstChild); // sondan taşı, sıra korunur
+    }
+  }
+  function toggleNavMore(e) {
+    e.stopPropagation();
+    const m = document.getElementById('navMoreMenu');
+    m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+  }
+  function closeNavMore() {
+    const m = document.getElementById('navMoreMenu');
+    if (m) m.style.display = 'none';
+  }
+  document.addEventListener('click', ev => {
+    if (ev.target.closest('#navMoreMenu .main-nav-btn')) { closeNavMore(); return; }  // menüden seçim → kapat
+    if (!ev.target.closest('#navMore')) closeNavMore();                               // dışarı tık → kapat
+  });
+  window.addEventListener('resize', relayoutNav);
+  window.addEventListener('load', relayoutNav);                 // fontlar yüklenince genişlikler netleşir
+  if (window.ResizeObserver) new ResizeObserver(() => relayoutNav()).observe(document.getElementById('mainNav'));
+  setTimeout(relayoutNav, 0);
 
   const INTERIOR_STYLES = [
     { key: 'modern_interior', label: 'Modern İç Mekan' },
