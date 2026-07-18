@@ -1587,6 +1587,14 @@
 
     <!-- Sol: Yükle + Bilgi -->
     <div>
+      <!-- Mod seçimi: Görselden (Trellis) / Kat Planından (gerçek 3B motor) -->
+      <div class="panel" style="padding:14px 16px;">
+        <div style="display:flex; gap:8px;">
+          <button id="m3dModeImgBtn" onclick="setM3dMode('image')" style="flex:1; padding:10px 12px; border-radius:10px; border:2px solid #9A6558; background:#9A6558; color:#fff; font-size:13px; font-weight:700; cursor:pointer;" data-i18n="m3d_mode_img">📷 Görselden</button>
+          <button id="m3dModePlanBtn" onclick="setM3dMode('plan')" style="flex:1; padding:10px 12px; border-radius:10px; border:2px solid #D8D2C8; background:transparent; color:#6B6258; font-size:13px; font-weight:700; cursor:pointer;"><span data-i18n="m3d_mode_plan">📐 Kat Planından</span> <span style="background:#7A8B6A; color:#fff; font-size:9px; padding:2px 6px; border-radius:8px; vertical-align:2px;" data-i18n="m3d_new_badge">YENİ</span></button>
+        </div>
+      </div>
+
       <div class="panel">
         <h2>GÖRSEL YÜKLE</h2>
         <div class="upload-zone" id="model3dUploadZone">
@@ -1607,7 +1615,11 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.1"/></svg> En iyi sonuç <strong>tek obje</strong> içindir (koltuk, ürün, bina dış kütlesi).
           Komple iç mekan sahnesinde model kabaca kalır. İşlem ~1-2 dakika sürer.
         </div>
+        <div id="plan3dHint" data-i18n-html="plan3d_hint" style="display:none; font-size:11px; color:#8A7E74; padding:10px 12px; background:#E8E4DC; border-radius:8px; border:1px solid #D8D2C8; margin-bottom:16px; line-height:1.5;">
+          📐 <strong>Kat planı görseli veya PDF</strong> yükleyin — duvarlar, kapılar ve pencereler AI ile algılanır, <strong>içinde gezilebilir gerçek 3B model</strong> kurulur. GLB indirme ücretsizdir. Net, yüksek kontrastlı planlar en iyi sonucu verir. İşlem ~30-60 sn sürer.
+        </div>
         <button class="render-btn" id="model3dBtn" onclick="startModel3d()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg> Modeli Oluştur <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
+        <button class="render-btn" id="plan3dBtn" onclick="startPlan3d()" style="display:none;">📐 <span data-i18n="plan3d_btn">Kat Planını 3B'ye Dönüştür</span> <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
         <div class="error-msg" id="model3dError"></div>
       </div>
     </div>
@@ -1630,6 +1642,20 @@
         </model-viewer>
         <a id="model3dDownloadBtn" class="download-btn" download="model.glb" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> GLB İndir</a>
         <button id="model3dObjBtn" onclick="downloadModelObj()" style="display:none; margin-left:8px; padding:10px 16px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:13px; font-weight:600; cursor:pointer;">⬇ OBJ İndir (SketchUp / 3ds Max)</button>
+
+        <!-- Plan → 3D görüntüleyici (three.js — istemci tarafı gerçek geometri) -->
+        <div id="plan3dWrap" style="display:none; width:100%;">
+          <div id="plan3dCanvasWrap" style="position:relative; width:100%; height:480px; background:#1A1A16; border-radius:12px; overflow:hidden;">
+            <div id="plan3dWalkHint" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(26,26,22,.85); color:#fff; padding:14px 22px; border-radius:12px; font-size:13px; line-height:1.6; z-index:5; pointer-events:none; text-align:center;"></div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:12px;">
+            <button id="plan3dOrbitBtn" onclick="PLAN3D.setNav('orbit')" style="padding:9px 14px; border:1px solid #9A6558; border-radius:10px; background:#9A6558; color:#fff; font-size:12px; font-weight:600; cursor:pointer;">🖱 <span data-i18n="plan3d_orbit">Döndür</span></button>
+            <button id="plan3dWalkBtn" onclick="PLAN3D.setNav('walk')" style="padding:9px 14px; border:1px solid #9A6558; border-radius:10px; background:transparent; color:#9A6558; font-size:12px; font-weight:600; cursor:pointer;">🚶 <span data-i18n="plan3d_walk">İçinde Gez</span></button>
+            <button id="plan3dLabelsBtn" onclick="PLAN3D.toggleLabels()" style="padding:9px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:12px; font-weight:600; cursor:pointer;">🏷 <span data-i18n="plan3d_labels">Oda Adları</span></button>
+            <button id="plan3dCeilBtn" onclick="PLAN3D.toggleCeiling()" style="padding:9px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:12px; font-weight:600; cursor:pointer;">⬜ <span data-i18n="plan3d_ceil">Tavan</span></button>
+            <button id="plan3dGlbBtn" onclick="PLAN3D.exportGLB()" style="padding:9px 14px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:12px; font-weight:600; cursor:pointer;">⬇ <span data-i18n="plan3d_glb">GLB İndir · ücretsiz</span></button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2785,6 +2811,18 @@
     pano_hint: "Upload your own <b>equirectangular 360</b> panorama (2:1 ratio — Enscape, Lumion, 360 camera, etc.). You can add it directly to the tour or first get a photorealistic render with AI.",
     tour_room_hint: "Select a room from the list, then click the plan → the room's location is marked. While touring, the active room lights up on the plan.",
     model3d_hint: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.1"/></svg> Best results are for <strong>a single object</strong> (sofa, product, building exterior mass). In a full interior scene the model stays rough. Processing takes ~1-2 minutes.',
+
+    // Plan → 3D (Kat Planından gerçek 3B model)
+    m3d_mode_img: '📷 From Image',
+    m3d_mode_plan: '📐 From Floor Plan',
+    m3d_new_badge: 'NEW',
+    plan3d_hint: '📐 Upload a <strong>floor plan image or PDF</strong> — walls, doors and windows are detected with AI and a <strong>real walkable 3D model</strong> is built. GLB download is free. Clean, high-contrast plans give the best results. Takes ~30-60 sec.',
+    plan3d_btn: 'Convert Floor Plan to 3D',
+    plan3d_orbit: 'Orbit',
+    plan3d_walk: 'Walk Inside',
+    plan3d_labels: 'Room Labels',
+    plan3d_ceil: 'Ceiling',
+    plan3d_glb: 'Download GLB · free',
     dec_link_note: "At least 2 options are required. The link stays active as long as your subscription continues; if it ends the link stays active for 1 more month, and is deleted if you don't resubscribe within that time.",
     tour_link_note: "The link stays active as long as your subscription continues; if it ends the link stays active for 1 more month, and is deleted if you don't resubscribe within that time."
   };
@@ -2946,6 +2984,20 @@
     "3D model burada görünecek — fareyle döndürebilirsiniz": "The 3D model will appear here — you can rotate it with the mouse",
     "3D model oluşturuluyor...": "Generating 3D model...", "GLB İndir": "Download GLB",
     "⬇ OBJ İndir (SketchUp / 3ds Max)": "⬇ Download OBJ (SketchUp / 3ds Max)",
+    // ── Plan → 3D ──
+    "Kat planı görseli veya PDF seçin ya da sürükleyin": "Select or drag a floor plan image or PDF",
+    "Mimari kat planı — PNG, JPG veya PDF": "Architectural floor plan — PNG, JPG or PDF",
+    'PDF sadece "Kat Planından" modunda desteklenir.': 'PDF is only supported in "From Floor Plan" mode.',
+    "Lütfen önce bir kat planı yükleyin.": "Please upload a floor plan first.",
+    "Kat planı analiz ediliyor...": "Analyzing floor plan...",
+    "AI duvarları, kapıları ve pencereleri algılıyor": "AI is detecting walls, doors and windows",
+    "sn geçti": "s elapsed",
+    "3B sahne kuruluyor...": "Building the 3D scene...",
+    "Plan verisi alınamadı — tekrar deneyin.": "Could not get plan data — please try again.",
+    "5 dakika aşıldı, lütfen tekrar deneyin": "5 minutes exceeded, please try again",
+    "Tıkla → fareyle etrafına bak": "Click → look around with the mouse",
+    "ile yürü · Shift hızlı · Esc ile çık": "to walk · Shift to run · Esc to exit",
+    "GLB dışa aktarımı başarısız — tekrar deneyin.": "GLB export failed — please try again.",
     // ── Video ──
     "Render yükle → mevsim, zaman, hareket ve kamera seç → AI 5 saniyelik video üretir": "Upload a render → choose season, time, motion and camera → AI creates a 5-second video",
     "Hareketleri sen seçersin — istemediğin hareket (örn. araç) eklenmez": "You choose the motions — unwanted motion (e.g. vehicles) is not added",
@@ -6393,15 +6445,38 @@
   document.getElementById('model3dFileInput').addEventListener('change', e => {
     model3dFile = e.target.files[0];
     if (!model3dFile) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const preview = document.getElementById('model3dPreview');
-      preview.src = ev.target.result;
-      preview.style.display = 'block';
-      document.querySelector('#model3dUploadZone').style.padding = '12px';
-      document.getElementById('model3dIcon').style.display = 'none';
+    // Kat Planından modunda PDF kabul edilir → ilk sayfa JPEG'e çevrilir (kat planı sekmesiyle aynı yol)
+    const _isPdf = model3dFile.type === 'application/pdf' || /\.pdf$/i.test(model3dFile.name || '');
+    const _finishPreview = () => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const preview = document.getElementById('model3dPreview');
+        preview.src = ev.target.result;
+        preview.style.display = 'block';
+        document.querySelector('#model3dUploadZone').style.padding = '12px';
+        document.getElementById('model3dIcon').style.display = 'none';
+      };
+      reader.readAsDataURL(model3dFile);
     };
-    reader.readAsDataURL(model3dFile);
+    if (_isPdf) {
+      if (m3dMode !== 'plan') {
+        const el = document.getElementById('model3dError');
+        el.textContent = L('PDF sadece "Kat Planından" modunda desteklenir.');
+        el.style.display = 'block';
+        model3dFile = null;
+        return;
+      }
+      document.getElementById('model3dError').style.display = 'none';
+      pdfFirstPageToJpeg(model3dFile, 2400).then(f => { model3dFile = f; _finishPreview(); })
+        .catch(() => {
+          const el = document.getElementById('model3dError');
+          el.textContent = L('PDF okunamadı. Lütfen planı PNG/JPG olarak yükleyin.');
+          el.style.display = 'block';
+          model3dFile = null;
+        });
+      return;
+    }
+    _finishPreview();
   });
 
   const model3dZone = document.getElementById('model3dUploadZone');
@@ -6490,6 +6565,411 @@
       btn.disabled = false;
     }
   }
+
+  // ─── 📐 PLAN → 3D (kat planından gerçek 3B model — three.js istemci motoru) ──
+  let m3dMode = 'image';
+
+  function setM3dMode(mode) {
+    m3dMode = mode;
+    const plan = mode === 'plan';
+    const imgBtn = document.getElementById('m3dModeImgBtn');
+    const planBtn = document.getElementById('m3dModePlanBtn');
+    imgBtn.style.background = plan ? 'transparent' : '#9A6558';
+    imgBtn.style.color = plan ? '#6B6258' : '#fff';
+    imgBtn.style.borderColor = plan ? '#D8D2C8' : '#9A6558';
+    planBtn.style.background = plan ? '#9A6558' : 'transparent';
+    planBtn.style.color = plan ? '#fff' : '#6B6258';
+    planBtn.style.borderColor = plan ? '#9A6558' : '#D8D2C8';
+    const oldHint = document.querySelector('#section-model3d [data-i18n-html="model3d_hint"]');
+    if (oldHint) oldHint.style.display = plan ? 'none' : '';
+    document.getElementById('plan3dHint').style.display = plan ? 'block' : 'none';
+    document.getElementById('model3dBtn').style.display = plan ? 'none' : '';
+    document.getElementById('plan3dBtn').style.display = plan ? '' : 'none';
+    const ut = document.querySelector('#model3dUploadZone .upload-text');
+    const us = document.querySelector('#model3dUploadZone .upload-sub');
+    if (ut) ut.textContent = plan ? L('Kat planı görseli veya PDF seçin ya da sürükleyin') : L('Tek bir objenin fotoğrafını seçin veya sürükleyin');
+    if (us) us.textContent = plan ? L('Mimari kat planı — PNG, JPG veya PDF') : L('Koltuk, mobilya, ürün ya da bina dış kütlesi');
+    document.getElementById('model3dFileInput').setAttribute('accept', plan ? 'image/*,.pdf,application/pdf' : 'image/*');
+  }
+  // Dil değişince mod metinlerini tazele (setLang'e dokunmadan, additive)
+  document.addEventListener('DOMContentLoaded', () => {
+    const sel = document.getElementById('langSelect');
+    if (sel) sel.addEventListener('change', () => setTimeout(() => setM3dMode(m3dMode), 0));
+  });
+
+  async function startPlan3d() {
+    const errEl = document.getElementById('model3dError');
+    if (!model3dFile) {
+      errEl.textContent = L('Lütfen önce bir kat planı yükleyin.');
+      errEl.style.display = 'block';
+      return;
+    }
+    const btn = document.getElementById('plan3dBtn');
+    btn.disabled = true;
+    document.getElementById('model3dPlaceholder').style.display = 'none';
+    document.getElementById('model3dLoading').style.display = 'block';
+    document.querySelector('#model3dLoading p').innerHTML =
+      `${L('Kat planı analiz ediliyor...')}<br><span style="font-size:12px;color:#ABA49C;">${L('AI duvarları, kapıları ve pencereleri algılıyor')}</span>`;
+    document.getElementById('model3dViewer').style.display = 'none';
+    document.getElementById('model3dDownloadBtn').style.display = 'none';
+    document.getElementById('model3dObjBtn').style.display = 'none';
+    document.getElementById('plan3dWrap').style.display = 'none';
+    errEl.style.display = 'none';
+
+    const formData = new FormData();
+    const imageToSend = await resizeIfNeeded(model3dFile);
+    formData.append('image', imageToSend);
+
+    try {
+      const startRes = await fetch(`${API}/plan3d/start`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
+
+      const jobId = startData.prediction_id;
+      let elapsed = 0;
+      while (true) {
+        await new Promise(r => setTimeout(r, 3000));
+        elapsed += 3;
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+        if (statusData.stage_label) {
+          document.querySelector('#model3dLoading p').innerHTML =
+            `${statusData.stage_label}<br><span style="font-size:12px;color:#ABA49C;">${elapsed}${L('sn geçti')}</span>`;
+        }
+        if (statusData.status === 'succeeded') {
+          if (!statusData.plan_json) throw new Error(L('Plan verisi alınamadı — tekrar deneyin.'));
+          document.querySelector('#model3dLoading p').innerHTML = L('3B sahne kuruluyor...');
+          await PLAN3D.show(statusData.plan_json);
+          document.getElementById('model3dLoading').style.display = 'none';
+          break;
+        } else if (statusData.status === 'failed') {
+          throw new Error(statusData.error || 'Plan analizi başarısız');
+        }
+        if (elapsed > 300) throw new Error(L('5 dakika aşıldı, lütfen tekrar deneyin'));
+      }
+    } catch (err) {
+      document.getElementById('model3dLoading').style.display = 'none';
+      document.getElementById('model3dPlaceholder').style.display = 'block';
+      errEl.textContent = 'Hata: ' + err.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  const PLAN3D = {
+    T: null, OrbitControls: null, PointerLockControls: null, exporterCls: null,
+    scene: null, camera: null, renderer: null, orbit: null, walk: null, dirLight: null,
+    group: null, labelGroup: null, helperGroup: null, ceiling: null, clock: null,
+    keys: {}, nav: 'orbit', rafId: 0, planData: null,
+    _s: 1, _cx: 500, _cy: 500, _bbox: null, _camHome: null, _resizeObs: null,
+
+    async ensureThree() {
+      if (this.T) return;
+      const V = '0.160.0';
+      // jsdelivr +esm: bare 'three' importlarını kendisi çözer → importmap gerekmez, tek modül örneği paylaşılır
+      const [T, oc, plc, ge] = await Promise.all([
+        import(`https://cdn.jsdelivr.net/npm/three@${V}/+esm`),
+        import(`https://cdn.jsdelivr.net/npm/three@${V}/examples/jsm/controls/OrbitControls.js/+esm`),
+        import(`https://cdn.jsdelivr.net/npm/three@${V}/examples/jsm/controls/PointerLockControls.js/+esm`),
+        import(`https://cdn.jsdelivr.net/npm/three@${V}/examples/jsm/exporters/GLTFExporter.js/+esm`),
+      ]);
+      this.T = T;
+      this.OrbitControls = oc.OrbitControls;
+      this.PointerLockControls = plc.PointerLockControls;
+      this.exporterCls = ge.GLTFExporter;
+    },
+
+    initRenderer() {
+      if (this.renderer) return;
+      const T = this.T, wrap = document.getElementById('plan3dCanvasWrap');
+      this.renderer = new T.WebGLRenderer({ antialias: true });
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.type = T.PCFSoftShadowMap;
+      wrap.appendChild(this.renderer.domElement);
+      this.scene = new T.Scene();
+      this.scene.background = new T.Color(0xE8E4DC);
+      this.camera = new T.PerspectiveCamera(50, 1, 0.05, 500);
+      this.orbit = new this.OrbitControls(this.camera, this.renderer.domElement);
+      this.orbit.enableDamping = true;
+      this.orbit.maxPolarAngle = Math.PI * 0.495;
+      this.walk = new this.PointerLockControls(this.camera, this.renderer.domElement);
+      this.walk.addEventListener('lock', () => { document.getElementById('plan3dWalkHint').style.display = 'none'; });
+      this.walk.addEventListener('unlock', () => { if (this.nav === 'walk') this._showWalkHint(); });
+      wrap.addEventListener('click', () => { if (this.nav === 'walk' && !this.walk.isLocked) this.walk.lock(); });
+      document.addEventListener('keydown', e => { if (this.walk && this.walk.isLocked) this.keys[e.code] = true; });
+      document.addEventListener('keyup', e => { this.keys[e.code] = false; });
+      const hemi = new T.HemisphereLight(0xffffff, 0x9a9082, 1.1);
+      const dir = new T.DirectionalLight(0xfff2e2, 1.7);
+      dir.position.set(14, 22, 9);
+      dir.castShadow = true;
+      dir.shadow.mapSize.set(2048, 2048);
+      this.scene.add(hemi);
+      this.scene.add(dir);
+      this.dirLight = dir;
+      this.clock = new T.Clock();
+      this._resizeObs = new ResizeObserver(() => this._resize());
+      this._resizeObs.observe(wrap);
+      this._resize();
+      const loop = () => {
+        this.rafId = requestAnimationFrame(loop);
+        if (!this.scene) return;
+        const dt = Math.min(this.clock.getDelta(), 0.1);
+        if (this.walk.isLocked) {
+          const sp = (this.keys['ShiftLeft'] || this.keys['ShiftRight']) ? 5.0 : 2.6;
+          let mx = 0, mz = 0;
+          if (this.keys['KeyW'] || this.keys['ArrowUp']) mz += 1;
+          if (this.keys['KeyS'] || this.keys['ArrowDown']) mz -= 1;
+          if (this.keys['KeyA'] || this.keys['ArrowLeft']) mx -= 1;
+          if (this.keys['KeyD'] || this.keys['ArrowRight']) mx += 1;
+          if (mx || mz) { this.walk.moveRight(mx * sp * dt); this.walk.moveForward(mz * sp * dt); }
+          this.camera.position.y = 1.6;
+          if (this._bbox) {
+            const m = 3, p = this.camera.position;
+            p.x = Math.max(this._bbox.minX - m, Math.min(this._bbox.maxX + m, p.x));
+            p.z = Math.max(this._bbox.minZ - m, Math.min(this._bbox.maxZ + m, p.z));
+          }
+        } else if (this.orbit.enabled) {
+          this.orbit.update();
+        }
+        this.renderer.render(this.scene, this.camera);
+      };
+      loop();
+    },
+
+    _resize() {
+      if (!this.renderer) return;
+      const wrap = document.getElementById('plan3dCanvasWrap');
+      const w = wrap.clientWidth || 640, h = wrap.clientHeight || 480;
+      this.renderer.setSize(w, h, false);
+      this.renderer.domElement.style.width = '100%';
+      this.renderer.domElement.style.height = '100%';
+      this.camera.aspect = w / h;
+      this.camera.updateProjectionMatrix();
+    },
+
+    _mx(u) { return (u - this._cx) * this._s; },
+    _mz(v) { return (v - this._cy) * this._s; },
+
+    _disposePrev() {
+      [this.group, this.labelGroup, this.helperGroup].forEach(g => {
+        if (!g) return;
+        this.scene.remove(g);
+        g.traverse(o => {
+          if (o.geometry) o.geometry.dispose();
+          if (o.material) {
+            (Array.isArray(o.material) ? o.material : [o.material]).forEach(mm => {
+              if (mm.map) mm.map.dispose();
+              mm.dispose();
+            });
+          }
+        });
+      });
+      this.group = this.labelGroup = this.helperGroup = this.ceiling = null;
+    },
+
+    build(plan) {
+      const T = this.T;
+      this._disposePrev();
+      this.planData = plan;
+      const walls = plan.walls || [];
+      let minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+      walls.forEach(w => {
+        minX = Math.min(minX, w.x1, w.x2); maxX = Math.max(maxX, w.x1, w.x2);
+        minY = Math.min(minY, w.y1, w.y2); maxY = Math.max(maxY, w.y1, w.y2);
+      });
+      const wUnits = Math.max(maxX - minX, 1);
+      const s = plan.plan_width_m / wUnits;             // metre / plan birimi
+      this._s = s; this._cx = (minX + maxX) / 2; this._cy = (minY + maxY) / 2;
+      const H = plan.wall_height_m || 2.7;
+      const DOOR_H = Math.min(2.1, H - 0.3), WIN_SILL = 0.9, WIN_TOP = Math.min(2.1, H - 0.3);
+
+      const group = new T.Group();
+      const wallMat = new T.MeshStandardMaterial({ color: 0xF5F3F0, roughness: 0.9, metalness: 0 });
+      const glassMat = new T.MeshStandardMaterial({ color: 0xA8C8D8, transparent: true, opacity: 0.35, roughness: 0.15, metalness: 0 });
+      const floorMat = new T.MeshStandardMaterial({ color: 0xD9CDBB, roughness: 0.95 });
+
+      const opensByWall = walls.map(() => []);
+      (plan.doors || []).forEach(d => { if (opensByWall[d.wall]) opensByWall[d.wall].push({ ...d, kind: 'door' }); });
+      (plan.windows || []).forEach(d => { if (opensByWall[d.wall]) opensByWall[d.wall].push({ ...d, kind: 'win' }); });
+
+      walls.forEach((w, i) => {
+        const X1 = this._mx(w.x1), Z1 = this._mz(w.y1), X2 = this._mx(w.x2), Z2 = this._mz(w.y2);
+        const Lw = Math.hypot(X2 - X1, Z2 - Z1);
+        if (Lw < 0.05) return;
+        const ang = Math.atan2(Z2 - Z1, X2 - X1);
+        const th = Math.max(0.07, (w.th || 12) * s);
+        // parça kutusu: duvar başlangıcından a..b metre aralığı, y0..y1 yükseklik
+        const seg = (a, b, y0, y1, mat, thk) => {
+          const len = b - a, hgt = y1 - y0;
+          if (len <= 0.01 || hgt <= 0.01) return;
+          const mesh = new T.Mesh(new T.BoxGeometry(len, hgt, thk || th), mat || wallMat);
+          const mid = (a + b) / 2;
+          mesh.position.set(X1 + Math.cos(ang) * mid, y0 + hgt / 2, Z1 + Math.sin(ang) * mid);
+          mesh.rotation.y = -ang;
+          mesh.castShadow = mesh.receiveShadow = true;
+          group.add(mesh);
+        };
+        const ops = opensByWall[i]
+          .map(o => {
+            const wM = (o.w || 60) * s, c = (o.t || 0.5) * Lw;
+            return { a: Math.max(0.05, c - wM / 2), b: Math.min(Lw - 0.05, c + wM / 2), kind: o.kind };
+          })
+          .filter(o => o.b - o.a > 0.15)
+          .sort((p, q) => p.a - q.a);
+        const clean = [];
+        ops.forEach(o => { if (!clean.length || o.a >= clean[clean.length - 1].b + 0.05) clean.push(o); });
+        let cur = 0;
+        clean.forEach(o => {
+          if (o.a > cur) seg(cur, o.a, 0, H);
+          if (o.kind === 'door') {
+            seg(o.a, o.b, DOOR_H, H);                       // kapı lentosu
+          } else {
+            seg(o.a, o.b, 0, WIN_SILL);                     // denizlik altı
+            seg(o.a, o.b, WIN_TOP, H);                      // pencere lentosu
+            seg(o.a, o.b, WIN_SILL, WIN_TOP, glassMat, 0.05); // cam
+          }
+          cur = o.b;
+        });
+        if (cur < Lw) seg(cur, Lw, 0, H);
+      });
+
+      // zemin + tavan (tavan varsayılan gizli)
+      const fw = (maxX - minX) * s + 0.3, fd = (maxY - minY) * s + 0.3;
+      const floor = new T.Mesh(new T.BoxGeometry(fw, 0.15, fd), floorMat);
+      floor.position.set(0, -0.075, 0);
+      floor.receiveShadow = true;
+      group.add(floor);
+      this.ceiling = new T.Mesh(new T.BoxGeometry(fw, 0.1, fd), new T.MeshStandardMaterial({ color: 0xEFEDE8, roughness: 0.9 }));
+      this.ceiling.position.set(0, H + 0.05, 0);
+      this.ceiling.visible = false;
+      group.add(this.ceiling);
+
+      // kozmetik zemin düzlemi (GLB'ye girmez — helperGroup)
+      const helperGroup = new T.Group();
+      const ground = new T.Mesh(
+        new T.CircleGeometry(Math.max(fw, fd) * 3, 48),
+        new T.MeshStandardMaterial({ color: 0xDCD6CA, roughness: 1 })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -0.16;
+      ground.receiveShadow = true;
+      helperGroup.add(ground);
+
+      // oda etiketleri (GLB'ye girmez — labelGroup)
+      const labelGroup = new T.Group();
+      (plan.rooms || []).forEach(r => {
+        const spr = this._makeLabel(r.label);
+        spr.position.set(this._mx(r.x), 1.45, this._mz(r.y));
+        labelGroup.add(spr);
+      });
+
+      // gölge kamerası model boyutuna uysun
+      const size = Math.max(fw, fd);
+      const sc = this.dirLight.shadow.camera;
+      sc.left = -size; sc.right = size; sc.top = size; sc.bottom = -size; sc.far = 120;
+      sc.updateProjectionMatrix();
+
+      this.scene.add(group); this.scene.add(labelGroup); this.scene.add(helperGroup);
+      this.group = group; this.labelGroup = labelGroup; this.helperGroup = helperGroup;
+      this._bbox = { minX: -fw / 2, maxX: fw / 2, minZ: -fd / 2, maxZ: fd / 2 };
+      this.camera.position.set(size * 0.85, size * 0.75, size * 0.85);
+      this._camHome = this.camera.position.clone();
+      this.orbit.target.set(0, 0.8, 0);
+      this.orbit.update();
+    },
+
+    _makeLabel(text) {
+      const T = this.T, c = document.createElement('canvas');
+      c.width = 512; c.height = 128;
+      const x = c.getContext('2d');
+      x.font = '700 44px Inter, Arial, sans-serif';
+      const tw = Math.min(x.measureText(text).width + 60, 500);
+      x.fillStyle = 'rgba(26,26,22,0.78)';
+      const rx = (512 - tw) / 2;
+      if (x.roundRect) { x.beginPath(); x.roundRect(rx, 24, tw, 80, 18); x.fill(); }
+      else x.fillRect(rx, 24, tw, 80);
+      x.fillStyle = '#FFFFFF'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillText(text, 256, 66);
+      const tex = new T.CanvasTexture(c);
+      const spr = new T.Sprite(new T.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
+      spr.scale.set(2.6, 0.65, 1);
+      return spr;
+    },
+
+    async show(plan) {
+      document.getElementById('plan3dWrap').style.display = 'block';
+      document.getElementById('model3dViewer').style.display = 'none';
+      await this.ensureThree();
+      this.initRenderer();
+      this.build(plan);
+      this.setNav('orbit');
+    },
+
+    setNav(mode) {
+      this.nav = mode;
+      const ob = document.getElementById('plan3dOrbitBtn'), wb = document.getElementById('plan3dWalkBtn');
+      const paint = (b, act) => { b.style.background = act ? '#9A6558' : 'transparent'; b.style.color = act ? '#fff' : '#9A6558'; };
+      paint(ob, mode === 'orbit'); paint(wb, mode === 'walk');
+      if (!this.camera) return;
+      if (mode === 'walk') {
+        this.orbit.enabled = false;
+        let px = 0, pz = 0;
+        const p = this.planData;
+        if (p && p.rooms && p.rooms.length) { px = this._mx(p.rooms[0].x); pz = this._mz(p.rooms[0].y); }
+        this.camera.position.set(px, 1.6, pz);
+        this.camera.rotation.set(0, 0, 0);
+        this._showWalkHint();
+      } else {
+        if (this.walk && this.walk.isLocked) this.walk.unlock();
+        document.getElementById('plan3dWalkHint').style.display = 'none';
+        this.orbit.enabled = true;
+        if (this._camHome) {
+          this.camera.position.copy(this._camHome);
+          this.orbit.target.set(0, 0.8, 0);
+          this.orbit.update();
+        }
+      }
+    },
+
+    _showWalkHint() {
+      const el = document.getElementById('plan3dWalkHint');
+      el.innerHTML = `🚶 ${L('Tıkla → fareyle etrafına bak')}<br><strong>W A S D</strong> ${L('ile yürü · Shift hızlı · Esc ile çık')}`;
+      el.style.display = 'block';
+    },
+
+    toggleLabels() {
+      if (!this.labelGroup) return;
+      this.labelGroup.visible = !this.labelGroup.visible;
+      const b = document.getElementById('plan3dLabelsBtn');
+      b.style.background = this.labelGroup.visible ? 'transparent' : '#E8E4DC';
+    },
+
+    toggleCeiling() {
+      if (!this.ceiling) return;
+      this.ceiling.visible = !this.ceiling.visible;
+      const b = document.getElementById('plan3dCeilBtn');
+      b.style.background = this.ceiling.visible ? '#E8E4DC' : 'transparent';
+    },
+
+    exportGLB() {
+      if (!this.group || !this.exporterCls) return;
+      const ex = new this.exporterCls();
+      ex.parse(this.group, res => {
+        const blob = new Blob([res], { type: 'model/gltf-binary' });
+        const u = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = u; a.download = 'bynai-plan3d.glb'; a.click();
+        setTimeout(() => URL.revokeObjectURL(u), 4000);
+      }, () => {
+        const el = document.getElementById('model3dError');
+        el.textContent = L('GLB dışa aktarımı başarısız — tekrar deneyin.');
+        el.style.display = 'block';
+      }, { binary: true, onlyVisible: true });
+    },
+  };
 
   // ─── 🎬 VİDEO ────────────────────────────────────────────────────────────
   let videoFiles = [];
