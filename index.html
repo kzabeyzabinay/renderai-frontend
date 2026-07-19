@@ -6864,24 +6864,60 @@
 
       // 5) kapılar: oda çifti → ortak iç duvar; "dışarı" → odanın en uzun dış duvarı
       const DOOR_W = 0.9 / s;
-      (plan.doors || []).forEach(d => {
+      const doorPairs = new Set();
+      let hasEntrance = false;
+      const placeDoor = (da, db) => {
         let cand;
-        if (d.a >= 0 && d.b >= 0) {
-          cand = merged.filter(w => !w.ext && w.rooms.includes(d.a) && w.rooms.includes(d.b));
+        if (da >= 0 && db >= 0) {
+          cand = merged.filter(w => !w.ext && w.rooms.includes(da) && w.rooms.includes(db));
         } else {
-          const ri = d.a >= 0 ? d.a : d.b;
-          cand = merged.filter(w => w.ext && w.rooms[0] === ri);
+          const ri = da >= 0 ? da : db;
+          cand = merged.filter(w => w.ext && w.rooms[0] === ri && !isBalcony(rooms[ri] && rooms[ri].label));
         }
-        if (!cand.length) return;
+        if (!cand.length) return false;
         cand.sort((u, v) => (v.b - v.a) - (u.b - u.a));
         const w = cand[0], len = w.b - w.a;
         const dw = Math.min(DOOR_W, len * 0.6);
-        if (dw < 1) return;
+        if (dw < 1) return false;
         const mid = (w.a + w.b) / 2;
         w.openings.push({ a: mid - dw / 2, b: mid + dw / 2, kind: 'door' });
-      });
+        if (da < 0 || db < 0) hasEntrance = true;
+        else { doorPairs.add(da + '-' + db); doorPairs.add(db + '-' + da); }
+        return true;
+      };
+      (plan.doors || []).forEach(d => placeDoor(d.a, d.b));
+
+      // 5b) ERİŞİLEBİLİRLİK GARANTİSİ: kapısız kalan odaya ortak duvardan otomatik kapı
+      const adjOf = ri => {
+        const set = new Set();
+        merged.forEach(w => { if (!w.ext && w.rooms.includes(ri)) w.rooms.forEach(o => { if (o !== ri) set.add(o); }); });
+        return [...set];
+      };
+      const reached = new Set([0]);
+      const bfsQ = [0];
+      while (bfsQ.length) {
+        const cur = bfsQ.shift();
+        adjOf(cur).forEach(o => { if (!reached.has(o) && doorPairs.has(cur + '-' + o)) { reached.add(o); bfsQ.push(o); } });
+      }
+      let changed = true, guard = 0;
+      while (reached.size < rooms.length && changed && guard++ < 60) {
+        changed = false;
+        for (let ri = 0; ri < rooms.length; ri++) {
+          if (reached.has(ri)) continue;
+          for (const o of adjOf(ri)) {
+            if (reached.has(o) && placeDoor(ri, o)) { reached.add(ri); changed = true; break; }
+          }
+        }
+      }
+      // giriş kapısı garantisi (hol/antre tercihli)
+      if (!hasEntrance) {
+        let ei = rooms.findIndex(r => /hol|koridor|antre|giri/i.test(r.label));
+        if (ei < 0) ei = 0;
+        placeDoor(ei, -1);
+      }
 
       // 6) pencereler: oda + yön (N/S/E/W) → o yöndeki dış duvar
+      const roomHasWin = new Set();
       (plan.windows || []).forEach(win => {
         const r = rooms[win.room]; if (!r) return;
         if (isBalcony(r.label)) return; // korkulukta pencere olmaz
@@ -6908,6 +6944,25 @@
         if (ww < 2) return;
         const a = Math.max(w.a + 1, Math.min(target - ww / 2, w.b - 1 - ww));
         w.openings.push({ a, b: a + ww, kind: 'win' });
+        roomHasWin.add(win.room);
+      });
+
+      // 6b) OTOMATİK PENCERE: penceresiz kalan yaşam odasına en uzun boş dış duvardan
+      const needsWin = lbl => !/hol|koridor|antre|giri|wc|tuvalet|kiler|dolap|banyo|bath/i.test(lbl || '') && !isBalcony(lbl);
+      rooms.forEach((r, ri) => {
+        if (roomHasWin.has(ri) || !needsWin(r.label)) return;
+        const cand = merged.filter(w => w.ext && w.rooms[0] === ri)
+          .sort((u, v) => (v.b - v.a) - (u.b - u.a));
+        for (const w of cand) {
+          if (w.openings.length) continue; // kapı/pencere olan duvarı atla, sıradakine bak
+          const len = w.b - w.a;
+          const ww = Math.min(1.5 / s, len * 0.6);
+          if (ww < 2) continue;
+          const mid = (w.a + w.b) / 2;
+          w.openings.push({ a: mid - ww / 2, b: mid + ww / 2, kind: 'win' });
+          roomHasWin.add(ri);
+          break;
+        }
       });
 
       // 7) mesh üretimi
@@ -6986,6 +7041,9 @@
       group.add(ceilGroup);
       this.ceiling = ceilGroup;
 
+      // 8) MOBİLYA: oda etiketine göre parametrik döşeme (GLB'ye dahil)
+      try { this._furnish(T, group, rooms, s, isBalcony); } catch (e) { console.warn('mobilya atlandı:', e); }
+
       // kozmetik zemin düzlemi (GLB'ye girmez)
       const fw = (maxX - minX) * s, fd = (maxY - minY) * s;
       const helperGroup = new T.Group();
@@ -7020,6 +7078,93 @@
       this._camHome = this.camera.position.clone();
       this.orbit.target.set(0, 0.8, 0);
       this.orbit.update();
+    },
+
+    // ── PARAMETRİK MOBİLYA: oda etiketi + boyutuna göre deterministik döşeme ──
+    _furnish(T, group, rooms, s, isBalcony) {
+      const mats = {
+        wood:     new T.MeshStandardMaterial({ color: 0x9B7B5B, roughness: 0.8 }),
+        woodDark: new T.MeshStandardMaterial({ color: 0x6E523A, roughness: 0.8 }),
+        fabric:   new T.MeshStandardMaterial({ color: 0x7A8B6A, roughness: 0.95 }),
+        accent:   new T.MeshStandardMaterial({ color: 0x9A6558, roughness: 0.95 }),
+        white:    new T.MeshStandardMaterial({ color: 0xF2F1EC, roughness: 0.7 }),
+        ceramic:  new T.MeshStandardMaterial({ color: 0xFAFAF8, roughness: 0.35 }),
+        metal:    new T.MeshStandardMaterial({ color: 0xC9C9C9, roughness: 0.35, metalness: 0.6 }),
+      };
+      const box = (w, h, d, mat, x, y0, z) => {
+        const m = new T.Mesh(new T.BoxGeometry(w, h, d), mat);
+        m.position.set(x, y0 + h / 2, z);
+        m.castShadow = m.receiveShadow = true;
+        group.add(m);
+      };
+      rooms.forEach(room => {
+        try {
+          const L = (room.label || '').toLowerCase();
+          if (isBalcony(L) || /hol|koridor|antre|giri/.test(L)) {
+            if (isBalcony(L)) return; // balkon boş kalsın
+            return;
+          }
+          let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+          room.poly.forEach(p => {
+            x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]);
+            y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]);
+          });
+          const RX0 = this._mx(x0) + 0.28, RX1 = this._mx(x1) - 0.28;
+          const RZ0 = this._mz(y0) + 0.28, RZ1 = this._mz(y1) - 0.28;
+          const W = RX1 - RX0, D = RZ1 - RZ0;
+          if (W < 0.9 || D < 0.9) return;
+          const cx = (RX0 + RX1) / 2, cz = (RZ0 + RZ1) / 2;
+          const alongX = W >= D;
+          const Ls = alongX ? W : D, Ss = alongX ? D : W;
+          // P: uzun eksende u, kısa eksende v (duvar tarafı -, karşısı +) ofsetli kutu
+          const P = (lw, h, ld, mat, u, v, yy) => {
+            if (alongX) box(lw, h, ld, mat, cx + u, yy || 0, cz + v);
+            else box(ld, h, lw, mat, cx + v, yy || 0, cz + u);
+          };
+
+          if (/salon|oturma|living|misafir/.test(L)) {
+            const sw = Math.min(2.4, Ls - 0.6);
+            P(sw, 0.45, 0.95, mats.fabric, 0, -(Ss / 2 - 0.55));                 // kanepe gövde
+            P(sw, 0.5, 0.22, mats.fabric, 0, -(Ss / 2 - 0.19), 0.45);            // kanepe sırt
+            P(Math.min(0.6, sw / 4), 0.18, 0.5, mats.accent, -sw / 2 + 0.35, -(Ss / 2 - 0.55), 0.45); // yastık
+            P(Math.min(1.1, sw - 0.4), 0.4, 0.6, mats.wood, 0, -(Ss / 2 - 1.6)); // sehpa
+            if (Ss > 2.6) {
+              P(Math.min(1.8, Ls - 1), 0.5, 0.42, mats.woodDark, 0, Ss / 2 - 0.3);   // TV ünitesi
+              P(Math.min(1.2, Ls - 1.4), 0.72, 0.06, mats.woodDark, 0, Ss / 2 - 0.12, 0.75); // TV
+            }
+          } else if (/yatak|bed|ebeveyn|çocuk|cocuk|genç|genc/.test(L)) {
+            const kid = /çocuk|cocuk|genç|genc/.test(L);
+            const bw = kid ? 1.05 : 1.6, bl = kid ? 1.9 : 2.0;
+            if (Ls >= bl + 0.5 && Ss >= bw + 0.5) {
+              P(bl, 0.35, bw, mats.wood, -(Ls / 2 - bl / 2 - 0.05), 0);           // karyola
+              P(bl - 0.15, 0.16, bw - 0.12, mats.white, -(Ls / 2 - bl / 2 - 0.05), 0, 0.35); // şilte
+              P(0.1, 0.85, bw, mats.woodDark, -(Ls / 2 - 0.05), 0);               // başlık
+              P(0.5, 0.25, bw - 0.2, mats.accent, -(Ls / 2 - bl + 0.35), 0, 0.51); // örtü ucu
+              if (Ss >= bw + 1.4) P(0.45, 0.5, 0.45, mats.wood, -(Ls / 2 - 0.3), bw / 2 + 0.35); // komodin
+              if (Ls >= bl + 1.3) P(0.6, 2.05, Math.min(1.8, Ss - 0.5), mats.woodDark, Ls / 2 - 0.32, 0); // gardırop
+              if (kid && Ss >= bw + 1.5) P(1.1, 0.74, 0.55, mats.wood, Ls / 2 - 1.2, Ss / 2 - 0.35); // çalışma masası
+            }
+          } else if (/mutfak|kitchen/.test(L)) {
+            const tl = Ls - 0.5;
+            P(tl, 0.88, 0.6, mats.white, 0, -(Ss / 2 - 0.35));                    // alt dolap
+            P(tl, 0.04, 0.64, mats.woodDark, 0, -(Ss / 2 - 0.35), 0.88);          // tezgah
+            P(tl * 0.8, 0.65, 0.34, mats.white, -tl * 0.08, -(Ss / 2 - 0.2), 1.45); // üst dolap
+            P(0.45, 0.02, 0.4, mats.metal, -tl / 4, -(Ss / 2 - 0.35), 0.92);      // evye
+            if (Ss > 1.9) P(0.72, 1.85, 0.7, mats.metal, Ls / 2 - 0.4, Ss / 2 - 0.4); // buzdolabı
+          } else if (/banyo|bath|duş|dus/.test(L)) {
+            P(0.9, 0.12, Math.min(0.9, Ss - 0.3), mats.ceramic, -(Ls / 2 - 0.5), -(Ss / 2 - 0.5)); // duş teknesi
+            P(0.4, 0.42, 0.62, mats.ceramic, Ls / 2 - 0.35, -(Ss / 2 - 0.36));    // klozet
+            P(0.4, 0.36, 0.14, mats.ceramic, Ls / 2 - 0.35, -(Ss / 2 - 0.1), 0.42); // rezervuar
+            if (Ls > 1.6) P(0.55, 0.84, 0.42, mats.ceramic, 0, Ss / 2 - 0.25);    // lavabo
+          } else if (/wc|tuvalet|lavabo/.test(L)) {
+            P(0.4, 0.42, 0.62, mats.ceramic, -(Ls / 2 - 0.4), 0);                 // klozet
+            P(0.4, 0.36, 0.14, mats.ceramic, -(Ls / 2 - 0.12), 0, 0.42);          // rezervuar
+            if (Ls > 1.3) P(0.45, 0.84, 0.35, mats.ceramic, Ls / 2 - 0.3, 0);     // lavabo
+          } else if (/yemek|dining/.test(L)) {
+            P(Math.min(1.6, Ls - 1), 0.74, Math.min(0.9, Ss - 1), mats.wood, 0, 0); // masa
+          }
+        } catch (_) { /* tek oda hatası tüm sahneyi bozmasın */ }
+      });
     },
 
     buildFromWalls(plan) {
