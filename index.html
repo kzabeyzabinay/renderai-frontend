@@ -6823,6 +6823,16 @@
         group.add(m);
       });
 
+      // balkon korkulukları: ince izler 1.05m parapet olarak yükselir
+      (plan.parapet_polys || []).forEach(pp => {
+        if (!pp || pp.length < 3) return;
+        const g = new T.ExtrudeGeometry(pathFrom(pp, T.Shape), { depth: 1.05, bevelEnabled: false });
+        const m = new T.Mesh(g, wallMat);
+        m.rotation.x = -Math.PI / 2;
+        m.castShadow = m.receiveShadow = true;
+        group.add(m);
+      });
+
       // zemin + tavan: bina ayak izi
       if (plan.floor && plan.floor.length >= 3) {
         const fg = new T.ShapeGeometry(pathFrom(plan.floor, T.Shape));
