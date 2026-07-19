@@ -6771,9 +6771,140 @@
     },
 
     build(plan) {
-      // v2 (oda-tabanlı) ↔ v1 (duvar listesi) otomatik seçim
-      if (plan && plan.rooms && plan.rooms.length && plan.rooms[0] && plan.rooms[0].poly) this.buildFromRooms(plan);
+      // v4 (CV maske) → v2 (oda-tabanlı) → v1 (duvar listesi) otomatik seçim
+      if (plan && plan.mode === 'mask' && plan.wall_polys && plan.wall_polys.length) this.buildFromMask(plan);
+      else if (plan && plan.rooms && plan.rooms.length && plan.rooms[0] && plan.rooms[0].poly) this.buildFromRooms(plan);
       else this.buildFromWalls(plan);
+    },
+
+    // ── v4: OpenCV duvar maskesi konturları BİREBİR extrude edilir ───────────
+    // geometri pikselden gelir (AI değil) → kütle çizime sadık; kapı boşlukları plandaki gerçek boşluklar
+    buildFromMask(plan) {
+      const T = this.T;
+      this._disposePrev();
+      this.planData = plan;
+
+      let minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+      const scan = p => {
+        minX = Math.min(minX, p[0]); maxX = Math.max(maxX, p[0]);
+        minY = Math.min(minY, p[1]); maxY = Math.max(maxY, p[1]);
+      };
+      (plan.floor || []).forEach(scan);
+      (plan.wall_polys || []).forEach(w => w.o.forEach(scan));
+      const s = plan.plan_width_m / Math.max(maxX - minX, 1);
+      this._s = s; this._cx = (minX + maxX) / 2; this._cy = (minY + maxY) / 2;
+      const H = plan.wall_height_m || 2.7;
+
+      const group = new T.Group();
+      const wallMat = new T.MeshStandardMaterial({ color: 0xF5F3F0, roughness: 0.9, metalness: 0 });
+      const glassMat = new T.MeshStandardMaterial({ color: 0xA8C8D8, transparent: true, opacity: 0.4, roughness: 0.15, metalness: 0 });
+      const floorMat = new T.MeshStandardMaterial({ color: 0xD9CDBB, roughness: 0.95, side: T.DoubleSide });
+      const ceilMat = new T.MeshStandardMaterial({ color: 0xEFEDE8, roughness: 0.9, side: T.DoubleSide });
+
+      // Shape (x, -z) düzleminde kurulur; rotation.x=-90° ile extrüzyon +Y olur
+      const pathFrom = (pts, PathCls) => {
+        const sh = new PathCls();
+        pts.forEach((p, i) => {
+          const x = this._mx(p[0]), z = this._mz(p[1]);
+          if (i) sh.lineTo(x, -z); else sh.moveTo(x, -z);
+        });
+        sh.closePath();
+        return sh;
+      };
+
+      (plan.wall_polys || []).forEach(wp => {
+        if (!wp.o || wp.o.length < 3) return;
+        const sh = pathFrom(wp.o, T.Shape);
+        (wp.h || []).forEach(hp => { if (hp.length >= 3) sh.holes.push(pathFrom(hp, T.Path)); });
+        const g = new T.ExtrudeGeometry(sh, { depth: H, bevelEnabled: false });
+        const m = new T.Mesh(g, wallMat);
+        m.rotation.x = -Math.PI / 2;
+        m.castShadow = m.receiveShadow = true;
+        group.add(m);
+      });
+
+      // zemin + tavan: bina ayak izi
+      if (plan.floor && plan.floor.length >= 3) {
+        const fg = new T.ShapeGeometry(pathFrom(plan.floor, T.Shape));
+        const fl = new T.Mesh(fg, floorMat);
+        fl.rotation.x = -Math.PI / 2; fl.position.y = 0.02; fl.receiveShadow = true;
+        group.add(fl);
+        const ceilGroup = new T.Group();
+        const ce = new T.Mesh(fg.clone(), ceilMat);
+        ce.rotation.x = -Math.PI / 2; ce.position.y = H;
+        ceilGroup.add(ce);
+        ceilGroup.visible = false;
+        group.add(ceilGroup);
+        this.ceiling = ceilGroup;
+      }
+
+      // pencereler: LLM noktası → en yakın duvar kenarına hizalı cam paneli
+      (plan.windows || []).forEach(w => {
+        const PX = this._mx(w.x), PZ = this._mz(w.y);
+        let best = null;
+        (plan.wall_polys || []).forEach(wp => {
+          [wp.o].concat(wp.h || []).forEach(loop => {
+            for (let i = 0; i < loop.length; i++) {
+              const a = [this._mx(loop[i][0]), this._mz(loop[i][1])];
+              const b = [this._mx(loop[(i + 1) % loop.length][0]), this._mz(loop[(i + 1) % loop.length][1])];
+              const abx = b[0] - a[0], abz = b[1] - a[1];
+              const len2 = abx * abx + abz * abz;
+              if (len2 < 1e-6) continue;
+              let t = ((PX - a[0]) * abx + (PZ - a[1]) * abz) / len2;
+              t = Math.max(0, Math.min(1, t));
+              const qx = a[0] + t * abx, qz = a[1] + t * abz;
+              const dd = Math.hypot(PX - qx, PZ - qz);
+              if (!best || dd < best.d) best = { d: dd, qx, qz, ang: Math.atan2(abz, abx), len: Math.sqrt(len2) };
+            }
+          });
+        });
+        if (best && best.d < 1.2) {
+          const ww = Math.min(1.6, Math.max(0.8, best.len * 0.6));
+          const m = new T.Mesh(new T.BoxGeometry(ww, 1.2, 0.08), glassMat);
+          m.position.set(best.qx, 0.9 + 0.6, best.qz);
+          m.rotation.y = -best.ang;
+          group.add(m);
+        }
+      });
+
+      // mobilya: ışın taramasından gelen oda bbox'ları → mevcut parametrik paket
+      const fRooms = (plan.rooms || []).filter(r => r.x0 != null)
+        .map(r => ({ label: r.label, poly: [[r.x0, r.y0], [r.x1, r.y0], [r.x1, r.y1], [r.x0, r.y1]] }));
+      const balconyRe = lbl => /balkon|balcon|teras|terrace/i.test(lbl || '');
+      try { this._furnish(T, group, fRooms, s, balconyRe); } catch (e) { console.warn('mobilya atlandı:', e); }
+
+      // etiketler
+      const labelGroup = new T.Group();
+      (plan.rooms || []).forEach(r => {
+        const spr = this._makeLabel(r.label);
+        spr.position.set(this._mx(r.x), 1.45, this._mz(r.y));
+        labelGroup.add(spr);
+      });
+
+      // kozmetik zemin
+      const fw = (maxX - minX) * s, fd = (maxY - minY) * s;
+      const helperGroup = new T.Group();
+      const ground = new T.Mesh(
+        new T.CircleGeometry(Math.max(fw, fd) * 3, 48),
+        new T.MeshStandardMaterial({ color: 0xDCD6CA, roughness: 1 })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -0.02;
+      ground.receiveShadow = true;
+      helperGroup.add(ground);
+
+      const size = Math.max(fw, fd);
+      const sc = this.dirLight.shadow.camera;
+      sc.left = -size; sc.right = size; sc.top = size; sc.bottom = -size; sc.far = 120;
+      sc.updateProjectionMatrix();
+
+      this.scene.add(group); this.scene.add(labelGroup); this.scene.add(helperGroup);
+      this.group = group; this.labelGroup = labelGroup; this.helperGroup = helperGroup;
+      this._bbox = { minX: -fw / 2, maxX: fw / 2, minZ: -fd / 2, maxZ: fd / 2 };
+      this.camera.position.set(size * 0.85, size * 0.75, size * 0.85);
+      this._camHome = this.camera.position.clone();
+      this.orbit.target.set(0, 0.8, 0);
+      this.orbit.update();
     },
 
     // ── v2: AI oda poligonları verir, DUVARLARI KOD TÜRETİR ──────────────────
