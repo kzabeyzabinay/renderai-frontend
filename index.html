@@ -1616,10 +1616,10 @@
           Komple iç mekan sahnesinde model kabaca kalır. İşlem ~1-2 dakika sürer.
         </div>
         <div id="plan3dHint" data-i18n-html="plan3d_hint" style="display:none; font-size:11px; color:#8A7E74; padding:10px 12px; background:#E8E4DC; border-radius:8px; border:1px solid #D8D2C8; margin-bottom:16px; line-height:1.5;">
-          📐 <strong>Kat planı görseli veya PDF</strong> yükleyin — plan önce <strong>3B izometrik görünüme</strong> yükseltilir, sonra <strong>dokulu ve mobilyalı 3B modele (GLB)</strong> dönüştürülür. 3B görünüm İşlerim'e de kaydedilir; GLB/OBJ indirme dahildir. Net, yüksek kontrastlı planlar en iyi sonucu verir. İşlem ~2-4 dk sürer.
+          📐 <strong>Kat planı görseli veya PDF</strong> yükleyin — duvarlar AI ile ölçülür ve <strong>plana sadık, ölçülü, içinde gezilebilir gerçek 3B model</strong> kurulur (mobilyalı). GLB indirme ücretsizdir. Net, yüksek kontrastlı planlar en iyi sonucu verir. İşlem ~30-60 sn sürer.
         </div>
         <button class="render-btn" id="model3dBtn" onclick="startModel3d()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg> Modeli Oluştur <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
-        <button class="render-btn" id="plan3dBtn" onclick="startPlan3d()" style="display:none;">📐 <span data-i18n="plan3d_btn">Kat Planını 3B'ye Dönüştür</span> <span style="font-size:11px;opacity:0.8;">· 35 kredi</span></button>
+        <button class="render-btn" id="plan3dBtn" onclick="startPlan3d()" style="display:none;">📐 <span data-i18n="plan3d_btn">Kat Planını 3B'ye Dönüştür</span> <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
         <div class="error-msg" id="model3dError"></div>
       </div>
     </div>
@@ -2816,7 +2816,7 @@
     m3d_mode_img: '📷 From Image',
     m3d_mode_plan: '📐 From Floor Plan',
     m3d_new_badge: 'NEW',
-    plan3d_hint: '📐 Upload a <strong>floor plan image or PDF</strong> — the plan is first elevated to a <strong>3D isometric view</strong>, then converted into a <strong>textured, furnished 3D model (GLB)</strong>. The 3D view is also saved to My Works; GLB/OBJ download included. Clean, high-contrast plans give the best results. Takes ~2-4 min.',
+    plan3d_hint: '📐 Upload a <strong>floor plan image or PDF</strong> — walls are measured with AI and a <strong>plan-faithful, measured, walkable real 3D model</strong> is built (furnished). GLB download is free. Clean, high-contrast plans give the best results. Takes ~30-60 sec.',
     plan3d_btn: 'Convert Floor Plan to 3D',
     plan3d_orbit: 'Orbit',
     plan3d_walk: 'Walk Inside',
@@ -2991,9 +2991,8 @@
     "Lütfen önce bir kat planı yükleyin.": "Please upload a floor plan first.",
     "Kat planı analiz ediliyor...": "Analyzing floor plan...",
     "AI duvarları, kapıları ve pencereleri algılıyor": "AI is detecting walls, doors and windows",
-    "Plan 3B görünüme yükseltiliyor...": "Elevating the plan to a 3D view...",
-    "1. adım: izometrik render · 2. adım: 3B model": "Step 1: isometric render · Step 2: 3D model",
-    "7 dakika aşıldı, lütfen tekrar deneyin": "7 minutes exceeded, please try again",
+    "Kat planı ölçülüyor...": "Measuring the floor plan...",
+    "AI duvarları çıkarıyor, 3B model kuruluyor": "AI is extracting walls, building the 3D model",
     "sn geçti": "s elapsed",
     "3B sahne kuruluyor...": "Building the 3D scene...",
     "Plan verisi alınamadı — tekrar deneyin.": "Could not get plan data — please try again.",
@@ -6612,7 +6611,7 @@
     document.getElementById('model3dPlaceholder').style.display = 'none';
     document.getElementById('model3dLoading').style.display = 'block';
     document.querySelector('#model3dLoading p').innerHTML =
-      `${L('Plan 3B görünüme yükseltiliyor...')}<br><span style="font-size:12px;color:#ABA49C;">${L('1. adım: izometrik render · 2. adım: 3B model')}</span>`;
+      `${L('Kat planı ölçülüyor...')}<br><span style="font-size:12px;color:#ABA49C;">${L('AI duvarları çıkarıyor, 3B model kuruluyor')}</span>`;
     document.getElementById('model3dViewer').style.display = 'none';
     document.getElementById('model3dDownloadBtn').style.display = 'none';
     document.getElementById('model3dObjBtn').style.display = 'none';
@@ -6674,7 +6673,7 @@
         } else if (statusData.status === 'failed') {
           throw new Error(statusData.error || 'Plan analizi başarısız');
         }
-        if (elapsed > 420) throw new Error('7 dakika aşıldı, lütfen tekrar deneyin');
+        if (elapsed > 300) throw new Error(L('5 dakika aşıldı, lütfen tekrar deneyin'));
       }
     } catch (err) {
       document.getElementById('model3dLoading').style.display = 'none';
