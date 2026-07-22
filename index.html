@@ -1685,10 +1685,10 @@
         <div id="detayEditPanel" style="background:#FAFAF8; border:1px solid #E4DFD6; border-radius:10px; padding:14px;"></div>
       </div>
       <div id="detayOutputs" style="display:none; margin-top:16px;">
-        <div style="font-size:12px; font-weight:700; color:#2A2520; margin-bottom:6px;" data-i18n="detay_exact_h">✓ KESİN ÇIKTI (senin verinle, AI yok — sıfır uydurma)</div>
+        <div style="font-size:12px; font-weight:700; color:#2A2520; margin-bottom:6px;" data-i18n="detay_exact_h">✓ KESİN — modül şemasını CAD çizimine çevirir, AI KULLANMAZ (ölçüler birebir)</div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
           <button class="render-btn" id="detayDxfBtn" onclick="downloadDetayDxf()" style="flex:1; min-width:200px; margin:0; background:#7A8B6A;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 3h18M9 3v18"/><rect x="3" y="3" width="18" height="18" rx="1"/></svg> <span data-i18n="detay_dxf_btn">DXF İndir (CAD, kesin ölçü)</span></button>
-          <button class="render-btn" id="detayPngBtn" onclick="downloadDetayPng()" style="flex:1; min-width:170px; margin:0; background:transparent; color:#7A8B6A; border:2px solid #7A8B6A;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/></svg> <span data-i18n="detay_png_btn">Kesin Çizim (PNG)</span></button>
+          <button class="render-btn" id="detayPngBtn" onclick="downloadDetayPng()" style="flex:1; min-width:170px; margin:0; background:transparent; color:#7A8B6A; border:2px solid #7A8B6A;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/></svg> <span data-i18n="detay_png_btn">Modül Şeması PNG</span></button>
         </div>
         <div style="font-size:12px; font-weight:700; color:#8A7E74; margin-bottom:6px;" data-i18n="detay_ai_h">AI SUNUM PAFTASI (fotorealistik ama ölçüler yaklaşık)</div>
         <button class="render-btn" id="detaySheetBtn" onclick="startDetaySheet()" style="margin:0; background:#9A6558;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="detay_sheet_btn">AI Sunum Paftası Üret</span> <span style="font-size:11px;opacity:0.8;">· 25 <span data-i18n="detay_credit2">kredi</span></span></button>
@@ -2800,9 +2800,9 @@
     detay_drawing: "Drawing the shop sheet...<br><span style=\"font-size:12px; color:#ABA49C;\">AI is preparing the technical drawing</span>",
     detay_dl: "Download Sheet (PNG)", detay_dxf_soon: "DXF export coming soon (v2)",
     detay_incl: "· free (included in analysis)",
-    detay_exact_h: "✓ EXACT OUTPUT (from your data, no AI — zero guessing)",
+    detay_exact_h: "✓ EXACT — converts the module schematic into CAD, NO AI (dimensions 1:1)",
     detay_ai_h: "AI PRESENTATION SHEET (photorealistic but dimensions approximate)",
-    detay_dxf_btn: "Download DXF (CAD, exact)", detay_png_btn: "Exact Drawing (PNG)",
+    detay_dxf_btn: "Download DXF (CAD, exact)", detay_png_btn: "Module Schematic PNG",
     hdr_packages: "Packages", hdr_login: "Log In", hdr_account: "Account", hdr_logout: "Log Out",
     lang_title: "Language / Dil",
     support_btn: "Support", support_title: "Help & Support",
