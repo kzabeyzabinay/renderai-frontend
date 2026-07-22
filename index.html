@@ -1692,7 +1692,7 @@
         <div style="flex:1;"><label style="font-size:11px; color:#8A7E74;" data-i18n="detay_od">Derinlik (mm)</label>
           <input type="number" id="detayOd" min="1" placeholder="600" style="width:100%; padding:9px; border:1px solid #D8D2C8; border-radius:8px;"/></div>
       </div>
-      <button class="render-btn" id="detayAnalyzeBtn" onclick="startDetayAnalyze()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 9h18M9 3v18"/><rect x="3" y="3" width="18" height="18" rx="1"/></svg> <span data-i18n="detay_analyze_btn">Cepheyi Analiz Et</span> <span style="font-size:11px;opacity:0.8;">· 3 <span data-i18n="detay_credit">kredi</span></span></button>
+      <button class="render-btn" id="detayAnalyzeBtn" onclick="startDetayAnalyze()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 9h18M9 3v18"/><rect x="3" y="3" width="18" height="18" rx="1"/></svg> <span data-i18n="detay_analyze_btn">Cepheyi Analiz Et</span> <span style="font-size:11px;opacity:0.8;">· 30 <span data-i18n="detay_credit">kredi</span></span></button>
       <div class="error-msg" id="detayError"></div>
       <div class="loading" id="detayAnalyzeLoading" style="display:none; padding:20px 0;">
         <div class="spinner"></div>
@@ -1710,7 +1710,7 @@
         <div id="detaySvgWrap" style="width:100%; overflow-x:auto; border:1px solid #E4DFD6; border-radius:10px; background:#fff; padding:6px;"></div>
         <div id="detayEditPanel" style="background:#FAFAF8; border:1px solid #E4DFD6; border-radius:10px; padding:14px;"></div>
       </div>
-      <button class="render-btn" id="detaySheetBtn" onclick="startDetaySheet()" style="margin-top:16px; display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="detay_sheet_btn">Onayla & Yapım Paftası Üret</span> <span style="font-size:11px;opacity:0.8;">· 20 <span data-i18n="detay_credit2">kredi</span></span></button>
+      <button class="render-btn" id="detaySheetBtn" onclick="startDetaySheet()" style="margin-top:16px; display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="detay_sheet_btn">Onayla & Yapım Paftası Üret</span> <span style="font-size:11px;opacity:0.8;" data-i18n="detay_incl">· ücretsiz (analize dahil)</span></button>
     </div>
 
     <!-- Aşama 2: Sonuç paftası -->
@@ -2817,6 +2817,7 @@
     detay_sheet_btn: "Approve & Generate Shop Drawing",
     detay_drawing: "Drawing the shop sheet...<br><span style=\"font-size:12px; color:#ABA49C;\">AI is preparing the technical drawing</span>",
     detay_dl: "Download Sheet (PNG)", detay_dxf_soon: "DXF export coming soon (v2)",
+    detay_incl: "· free (included in analysis)",
     hdr_packages: "Packages", hdr_login: "Log In", hdr_account: "Account", hdr_logout: "Log Out",
     lang_title: "Language / Dil",
     support_btn: "Support", support_title: "Help & Support",
