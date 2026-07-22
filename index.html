@@ -2935,6 +2935,8 @@
     "Düzenlemek için bir hücreye tıklayın.": "Click a cell to edit it.",
     "+ Üste Hücre": "+ Cell Above", "Hücreyi Sil": "Delete Cell",
     "+ Sağa Sütun": "+ Column Right", "Sütunu Sil": "Delete Column",
+    "İkiye Böl (2 Kapak)": "Split in Two (2 Doors)", "Tek Kapağa Getir": "Merge to Single Door",
+    "Raf sayısı": "Shelf count", "LED Şerit Ekle": "Add LED Strip", "LED Şeridi Kaldır": "Remove LED Strip",
     // İç mekan stilleri
     "Modern": "Modern", "Minimalist": "Minimalist", "Lüks & Premium": "Luxury & Premium",
     "İskandinav": "Scandinavian", "Endüstriyel": "Industrial", "Akdeniz": "Mediterranean",
@@ -6600,16 +6602,16 @@
     COLORS: {
       door:'#E7DFD1', drawer:'#C7D6EA', open_shelf:'#E6E8CE', closed_cabinet:'#D6E6D2',
       glass_door:'#D8EEF0', appliance_oven:'#D6C6E6', appliance_fridge:'#F4D6BC',
-      appliance_hood:'#E0D2EC', countertop:'#F2C7CD', sink:'#EEDCC4', backpanel:'#F2C7CD',
+      appliance_hood:'#E0D2EC', dishwasher:'#CBD6E6', countertop:'#F2C7CD', sink:'#EEDCC4', backpanel:'#F2C7CD',
       niche:'#ECE6DB', led_strip:'#FBEFBF', plinth:'#D6D0C6'
     },
     TR: { door:'Kapak', drawer:'Çekmece', open_shelf:'Açık Raf', closed_cabinet:'Kapalı Dolap',
       glass_door:'Camlı Kapak', appliance_oven:'Fırın', appliance_fridge:'Buzdolabı',
-      appliance_hood:'Davlumbaz', countertop:'Tezgah', sink:'Evye', backpanel:'Arka Panel',
+      appliance_hood:'Davlumbaz', dishwasher:'Bulaşık Mak.', countertop:'Tezgah', sink:'Evye', backpanel:'Arka Panel',
       niche:'Niş', led_strip:'LED Şerit', plinth:'Süpürgelik' },
     EN: { door:'Door', drawer:'Drawer', open_shelf:'Open Shelf', closed_cabinet:'Closed Cabinet',
       glass_door:'Glass Door', appliance_oven:'Oven', appliance_fridge:'Fridge',
-      appliance_hood:'Hood', countertop:'Countertop', sink:'Sink', backpanel:'Back Panel',
+      appliance_hood:'Hood', dishwasher:'Dishwasher', countertop:'Countertop', sink:'Sink', backpanel:'Back Panel',
       niche:'Niche', led_strip:'LED Strip', plinth:'Plinth' },
     lbl(t){ return (RA_LANG === 'en' ? this.EN : this.TR)[t] || t; },
 
@@ -6643,6 +6645,17 @@
           const isSel = this.sel && this.sel.c === ci && this.sel.i === ei;
           const fill = this.COLORS[cell.type] || '#eee';
           svg += '<rect x="' + x + '" y="' + cy + '" width="' + cw + '" height="' + chh + '" fill="' + fill + '" stroke="' + (isSel ? '#9A6558' : '#8A7E74') + '" stroke-width="' + (isSel ? 2.5 : 0.8) + '" style="cursor:pointer" onclick="DETAY.pick(' + ci + ',' + ei + ')"/>';
+          const lv = cell.leaves || 1;   // kanat bölme çizgileri (2 kapak = ortada dikey çizgi)
+          for (let kk = 1; kk < lv; kk++){
+            const dx = x + cw * kk / lv;
+            svg += '<line x1="' + dx + '" y1="' + (cy + 2) + '" x2="' + dx + '" y2="' + (y - 2) + '" stroke="#8A7E74" stroke-width="0.7" style="pointer-events:none"/>';
+          }
+          const shN = cell.shelves || 0;   // iç raflar (kapalı dolap kesikli, açık raf düz)
+          for (let kk = 1; kk <= shN; kk++){
+            const sy = cy + chh * kk / (shN + 1);
+            svg += '<line x1="' + (x + 2) + '" y1="' + sy + '" x2="' + (x + cw - 2) + '" y2="' + sy + '" stroke="#8A7E74" stroke-width="0.6"' + (cell.type === 'open_shelf' ? '' : ' stroke-dasharray="3,2"') + ' style="pointer-events:none"/>';
+          }
+          if (cell.led) svg += '<rect x="' + (x + 1) + '" y="' + (y - 4) + '" width="' + (cw - 2) + '" height="2.6" fill="#F4C21A" style="pointer-events:none"/>';   // dolap altı LED
           if (chh > 15) {
             svg += '<text x="' + (x + cw / 2) + '" y="' + (cy + chh / 2) + '" fill="#3A352E" font-size="9" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none">' + this._esc(this.lbl(cell.type)) + '</text>';
             if (chh > 30) svg += '<text x="' + (x + cw / 2) + '" y="' + (cy + chh / 2 + 11) + '" fill="#8A7E74" font-size="8" text-anchor="middle" style="pointer-events:none">' + cell.h + '</text>';
@@ -6683,6 +6696,12 @@
           + '<div style="display:flex; gap:6px; margin-bottom:8px;">' + this._num('Yükseklik', 'ch', cell.h)
           + '<div style="flex:1;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Etiket')) + '</label>'
           + '<input value="' + this._esc(cell.label || '') + '" oninput="DETAY.setLabel(this.value)" style="width:100%; padding:7px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box;"/></div></div>'
+          + '<div style="display:flex; gap:6px; margin-bottom:8px; align-items:flex-end;">'
+          +   '<div style="flex:1;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Raf sayısı')) + '</label>'
+          +     '<input type="number" min="0" value="' + (cell.shelves || 0) + '" onchange="DETAY.setNum(\'shelves\',this.value)" style="width:100%; padding:7px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box;"/></div>'
+          +   '<div style="flex:1; display:flex;">' + this._btn(cell.led ? 'LED Şeridi Kaldır' : 'LED Şerit Ekle', 'toggleLed()') + '</div>'
+          + '</div>'
+          + '<div style="margin-bottom:8px;">' + this._btn((cell.leaves || 1) >= 2 ? 'Tek Kapağa Getir' : 'İkiye Böl (2 Kapak)', 'splitCell()') + '</div>'
           + '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">' + this._btn('+ Üste Hücre', 'addCell()') + this._btn('Hücreyi Sil', 'delCell()') + '</div>'
           + '<div style="border-top:1px solid #E4DFD6; padding-top:10px; display:flex; gap:6px; align-items:flex-end; margin-bottom:8px;">' + this._num('Sütun Eni', 'cw', c.w) + '</div>'
           + '<div style="display:flex; gap:6px; flex-wrap:wrap;">' + this._btn('+ Sağa Sütun', 'addCol()', true) + this._btn('Sütunu Sil', 'delCol()') + '</div>'
@@ -6693,27 +6712,45 @@
       p.innerHTML = h;
     },
 
+    _sumW(){ return this.spec.columns.reduce((a, c) => a + c.w, 0); },
     setNum(field, v){
-      v = Math.max(1, parseInt(v) || 1); const sp = this.spec, s = this.sel;
-      if (field === 'ow') sp.overall.w = v;
+      const sp = this.spec, s = this.sel;
+      if (field === 'shelves') { if (s) sp.columns[s.c].cells[s.i].shelves = Math.max(0, Math.min(parseInt(v) || 0, 12)); this.render(); return; }
+      v = Math.max(1, parseInt(v) || 1);
+      if (field === 'ow') {
+        // Toplam eni değiştir → sütunları orantılı ölçekle, yuvarlama farkını sona yansıt
+        const cur = this._sumW() || 1, f = v / cur;
+        sp.columns.forEach(c => c.w = Math.max(1, Math.round(c.w * f)));
+        const last = sp.columns[sp.columns.length - 1];
+        last.w = Math.max(1, last.w + (v - this._sumW()));
+        sp.overall.w = this._sumW();
+      }
       else if (field === 'oh') sp.overall.h = v;
       else if (field === 'od') sp.overall.d = v;
-      else if (field === 'cw' && s) sp.columns[s.c].w = v;
+      else if (field === 'cw' && s) { sp.columns[s.c].w = v; sp.overall.w = this._sumW(); }
       else if (field === 'ch' && s) sp.columns[s.c].cells[s.i].h = v;
       this.render();
     },
+    splitCell(){ const s = this.sel; if (!s) return;
+      const cell = this.spec.columns[s.c].cells[s.i];
+      cell.leaves = (cell.leaves && cell.leaves >= 2) ? 1 : 2;   // 2 kapak ↔ tek kapak
+      this.render(); },
+    toggleLed(){ const s = this.sel; if (!s) return;
+      const cell = this.spec.columns[s.c].cells[s.i];
+      cell.led = !cell.led; this.render(); },
     setType(t){ if (this.sel) { this.spec.columns[this.sel.c].cells[this.sel.i].type = t; this.render(); } },
     setLabel(v){ if (this.sel) this.spec.columns[this.sel.c].cells[this.sel.i].label = String(v).slice(0, 40); },
     addCell(){ const s = this.sel; if (!s) return; const c = this.spec.columns[s.c];
-      c.cells.splice(s.i + 1, 0, { type:'open_shelf', h: Math.max(100, Math.round(this.spec.overall.h / 6)), label:'' });
+      c.cells.splice(s.i + 1, 0, { type:'open_shelf', h: Math.max(100, Math.round(this.spec.overall.h / 6)), leaves: 1, label:'' });
       this.sel = { c: s.c, i: s.i + 1 }; this.render(); },
     delCell(){ const s = this.sel; if (!s) return; const c = this.spec.columns[s.c];
       if (c.cells.length <= 1) return; c.cells.splice(s.i, 1); this.sel = null; this.render(); },
     addCol(){ const s = this.sel; const at = s ? s.c + 1 : this.spec.columns.length;
-      this.spec.columns.splice(at, 0, { w: Math.max(100, Math.round(this.spec.overall.w / Math.max(1, this.spec.columns.length))), cells: [{ type:'closed_cabinet', h: this.spec.overall.h, label:'' }] });
+      this.spec.columns.splice(at, 0, { w: Math.max(100, Math.round(this.spec.overall.w / Math.max(1, this.spec.columns.length))), cells: [{ type:'closed_cabinet', h: this.spec.overall.h, leaves: 1, label:'' }] });
+      this.spec.overall.w = this._sumW();   // toplam en = sütunlar toplamı
       this.sel = { c: at, i: 0 }; this.render(); },
     delCol(){ const s = this.sel; if (!s) return; if (this.spec.columns.length <= 1) return;
-      this.spec.columns.splice(s.c, 1); this.sel = null; this.render(); }
+      this.spec.columns.splice(s.c, 1); this.spec.overall.w = this._sumW(); this.sel = null; this.render(); }
   };
 
   document.getElementById('detayFileInput').addEventListener('change', e => {
