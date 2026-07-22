@@ -661,6 +661,7 @@
     <button class="main-nav-btn active" id="nav-render" onclick="switchMainSection('render')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 21h18"/><path d="M6 21V4h8v17"/><path d="M14 21V9h4v12"/><path d="M9 8h2M9 12h2M9 16h2"/></svg><span data-i18n="nav_render">Render</span></button>
     <button class="main-nav-btn" id="nav-staging" onclick="switchMainSection('staging')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M4 10V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 19v2M19 19v2"/></svg><span data-i18n="nav_staging">Sanal Mobilyalama</span></button>
     <button class="main-nav-btn" id="nav-model3d" onclick="switchMainSection('model3d')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg><span data-i18n="nav_model3d">3D Model</span></button>
+    <button class="main-nav-btn" id="nav-detay" onclick="switchMainSection('detay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 3v18M15 9v12"/></svg><span data-i18n="nav_detay">Detay Çizimi</span> <span style="background:#7A8B6A; color:#fff; font-size:9px; padding:2px 6px; border-radius:8px; vertical-align:2px;" data-i18n="nav_new_badge">YENİ</span></button>
     <button class="main-nav-btn" id="nav-upscale" onclick="switchMainSection('upscale')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg><span data-i18n="nav_upscale">Büyüt</span></button>
     <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 3v5M12 16v5M3 12h5M16 12h5"/><path d="m6 6 3 3M15 15l3 3M18 6l-3 3M9 15l-3 3"/></svg><span data-i18n="nav_enhance">Geliştir</span></button>
     <button class="main-nav-btn" id="nav-photo" onclick="switchMainSection('photo')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg><span data-i18n="nav_photo">Foto Stüdyo</span></button>
@@ -1630,6 +1631,74 @@
         </model-viewer>
         <a id="model3dDownloadBtn" class="download-btn" download="model.glb" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> GLB İndir</a>
         <button id="model3dObjBtn" onclick="downloadModelObj()" style="display:none; margin-left:8px; padding:10px 16px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:13px; font-weight:600; cursor:pointer;">⬇ OBJ İndir (SketchUp / 3ds Max)</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 📐 Detay Çizimi Bölümü (millwork shop drawings — 2 aşamalı) -->
+<div id="section-detay" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
+  <div style="max-width:960px; margin:0 auto;">
+
+    <!-- Aşama 0: Yükle + ölçü + analiz -->
+    <div class="panel">
+      <h2 data-i18n="detay_upload_h">MOBİLYA GÖRSELİ YÜKLE</h2>
+      <p style="font-size:12px; color:#8A7E74; margin-bottom:14px; line-height:1.6;" data-i18n="detay_upload_p">
+        Bir mutfak, gömme dolap, TV ünitesi ya da vestiyer gibi tek bir mobilya ünitesinin ön görünüş görselini yükleyin.
+      </p>
+      <div class="upload-zone" id="detayUploadZone">
+        <input type="file" id="detayFileInput" accept="image/*" />
+        <div class="upload-icon" id="detayIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 3v18"/></svg></div>
+        <p class="upload-text" data-i18n="detay_upload_text">Mobilya cephesinin fotoğrafını/render'ını seçin veya sürükleyin</p>
+        <p class="upload-sub" data-i18n="detay_upload_sub">Mutfak · dolap · TV ünitesi · vestiyer · banyo dolabı</p>
+        <img id="detayPreview" class="preview-img" />
+      </div>
+
+      <div data-i18n-html="detay_dim_hint" style="font-size:11px; color:#8A7E74; padding:10px 12px; background:#E8E4DC; border-radius:8px; border:1px solid #D8D2C8; margin:14px 0; line-height:1.5;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.1"/></svg> <strong>Gerçek ölçüleri</strong> (mm) girerseniz çizim çok daha doğru olur. Boş bırakırsanız AI orandan tahmin eder.
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <div style="flex:1;"><label style="font-size:11px; color:#8A7E74;" data-i18n="detay_ow">Toplam En (mm)</label>
+          <input type="number" id="detayOw" min="1" placeholder="4200" style="width:100%; padding:9px; border:1px solid #D8D2C8; border-radius:8px;"/></div>
+        <div style="flex:1;"><label style="font-size:11px; color:#8A7E74;" data-i18n="detay_oh">Toplam Boy (mm)</label>
+          <input type="number" id="detayOh" min="1" placeholder="2400" style="width:100%; padding:9px; border:1px solid #D8D2C8; border-radius:8px;"/></div>
+        <div style="flex:1;"><label style="font-size:11px; color:#8A7E74;" data-i18n="detay_od">Derinlik (mm)</label>
+          <input type="number" id="detayOd" min="1" placeholder="600" style="width:100%; padding:9px; border:1px solid #D8D2C8; border-radius:8px;"/></div>
+      </div>
+      <button class="render-btn" id="detayAnalyzeBtn" onclick="startDetayAnalyze()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 9h18M9 3v18"/><rect x="3" y="3" width="18" height="18" rx="1"/></svg> <span data-i18n="detay_analyze_btn">Cepheyi Analiz Et</span> <span style="font-size:11px;opacity:0.8;">· 3 <span data-i18n="detay_credit">kredi</span></span></button>
+      <div class="error-msg" id="detayError"></div>
+      <div class="loading" id="detayAnalyzeLoading" style="display:none; padding:20px 0;">
+        <div class="spinner"></div>
+        <p style="font-size:13px;" data-i18n="detay_analyzing">Cephe analiz ediliyor...</p>
+      </div>
+    </div>
+
+    <!-- Aşama 1: Düzenlenebilir modül şeması -->
+    <div class="panel" id="detayStage1" style="display:none;">
+      <h2 data-i18n="detay_stage1_h">MODÜL ŞEMASI — KONTROL EDİN & DÜZENLEYİN</h2>
+      <p style="font-size:12px; color:#8A7E74; margin-bottom:14px; line-height:1.6;" data-i18n="detay_stage1_p">
+        Çekmece, kapak, raf gibi bölgeler doğru mu kontrol edin. Bir hücreye tıklayıp tipini/ölçüsünü değiştirebilir, sütun/hücre ekleyip silebilirsiniz. Onaylayınca yapım paftası ve DXF üretilir.
+      </p>
+      <div style="display:grid; grid-template-columns:1fr 260px; gap:18px; align-items:start;">
+        <div id="detaySvgWrap" style="width:100%; overflow-x:auto; border:1px solid #E4DFD6; border-radius:10px; background:#fff; padding:6px;"></div>
+        <div id="detayEditPanel" style="background:#FAFAF8; border:1px solid #E4DFD6; border-radius:10px; padding:14px;"></div>
+      </div>
+      <button class="render-btn" id="detaySheetBtn" onclick="startDetaySheet()" style="margin-top:16px; display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="detay_sheet_btn">Onayla & Yapım Paftası Üret</span> <span style="font-size:11px;opacity:0.8;">· 20 <span data-i18n="detay_credit2">kredi</span></span></button>
+    </div>
+
+    <!-- Aşama 2: Sonuç paftası -->
+    <div class="panel result-panel" id="detaySheetResultPanel" style="display:none;">
+      <div class="loading" id="detaySheetLoading" style="display:none;">
+        <div class="spinner"></div>
+        <p data-i18n="detay_drawing">Yapım paftası çiziliyor...<br><span style="font-size:12px; color:#ABA49C;">AI teknik çizimi hazırlıyor</span></p>
+      </div>
+      <div style="width:100%; text-align:center;">
+        <img id="detaySheetImg" style="display:none; max-width:100%; border-radius:12px; border:1px solid #E4DFD6;" />
+        <div id="detaySheetActions" style="display:none; margin-top:12px;">
+          <a id="detaySheetDownload" class="download-btn" download="bynai-detay-pafta.png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> <span data-i18n="detay_dl">Paftayı İndir (PNG)</span></a>
+          <span style="display:inline-block; margin-left:10px; font-size:12px; color:#8A7E74;" data-i18n="detay_dxf_soon">DXF çıktısı yakında (v2)</span>
+        </div>
       </div>
     </div>
 
@@ -2707,6 +2776,21 @@
     nav_decision: "Decision Link", nav_works: "My Works", nav_egitim: "Tutorial", nav_more: "More",
     nav_pafta: "Board / Presentation",
     nav_video_studio: "Video Studio",
+    nav_detay: "Detail Drawings", nav_new_badge: "NEW",
+    // Detay Çizimi sekmesi
+    detay_upload_h: "UPLOAD FURNITURE IMAGE",
+    detay_upload_p: "Upload the front view of a single furniture unit — a kitchen, built-in cabinet, TV unit or wardrobe.",
+    detay_upload_text: "Select or drag the photo / render of the furniture front",
+    detay_upload_sub: "Kitchen · cabinet · TV unit · wardrobe · vanity",
+    detay_dim_hint: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"width:1em;height:1em;vertical-align:-.15em;display:inline-block\"><path d=\"M12 3 2 20h20L12 3Z\"/><path d=\"M12 10v4M12 17.5v.1\"/></svg> Entering the <strong>real dimensions</strong> (mm) makes the drawing far more accurate. Leave blank and the AI estimates from proportions.",
+    detay_ow: "Overall Width (mm)", detay_oh: "Overall Height (mm)", detay_od: "Depth (mm)",
+    detay_analyze_btn: "Analyze Front View", detay_credit: "credits", detay_credit2: "credits",
+    detay_analyzing: "Analyzing front view...",
+    detay_stage1_h: "MODULE SCHEMATIC — REVIEW & EDIT",
+    detay_stage1_p: "Check that zones like drawers, doors and shelves are correct. Click a cell to change its type/size, and add or remove columns and cells. Once you approve, the shop drawing and DXF are produced.",
+    detay_sheet_btn: "Approve & Generate Shop Drawing",
+    detay_drawing: "Drawing the shop sheet...<br><span style=\"font-size:12px; color:#ABA49C;\">AI is preparing the technical drawing</span>",
+    detay_dl: "Download Sheet (PNG)", detay_dxf_soon: "DXF export coming soon (v2)",
     hdr_packages: "Packages", hdr_login: "Log In", hdr_account: "Account", hdr_logout: "Log Out",
     lang_title: "Language / Dil",
     support_btn: "Support", support_title: "Help & Support",
@@ -2799,6 +2883,19 @@
   // SADECE birebir eşleşen Türkçe görünen metni çevirir. data-pkey ve diğer
   // attribute'lara DOKUNMAZ (onlar metin düğümü değil). data-i18n öğeleri atlanır.
   const TR2EN = {
+    // Detay Çizimi — çalışma zamanı metinleri
+    "Lütfen önce bir mobilya görseli yükleyin.": "Please upload a furniture image first.",
+    "Analiz verisi alınamadı — tekrar deneyin.": "Could not get analysis data — please try again.",
+    "Analiz başarısız": "Analysis failed",
+    "Pafta üretilemedi": "Could not generate the sheet",
+    "krediniz iade edildi": "your credits were refunded",
+    "Ölçüler (mm)": "Dimensions (mm)",
+    "Seçili Hücre": "Selected Cell", "Sütun": "Column", "Tip": "Type", "Etiket": "Label",
+    "Yükseklik": "Height", "En": "Width", "Boy": "Height", "Derinlik": "Depth",
+    "Sütun Eni": "Column Width",
+    "Düzenlemek için bir hücreye tıklayın.": "Click a cell to edit it.",
+    "+ Üste Hücre": "+ Cell Above", "Hücreyi Sil": "Delete Cell",
+    "+ Sağa Sütun": "+ Column Right", "Sütunu Sil": "Delete Column",
     // İç mekan stilleri
     "Modern": "Modern", "Minimalist": "Minimalist", "Lüks & Premium": "Luxury & Premium",
     "İskandinav": "Scandinavian", "Endüstriyel": "Industrial", "Akdeniz": "Mediterranean",
@@ -3973,6 +4070,7 @@
     document.getElementById('section-render').style.display    = section === 'render'    ? 'grid'  : 'none';
     document.getElementById('section-staging').style.display   = section === 'staging'   ? 'block' : 'none';
     document.getElementById('section-model3d').style.display   = section === 'model3d'   ? 'block' : 'none';
+    document.getElementById('section-detay').style.display     = section === 'detay'     ? 'block' : 'none';
     document.getElementById('section-upscale').style.display   = section === 'upscale'   ? 'block' : 'none';
     document.getElementById('section-enhance').style.display   = section === 'enhance'   ? 'block' : 'none';
     document.getElementById('section-photo').style.display     = section === 'photo'     ? 'block' : 'none';
@@ -3983,7 +4081,7 @@
     document.getElementById('section-decision').style.display  = section === 'decision' ? 'block' : 'none';
     document.getElementById('section-works').style.display     = section === 'works'     ? 'block' : 'none';
     document.getElementById('section-egitim').style.display    = section === 'egitim'    ? 'block' : 'none';
-    ['render','staging','model3d','upscale','enhance','photo','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
+    ['render','staging','model3d','detay','upscale','enhance','photo','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
     if (section === 'works') {
@@ -6414,6 +6512,234 @@
     document.getElementById('model3dFileInput').files = e.dataTransfer.files;
     document.getElementById('model3dFileInput').dispatchEvent(new Event('change'));
   });
+
+  // ─── DETAY ÇİZİMİ (millwork shop drawings — 2 aşamalı) ────────────────────
+  let detayFile = null;
+  const DETAY = {
+    spec: null,
+    sel: null,   // {c, i} seçili hücre
+    _esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); },
+    COLORS: {
+      door:'#E7DFD1', drawer:'#C7D6EA', open_shelf:'#E6E8CE', closed_cabinet:'#D6E6D2',
+      glass_door:'#D8EEF0', appliance_oven:'#D6C6E6', appliance_fridge:'#F4D6BC',
+      appliance_hood:'#E0D2EC', countertop:'#F2C7CD', sink:'#EEDCC4', backpanel:'#F2C7CD',
+      niche:'#ECE6DB', led_strip:'#FBEFBF', plinth:'#D6D0C6'
+    },
+    TR: { door:'Kapak', drawer:'Çekmece', open_shelf:'Açık Raf', closed_cabinet:'Kapalı Dolap',
+      glass_door:'Camlı Kapak', appliance_oven:'Fırın', appliance_fridge:'Buzdolabı',
+      appliance_hood:'Davlumbaz', countertop:'Tezgah', sink:'Evye', backpanel:'Arka Panel',
+      niche:'Niş', led_strip:'LED Şerit', plinth:'Süpürgelik' },
+    EN: { door:'Door', drawer:'Drawer', open_shelf:'Open Shelf', closed_cabinet:'Closed Cabinet',
+      glass_door:'Glass Door', appliance_oven:'Oven', appliance_fridge:'Fridge',
+      appliance_hood:'Hood', countertop:'Countertop', sink:'Sink', backpanel:'Back Panel',
+      niche:'Niche', led_strip:'LED Strip', plinth:'Plinth' },
+    lbl(t){ return (RA_LANG === 'en' ? this.EN : this.TR)[t] || t; },
+
+    show(spec){
+      this.spec = spec; this.sel = null;
+      document.getElementById('detayStage1').style.display = 'block';
+      document.getElementById('detaySheetBtn').style.display = 'inline-flex';
+      this.render();
+    },
+    pick(c, i){ this.sel = { c, i }; this.render(); },
+
+    render(){
+      const sp = this.spec; if (!sp) return;
+      const cols = sp.columns;
+      const FW = 820, FH = 470, ml = 50, mt = 34, mr = 16, mb = 34;
+      const W = FW - ml - mr, H = FH - mt - mb, base = mt + H;
+      const totW = cols.reduce((s, c) => s + c.w, 0) || 1;
+      let x = ml;
+      let svg = '<svg viewBox="0 0 ' + FW + ' ' + FH + '" width="100%" style="max-width:' + FW + 'px; min-width:560px; background:#fff; font-family:system-ui,sans-serif;">';
+      // Sol: toplam boy ölçüsü
+      svg += '<line x1="' + (ml - 16) + '" y1="' + mt + '" x2="' + (ml - 16) + '" y2="' + base + '" stroke="#9A6558" stroke-width="1"/>';
+      svg += '<text x="' + (ml - 22) + '" y="' + (mt + H / 2) + '" fill="#9A6558" font-size="10" text-anchor="middle" transform="rotate(-90 ' + (ml - 22) + ' ' + (mt + H / 2) + ')">' + sp.overall.h + ' mm</text>';
+      cols.forEach((c, ci) => {
+        const cw = c.w / totW * W;
+        const totH = c.cells.reduce((s, e) => s + e.h, 0) || 1;
+        svg += '<text x="' + (x + cw / 2) + '" y="' + (mt - 9) + '" fill="#6B6258" font-size="9" text-anchor="middle">' + c.w + '</text>';
+        if (ci > 0) svg += '<line x1="' + x + '" y1="' + (mt - 5) + '" x2="' + x + '" y2="' + mt + '" stroke="#C9C2B6" stroke-width="0.8"/>';
+        let y = base;
+        c.cells.forEach((cell, ei) => {
+          const chh = cell.h / totH * H, cy = y - chh;
+          const isSel = this.sel && this.sel.c === ci && this.sel.i === ei;
+          const fill = this.COLORS[cell.type] || '#eee';
+          svg += '<rect x="' + x + '" y="' + cy + '" width="' + cw + '" height="' + chh + '" fill="' + fill + '" stroke="' + (isSel ? '#9A6558' : '#8A7E74') + '" stroke-width="' + (isSel ? 2.5 : 0.8) + '" style="cursor:pointer" onclick="DETAY.pick(' + ci + ',' + ei + ')"/>';
+          if (chh > 15) {
+            svg += '<text x="' + (x + cw / 2) + '" y="' + (cy + chh / 2) + '" fill="#3A352E" font-size="9" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none">' + this._esc(this.lbl(cell.type)) + '</text>';
+            if (chh > 30) svg += '<text x="' + (x + cw / 2) + '" y="' + (cy + chh / 2 + 11) + '" fill="#8A7E74" font-size="8" text-anchor="middle" style="pointer-events:none">' + cell.h + '</text>';
+          }
+          y = cy;
+        });
+        x += cw;
+      });
+      // Alt: toplam en ölçüsü
+      svg += '<line x1="' + ml + '" y1="' + (base + 16) + '" x2="' + (ml + W) + '" y2="' + (base + 16) + '" stroke="#9A6558" stroke-width="1"/>';
+      svg += '<text x="' + (ml + W / 2) + '" y="' + (base + 28) + '" fill="#9A6558" font-size="10" text-anchor="middle">' + sp.overall.w + ' mm</text>';
+      svg += '</svg>';
+      document.getElementById('detaySvgWrap').innerHTML = svg;
+      this.renderPanel();
+    },
+
+    _num(labelTr, field, val){
+      return '<div style="flex:1; min-width:70px;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L(labelTr)) + '</label>'
+        + '<input type="number" min="1" value="' + val + '" onchange="DETAY.setNum(\'' + field + '\',this.value)" style="width:100%; padding:7px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box;"/></div>';
+    },
+    _btn(txtTr, fn, accent){
+      const col = accent ? '#9A6558' : '#8A7E74';
+      return '<button onclick="DETAY.' + fn + '" style="flex:1; min-width:96px; padding:8px; border:1px solid ' + col + '; border-radius:8px; background:transparent; color:' + col + '; font-size:12px; font-weight:600; cursor:pointer;">' + this._esc(L(txtTr)) + '</button>';
+    },
+    renderPanel(){
+      const p = document.getElementById('detayEditPanel'); const sp = this.spec;
+      if (!sp) { p.innerHTML = ''; return; }
+      let h = '<div style="font-size:12px; font-weight:700; color:#2A2520; margin-bottom:8px;">' + this._esc(L('Ölçüler (mm)')) + '</div>'
+        + '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">'
+        + this._num('En', 'ow', sp.overall.w) + this._num('Boy', 'oh', sp.overall.h) + this._num('Derinlik', 'od', sp.overall.d) + '</div>';
+      if (this.sel) {
+        const c = sp.columns[this.sel.c], cell = c.cells[this.sel.i];
+        const opts = Object.keys(this.COLORS).map(t => '<option value="' + t + '"' + (t === cell.type ? ' selected' : '') + '>' + this._esc(this.lbl(t)) + '</option>').join('');
+        h += '<div style="border-top:1px solid #E4DFD6; padding-top:10px;">'
+          + '<div style="font-size:12px; font-weight:700; color:#2A2520; margin-bottom:8px;">' + this._esc(L('Seçili Hücre')) + ' · ' + this._esc(L('Sütun')) + ' ' + (this.sel.c + 1) + '</div>'
+          + '<label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Tip')) + '</label>'
+          + '<select onchange="DETAY.setType(this.value)" style="width:100%; padding:7px; border:1px solid #D8D2C8; border-radius:8px; margin:4px 0 10px; box-sizing:border-box;">' + opts + '</select>'
+          + '<div style="display:flex; gap:6px; margin-bottom:8px;">' + this._num('Yükseklik', 'ch', cell.h)
+          + '<div style="flex:1;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Etiket')) + '</label>'
+          + '<input value="' + this._esc(cell.label || '') + '" oninput="DETAY.setLabel(this.value)" style="width:100%; padding:7px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box;"/></div></div>'
+          + '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">' + this._btn('+ Üste Hücre', 'addCell()') + this._btn('Hücreyi Sil', 'delCell()') + '</div>'
+          + '<div style="border-top:1px solid #E4DFD6; padding-top:10px; display:flex; gap:6px; align-items:flex-end; margin-bottom:8px;">' + this._num('Sütun Eni', 'cw', c.w) + '</div>'
+          + '<div style="display:flex; gap:6px; flex-wrap:wrap;">' + this._btn('+ Sağa Sütun', 'addCol()', true) + this._btn('Sütunu Sil', 'delCol()') + '</div>'
+          + '</div>';
+      } else {
+        h += '<div style="font-size:12px; color:#8A7E74; line-height:1.5;">' + this._esc(L('Düzenlemek için bir hücreye tıklayın.')) + '</div>';
+      }
+      p.innerHTML = h;
+    },
+
+    setNum(field, v){
+      v = Math.max(1, parseInt(v) || 1); const sp = this.spec, s = this.sel;
+      if (field === 'ow') sp.overall.w = v;
+      else if (field === 'oh') sp.overall.h = v;
+      else if (field === 'od') sp.overall.d = v;
+      else if (field === 'cw' && s) sp.columns[s.c].w = v;
+      else if (field === 'ch' && s) sp.columns[s.c].cells[s.i].h = v;
+      this.render();
+    },
+    setType(t){ if (this.sel) { this.spec.columns[this.sel.c].cells[this.sel.i].type = t; this.render(); } },
+    setLabel(v){ if (this.sel) this.spec.columns[this.sel.c].cells[this.sel.i].label = String(v).slice(0, 40); },
+    addCell(){ const s = this.sel; if (!s) return; const c = this.spec.columns[s.c];
+      c.cells.splice(s.i + 1, 0, { type:'open_shelf', h: Math.max(100, Math.round(this.spec.overall.h / 6)), label:'' });
+      this.sel = { c: s.c, i: s.i + 1 }; this.render(); },
+    delCell(){ const s = this.sel; if (!s) return; const c = this.spec.columns[s.c];
+      if (c.cells.length <= 1) return; c.cells.splice(s.i, 1); this.sel = null; this.render(); },
+    addCol(){ const s = this.sel; const at = s ? s.c + 1 : this.spec.columns.length;
+      this.spec.columns.splice(at, 0, { w: Math.max(100, Math.round(this.spec.overall.w / Math.max(1, this.spec.columns.length))), cells: [{ type:'closed_cabinet', h: this.spec.overall.h, label:'' }] });
+      this.sel = { c: at, i: 0 }; this.render(); },
+    delCol(){ const s = this.sel; if (!s) return; if (this.spec.columns.length <= 1) return;
+      this.spec.columns.splice(s.c, 1); this.sel = null; this.render(); }
+  };
+
+  document.getElementById('detayFileInput').addEventListener('change', e => {
+    detayFile = e.target.files[0];
+    if (!detayFile) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const preview = document.getElementById('detayPreview');
+      preview.src = ev.target.result; preview.style.display = 'block';
+      document.getElementById('detayUploadZone').style.padding = '12px';
+      document.getElementById('detayIcon').style.display = 'none';
+    };
+    reader.readAsDataURL(detayFile);
+  });
+  {
+    const dz = document.getElementById('detayUploadZone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('drag-over');
+      document.getElementById('detayFileInput').files = e.dataTransfer.files;
+      document.getElementById('detayFileInput').dispatchEvent(new Event('change'));
+    });
+  }
+
+  async function startDetayAnalyze(){
+    const errEl = document.getElementById('detayError');
+    if (!localStorage.getItem('ra_token')) { openAuthModal('login'); return; }
+    if (!detayFile) { errEl.textContent = L('Lütfen önce bir mobilya görseli yükleyin.'); errEl.style.display = 'block'; return; }
+    errEl.style.display = 'none';
+    const btn = document.getElementById('detayAnalyzeBtn'); btn.disabled = true;
+    document.getElementById('detayStage1').style.display = 'none';
+    document.getElementById('detaySheetResultPanel').style.display = 'none';
+    document.getElementById('detayAnalyzeLoading').style.display = 'block';
+
+    const fd = new FormData();
+    fd.append('image', await resizeIfNeeded(detayFile));
+    fd.append('ow', document.getElementById('detayOw').value || '');
+    fd.append('oh', document.getElementById('detayOh').value || '');
+    fd.append('od', document.getElementById('detayOd').value || '');
+    try {
+      const startRes = await fetch(`${API}/detay/analyze`, { method:'POST', headers: authHeaders(), body: fd });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
+      const jobId = startData.prediction_id;
+      while (true) {
+        await new Promise(r => setTimeout(r, 2500));
+        const st = await (await fetch(`${API}/render/status/${jobId}`)).json();
+        if (st.status === 'succeeded') {
+          if (!st.detay_json) throw new Error(L('Analiz verisi alınamadı — tekrar deneyin.'));
+          document.getElementById('detayAnalyzeLoading').style.display = 'none';
+          DETAY.show(st.detay_json);
+          document.getElementById('detayStage1').scrollIntoView({ behavior:'smooth', block:'nearest' });
+          break;
+        } else if (st.status === 'failed') {
+          throw new Error((st.error || L('Analiz başarısız')) + (st.refunded ? ' — ' + L('krediniz iade edildi') : ''));
+        }
+      }
+    } catch (err) {
+      errEl.textContent = err.message || String(err); errEl.style.display = 'block';
+      document.getElementById('detayAnalyzeLoading').style.display = 'none';
+    } finally { btn.disabled = false; }
+  }
+
+  async function startDetaySheet(){
+    const errEl = document.getElementById('detayError');
+    if (!DETAY.spec) return;
+    const btn = document.getElementById('detaySheetBtn'); btn.disabled = true;
+    errEl.style.display = 'none';
+    document.getElementById('detaySheetResultPanel').style.display = 'block';
+    document.getElementById('detaySheetLoading').style.display = 'block';
+    document.getElementById('detaySheetImg').style.display = 'none';
+    document.getElementById('detaySheetActions').style.display = 'none';
+    document.getElementById('detaySheetResultPanel').scrollIntoView({ behavior:'smooth', block:'nearest' });
+
+    const fd = new FormData();
+    fd.append('image', await resizeIfNeeded(detayFile));
+    fd.append('spec', JSON.stringify(DETAY.spec));
+    try {
+      const startRes = await fetch(`${API}/detay/sheet`, { method:'POST', headers: authHeaders(), body: fd });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
+      const jobId = startData.prediction_id;
+      while (true) {
+        await new Promise(r => setTimeout(r, 3000));
+        const st = await (await fetch(`${API}/render/status/${jobId}`)).json();
+        if (st.status === 'succeeded') {
+          const img = document.getElementById('detaySheetImg');
+          img.src = st.render_url; img.style.display = 'block';
+          const dl = document.getElementById('detaySheetDownload'); dl.href = st.render_url;
+          document.getElementById('detaySheetActions').style.display = 'block';
+          document.getElementById('detaySheetLoading').style.display = 'none';
+          break;
+        } else if (st.status === 'failed') {
+          throw new Error((st.error || L('Pafta üretilemedi')) + (st.refunded ? ' — ' + L('krediniz iade edildi') : ''));
+        }
+      }
+    } catch (err) {
+      errEl.textContent = err.message || String(err); errEl.style.display = 'block';
+      document.getElementById('detaySheetResultPanel').style.display = 'none';
+    } finally { btn.disabled = false; }
+  }
 
   async function startModel3d() {
     if (!model3dFile) {
