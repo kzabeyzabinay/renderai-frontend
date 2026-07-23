@@ -1730,9 +1730,7 @@
       <div style="width:100%; text-align:center;">
         <img id="detaySheetImg" style="display:none; max-width:100%; border-radius:12px; border:1px solid #E4DFD6;" />
         <div id="detaySheetActions" style="display:none; margin-top:12px;">
-          <a id="detaySheetDownload" class="download-btn" download="bynai-detay-pafta.png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> <span data-i18n="detay_dl">Paftayı İndir (PNG)</span></a>
-          <span style="display:inline-block; margin-left:10px; font-size:12px; color:#8A7E74;" data-i18n="detay_dxf_soon">DXF çıktısı yakında (v2)</span>
-        </div>
+          <a id="detaySheetDownload" class="download-btn" download="bynai-detay-pafta.png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> <span data-i18n="detay_dl">Paftayı İndir (PNG)</span></a>        </div>
       </div>
     </div>
 
@@ -2548,6 +2546,11 @@
     pack_large:  "https://bynai.lemonsqueezy.com/checkout/buy/9c9c0464-96fa-4783-ad90-20144ed5d28c",   // Büyük     — $49 / 600 kredi (variant 1859415) [LIVE]
   };
 
+  // ─── WHATSAPP TOPLULUK DAVET LİNKİ ───────────────────────────────────────
+  // WhatsApp → Topluluk → ⚙️ → "Davet bağlantısı" ile alınan adres.
+  // BOŞ ("") bırakılırsa sağ-alttaki topluluk butonu hiç görünmez.
+  const WA_COMMUNITY = "https://chat.whatsapp.com/C31mEFxkLguKA6UJgWNJI0";
+
   function openPricingModal() {
     document.getElementById('pricingModal').style.display = 'flex';
   }
@@ -2832,6 +2835,7 @@
     hdr_packages: "Packages", hdr_login: "Log In", hdr_account: "Account", hdr_logout: "Log Out",
     lang_title: "Language / Dil",
     support_btn: "Support", support_title: "Help & Support",
+    wa_btn: "Community", wa_title: "Join the BynAi WhatsApp Community",
 
     // Fiyat / paket modalı
     pr_title: "Membership Plans",
@@ -2948,6 +2952,7 @@
     "+ Sağa Sütun": "+ Column Right", "Sütunu Sil": "Delete Column",
     "İkiye Böl (2 Kapak)": "Split in Two (2 Doors)", "Tek Kapağa Getir": "Merge to Single Door",
     "Raf sayısı": "Shelf count", "LED Şerit Ekle": "Add LED Strip", "LED Şeridi Kaldır": "Remove LED Strip",
+    "Derinlik (0=oto)": "Depth (0=auto)",
     "Çizim PNG üretilemedi.": "Could not generate the drawing PNG.",
     // İç mekan stilleri
     "Modern": "Modern", "Minimalist": "Minimalist", "Lüks & Premium": "Luxury & Premium",
@@ -6613,17 +6618,20 @@
     _esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); },
     COLORS: {
       door:'#E7DFD1', drawer:'#C7D6EA', open_shelf:'#E6E8CE', closed_cabinet:'#D6E6D2',
-      glass_door:'#D8EEF0', appliance_oven:'#D6C6E6', appliance_fridge:'#F4D6BC',
-      appliance_hood:'#E0D2EC', dishwasher:'#CBD6E6', cooktop:'#B4B8BE', countertop:'#F2C7CD', sink:'#EEDCC4', backpanel:'#F2C7CD',
+      glass_door:'#D8EEF0', mirror_door:'#CFE3EE', appliance_oven:'#D6C6E6', appliance_fridge:'#F4D6BC',
+      appliance_hood:'#E0D2EC', dishwasher:'#CBD6E6', cooktop:'#B4B8BE', countertop:'#F2C7CD', sink:'#EEDCC4',
+      backpanel:'#F2C7CD', panel:'#E4DFD4',
       niche:'#ECE6DB', led_strip:'#FBEFBF', plinth:'#D6D0C6'
     },
     TR: { door:'Kapak', drawer:'Çekmece', open_shelf:'Açık Raf', closed_cabinet:'Kapalı Dolap',
-      glass_door:'Camlı Kapak', appliance_oven:'Fırın', appliance_fridge:'Buzdolabı',
-      appliance_hood:'Davlumbaz', dishwasher:'Bulaşık Mak.', cooktop:'Ocak', countertop:'Tezgah', sink:'Evye', backpanel:'Arka Panel',
+      glass_door:'Camlı Kapak', mirror_door:'Aynalı Kapak', appliance_oven:'Fırın', appliance_fridge:'Buzdolabı',
+      appliance_hood:'Davlumbaz', dishwasher:'Bulaşık Mak.', cooktop:'Ocak', countertop:'Tezgah', sink:'Evye',
+      backpanel:'Arka Panel', panel:'Panel',
       niche:'Niş', led_strip:'LED Şerit', plinth:'Süpürgelik' },
     EN: { door:'Door', drawer:'Drawer', open_shelf:'Open Shelf', closed_cabinet:'Closed Cabinet',
-      glass_door:'Glass Door', appliance_oven:'Oven', appliance_fridge:'Fridge',
-      appliance_hood:'Hood', dishwasher:'Dishwasher', cooktop:'Cooktop', countertop:'Countertop', sink:'Sink', backpanel:'Back Panel',
+      glass_door:'Glass Door', mirror_door:'Mirror Door', appliance_oven:'Oven', appliance_fridge:'Fridge',
+      appliance_hood:'Hood', dishwasher:'Dishwasher', cooktop:'Cooktop', countertop:'Countertop', sink:'Sink',
+      backpanel:'Back Panel', panel:'Panel',
       niche:'Niche', led_strip:'LED Strip', plinth:'Plinth' },
     lbl(t){ return (RA_LANG === 'en' ? this.EN : this.TR)[t] || t; },
 
@@ -6708,11 +6716,13 @@
           + '<div style="display:flex; gap:6px; margin-bottom:8px;">' + this._num('Yükseklik', 'ch', cell.h)
           + '<div style="flex:1;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Etiket')) + '</label>'
           + '<input value="' + this._esc(cell.label || '') + '" oninput="DETAY.setLabel(this.value)" style="width:100%; padding:7px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box;"/></div></div>'
-          + '<div style="display:flex; gap:6px; margin-bottom:8px; align-items:flex-end;">'
+          + '<div style="display:flex; gap:6px; margin-bottom:8px;">'
           +   '<div style="flex:1;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Raf sayısı')) + '</label>'
           +     '<input type="number" min="0" value="' + (cell.shelves || 0) + '" onchange="DETAY.setNum(\'shelves\',this.value)" style="width:100%; padding:7px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box;"/></div>'
-          +   '<div style="flex:1; display:flex;">' + this._btn(cell.led ? 'LED Şeridi Kaldır' : 'LED Şerit Ekle', 'toggleLed()') + '</div>'
+          +   '<div style="flex:1;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Derinlik (0=oto)')) + '</label>'
+          +     '<input type="number" min="0" value="' + (cell.d || 0) + '" onchange="DETAY.setNum(\'cd\',this.value)" style="width:100%; padding:7px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box;"/></div>'
           + '</div>'
+          + '<div style="display:flex; gap:6px; margin-bottom:8px;">' + this._btn(cell.led ? 'LED Şeridi Kaldır' : 'LED Şerit Ekle', 'toggleLed()') + '</div>'
           + '<div style="margin-bottom:8px;">' + this._btn((cell.leaves || 1) >= 2 ? 'Tek Kapağa Getir' : 'İkiye Böl (2 Kapak)', 'splitCell()') + '</div>'
           + '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">' + this._btn('+ Üste Hücre', 'addCell()') + this._btn('Hücreyi Sil', 'delCell()') + '</div>'
           + '<div style="border-top:1px solid #E4DFD6; padding-top:10px; display:flex; gap:6px; align-items:flex-end; margin-bottom:8px;">' + this._num('Sütun Eni', 'cw', c.w) + '</div>'
@@ -6728,6 +6738,7 @@
     setNum(field, v){
       const sp = this.spec, s = this.sel;
       if (field === 'shelves') { if (s) sp.columns[s.c].cells[s.i].shelves = Math.max(0, Math.min(parseInt(v) || 0, 12)); this.render(); return; }
+      if (field === 'cd') { if (s) sp.columns[s.c].cells[s.i].d = Math.max(0, Math.min(parseInt(v) || 0, 1200)); this.render(); return; }   // hücre derinliği (0 = oto)
       v = Math.max(1, parseInt(v) || 1);
       if (field === 'ow') {
         // Toplam eni değiştir → sütunları orantılı ölçekle, yuvarlama farkını sona yansıt
@@ -8442,6 +8453,25 @@
       btn.disabled = false;
     }
   }
+</script>
+
+<!-- ─── SAĞ-ALT YÜZEN WHATSAPP TOPLULUK BUTONU (Destek'in hemen üstünde) ─── -->
+<a id="waCommunityBtn" href="#" target="_blank" rel="noopener noreferrer"
+  title="WhatsApp Topluluğuna Katıl" data-i18n-title="wa_title"
+  style="display:none; position:fixed; right:22px; bottom:78px; z-index:1000; align-items:center; gap:8px;
+         padding:12px 18px; border-radius:30px; background:#25D366; color:#FFFFFF; text-decoration:none;
+         font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 6px 20px rgba(26,26,22,0.3);">
+  <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+  <span data-i18n="wa_btn">Topluluk</span>
+</a>
+<script>
+  (function () {
+    var el = document.getElementById('waCommunityBtn');
+    if (el && typeof WA_COMMUNITY === 'string' && WA_COMMUNITY) {
+      el.href = WA_COMMUNITY;
+      el.style.display = 'flex';
+    }
+  })();
 </script>
 
 <!-- ─── SAĞ-ALT YÜZEN DESTEK BUTONU ─────────────────────────────────────── -->
