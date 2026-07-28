@@ -7036,11 +7036,12 @@
       classic:'Classic', industrial:'Industrial', cozy:'Cozy', boho:'Boho' },
     OPEN_TR: { window:'Pencere', door:'Kapı', both:'Pencere + Kapı', none:'Sağır duvar' },
     OPEN_EN: { window:'Window', door:'Door', both:'Window + Door', none:'Solid wall' },
-    SIDE_TR: { kuzey:'Kuzey', guney:'Güney', 'güney':'Güney', dogu:'Doğu', 'doğu':'Doğu', bati:'Batı', 'batı':'Batı' },
+    SIDE_TR: { ust:'Üst', alt:'Alt', sol:'Sol', sag:'Sağ' },
+    SIDE_EN: { ust:'Top', alt:'Bottom', sol:'Left', sag:'Right' },
     _esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); },
     styleLbl(k){ return (RA_LANG === 'en' ? this.STYLE_EN : this.STYLE_TR)[k] || k; },
     openLbl(o){ return (RA_LANG === 'en' ? this.OPEN_EN : this.OPEN_TR)[o] || o; },
-    sideLbl(s){ return this.SIDE_TR[s] || ''; },
+    sideLbl(s){ return (RA_LANG === 'en' ? this.SIDE_EN : this.SIDE_TR)[s] || ''; },
 
     showRooms(spec){
       this.spec = spec; this.room = -1; this.checked = new Set();
