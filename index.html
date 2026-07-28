@@ -662,6 +662,7 @@
     <button class="main-nav-btn" id="nav-staging" onclick="switchMainSection('staging')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M4 10V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 19v2M19 19v2"/></svg><span data-i18n="nav_staging">Sanal Mobilyalama</span></button>
     <button class="main-nav-btn" id="nav-model3d" onclick="switchMainSection('model3d')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg><span data-i18n="nav_model3d">3D Model</span></button>
     <button class="main-nav-btn" id="nav-detay" onclick="switchMainSection('detay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 3v18M15 9v12"/></svg><span data-i18n="nav_detay">Detay Çizimi</span> <span style="background:#7A8B6A; color:#fff; font-size:9px; padding:2px 6px; border-radius:8px; vertical-align:2px;" data-i18n="nav_new_badge">YENİ</span></button>
+    <button class="main-nav-btn" id="nav-elev" onclick="switchMainSection('elev')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 21V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v15"/><path d="M3 21h18"/><rect x="9" y="9" width="6" height="6"/><path d="M9 21v-3h6v3"/></svg><span data-i18n="nav_elev">Plandan Render</span> <span style="background:#7A8B6A; color:#fff; font-size:9px; padding:2px 6px; border-radius:8px; vertical-align:2px;" data-i18n="nav_new_badge">YENİ</span></button>
     <button class="main-nav-btn" id="nav-upscale" onclick="switchMainSection('upscale')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg><span data-i18n="nav_upscale">Büyüt</span></button>
     <button class="main-nav-btn" id="nav-enhance" onclick="switchMainSection('enhance')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 3v5M12 16v5M3 12h5M16 12h5"/><path d="m6 6 3 3M15 15l3 3M18 6l-3 3M9 15l-3 3"/></svg><span data-i18n="nav_enhance">Geliştir</span></button>
     <button class="main-nav-btn" id="nav-photo" onclick="switchMainSection('photo')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg><span data-i18n="nav_photo">Foto Stüdyo</span></button>
@@ -1732,6 +1733,72 @@
         <div id="detaySheetActions" style="display:none; margin-top:12px;">
           <a id="detaySheetDownload" class="download-btn" download="bynai-detay-pafta.png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> <span data-i18n="detay_dl">Paftayı İndir (PNG)</span></a>        </div>
       </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 🧱 Duvar Görünüşleri Bölümü (wall elevations — 2 aşamalı) -->
+<div id="section-elev" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
+  <div style="max-width:1000px; margin:0 auto;">
+
+    <!-- Aşama 0: Plan yükle -->
+    <div class="panel">
+      <h2 data-i18n="elev_upload_h">KAT PLANI YÜKLE</h2>
+      <p style="font-size:12px; color:#8A7E74; margin-bottom:14px; line-height:1.6;" data-i18n="elev_upload_p">
+        2B kat planınızı yükleyin — AI odaları ve her odanın duvarlarını çıkarır. Sonra seçtiğiniz odanın her duvarına <strong>tam dik açıdan (elevation)</strong> fotorealistik iç mekan görünüşü üretir; plandaki pencere/kapı yerleri korunur.
+      </p>
+      <div class="upload-zone" id="elevUploadZone">
+        <input type="file" id="elevFileInput" accept="image/*" />
+        <div class="upload-icon" id="elevIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 3v18M15 9v12"/></svg></div>
+        <p class="upload-text" data-i18n="elev_upload_text">Kat planını seçin veya sürükleyin</p>
+        <p class="upload-sub" data-i18n="elev_upload_sub">Net, üstten 2B mimari plan · oda sınırları okunabilir olsun</p>
+        <img id="elevPreview" class="preview-img" />
+      </div>
+      <button id="elevAnalyzeBtn" onclick="startElevAnalyze()" style="width:100%; margin-top:14px; padding:14px; border:none; border-radius:12px; background:#9A6558; color:#FAFAF8; font-size:15px; font-weight:700; cursor:pointer;">
+        <span data-i18n="elev_analyze_btn">Odaları Analiz Et</span> · 5 <span data-i18n="elev_credit">kredi</span>
+      </button>
+      <div class="error-msg" id="elevError" style="display:none;"></div>
+      <div class="loading" id="elevAnalyzeLoading" style="display:none; padding:20px 0;">
+        <div class="spinner"></div>
+        <p style="font-size:13px;" data-i18n="elev_analyzing">Plan analiz ediliyor — odalar ve duvarlar çıkarılıyor...</p>
+      </div>
+    </div>
+
+    <!-- Aşama 1: Oda + duvar + stil seçimi -->
+    <div class="panel" id="elevStage1" style="display:none;">
+      <h2 data-i18n="elev_stage1_h">ODA VE DUVARLARI SEÇİN</h2>
+      <p style="font-size:12px; color:#8A7E74; margin-bottom:14px; line-height:1.6;" data-i18n="elev_stage1_p">
+        Bir oda seçin, sonra üretmek istediğiniz duvarları işaretleyin ve bir stil seçin. Her duvar için ayrı bir düz-karşıdan render üretilir (duvar başına 15 kredi).
+      </p>
+      <div id="elevRoomChips" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px;"></div>
+
+      <div id="elevWallBox" style="display:none; border-top:1px solid #E4DFD6; margin-top:14px; padding-top:14px;">
+        <div style="font-size:12px; font-weight:700; color:#2A2520; margin-bottom:8px;" data-i18n="elev_walls_h">DUVARLAR</div>
+        <div id="elevWallList" style="display:flex; flex-direction:column; gap:6px; margin-bottom:16px;"></div>
+
+        <div style="font-size:12px; font-weight:700; color:#2A2520; margin-bottom:8px;" data-i18n="elev_style_h">STİL</div>
+        <div id="elevStyleChips" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;"></div>
+
+        <label style="font-size:11px; color:#8A7E74; display:block; margin-bottom:4px;" data-i18n="elev_note_lbl">✏️ Özel istek (opsiyonel)</label>
+        <input id="elevNote" data-i18n-ph="elev_note_ph" placeholder="örn: salonda TV ünitesi ve kitaplık olsun; zemin ahşap parke" style="width:100%; padding:10px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box; margin-bottom:14px;"/>
+
+        <button id="elevRenderBtn" onclick="startElevRender()" style="width:100%; padding:14px; border:none; border-radius:12px; background:#9A6558; color:#FAFAF8; font-size:15px; font-weight:700; cursor:pointer;">
+          <span data-i18n="elev_render_btn">Görünüşleri Üret</span> · <span id="elevCreditTotal">0</span> <span data-i18n="elev_credit">kredi</span>
+        </button>
+      </div>
+
+      <div class="loading" id="elevRenderLoading" style="display:none; padding:20px 0;">
+        <div class="spinner"></div>
+        <p id="elevRenderStatus" style="font-size:13px;" data-i18n="elev_rendering">Duvar görünüşleri render ediliyor...</p>
+      </div>
+    </div>
+
+    <!-- Aşama 2: Sonuç -->
+    <div class="panel" id="elevResultPanel" style="display:none;">
+      <h2 data-i18n="elev_result_h">DUVAR GÖRÜNÜŞLERİ</h2>
+      <p style="font-size:12px; color:#8A7E74; margin-bottom:14px;" data-i18n="elev_result_p">Görünüşler İşlerim'e otomatik kaydedildi. İndirmek için görsele tıklayın.</p>
+      <div id="elevResultGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px;"></div>
     </div>
 
   </div>
@@ -2814,6 +2881,25 @@
     nav_pafta: "Board / Presentation",
     nav_video_studio: "Video Studio",
     nav_detay: "Detail Drawings", nav_new_badge: "NEW",
+    nav_elev: "Plan to Render",
+    // Duvar Görünüşleri sekmesi
+    elev_upload_h: "UPLOAD FLOOR PLAN",
+    elev_upload_p: "Upload your 2D floor plan — the AI extracts the rooms and each room's walls, then produces a photorealistic <strong>straight-on (elevation)</strong> interior view of each wall you pick, keeping the window/door positions from the plan.",
+    elev_upload_text: "Select or drag the floor plan",
+    elev_upload_sub: "Clear top-down 2D architectural plan · room boundaries legible",
+    elev_analyze_btn: "Analyze Rooms",
+    elev_credit: "credits",
+    elev_analyzing: "Analyzing the plan — extracting rooms and walls...",
+    elev_stage1_h: "SELECT ROOM & WALLS",
+    elev_stage1_p: "Pick a room, then check the walls you want to generate and choose a style. A separate straight-on render is produced for each wall (15 credits per wall).",
+    elev_walls_h: "WALLS",
+    elev_style_h: "STYLE",
+    elev_note_lbl: "✏️ Custom request (optional)",
+    elev_note_ph: "e.g. put a TV unit and bookshelf in the living room; oak parquet floor",
+    elev_render_btn: "Generate Elevations",
+    elev_rendering: "Rendering wall elevations...",
+    elev_result_h: "WALL ELEVATIONS",
+    elev_result_p: "The elevations were saved to My Works automatically. Click an image to download it.",
     // Detay Çizimi sekmesi
     detay_upload_h: "UPLOAD FURNITURE IMAGE",
     detay_upload_p: "Upload the front view of a single furniture unit — a kitchen, built-in cabinet, TV unit or wardrobe.",
@@ -2954,6 +3040,13 @@
     "Raf sayısı": "Shelf count", "LED Şerit Ekle": "Add LED Strip", "LED Şeridi Kaldır": "Remove LED Strip",
     "Derinlik (0=oto)": "Depth (0=auto)",
     "Çizim PNG üretilemedi.": "Could not generate the drawing PNG.",
+    // Duvar Görünüşleri — çalışma zamanı metinleri
+    "Lütfen önce bir kat planı yükleyin.": "Please upload a floor plan first.",
+    "Planda oda okunamadı — daha net bir kat planı deneyin.": "No rooms could be read from the plan — try a clearer floor plan.",
+    "En az bir duvar seçin.": "Select at least one wall.",
+    "Duvar görünüşleri render ediliyor...": "Rendering wall elevations...",
+    "Görünüşler üretilemedi": "Could not generate the elevations",
+    "duvar": "walls",
     // İç mekan stilleri
     "Modern": "Modern", "Minimalist": "Minimalist", "Lüks & Premium": "Luxury & Premium",
     "İskandinav": "Scandinavian", "Endüstriyel": "Industrial", "Akdeniz": "Mediterranean",
@@ -4145,6 +4238,7 @@
     document.getElementById('section-staging').style.display   = section === 'staging'   ? 'block' : 'none';
     document.getElementById('section-model3d').style.display   = section === 'model3d'   ? 'block' : 'none';
     document.getElementById('section-detay').style.display     = section === 'detay'     ? 'block' : 'none';
+    document.getElementById('section-elev').style.display      = section === 'elev'      ? 'block' : 'none';
     document.getElementById('section-upscale').style.display   = section === 'upscale'   ? 'block' : 'none';
     document.getElementById('section-enhance').style.display   = section === 'enhance'   ? 'block' : 'none';
     document.getElementById('section-photo').style.display     = section === 'photo'     ? 'block' : 'none';
@@ -4155,7 +4249,7 @@
     document.getElementById('section-decision').style.display  = section === 'decision' ? 'block' : 'none';
     document.getElementById('section-works').style.display     = section === 'works'     ? 'block' : 'none';
     document.getElementById('section-egitim').style.display    = section === 'egitim'    ? 'block' : 'none';
-    ['render','staging','model3d','detay','upscale','enhance','photo','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
+    ['render','staging','model3d','detay','elev','upscale','enhance','photo','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
     if (section === 'works') {
@@ -6928,6 +7022,198 @@
     } catch (err) {
       errEl.textContent = err.message || String(err); errEl.style.display = 'block';
       document.getElementById('detaySheetResultPanel').style.display = 'none';
+    } finally { btn.disabled = false; }
+  }
+
+  // ─── DUVAR GÖRÜNÜŞLERİ (Wall Elevations) ──────────────────────────────────
+  let elevFile = null;
+  const ELEV = {
+    spec: null, room: -1, style: 'modern', checked: new Set(),
+    STYLES: ['modern','scandi','minimal','luxury','classic','industrial','cozy','boho'],
+    STYLE_TR: { modern:'Modern', scandi:'İskandinav', minimal:'Minimal', luxury:'Lüks',
+      classic:'Klasik', industrial:'Endüstriyel', cozy:'Sıcak & Rahat', boho:'Boho' },
+    STYLE_EN: { modern:'Modern', scandi:'Scandinavian', minimal:'Minimal', luxury:'Luxury',
+      classic:'Classic', industrial:'Industrial', cozy:'Cozy', boho:'Boho' },
+    OPEN_TR: { window:'Pencere', door:'Kapı', both:'Pencere + Kapı', none:'Sağır duvar' },
+    OPEN_EN: { window:'Window', door:'Door', both:'Window + Door', none:'Solid wall' },
+    SIDE_TR: { kuzey:'Kuzey', guney:'Güney', 'güney':'Güney', dogu:'Doğu', 'doğu':'Doğu', bati:'Batı', 'batı':'Batı' },
+    _esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); },
+    styleLbl(k){ return (RA_LANG === 'en' ? this.STYLE_EN : this.STYLE_TR)[k] || k; },
+    openLbl(o){ return (RA_LANG === 'en' ? this.OPEN_EN : this.OPEN_TR)[o] || o; },
+    sideLbl(s){ return this.SIDE_TR[s] || ''; },
+
+    showRooms(spec){
+      this.spec = spec; this.room = -1; this.checked = new Set();
+      document.getElementById('elevStage1').style.display = 'block';
+      document.getElementById('elevWallBox').style.display = 'none';
+      document.getElementById('elevResultPanel').style.display = 'none';
+      const chips = spec.rooms.map((r, i) =>
+        '<button onclick="ELEV.pickRoom(' + i + ')" id="elevRoom' + i + '" class="elev-room-chip" style="padding:8px 14px; border:1px solid #D8D2C8; border-radius:20px; background:#fff; color:#3A352E; font-size:13px; font-weight:600; cursor:pointer;">'
+        + this._esc(r.label) + ' <span style="color:#8A7E74; font-weight:400;">· ' + r.walls.length + ' ' + L('duvar') + '</span></button>'
+      ).join('');
+      document.getElementById('elevRoomChips').innerHTML = chips;
+      document.getElementById('elevStage1').scrollIntoView({ behavior:'smooth', block:'nearest' });
+    },
+
+    pickRoom(i){
+      this.room = i;
+      this.spec.rooms.forEach((r, k) => {
+        const el = document.getElementById('elevRoom' + k);
+        if (el){ el.style.background = k === i ? '#9A6558' : '#fff'; el.style.color = k === i ? '#fff' : '#3A352E';
+          el.style.borderColor = k === i ? '#9A6558' : '#D8D2C8'; }
+      });
+      // Varsayılan: tüm duvarlar seçili
+      this.checked = new Set(this.spec.rooms[i].walls.map((_, wi) => wi));
+      this.renderWalls();
+      this.renderStyles();
+      document.getElementById('elevWallBox').style.display = 'block';
+      this.updateTotal();
+    },
+
+    renderWalls(){
+      const room = this.spec.rooms[this.room];
+      const rows = room.walls.map((w, wi) => {
+        const side = this.sideLbl(w.side);
+        const badge = '<span style="font-size:10px; padding:2px 7px; border-radius:10px; background:'
+          + (w.opening === 'none' ? '#EDEAE3' : '#E7EFE3') + '; color:#5A6B4A;">' + this._esc(this.openLbl(w.opening)) + '</span>';
+        return '<label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid #E4DFD6; border-radius:8px; cursor:pointer;">'
+          + '<input type="checkbox" ' + (this.checked.has(wi) ? 'checked' : '') + ' onchange="ELEV.toggleWall(' + wi + ',this.checked)" style="width:16px; height:16px; accent-color:#9A6558;"/>'
+          + '<span style="flex:1; font-size:13px; font-weight:600; color:#2A2520;">' + this._esc(w.name) + (side ? ' <span style="color:#ABA49C; font-weight:400;">· ' + side + '</span>' : '') + '</span>'
+          + badge + '</label>';
+      }).join('');
+      document.getElementById('elevWallList').innerHTML = rows;
+    },
+
+    renderStyles(){
+      const chips = this.STYLES.map(k =>
+        '<button onclick="ELEV.pickStyle(\'' + k + '\')" id="elevStyle_' + k + '" style="padding:7px 13px; border:1px solid ' + (k === this.style ? '#9A6558' : '#D8D2C8') + '; border-radius:18px; background:' + (k === this.style ? '#9A6558' : '#fff') + '; color:' + (k === this.style ? '#fff' : '#3A352E') + '; font-size:12px; font-weight:600; cursor:pointer;">'
+        + this._esc(this.styleLbl(k)) + '</button>'
+      ).join('');
+      document.getElementById('elevStyleChips').innerHTML = chips;
+    },
+
+    pickStyle(k){ this.style = k; this.renderStyles(); },
+    toggleWall(wi, on){ if (on) this.checked.add(wi); else this.checked.delete(wi); this.updateTotal(); },
+    updateTotal(){
+      const n = this.checked.size;
+      document.getElementById('elevCreditTotal').textContent = n * 15;
+      document.getElementById('elevRenderBtn').disabled = n === 0;
+      document.getElementById('elevRenderBtn').style.opacity = n === 0 ? '0.5' : '1';
+    },
+
+    showResults(walls){
+      const grid = document.getElementById('elevResultGrid');
+      grid.innerHTML = walls.map(w => {
+        const side = this.sideLbl(w.side);
+        return '<div style="border:1px solid #E0DAD0; border-radius:12px; overflow:hidden; background:#FAFAF8;">'
+          + '<a href="' + w.url + '" target="_blank"><img src="' + w.url + '" style="width:100%; display:block;"></a>'
+          + '<div style="padding:8px 10px; font-size:13px; font-weight:600; color:#2A2520; text-align:center;">'
+          + this._esc(w.name) + (side ? ' <span style="color:#ABA49C; font-weight:400;">· ' + side + '</span>' : '') + '</div></div>';
+      }).join('');
+      document.getElementById('elevResultPanel').style.display = 'block';
+      document.getElementById('elevResultPanel').scrollIntoView({ behavior:'smooth', block:'nearest' });
+    },
+  };
+
+  document.getElementById('elevFileInput').addEventListener('change', e => {
+    elevFile = e.target.files[0];
+    if (!elevFile) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const preview = document.getElementById('elevPreview');
+      preview.src = ev.target.result; preview.style.display = 'block';
+      document.getElementById('elevUploadZone').style.padding = '12px';
+      document.getElementById('elevIcon').style.display = 'none';
+    };
+    reader.readAsDataURL(elevFile);
+  });
+  {
+    const dz = document.getElementById('elevUploadZone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('drag-over');
+      document.getElementById('elevFileInput').files = e.dataTransfer.files;
+      document.getElementById('elevFileInput').dispatchEvent(new Event('change'));
+    });
+  }
+
+  async function startElevAnalyze(){
+    const errEl = document.getElementById('elevError');
+    if (!localStorage.getItem('ra_token')) { openAuthModal('login'); return; }
+    if (!elevFile) { errEl.textContent = L('Lütfen önce bir kat planı yükleyin.'); errEl.style.display = 'block'; return; }
+    errEl.style.display = 'none';
+    const btn = document.getElementById('elevAnalyzeBtn'); btn.disabled = true;
+    document.getElementById('elevStage1').style.display = 'none';
+    document.getElementById('elevResultPanel').style.display = 'none';
+    document.getElementById('elevAnalyzeLoading').style.display = 'block';
+
+    const fd = new FormData();
+    fd.append('image', await resizeIfNeeded(elevFile));
+    try {
+      const startRes = await fetch(`${API}/elevation/analyze`, { method:'POST', headers: authHeaders(), body: fd });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
+      const jobId = startData.prediction_id;
+      while (true) {
+        await new Promise(r => setTimeout(r, 2500));
+        const st = await (await fetch(`${API}/render/status/${jobId}`)).json();
+        if (st.status === 'succeeded') {
+          if (!st.elev_json || !st.elev_json.rooms || !st.elev_json.rooms.length) throw new Error(L('Planda oda okunamadı — daha net bir kat planı deneyin.'));
+          document.getElementById('elevAnalyzeLoading').style.display = 'none';
+          ELEV.showRooms(st.elev_json);
+          break;
+        } else if (st.status === 'failed') {
+          throw new Error((st.error || L('Analiz başarısız')) + (st.refunded ? ' — ' + L('krediniz iade edildi') : ''));
+        }
+      }
+    } catch (err) {
+      errEl.textContent = err.message || String(err); errEl.style.display = 'block';
+      document.getElementById('elevAnalyzeLoading').style.display = 'none';
+    } finally { btn.disabled = false; }
+  }
+
+  async function startElevRender(){
+    const errEl = document.getElementById('elevError');
+    if (!localStorage.getItem('ra_token')) { openAuthModal('login'); return; }
+    if (!elevFile || ELEV.room < 0) return;
+    const room = ELEV.spec.rooms[ELEV.room];
+    const walls = [...ELEV.checked].sort((a,b)=>a-b).map(wi => room.walls[wi]);
+    if (!walls.length) { errEl.textContent = L('En az bir duvar seçin.'); errEl.style.display = 'block'; return; }
+    errEl.style.display = 'none';
+    const btn = document.getElementById('elevRenderBtn'); btn.disabled = true;
+    document.getElementById('elevResultPanel').style.display = 'none';
+    document.getElementById('elevRenderLoading').style.display = 'block';
+    document.getElementById('elevRenderStatus').textContent = L('Duvar görünüşleri render ediliyor...');
+
+    const fd = new FormData();
+    fd.append('image', await resizeIfNeeded(elevFile));
+    fd.append('room', JSON.stringify({ label: room.label, type: room.type, bbox: room.bbox || null }));
+    fd.append('walls', JSON.stringify(walls));
+    fd.append('style', ELEV.style);
+    fd.append('note', document.getElementById('elevNote').value || '');
+    try {
+      const startRes = await fetch(`${API}/elevation/render`, { method:'POST', headers: authHeaders(), body: fd });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
+      refreshCredits();
+      const jobId = startData.prediction_id;
+      while (true) {
+        await new Promise(r => setTimeout(r, 3000));
+        const st = await (await fetch(`${API}/render/status/${jobId}`)).json();
+        if (st.stage_label) document.getElementById('elevRenderStatus').textContent = st.stage_label;
+        if (st.status === 'succeeded') {
+          document.getElementById('elevRenderLoading').style.display = 'none';
+          ELEV.showResults(st.wall_urls || []);
+          break;
+        } else if (st.status === 'failed') {
+          throw new Error((st.error || L('Görünüşler üretilemedi')) + (st.refunded ? ' — ' + L('krediniz iade edildi') : ''));
+        }
+      }
+    } catch (err) {
+      errEl.textContent = err.message || String(err); errEl.style.display = 'block';
+      document.getElementById('elevRenderLoading').style.display = 'none';
     } finally { btn.disabled = false; }
   }
 
