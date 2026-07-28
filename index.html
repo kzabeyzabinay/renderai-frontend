@@ -1723,9 +1723,9 @@
         2B kat planınızı yükleyin — AI odaları ve her odanın duvarlarını çıkarır. Sonra seçtiğiniz odanın her duvarına <strong>tam dik açıdan (elevation)</strong> fotorealistik iç mekan görünüşü üretir; plandaki pencere/kapı yerleri korunur.
       </p>
       <div class="upload-zone" id="elevUploadZone">
-        <input type="file" id="elevFileInput" accept="image/*" />
+        <input type="file" id="elevFileInput" accept="image/*,application/pdf,.pdf" />
         <div class="upload-icon" id="elevIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 3v18M15 9v12"/></svg></div>
-        <p class="upload-text" data-i18n="elev_upload_text">Kat planını seçin veya sürükleyin</p>
+        <p class="upload-text" data-i18n="elev_upload_text">Kat planını seçin veya sürükleyin (JPG · PNG · PDF)</p>
         <p class="upload-sub" data-i18n="elev_upload_sub">Net, üstten 2B mimari plan · oda sınırları okunabilir olsun</p>
         <img id="elevPreview" class="preview-img" />
       </div>
@@ -2859,7 +2859,7 @@
     // Duvar Görünüşleri sekmesi
     elev_upload_h: "UPLOAD FLOOR PLAN",
     elev_upload_p: "Upload your 2D floor plan — the AI extracts the rooms and each room's walls, then produces a photorealistic <strong>straight-on (elevation)</strong> interior view of each wall you pick, keeping the window/door positions from the plan.",
-    elev_upload_text: "Select or drag the floor plan",
+    elev_upload_text: "Select or drag the floor plan (JPG · PNG · PDF)",
     elev_upload_sub: "Clear top-down 2D architectural plan · room boundaries legible",
     elev_analyze_btn: "Analyze Rooms",
     elev_credit: "credits",
@@ -7038,12 +7038,22 @@
     },
   };
 
+  const elevIsPdf = f => !!f && (f.type === 'application/pdf' || /\.pdf$/i.test(f.name || ''));
   document.getElementById('elevFileInput').addEventListener('change', e => {
     elevFile = e.target.files[0];
     if (!elevFile) return;
+    const preview = document.getElementById('elevPreview');
+    const txt = document.querySelector('#elevUploadZone .upload-text');
+    if (elevIsPdf(elevFile)) {
+      // PDF <img>'de gösterilemez → dosya adını yaz, önizlemeyi gizle
+      preview.style.display = 'none';
+      document.getElementById('elevIcon').style.display = '';
+      document.getElementById('elevUploadZone').style.padding = '';
+      if (txt) txt.textContent = '📄 ' + elevFile.name;
+      return;
+    }
     const reader = new FileReader();
     reader.onload = ev => {
-      const preview = document.getElementById('elevPreview');
       preview.src = ev.target.result; preview.style.display = 'block';
       document.getElementById('elevUploadZone').style.padding = '12px';
       document.getElementById('elevIcon').style.display = 'none';
@@ -7072,7 +7082,7 @@
     document.getElementById('elevAnalyzeLoading').style.display = 'block';
 
     const fd = new FormData();
-    fd.append('image', await resizeIfNeeded(elevFile));
+    fd.append('image', elevIsPdf(elevFile) ? elevFile : await resizeIfNeeded(elevFile));
     try {
       const startRes = await fetch(`${API}/elevation/analyze`, { method:'POST', headers: authHeaders(), body: fd });
       const startData = await startRes.json();
@@ -7111,7 +7121,7 @@
     document.getElementById('elevRenderStatus').textContent = L('Duvar görünüşleri render ediliyor...');
 
     const fd = new FormData();
-    fd.append('image', await resizeIfNeeded(elevFile));
+    fd.append('image', elevIsPdf(elevFile) ? elevFile : await resizeIfNeeded(elevFile));
     fd.append('room', JSON.stringify({ label: room.label, type: room.type, bbox: room.bbox || null }));
     fd.append('walls', JSON.stringify(walls));
     fd.append('style', ELEV.style);
