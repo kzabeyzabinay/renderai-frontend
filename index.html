@@ -7162,7 +7162,7 @@
 
     const fd = new FormData();
     fd.append('image', elevIsPdf(elevFile) ? elevFile : await resizeIfNeeded(elevFile));
-    fd.append('room', JSON.stringify({ label: room.label, type: room.type, bbox: room.bbox || null }));
+    fd.append('room', JSON.stringify({ label: room.label, type: room.type, bbox: room.bbox || null, walls: room.walls }));
     fd.append('walls', JSON.stringify(walls));
     fd.append('style', ELEV.style);
     fd.append('note', document.getElementById('elevNote').value || '');
