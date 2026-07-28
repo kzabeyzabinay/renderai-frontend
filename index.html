@@ -1754,6 +1754,17 @@
         <div style="font-size:12px; font-weight:700; color:#2A2520; margin-bottom:8px;" data-i18n="elev_style_h">STİL</div>
         <div id="elevStyleChips" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;"></div>
 
+        <div style="font-size:12px; font-weight:700; color:#2A2520; margin-bottom:4px;" data-i18n="elev_matref_h">MALZEME REFERANSI (OPSİYONEL)</div>
+        <p style="font-size:11px; color:#8A7E74; margin:0 0 8px; line-height:1.5;" data-i18n="elev_matref_p">Bir görsel yükle → render'da <strong>sadece malzeme, doku ve renk</strong> ondan alınır (dolap dizilimi/düzen plandan gelir).</p>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+          <label style="padding:8px 14px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:600; cursor:pointer;">
+            <span data-i18n="elev_matref_btn">Referans Görsel Seç</span>
+            <input type="file" id="elevRefInput" accept="image/*" style="display:none;"/>
+          </label>
+          <img id="elevRefPreview" style="display:none; width:52px; height:52px; object-fit:cover; border-radius:8px; border:1px solid #E4DFD6;"/>
+          <button id="elevRefClear" onclick="elevClearRef()" style="display:none; padding:6px 10px; border:1px solid #D8D2C8; border-radius:8px; background:transparent; color:#8A7E74; font-size:12px; cursor:pointer;" data-i18n="elev_matref_clear">Kaldır</button>
+        </div>
+
         <label style="font-size:11px; color:#8A7E74; display:block; margin-bottom:4px;" data-i18n="elev_note_lbl">✏️ Özel istek (opsiyonel)</label>
         <input id="elevNote" data-i18n-ph="elev_note_ph" placeholder="örn: salonda TV ünitesi ve kitaplık olsun; zemin ahşap parke" style="width:100%; padding:10px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box; margin-bottom:14px;"/>
 
@@ -2868,6 +2879,10 @@
     elev_stage1_p: "Pick a room, then check the walls you want to generate and choose a style. A separate straight-on render is produced for each wall (15 credits per wall).",
     elev_walls_h: "WALLS",
     elev_style_h: "STYLE",
+    elev_matref_h: "MATERIAL REFERENCE (OPTIONAL)",
+    elev_matref_p: "Upload an image → only its <strong>materials, textures and colors</strong> are used in the render (the cabinet arrangement / layout still comes from the plan).",
+    elev_matref_btn: "Choose Reference Image",
+    elev_matref_clear: "Remove",
     elev_note_lbl: "✏️ Custom request (optional)",
     elev_note_ph: "e.g. put a TV unit and bookshelf in the living room; oak parquet floor",
     elev_render_btn: "Generate Elevations",
@@ -3009,6 +3024,7 @@
     "Duvar görünüşleri render ediliyor...": "Rendering wall elevations...",
     "Görünüşler üretilemedi": "Could not generate the elevations",
     "duvar": "walls",
+    "Bu duvarda ne var? (dolaplar, cihazlar, tezgah...)": "What's on this wall? (cabinets, appliances, counter...)",
     // İç mekan stilleri
     "Modern": "Modern", "Minimalist": "Minimalist", "Lüks & Premium": "Luxury & Premium",
     "İskandinav": "Scandinavian", "Endüstriyel": "Industrial", "Akdeniz": "Mediterranean",
@@ -7000,13 +7016,18 @@
         const side = this.sideLbl(w.side);
         const badge = '<span style="font-size:10px; padding:2px 7px; border-radius:10px; background:'
           + (w.opening === 'none' ? '#EDEAE3' : '#E7EFE3') + '; color:#5A6B4A;">' + this._esc(this.openLbl(w.opening)) + '</span>';
-        return '<label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid #E4DFD6; border-radius:8px; cursor:pointer;">'
-          + '<input type="checkbox" ' + (this.checked.has(wi) ? 'checked' : '') + ' onchange="ELEV.toggleWall(' + wi + ',this.checked)" style="width:16px; height:16px; accent-color:#9A6558;"/>'
-          + '<span style="flex:1; font-size:13px; font-weight:600; color:#2A2520;">' + this._esc(w.name) + (side ? ' <span style="color:#ABA49C; font-weight:400;">· ' + side + '</span>' : '') + '</span>'
-          + badge + '</label>';
+        return '<div style="border:1px solid #E4DFD6; border-radius:8px; padding:8px 10px;">'
+          + '<label style="display:flex; align-items:center; gap:10px; cursor:pointer;">'
+          +   '<input type="checkbox" ' + (this.checked.has(wi) ? 'checked' : '') + ' onchange="ELEV.toggleWall(' + wi + ',this.checked)" style="width:16px; height:16px; accent-color:#9A6558;"/>'
+          +   '<span style="flex:1; font-size:13px; font-weight:600; color:#2A2520;">' + this._esc(w.name) + (side ? ' <span style="color:#ABA49C; font-weight:400;">· ' + side + '</span>' : '') + '</span>'
+          +   badge
+          + '</label>'
+          + '<input value="' + this._esc(w.desc || '') + '" oninput="ELEV.setDesc(' + wi + ',this.value)" placeholder="' + this._esc(L('Bu duvarda ne var? (dolaplar, cihazlar, tezgah...)')) + '" title="' + this._esc(L('Bu duvarda ne var? (dolaplar, cihazlar, tezgah...)')) + '" style="width:100%; margin-top:7px; padding:6px 8px; border:1px solid #E4DFD6; border-radius:6px; font-size:12px; color:#6B6258; box-sizing:border-box;"/>'
+          + '</div>';
       }).join('');
       document.getElementById('elevWallList').innerHTML = rows;
     },
+    setDesc(wi, val){ const w = this.spec.rooms[this.room].walls[wi]; if (w) w.desc = val; },
 
     renderStyles(){
       const chips = this.STYLES.map(k =>
@@ -7072,6 +7093,24 @@
     });
   }
 
+  // Malzeme/doku/renk referansı (opsiyonel)
+  let elevRefFile = null;
+  document.getElementById('elevRefInput').addEventListener('change', e => {
+    elevRefFile = e.target.files[0] || null;
+    const prev = document.getElementById('elevRefPreview');
+    const clr = document.getElementById('elevRefClear');
+    if (!elevRefFile) { prev.style.display = 'none'; clr.style.display = 'none'; return; }
+    const reader = new FileReader();
+    reader.onload = ev => { prev.src = ev.target.result; prev.style.display = 'block'; clr.style.display = 'inline-block'; };
+    reader.readAsDataURL(elevRefFile);
+  });
+  function elevClearRef(){
+    elevRefFile = null;
+    document.getElementById('elevRefInput').value = '';
+    document.getElementById('elevRefPreview').style.display = 'none';
+    document.getElementById('elevRefClear').style.display = 'none';
+  }
+
   async function startElevAnalyze(){
     const errEl = document.getElementById('elevError');
     if (!localStorage.getItem('ra_token')) { openAuthModal('login'); return; }
@@ -7127,6 +7166,7 @@
     fd.append('walls', JSON.stringify(walls));
     fd.append('style', ELEV.style);
     fd.append('note', document.getElementById('elevNote').value || '');
+    if (elevRefFile) fd.append('ref_image', elevIsPdf(elevRefFile) ? elevRefFile : await resizeIfNeeded(elevRefFile));
     try {
       const startRes = await fetch(`${API}/elevation/render`, { method:'POST', headers: authHeaders(), body: fd });
       const startData = await startRes.json();
