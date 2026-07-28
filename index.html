@@ -7125,12 +7125,15 @@
 
     showResults(walls){
       const grid = document.getElementById('elevResultGrid');
-      grid.innerHTML = walls.map(w => {
+      grid.innerHTML = walls.map((w, i) => {
         const side = this.sideLbl(w.side);
+        const fname = 'bynai-' + String(w.name || 'duvar').toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/(^-|-$)/g, '') + '-' + (i + 1) + '.png';
         return '<div style="border:1px solid #E0DAD0; border-radius:12px; overflow:hidden; background:#FAFAF8;">'
           + '<a href="' + w.url + '" target="_blank"><img src="' + w.url + '" style="width:100%; display:block;"></a>'
-          + '<div style="padding:8px 10px; font-size:13px; font-weight:600; color:#2A2520; text-align:center;">'
-          + this._esc(w.name) + (side ? ' <span style="color:#ABA49C; font-weight:400;">· ' + side + '</span>' : '') + '</div></div>';
+          + '<div style="padding:8px 10px; text-align:center;">'
+          +   '<div style="font-size:13px; font-weight:600; color:#2A2520; margin-bottom:7px;">' + this._esc(w.name) + (side ? ' <span style="color:#ABA49C; font-weight:400;">· ' + side + '</span>' : '') + '</div>'
+          +   '<a href="' + w.url + '" download="' + fname + '" style="display:inline-flex; align-items:center; gap:6px; padding:6px 16px; border:1px solid #9A6558; border-radius:8px; color:#9A6558; font-size:12px; font-weight:600; text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg>' + this._esc(L('İndir')) + '</a>'
+          + '</div></div>';
       }).join('');
       document.getElementById('elevResultPanel').style.display = 'block';
       document.getElementById('elevResultPanel').scrollIntoView({ behavior:'smooth', block:'nearest' });
