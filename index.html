@@ -3025,6 +3025,7 @@
     "Görünüşler üretilemedi": "Could not generate the elevations",
     "duvar": "walls",
     "Bu duvarda ne var? (dolaplar, cihazlar, tezgah...)": "What's on this wall? (cabinets, appliances, counter...)",
+    "Duvarı sil": "Delete wall", "+ Duvar Ekle": "+ Add Wall", "Yeni duvar": "New wall",
     // İç mekan stilleri
     "Modern": "Modern", "Minimalist": "Minimalist", "Lüks & Premium": "Luxury & Premium",
     "İskandinav": "Scandinavian", "Endüstriyel": "Industrial", "Akdeniz": "Mediterranean",
@@ -7012,22 +7013,42 @@
 
     renderWalls(){
       const room = this.spec.rooms[this.room];
+      const OPENS = ['none', 'window', 'door', 'both'];
       const rows = room.walls.map((w, wi) => {
         const side = this.sideLbl(w.side);
-        const badge = '<span style="font-size:10px; padding:2px 7px; border-radius:10px; background:'
-          + (w.opening === 'none' ? '#EDEAE3' : '#E7EFE3') + '; color:#5A6B4A;">' + this._esc(this.openLbl(w.opening)) + '</span>';
+        const opts = OPENS.map(o => '<option value="' + o + '"' + (o === w.opening ? ' selected' : '') + '>' + this._esc(this.openLbl(o)) + '</option>').join('');
         return '<div style="border:1px solid #E4DFD6; border-radius:8px; padding:8px 10px;">'
-          + '<label style="display:flex; align-items:center; gap:10px; cursor:pointer;">'
-          +   '<input type="checkbox" ' + (this.checked.has(wi) ? 'checked' : '') + ' onchange="ELEV.toggleWall(' + wi + ',this.checked)" style="width:16px; height:16px; accent-color:#9A6558;"/>'
-          +   '<span style="flex:1; font-size:13px; font-weight:600; color:#2A2520;">' + this._esc(w.name) + (side ? ' <span style="color:#ABA49C; font-weight:400;">· ' + side + '</span>' : '') + '</span>'
-          +   badge
-          + '</label>'
-          + '<input value="' + this._esc(w.desc || '') + '" oninput="ELEV.setDesc(' + wi + ',this.value)" placeholder="' + this._esc(L('Bu duvarda ne var? (dolaplar, cihazlar, tezgah...)')) + '" title="' + this._esc(L('Bu duvarda ne var? (dolaplar, cihazlar, tezgah...)')) + '" style="width:100%; margin-top:7px; padding:6px 8px; border:1px solid #E4DFD6; border-radius:6px; font-size:12px; color:#6B6258; box-sizing:border-box;"/>'
+          + '<div style="display:flex; align-items:center; gap:8px;">'
+          +   '<input type="checkbox" ' + (this.checked.has(wi) ? 'checked' : '') + ' onchange="ELEV.toggleWall(' + wi + ',this.checked)" style="width:16px; height:16px; accent-color:#9A6558; flex:none;"/>'
+          +   '<input value="' + this._esc(w.name) + '" oninput="ELEV.setName(' + wi + ',this.value)" style="flex:1; min-width:50px; font-size:13px; font-weight:600; color:#2A2520; border:none; background:transparent; padding:2px; outline:none;"/>'
+          +   (side ? '<span style="color:#ABA49C; font-weight:400; font-size:12px; flex:none;">· ' + side + '</span>' : '')
+          +   '<select onchange="ELEV.setOpening(' + wi + ',this.value)" style="flex:none; font-size:11px; padding:3px 6px; border:1px solid #D8D2C8; border-radius:6px; background:#fff; color:#5A6B4A;">' + opts + '</select>'
+          +   '<button onclick="ELEV.delWall(' + wi + ')" title="' + this._esc(L('Duvarı sil')) + '" style="flex:none; width:24px; height:24px; border:1px solid #E4DFD6; border-radius:6px; background:transparent; color:#B08; font-size:15px; line-height:1; cursor:pointer;">×</button>'
+          + '</div>'
+          + '<input value="' + this._esc(w.desc || '') + '" oninput="ELEV.setDesc(' + wi + ',this.value)" placeholder="' + this._esc(L('Bu duvarda ne var? (dolaplar, cihazlar, tezgah...)')) + '" style="width:100%; margin-top:7px; padding:6px 8px; border:1px solid #E4DFD6; border-radius:6px; font-size:12px; color:#6B6258; box-sizing:border-box;"/>'
           + '</div>';
       }).join('');
-      document.getElementById('elevWallList').innerHTML = rows;
+      document.getElementById('elevWallList').innerHTML = rows
+        + '<button onclick="ELEV.addWall()" style="align-self:flex-start; margin-top:2px; padding:7px 14px; border:1px dashed #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:600; cursor:pointer;">' + this._esc(L('+ Duvar Ekle')) + '</button>';
     },
     setDesc(wi, val){ const w = this.spec.rooms[this.room].walls[wi]; if (w) w.desc = val; },
+    setName(wi, val){ const w = this.spec.rooms[this.room].walls[wi]; if (w) w.name = val; },
+    setOpening(wi, val){ const w = this.spec.rooms[this.room].walls[wi]; if (w) w.opening = val; },
+    addWall(){
+      const room = this.spec.rooms[this.room];
+      if (room.walls.length >= 6) return;   // backend 6 duvarda sınırlı
+      room.walls.push({ name: L('Yeni duvar'), side: '', opening: 'none', desc: '' });
+      this.checked.add(room.walls.length - 1);
+      this.renderWalls(); this.updateTotal();
+    },
+    delWall(wi){
+      const room = this.spec.rooms[this.room];
+      if (room.walls.length <= 1) return;
+      room.walls.splice(wi, 1);
+      const old = [...this.checked]; this.checked = new Set();   // seçim indeksleri kaydı
+      old.forEach(i => { if (i < wi) this.checked.add(i); else if (i > wi) this.checked.add(i - 1); });
+      this.renderWalls(); this.updateTotal();
+    },
 
     renderStyles(){
       const chips = this.STYLES.map(k =>
