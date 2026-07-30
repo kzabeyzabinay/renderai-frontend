@@ -7144,6 +7144,30 @@
       if (!segs.length) return L('boş duvar');
       return segs.map(s => s.label || this.segLbl(s.t)).join(' · ');
     },
+    // Segment şeridini render'a DÜZEN KILAVUZU olarak gidecek PNG'ye çevir (soldan sağa, orantılı)
+    wallLayoutPng(wall){
+      const segs = (wall.segments || []).filter(Boolean);
+      if (!segs.length) return '';
+      const W = 1000, H = 260, pad = 8;
+      const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+      const tot = segs.reduce((a, s) => a + (s.w || 1), 0) || 1;
+      let x = 0;
+      segs.forEach(s => {
+        const sw = (s.w || 1) / tot * W, bw = Math.max(1, sw - 4);
+        ctx.fillStyle = this.SEG_COLOR[s.t] || '#E4DFD4';
+        ctx.fillRect(x + 2, pad, bw, H - 2 * pad - 6);
+        ctx.strokeStyle = '#8A7E74'; ctx.lineWidth = 2; ctx.strokeRect(x + 2, pad, bw, H - 2 * pad - 6);
+        ctx.fillStyle = '#2A2520'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.font = 'bold 24px system-ui, sans-serif';
+        ctx.fillText(this.SEG_EN[s.t] || s.t, x + sw / 2, H / 2 - 12, bw - 8);
+        if (s.label){ ctx.font = '17px system-ui, sans-serif'; ctx.fillStyle = '#6B6258'; ctx.fillText(String(s.label).slice(0, 26), x + sw / 2, H / 2 + 20, bw - 8); }
+        x += sw;
+      });
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0, H - 6); ctx.lineTo(W, H - 6); ctx.stroke();
+      return cv.toDataURL('image/png');
+    },
     renderWalls(){
       const room = this.spec.rooms[this.room];
       if (this.editWall >= room.walls.length) this.editWall = -1;
@@ -7383,6 +7407,8 @@
     fd.append('style', ELEV.style);
     fd.append('note', document.getElementById('elevNote').value || '');
     if (elevRefFile) fd.append('ref_image', elevIsPdf(elevRefFile) ? elevRefFile : await resizeIfNeeded(elevRefFile));
+    // Her seçili duvarın segment düzenini kılavuz görsel olarak gönder (render birebir tutsun)
+    fd.append('layout_refs', JSON.stringify(walls.map(w => ELEV.wallLayoutPng(w))));
     try {
       const startRes = await fetch(`${API}/elevation/render`, { method:'POST', headers: authHeaders(), body: fd });
       const startData = await startRes.json();
