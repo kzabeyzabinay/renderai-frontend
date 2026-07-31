@@ -3521,6 +3521,9 @@
     RA_LANG = (lang === 'en') ? 'en' : 'tr';
     localStorage.setItem('ra_lang', RA_LANG);
     applyI18n();
+    // JS ile üretilmiş dinamik içerik (data-i18n dışı) dil değişince yeniden çizilmeli
+    try { if (typeof ELEV !== 'undefined' && ELEV.spec) ELEV.relang(); } catch (e) {}
+    try { if (typeof DETAY !== 'undefined' && DETAY.spec) DETAY.render(); } catch (e) {}
     if (typeof relayoutNav === 'function') setTimeout(relayoutNav, 0);  // etiket genişlikleri değişti
   }
 
@@ -7075,17 +7078,26 @@
     openLbl(o){ return (RA_LANG === 'en' ? this.OPEN_EN : this.OPEN_TR)[o] || o; },
     sideLbl(s){ return (RA_LANG === 'en' ? this.SIDE_EN : this.SIDE_TR)[s] || ''; },
 
+    _roomChipsHtml(){
+      return this.spec.rooms.map((r, i) =>
+        '<button onclick="ELEV.pickRoom(' + i + ')" id="elevRoom' + i + '" class="elev-room-chip" style="padding:8px 14px; border:1px solid ' + (i === this.room ? '#9A6558' : '#D8D2C8') + '; border-radius:20px; background:' + (i === this.room ? '#9A6558' : '#fff') + '; color:' + (i === this.room ? '#fff' : '#3A352E') + '; font-size:13px; font-weight:600; cursor:pointer;">'
+        + this._esc(r.label) + ' <span style="color:' + (i === this.room ? '#F0E4DF' : '#8A7E74') + '; font-weight:400;">· ' + r.walls.length + ' ' + L('duvar') + '</span></button>'
+      ).join('');
+    },
     showRooms(spec){
-      this.spec = spec; this.room = -1; this.checked = new Set();
+      this.spec = spec; this.room = -1; this.checked = new Set(); this.editWall = -1; this.segSel = -1;
       document.getElementById('elevStage1').style.display = 'block';
       document.getElementById('elevWallBox').style.display = 'none';
       document.getElementById('elevResultPanel').style.display = 'none';
-      const chips = spec.rooms.map((r, i) =>
-        '<button onclick="ELEV.pickRoom(' + i + ')" id="elevRoom' + i + '" class="elev-room-chip" style="padding:8px 14px; border:1px solid #D8D2C8; border-radius:20px; background:#fff; color:#3A352E; font-size:13px; font-weight:600; cursor:pointer;">'
-        + this._esc(r.label) + ' <span style="color:#8A7E74; font-weight:400;">· ' + r.walls.length + ' ' + L('duvar') + '</span></button>'
-      ).join('');
-      document.getElementById('elevRoomChips').innerHTML = chips;
+      document.getElementById('elevRoomChips').innerHTML = this._roomChipsHtml();
       document.getElementById('elevStage1').scrollIntoView({ behavior:'smooth', block:'nearest' });
+    },
+    // Dil değişince JS ile üretilmiş içeriği yeniden çiz (aksi halde TR'de kalır)
+    relang(){
+      if (!this.spec) return;
+      const rc = document.getElementById('elevRoomChips');
+      if (rc) rc.innerHTML = this._roomChipsHtml();
+      if (this.room >= 0) { this.renderWalls(); this.renderStyles(); }
     },
 
     pickRoom(i){
