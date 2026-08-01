@@ -3070,6 +3070,8 @@
     "Boş — aşağıdaki paletten öğe ekle": "Empty — add an item from the palette below",
     "Öğe": "Item", "Genişlik": "Width", "Not (ops.)": "Note (opt.)", "Sil": "Delete", "Öğe ekle:": "Add item:",
     "Genişlik (duvardaki payı)": "Width (share of the wall)", "Daralt": "Narrower", "Genişlet": "Wider",
+    "içerik (duvara bakışta soldan sağa)": "contents (left to right, as you face the wall)",
+    "Ters Çevir": "Flip", "Sırayı ters çevir (aynala)": "Reverse the order (mirror)", "Sola taşı": "Move left", "Sağa taşı": "Move right",
     "Genişlik = duvardaki oran (cm değil). Hepsi 1 ise eşit bölünür; bir öğeyi geniş yapmak için −/+ ile sayısını büyüt (ör. kanepe 3, sehpa 1). Yüzde canlı gösterilir.": "Width = share of the wall (not cm). All 1 = equal split; make an item wider with −/+ (e.g. sofa 3, coffee table 1). The percentage updates live.",
     // İç mekan stilleri
     "Modern": "Modern", "Minimalist": "Minimalist", "Lüks & Premium": "Luxury & Premium",
@@ -7245,13 +7247,18 @@
           +       '<span style="font-size:13px; color:#9A6558; font-weight:700; margin-left:6px; white-space:nowrap;">≈ %' + pct + '</span>'
           +     '</div></div>'
           +   '<div style="flex:1; min-width:120px;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Not (ops.)')) + '</label><input value="' + this._esc(s.label || '') + '" oninput="ELEV.segSetLabel(this.value)" style="width:100%; padding:6px; border:1px solid #D8D2C8; border-radius:6px; box-sizing:border-box;"/></div>'
+          +   '<button onclick="ELEV.segMove(-1)" title="' + this._esc(L('Sola taşı')) + '" style="width:34px; height:34px; border:1px solid #D8D2C8; border-radius:6px; background:#fff; color:#5A6B4A; font-size:14px; cursor:pointer;">◀</button>'
+          +   '<button onclick="ELEV.segMove(1)" title="' + this._esc(L('Sağa taşı')) + '" style="width:34px; height:34px; border:1px solid #D8D2C8; border-radius:6px; background:#fff; color:#5A6B4A; font-size:14px; cursor:pointer;">▶</button>'
           +   '<button onclick="ELEV.segDel()" style="padding:7px 12px; border:1px solid #D8A0AC; border-radius:6px; background:transparent; color:#B08; font-size:12px; font-weight:600; cursor:pointer;">' + this._esc(L('Sil')) + '</button>'
           + '</div>'
           + '<div style="font-size:11px; color:#8A7E74; margin-top:8px; line-height:1.5;">' + this._esc(L('Genişlik = duvardaki oran (cm değil). Hepsi 1 ise eşit bölünür; bir öğeyi geniş yapmak için −/+ ile sayısını büyüt (ör. kanepe 3, sehpa 1). Yüzde canlı gösterilir.')) + '</div>'
           + '</div>';
       }
       const palette = this.SEG_ORDER.map(t => '<button onclick="ELEV.segAdd(\'' + t + '\')" style="padding:5px 9px; border:1px solid #D8D2C8; border-radius:14px; background:' + (this.SEG_COLOR[t] || '#eee') + '; color:#3A352E; font-size:11px; font-weight:600; cursor:pointer;">+ ' + this._esc(this.segLbl(t)) + '</button>').join('');
-      box.innerHTML = '<div style="font-size:12px; font-weight:700; color:#2A2520; margin:2px 0 8px;">' + this._esc(wall.name) + ' — ' + this._esc(L('içerik (soldan sağa)')) + '</div>'
+      box.innerHTML = '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin:2px 0 8px;">'
+        + '<span style="font-size:12px; font-weight:700; color:#2A2520;">' + this._esc(wall.name) + ' — ' + this._esc(L('içerik (duvara bakışta soldan sağa)')) + '</span>'
+        + '<button onclick="ELEV.segFlip()" title="' + this._esc(L('Sırayı ters çevir (aynala)')) + '" style="padding:5px 12px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:600; cursor:pointer;">⇄ ' + this._esc(L('Ters Çevir')) + '</button>'
+        + '</div>'
         + svg + panel
         + '<div style="font-size:11px; color:#8A7E74; margin:10px 0 6px;">' + this._esc(L('Öğe ekle:')) + '</div>'
         + '<div style="display:flex; flex-wrap:wrap; gap:6px;">' + palette + '</div>';
@@ -7263,6 +7270,22 @@
     segSetType(v){ const s = this._seg(); if (s){ s.t = v; this.syncWall(this.editWall); this.renderWallEditor(); this.renderRowSummary(); } },
     segSetW(v){ const s = this._seg(); if (s){ s.w = Math.max(1, parseInt(v) || 1); this.syncWall(this.editWall); this.renderWallEditor(); } },
     segNudgeW(d){ const s = this._seg(); if (s){ s.w = Math.max(1, (s.w || 1) + d); this.syncWall(this.editWall); this.renderWallEditor(); } },
+    segFlip(){   // tüm şeridi ters çevir (duvara bakış aynalandığında sıra düzelir)
+      const w = this.spec.rooms[this.room].walls[this.editWall];
+      if (!w || !w.segments) return;
+      w.segments.reverse();
+      if (this.segSel >= 0) this.segSel = w.segments.length - 1 - this.segSel;
+      this.syncWall(this.editWall); this.renderWallEditor(); this.renderRowSummary();
+    },
+    segMove(dir){   // seçili öğeyi sola(-1)/sağa(+1) taşı
+      const w = this.spec.rooms[this.room].walls[this.editWall];
+      if (!w || !w.segments || this.segSel < 0) return;
+      const i = this.segSel, j = i + dir;
+      if (j < 0 || j >= w.segments.length) return;
+      const t = w.segments[i]; w.segments[i] = w.segments[j]; w.segments[j] = t;
+      this.segSel = j;
+      this.syncWall(this.editWall); this.renderWallEditor(); this.renderRowSummary();
+    },
     segSetLabel(v){ const s = this._seg(); if (s){ s.label = v; this.syncWall(this.editWall); } },   // odaktan çıkmasın diye re-render YOK
     segDel(){ const w = this.spec.rooms[this.room].walls[this.editWall]; if (w && w.segments){ w.segments.splice(this.segSel, 1); this.segSel = -1; this.syncWall(this.editWall); this.renderWallEditor(); this.renderRowSummary(); } },
     renderRowSummary(){   // sadece aktif satırın özetini güncelle (tüm listeyi re-render etmeden)
