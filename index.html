@@ -3072,6 +3072,12 @@
     "Genişlik (duvardaki payı)": "Width (share of the wall)", "Daralt": "Narrower", "Genişlet": "Wider",
     "içerik (duvara bakışta soldan sağa)": "contents (left to right, as you face the wall)",
     "Ters Çevir": "Flip", "Sırayı ters çevir (aynala)": "Reverse the order (mirror)", "Sola taşı": "Move left", "Sağa taşı": "Move right",
+    "Bir duvarda \"İçini Düzenle\"ye basıp o duvarı ölçülü çiz: sütunlar (en) + hücreler (üst dolap/tezgah/alt dolap...) mm ölçüyle.": "Press \"Edit Contents\" on a wall and draw it to scale: columns (widths) + cells (upper cabinet/counter/base cabinet...) in mm.",
+    "Toplam En (mm)": "Total width (mm)", "Tavan Yüks. (mm)": "Ceiling height (mm)", "Yükseklik (mm)": "Height (mm)",
+    "Seçili hücre": "Selected cell", "Sütun": "Column", "+ Üste Hücre": "+ Cell Above", "Hücreyi Sil": "Delete Cell",
+    "Sütun Eni (mm)": "Column width (mm)", "+ Sağa Sütun": "+ Column Right", "Sütunu Sil": "Delete Column",
+    "Düzenlemek için bir hücreye tıklayın, ya da aşağıdan sütun ekleyin.": "Click a cell to edit it, or add a column below.",
+    "ölçülü elevation (soldan sağa)": "measured elevation (left to right)", "Ölçülü Çizim": "Scaled Drawing", "Sütun ekle (yeni öğe):": "Add column (new item):",
     "Genişlik = duvardaki oran (cm değil). Hepsi 1 ise eşit bölünür; bir öğeyi geniş yapmak için −/+ ile sayısını büyüt (ör. kanepe 3, sehpa 1). Yüzde canlı gösterilir.": "Width = share of the wall (not cm). All 1 = equal split; make an item wider with −/+ (e.g. sofa 3, coffee table 1). The percentage updates live.",
     // İç mekan stilleri
     "Modern": "Modern", "Minimalist": "Minimalist", "Lüks & Premium": "Luxury & Premium",
@@ -7067,7 +7073,7 @@
     OPEN_EN: { window:'Window', door:'Door', both:'Window + Door', none:'Solid wall' },
     SIDE_TR: { ust:'Üst', alt:'Alt', sol:'Sol', sag:'Sağ' },
     SIDE_EN: { ust:'Top', alt:'Bottom', sol:'Left', sag:'Right' },
-    editWall: -1, segSel: -1,   // aktif duvar + seçili segment (Detay-tarzı şema editörü)
+    editWall: -1, gridSel: null,   // aktif duvar + seçili hücre {c,i} (2B ölçülü editör)
     // Duvar segment tipleri (soldan sağa yerleşen öğeler) — Detay hücrelerinin oda karşılığı
     SEG_ORDER: ['base_cabinet','upper_cabinet','tall_cabinet','counter','sink','cooktop','hood','oven','fridge','dishwasher','sofa','armchair','coffee_table','tv_unit','dining_table','console','sideboard','shelf','fireplace','mirror','art','plant','curtain','desk','bed','nightstand','wardrobe','dressing_table','vanity','toilet','shower','window','door','other'],
     SEG_TR: { base_cabinet:'Alt Dolap', upper_cabinet:'Üst Dolap', tall_cabinet:'Boy Dolap', counter:'Tezgah', sink:'Evye', cooktop:'Ocak', hood:'Davlumbaz', oven:'Fırın', fridge:'Buzdolabı', dishwasher:'Bulaşık Mak.', sofa:'Kanepe', armchair:'Koltuk', coffee_table:'Sehpa', dining_table:'Yemek Masası', console:'Konsol', sideboard:'Büfe/Vitrin', fireplace:'Şömine', mirror:'Ayna', art:'Tablo/Dekor', plant:'Bitki', curtain:'Perde', dressing_table:'Makyaj Masası', wardrobe:'Gardırop', bed:'Yatak', nightstand:'Komodin', tv_unit:'TV Ünitesi', shelf:'Raf/Kitaplık', desk:'Masa', vanity:'Banyo Dolabı', toilet:'Klozet', shower:'Duş/Küvet', window:'Pencere', door:'Kapı', other:'Diğer' },
@@ -7089,7 +7095,7 @@
       ).join('');
     },
     showRooms(spec){
-      this.spec = spec; this.room = -1; this.checked = new Set(); this.editWall = -1; this.segSel = -1;
+      this.spec = spec; this.room = -1; this.checked = new Set(); this.editWall = -1; this.gridSel = null;
       document.getElementById('elevStage1').style.display = 'block';
       document.getElementById('elevWallBox').style.display = 'none';
       document.getElementById('elevResultPanel').style.display = 'none';
@@ -7105,14 +7111,14 @@
     },
 
     pickRoom(i){
-      this.room = i; this.editWall = -1; this.segSel = -1;
+      this.room = i; this.editWall = -1; this.gridSel = null;
       this.spec.rooms.forEach((r, k) => {
         const el = document.getElementById('elevRoom' + k);
         if (el){ el.style.background = k === i ? '#9A6558' : '#fff'; el.style.color = k === i ? '#fff' : '#3A352E';
           el.style.borderColor = k === i ? '#9A6558' : '#D8D2C8'; }
       });
       // Her duvar için analiz desc'inden segment tohumla (kullanıcı görsel düzenler)
-      this.spec.rooms[i].walls.forEach((w, wi) => { this.seedSegments(w); this.syncWall(wi); });
+      this.spec.rooms[i].walls.forEach((w, wi) => { this.seedGrid(w); this.syncWall(wi); });
       // Varsayılan: tüm duvarlar seçili
       this.checked = new Set(this.spec.rooms[i].walls.map((_, wi) => wi));
       this.renderWalls();
@@ -7126,63 +7132,109 @@
       for (const kv of this.SEG_KW){ if (p.includes(kv[0])) return kv[1]; }
       return 'other';
     },
-    seedSegments(wall){
-      if (wall.segments) return;   // zaten var (kullanıcı ekledi / tekrar seçim)
-      const segs = [];
+    // Analiz desc'inden 2B ÖLÇÜLÜ grid tohumla: her parça = sütun (900mm) + tam boy tek hücre
+    seedGrid(wall){
+      if (wall.grid && wall.grid.cols) return;
+      const h = 2800;   // varsayılan tavan yüksekliği (mm)
+      const cols = [];
       const d = (wall.desc || '').trim().toLowerCase();
       if (d && !['empty wall','empty','boş duvar','bos duvar','boş','bos','-'].includes(d)) {
         (wall.desc || '').split(/[,;·]|\bve\b/i).map(s => s.trim()).filter(Boolean).forEach(piece => {
-          segs.push({ t: this.guessSeg(piece), w: 1, label: piece });
+          cols.push({ w: 900, cells: [{ t: this.guessSeg(piece), h: h, label: piece }] });
         });
       }
       const op = wall.opening;
-      if ((op === 'door' || op === 'both') && !segs.some(s => s.t === 'door')) segs.unshift({ t: 'door', w: 1, label: '' });
-      if ((op === 'window' || op === 'both') && !segs.some(s => s.t === 'window')) segs.push({ t: 'window', w: 1, label: '' });
-      wall.segments = segs;
+      const hasT = t => cols.some(c => c.cells.some(ce => ce.t === t));
+      if ((op === 'door' || op === 'both') && !hasT('door')) cols.unshift({ w: 900, cells: [{ t: 'door', h: h, label: '' }] });
+      if ((op === 'window' || op === 'both') && !hasT('window')) cols.push({ w: 1000, cells: [{ t: 'window', h: h, label: '' }] });
+      if (!cols.length) cols.push({ w: 900, cells: [{ t: 'base_cabinet', h: h, label: '' }] });
+      wall.grid = { w: cols.reduce((a, c) => a + c.w, 0), h: h, cols };
     },
-    // Segmentlerden geri: opening + İngilizce desc (render bunu kullanır) üret
+    // Grid'den geri: opening + render desc üret (asıl kılavuz ölçülü PNG; desc yedek)
     syncWall(wi){
       const w = this.spec.rooms[this.room].walls[wi];
-      const segs = w.segments || [];
-      const hasWin = segs.some(s => s.t === 'window'), hasDoor = segs.some(s => s.t === 'door');
+      const g = w.grid; if (!g || !g.cols) return;
+      const anyT = t => g.cols.some(c => c.cells.some(ce => ce.t === t));
+      const hasWin = anyT('window'), hasDoor = anyT('door');
       w.opening = (hasWin && hasDoor) ? 'both' : hasWin ? 'window' : hasDoor ? 'door' : 'none';
-      const tot = segs.reduce((a, s) => a + (s.w || 1), 0) || 1;
-      const parts = segs.map(s => {
-        const base = this.SEG_PH[s.t] || s.t;
-        const ph = s.label ? (base + ' (' + s.label + ')') : base;
-        return (Math.round((s.w || 1) / tot * 100) >= 45) ? (ph + ' spanning most of the wall') : ph;
+      const parts = g.cols.map(c => {
+        const inner = c.cells.map(ce => (this.SEG_PH[ce.t] || ce.t) + (ce.label ? (' (' + ce.label + ')') : '')).join(' above ');
+        return c.w + 'mm-wide [' + inner + ']';
       });
-      w.desc = parts.length ? ('from left to right: ' + parts.join(', ')) : 'empty wall';
+      w.desc = 'measured elevation ' + g.w + 'x' + g.h + 'mm; columns left to right: ' + parts.join('; ');
     },
-
     wallSummary(w){
-      const segs = w.segments || [];
-      if (!segs.length) return L('boş duvar');
-      return segs.map(s => s.label || this.segLbl(s.t)).join(' · ');
+      const g = w.grid;
+      if (!g || !g.cols || !g.cols.length) return L('boş duvar');
+      return g.cols.map(c => c.cells.map(ce => ce.label || this.segLbl(ce.t)).join('/')).join(' · ')
+        + '  (' + g.w + '×' + g.h + 'mm)';
     },
-    // Segment şeridini render'a DÜZEN KILAVUZU olarak gidecek PNG'ye çevir (soldan sağa, orantılı)
-    wallLayoutPng(wall){
-      const segs = (wall.segments || []).filter(Boolean);
-      if (!segs.length) return '';
-      const W = 1000, H = 260, pad = 8;
-      const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-      const ctx = cv.getContext('2d');
-      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
-      const tot = segs.reduce((a, s) => a + (s.w || 1), 0) || 1;
-      let x = 0;
-      segs.forEach(s => {
-        const sw = (s.w || 1) / tot * W, bw = Math.max(1, sw - 4);
-        ctx.fillStyle = this.SEG_COLOR[s.t] || '#E4DFD4';
-        ctx.fillRect(x + 2, pad, bw, H - 2 * pad - 6);
-        ctx.strokeStyle = '#8A7E74'; ctx.lineWidth = 2; ctx.strokeRect(x + 2, pad, bw, H - 2 * pad - 6);
-        ctx.fillStyle = '#2A2520'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.font = 'bold 24px system-ui, sans-serif';
-        ctx.fillText(this.SEG_EN[s.t] || s.t, x + sw / 2, H / 2 - 12, bw - 8);
-        if (s.label){ ctx.font = '17px system-ui, sans-serif'; ctx.fillStyle = '#6B6258'; ctx.fillText(String(s.label).slice(0, 26), x + sw / 2, H / 2 + 20, bw - 8); }
-        x += sw;
+    // Ölçülü 2B elevation SVG (sütun×hücre, mm ölçüler) — editör + PNG dışa aktarım ortak
+    _gridSvg(wall, interactive, labelEn){
+      const g = wall.grid || { w: 900, h: 2800, cols: [] };
+      const FW = 820, FH = 470, ml = 54, mt = 30, mr = 16, mb = 36;
+      const W = FW - ml - mr, H = FH - mt - mb, base = mt + H;
+      const totW = g.cols.reduce((a, c) => a + (c.w || 1), 0) || 1;
+      const lbl = t => labelEn ? (this.SEG_EN[t] || t) : this.segLbl(t);
+      let x = ml;
+      // interaktif: responsive (%100). export: xmlns + sabit boyut (Image→canvas için şart)
+      let svg = interactive
+        ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + FW + ' ' + FH + '" width="100%" style="max-width:' + FW + 'px; min-width:520px; background:#fff; border:1px solid #E4DFD6; border-radius:8px; font-family:system-ui,sans-serif;">'
+        : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + FW + ' ' + FH + '" width="' + FW + '" height="' + FH + '" style="background:#fff; font-family:system-ui,sans-serif;">';
+      svg += '<line x1="' + (ml - 18) + '" y1="' + mt + '" x2="' + (ml - 18) + '" y2="' + base + '" stroke="#9A6558" stroke-width="1"/>';
+      svg += '<text x="' + (ml - 28) + '" y="' + (mt + H / 2) + '" fill="#9A6558" font-size="10" text-anchor="middle" transform="rotate(-90 ' + (ml - 28) + ' ' + (mt + H / 2) + ')">' + g.h + ' mm</text>';
+      if (!g.cols.length) svg += '<text x="' + (ml + W / 2) + '" y="' + (mt + H / 2) + '" fill="#ABA49C" font-size="12" text-anchor="middle" dominant-baseline="middle">' + this._esc(L('Boş — aşağıdaki paletten öğe ekle')) + '</text>';
+      g.cols.forEach((c, ci) => {
+        const cw = (c.w || 1) / totW * W;
+        const totH = c.cells.reduce((a, e) => a + (e.h || 1), 0) || 1;
+        svg += '<text x="' + (x + cw / 2) + '" y="' + (mt - 11) + '" fill="#6B6258" font-size="9" text-anchor="middle">' + c.w + '</text>';
+        if (ci > 0) svg += '<line x1="' + x + '" y1="' + (mt - 6) + '" x2="' + x + '" y2="' + base + '" stroke="#C9C2B6" stroke-width="0.8"/>';
+        let y = base;
+        c.cells.forEach((cell, ei) => {
+          const chh = (cell.h || 1) / totH * H, cy = y - chh;
+          const isSel = interactive && this.gridSel && this.gridSel.c === ci && this.gridSel.i === ei;
+          const clk = interactive ? ' style="cursor:pointer" onclick="ELEV.gridPick(' + ci + ',' + ei + ')"' : ' style="pointer-events:none"';
+          svg += '<rect x="' + x + '" y="' + cy + '" width="' + cw + '" height="' + chh + '" fill="' + (this.SEG_COLOR[cell.t] || '#eee') + '" stroke="' + (isSel ? '#9A6558' : '#8A7E74') + '" stroke-width="' + (isSel ? 2.6 : 0.8) + '"' + clk + '/>';
+          if (chh > 14) {
+            svg += '<text x="' + (x + cw / 2) + '" y="' + (cy + chh / 2 - 4) + '" fill="#3A352E" font-size="9" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none">' + this._esc(cell.label || lbl(cell.t)) + '</text>';
+            if (chh > 28) svg += '<text x="' + (x + cw / 2) + '" y="' + (cy + chh / 2 + 9) + '" fill="#8A7E74" font-size="8" text-anchor="middle" style="pointer-events:none">' + cell.h + '</text>';
+          }
+          y = cy;
+        });
+        x += cw;
       });
-      ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0, H - 6); ctx.lineTo(W, H - 6); ctx.stroke();
-      return cv.toDataURL('image/png');
+      svg += '<line x1="' + ml + '" y1="' + (base + 16) + '" x2="' + (ml + W) + '" y2="' + (base + 16) + '" stroke="#9A6558" stroke-width="1"/>';
+      svg += '<text x="' + (ml + W / 2) + '" y="' + (base + 29) + '" fill="#9A6558" font-size="10" text-anchor="middle">' + totW + ' mm</text>';
+      svg += '</svg>';
+      return svg;
+    },
+    // Ölçülü elevation'ı render'a DÜZEN KILAVUZU olarak PNG'ye çevir (async: SVG→canvas)
+    wallLayoutPng(wall, labelEn){
+      const g = wall.grid;
+      if (!g || !g.cols || !g.cols.length) return Promise.resolve('');
+      const svg = this._gridSvg(wall, false, labelEn !== false);
+      const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      return new Promise(res => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = 2, cv = document.createElement('canvas');
+          cv.width = 820 * scale; cv.height = 470 * scale;
+          const ctx = cv.getContext('2d');
+          ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height);
+          ctx.drawImage(img, 0, 0, cv.width, cv.height);
+          res(cv.toDataURL('image/png'));
+        };
+        img.onerror = () => res('');
+        img.src = url;
+      });
+    },
+    async downloadWallPng(){
+      const wall = this.spec.rooms[this.room].walls[this.editWall];
+      const png = await this.wallLayoutPng(wall, RA_LANG === 'en');
+      if (!png) return;
+      const a = document.createElement('a');
+      a.href = png; a.download = 'bynai-' + String(wall.name || 'duvar').toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/(^-|-$)/g, '') + '-olcu.png';
+      a.click();
     },
     renderWalls(){
       const room = this.spec.rooms[this.room];
@@ -7205,89 +7257,87 @@
         + '<button onclick="ELEV.addWall()" style="align-self:flex-start; margin-top:2px; padding:7px 14px; border:1px dashed #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:600; cursor:pointer;">' + this._esc(L('+ Duvar Ekle')) + '</button>';
       this.renderWallEditor();
     },
-    // ─ Detay-tarzı duvar içi segment şeması ─
+    // ─ Detay-tarzı 2B ÖLÇÜLÜ duvar elevation editörü (sütun×hücre, mm) ─
+    _inp(lbl, val, fn, w){ return '<div style="width:' + (w || 130) + 'px;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L(lbl)) + '</label><input type="number" min="20" value="' + val + '" onchange="ELEV.' + fn + '(this.value)" style="width:100%; padding:6px; border:1px solid #D8D2C8; border-radius:6px; box-sizing:border-box;"/></div>'; },
+    _pbtn(lbl, fn, accent){ const col = accent ? '#9A6558' : '#8A7E74'; return '<button onclick="ELEV.' + fn + '" style="padding:7px 10px; border:1px solid ' + col + '; border-radius:6px; background:transparent; color:' + col + '; font-size:12px; font-weight:600; cursor:pointer;">' + this._esc(L(lbl)) + '</button>'; },
     renderWallEditor(){
       const box = document.getElementById('elevWallEditor');
       if (!box) return;
-      if (this.editWall < 0){ box.innerHTML = '<div style="font-size:12px; color:#8A7E74; padding:6px 2px;">' + this._esc(L('Bir duvarda "İçini Düzenle"ye basıp içindekileri (dolap/cihaz/pencere...) soldan sağa yerleştir.')) + '</div>'; return; }
+      if (this.editWall < 0){ box.innerHTML = '<div style="font-size:12px; color:#8A7E74; padding:6px 2px;">' + this._esc(L('Bir duvarda "İçini Düzenle"ye basıp o duvarı ölçülü çiz: sütunlar (en) + hücreler (üst dolap/tezgah/alt dolap...) mm ölçüyle.')) + '</div>'; return; }
       const wall = this.spec.rooms[this.room].walls[this.editWall];
-      const segs = wall.segments || (wall.segments = []);
-      const FW = 700, FH = 120, ml = 8, mt = 8, mr = 8, mb = 8;
-      const W = FW - ml - mr, H = FH - mt - mb, base = mt + H;
-      const tot = segs.reduce((a, s) => a + (s.w || 1), 0) || 1;
-      let x = ml;
-      let svg = '<svg viewBox="0 0 ' + FW + ' ' + FH + '" width="100%" style="max-width:' + FW + 'px; background:#fff; border:1px solid #E4DFD6; border-radius:8px; font-family:system-ui,sans-serif;">';
-      svg += '<line x1="' + ml + '" y1="' + base + '" x2="' + (ml + W) + '" y2="' + base + '" stroke="#C9C2B6" stroke-width="1.2"/>';
-      if (!segs.length) svg += '<text x="' + (ml + W / 2) + '" y="' + (mt + H / 2) + '" fill="#ABA49C" font-size="12" text-anchor="middle" dominant-baseline="middle">' + this._esc(L('Boş — aşağıdaki paletten öğe ekle')) + '</text>';
-      segs.forEach((s, si) => {
-        const sw = (s.w || 1) / tot * W;
-        const isSel = si === this.segSel;
-        svg += '<rect x="' + x + '" y="' + mt + '" width="' + Math.max(1, sw - 1) + '" height="' + H + '" rx="3" fill="' + (this.SEG_COLOR[s.t] || '#E4DFD4') + '" stroke="' + (isSel ? '#9A6558' : '#B7AE9F') + '" stroke-width="' + (isSel ? 2.6 : 0.8) + '" style="cursor:pointer" onclick="ELEV.segPick(' + si + ')"/>';
-        if (sw > 24) {
-          svg += '<text x="' + (x + sw / 2) + '" y="' + (mt + H / 2 - 4) + '" fill="#3A352E" font-size="10" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none">' + this._esc(this.segLbl(s.t)) + '</text>';
-          if (s.label && sw > 44) svg += '<text x="' + (x + sw / 2) + '" y="' + (mt + H / 2 + 9) + '" fill="#8A7E74" font-size="8" text-anchor="middle" style="pointer-events:none">' + this._esc(s.label.slice(0, 16)) + '</text>';
-          svg += '<text x="' + (x + sw / 2) + '" y="' + (base - 7) + '" fill="#9A6558" font-size="9" font-weight="600" text-anchor="middle" style="pointer-events:none">%' + Math.round((s.w || 1) / tot * 100) + '</text>';
-        }
-        x += sw;
-      });
-      svg += '</svg>';
+      this.seedGrid(wall);
+      const g = wall.grid;
+      const svg = this._gridSvg(wall, true, false);
+      const dimRow = '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; margin-top:10px;">'
+        + this._inp('Toplam En (mm)', g.w, 'gridSetOverallW', 140)
+        + this._inp('Tavan Yüks. (mm)', g.h, 'gridSetOverallH', 140) + '</div>';
       let panel = '';
-      if (this.segSel >= 0 && segs[this.segSel]) {
-        const s = segs[this.segSel];
-        const opts = this.SEG_ORDER.map(t => '<option value="' + t + '"' + (t === s.t ? ' selected' : '') + '>' + this._esc(this.segLbl(t)) + '</option>').join('');
-        const pct = Math.round((s.w || 1) / tot * 100);
+      if (this.gridSel && g.cols[this.gridSel.c] && g.cols[this.gridSel.c].cells[this.gridSel.i]) {
+        const c = g.cols[this.gridSel.c], cell = c.cells[this.gridSel.i];
+        const opts = this.SEG_ORDER.map(t => '<option value="' + t + '"' + (t === cell.t ? ' selected' : '') + '>' + this._esc(this.segLbl(t)) + '</option>').join('');
         panel = '<div style="border:1px solid #E4DFD6; border-radius:8px; padding:10px; margin-top:8px;">'
+          + '<div style="font-size:11px; font-weight:700; color:#2A2520; margin-bottom:8px;">' + this._esc(L('Seçili hücre')) + ' · ' + this._esc(L('Sütun')) + ' ' + (this.gridSel.c + 1) + '</div>'
           + '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end;">'
-          +   '<div style="flex:1; min-width:120px;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Öğe')) + '</label><select onchange="ELEV.segSetType(this.value)" style="width:100%; padding:6px; border:1px solid #D8D2C8; border-radius:6px; box-sizing:border-box;">' + opts + '</select></div>'
-          +   '<div style="min-width:184px;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Genişlik (duvardaki payı)')) + '</label>'
-          +     '<div style="display:flex; align-items:center; gap:4px;">'
-          +       '<button onclick="ELEV.segNudgeW(-1)" title="' + this._esc(L('Daralt')) + '" style="width:30px; height:34px; border:1px solid #D8D2C8; border-radius:6px; background:#fff; cursor:pointer; font-size:18px; line-height:1;">−</button>'
-          +       '<input type="number" min="1" value="' + (s.w || 1) + '" onchange="ELEV.segSetW(this.value)" style="width:50px; padding:6px; border:1px solid #D8D2C8; border-radius:6px; text-align:center; box-sizing:border-box;"/>'
-          +       '<button onclick="ELEV.segNudgeW(1)" title="' + this._esc(L('Genişlet')) + '" style="width:30px; height:34px; border:1px solid #D8D2C8; border-radius:6px; background:#fff; cursor:pointer; font-size:18px; line-height:1;">+</button>'
-          +       '<span style="font-size:13px; color:#9A6558; font-weight:700; margin-left:6px; white-space:nowrap;">≈ %' + pct + '</span>'
-          +     '</div></div>'
-          +   '<div style="flex:1; min-width:120px;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Not (ops.)')) + '</label><input value="' + this._esc(s.label || '') + '" oninput="ELEV.segSetLabel(this.value)" style="width:100%; padding:6px; border:1px solid #D8D2C8; border-radius:6px; box-sizing:border-box;"/></div>'
-          +   '<button onclick="ELEV.segMove(-1)" title="' + this._esc(L('Sola taşı')) + '" style="width:34px; height:34px; border:1px solid #D8D2C8; border-radius:6px; background:#fff; color:#5A6B4A; font-size:14px; cursor:pointer;">◀</button>'
-          +   '<button onclick="ELEV.segMove(1)" title="' + this._esc(L('Sağa taşı')) + '" style="width:34px; height:34px; border:1px solid #D8D2C8; border-radius:6px; background:#fff; color:#5A6B4A; font-size:14px; cursor:pointer;">▶</button>'
-          +   '<button onclick="ELEV.segDel()" style="padding:7px 12px; border:1px solid #D8A0AC; border-radius:6px; background:transparent; color:#B08; font-size:12px; font-weight:600; cursor:pointer;">' + this._esc(L('Sil')) + '</button>'
+          +   '<div style="flex:1; min-width:130px;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Öğe')) + '</label><select onchange="ELEV.gridSetType(this.value)" style="width:100%; padding:6px; border:1px solid #D8D2C8; border-radius:6px; box-sizing:border-box;">' + opts + '</select></div>'
+          +   this._inp('Yükseklik (mm)', cell.h, 'gridSetCellH', 120)
+          +   '<div style="flex:1; min-width:120px;"><label style="font-size:11px; color:#8A7E74;">' + this._esc(L('Not (ops.)')) + '</label><input value="' + this._esc(cell.label || '') + '" oninput="ELEV.gridSetLabel(this.value)" style="width:100%; padding:6px; border:1px solid #D8D2C8; border-radius:6px; box-sizing:border-box;"/></div>'
           + '</div>'
-          + '<div style="font-size:11px; color:#8A7E74; margin-top:8px; line-height:1.5;">' + this._esc(L('Genişlik = duvardaki oran (cm değil). Hepsi 1 ise eşit bölünür; bir öğeyi geniş yapmak için −/+ ile sayısını büyüt (ör. kanepe 3, sehpa 1). Yüzde canlı gösterilir.')) + '</div>'
-          + '</div>';
+          + '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;">'
+          +   this._pbtn('+ Üste Hücre', 'gridAddCell()') + this._pbtn('Hücreyi Sil', 'gridDelCell()')
+          + '</div>'
+          + '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; border-top:1px solid #E4DFD6; margin-top:10px; padding-top:10px;">'
+          +   this._inp('Sütun Eni (mm)', c.w, 'gridSetColW', 130)
+          +   '<button onclick="ELEV.gridMoveCol(-1)" title="' + this._esc(L('Sola taşı')) + '" style="width:34px; height:34px; border:1px solid #D8D2C8; border-radius:6px; background:#fff; color:#5A6B4A; font-size:14px; cursor:pointer;">◀</button>'
+          +   '<button onclick="ELEV.gridMoveCol(1)" title="' + this._esc(L('Sağa taşı')) + '" style="width:34px; height:34px; border:1px solid #D8D2C8; border-radius:6px; background:#fff; color:#5A6B4A; font-size:14px; cursor:pointer;">▶</button>'
+          +   this._pbtn('+ Sağa Sütun', 'gridAddCol()', true) + this._pbtn('Sütunu Sil', 'gridDelCol()')
+          + '</div></div>';
+      } else {
+        panel = '<div style="font-size:11px; color:#8A7E74; margin-top:8px;">' + this._esc(L('Düzenlemek için bir hücreye tıklayın, ya da aşağıdan sütun ekleyin.')) + '</div>';
       }
-      const palette = this.SEG_ORDER.map(t => '<button onclick="ELEV.segAdd(\'' + t + '\')" style="padding:5px 9px; border:1px solid #D8D2C8; border-radius:14px; background:' + (this.SEG_COLOR[t] || '#eee') + '; color:#3A352E; font-size:11px; font-weight:600; cursor:pointer;">+ ' + this._esc(this.segLbl(t)) + '</button>').join('');
+      const palette = this.SEG_ORDER.map(t => '<button onclick="ELEV.gridAddType(\'' + t + '\')" style="padding:5px 9px; border:1px solid #D8D2C8; border-radius:14px; background:' + (this.SEG_COLOR[t] || '#eee') + '; color:#3A352E; font-size:11px; font-weight:600; cursor:pointer;">+ ' + this._esc(this.segLbl(t)) + '</button>').join('');
       box.innerHTML = '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin:2px 0 8px;">'
-        + '<span style="font-size:12px; font-weight:700; color:#2A2520;">' + this._esc(wall.name) + ' — ' + this._esc(L('içerik (duvara bakışta soldan sağa)')) + '</span>'
-        + '<button onclick="ELEV.segFlip()" title="' + this._esc(L('Sırayı ters çevir (aynala)')) + '" style="padding:5px 12px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:600; cursor:pointer;">⇄ ' + this._esc(L('Ters Çevir')) + '</button>'
-        + '</div>'
-        + svg + panel
-        + '<div style="font-size:11px; color:#8A7E74; margin:10px 0 6px;">' + this._esc(L('Öğe ekle:')) + '</div>'
+        + '<span style="font-size:12px; font-weight:700; color:#2A2520;">' + this._esc(wall.name) + ' — ' + this._esc(L('ölçülü elevation (soldan sağa)')) + '</span>'
+        + '<span style="display:flex; gap:6px;">'
+        +   '<button onclick="ELEV.gridFlip()" title="' + this._esc(L('Sırayı ters çevir (aynala)')) + '" style="padding:5px 12px; border:1px solid #9A6558; border-radius:8px; background:transparent; color:#9A6558; font-size:12px; font-weight:600; cursor:pointer;">⇄ ' + this._esc(L('Ters Çevir')) + '</button>'
+        +   '<button onclick="ELEV.downloadWallPng()" style="padding:5px 12px; border:1px solid #7A8B6A; border-radius:8px; background:transparent; color:#5A6B4A; font-size:12px; font-weight:600; cursor:pointer;">⤓ ' + this._esc(L('Ölçülü Çizim')) + '</button>'
+        + '</span></div>'
+        + svg + dimRow + panel
+        + '<div style="font-size:11px; color:#8A7E74; margin:12px 0 6px;">' + this._esc(L('Sütun ekle (yeni öğe):')) + '</div>'
         + '<div style="display:flex; flex-wrap:wrap; gap:6px;">' + palette + '</div>';
     },
-    _seg(){ const w = this.spec.rooms[this.room].walls[this.editWall]; return (w && w.segments) ? w.segments[this.segSel] : null; },
-    editWallOpen(wi){ this.editWall = (this.editWall === wi) ? -1 : wi; this.segSel = -1; this.renderWalls(); if (this.editWall >= 0) document.getElementById('elevWallEditor').scrollIntoView({ behavior:'smooth', block:'nearest' }); },
-    segPick(si){ this.segSel = si; this.renderWallEditor(); },
-    segAdd(t){ const w = this.spec.rooms[this.room].walls[this.editWall]; (w.segments = w.segments || []).push({ t, w: 1, label: '' }); this.segSel = w.segments.length - 1; this.syncWall(this.editWall); this.renderWallEditor(); this.renderRowSummary(); },
-    segSetType(v){ const s = this._seg(); if (s){ s.t = v; this.syncWall(this.editWall); this.renderWallEditor(); this.renderRowSummary(); } },
-    segSetW(v){ const s = this._seg(); if (s){ s.w = Math.max(1, parseInt(v) || 1); this.syncWall(this.editWall); this.renderWallEditor(); } },
-    segNudgeW(d){ const s = this._seg(); if (s){ s.w = Math.max(1, (s.w || 1) + d); this.syncWall(this.editWall); this.renderWallEditor(); } },
-    segFlip(){   // tüm şeridi ters çevir (duvara bakış aynalandığında sıra düzelir)
-      const w = this.spec.rooms[this.room].walls[this.editWall];
-      if (!w || !w.segments) return;
-      w.segments.reverse();
-      if (this.segSel >= 0) this.segSel = w.segments.length - 1 - this.segSel;
-      this.syncWall(this.editWall); this.renderWallEditor(); this.renderRowSummary();
-    },
-    segMove(dir){   // seçili öğeyi sola(-1)/sağa(+1) taşı
-      const w = this.spec.rooms[this.room].walls[this.editWall];
-      if (!w || !w.segments || this.segSel < 0) return;
-      const i = this.segSel, j = i + dir;
-      if (j < 0 || j >= w.segments.length) return;
-      const t = w.segments[i]; w.segments[i] = w.segments[j]; w.segments[j] = t;
-      this.segSel = j;
-      this.syncWall(this.editWall); this.renderWallEditor(); this.renderRowSummary();
-    },
-    segSetLabel(v){ const s = this._seg(); if (s){ s.label = v; this.syncWall(this.editWall); } },   // odaktan çıkmasın diye re-render YOK
-    segDel(){ const w = this.spec.rooms[this.room].walls[this.editWall]; if (w && w.segments){ w.segments.splice(this.segSel, 1); this.segSel = -1; this.syncWall(this.editWall); this.renderWallEditor(); this.renderRowSummary(); } },
+    _grid(){ const w = this.spec.rooms[this.room].walls[this.editWall]; return w && w.grid ? w.grid : null; },
+    _gcol(){ const g = this._grid(); return (g && this.gridSel) ? g.cols[this.gridSel.c] : null; },
+    _gcell(){ const c = this._gcol(); return (c && this.gridSel) ? c.cells[this.gridSel.i] : null; },
+    _recalcW(){ const g = this._grid(); if (g) g.w = g.cols.reduce((a, c) => a + (c.w || 0), 0); },
+    _gridDone(reRender){ this.syncWall(this.editWall); if (reRender !== false) this.renderWallEditor(); this.renderRowSummary(); },
+    editWallOpen(wi){ this.editWall = (this.editWall === wi) ? -1 : wi; this.gridSel = null; this.renderWalls(); if (this.editWall >= 0) document.getElementById('elevWallEditor').scrollIntoView({ behavior:'smooth', block:'nearest' }); },
+    gridPick(c, i){ this.gridSel = { c, i }; this.renderWallEditor(); },
+    gridSetType(v){ const cell = this._gcell(); if (cell){ cell.t = v; this._gridDone(); } },
+    gridSetCellH(v){ const cell = this._gcell(); if (cell){ cell.h = Math.max(20, parseInt(v) || 20); this._gridDone(); } },
+    gridSetLabel(v){ const cell = this._gcell(); if (cell){ cell.label = v; this.syncWall(this.editWall); } },   // odak için re-render yok
+    gridAddCell(){ const c = this._gcol(), cell = this._gcell(); if (!c || !cell) return;
+      const half = Math.max(20, Math.round((cell.h || 200) / 2)); cell.h = Math.max(20, (cell.h || 200) - half);
+      c.cells.splice(this.gridSel.i + 1, 0, { t: 'upper_cabinet', h: half, label: '' }); this._gridDone(); },
+    gridDelCell(){ const c = this._gcol(); if (!c || c.cells.length <= 1) return;
+      const rm = c.cells.splice(this.gridSel.i, 1)[0]; const ni = Math.min(this.gridSel.i, c.cells.length - 1);
+      if (c.cells[ni]) c.cells[ni].h = (c.cells[ni].h || 0) + (rm.h || 0); this.gridSel = { c: this.gridSel.c, i: ni }; this._gridDone(); },
+    gridSetColW(v){ const c = this._gcol(); if (c){ c.w = Math.max(50, parseInt(v) || 50); this._recalcW(); this._gridDone(); } },
+    gridAddType(t){ const g = this._grid(); if (!g || g.cols.length >= 8) return;
+      const at = this.gridSel ? this.gridSel.c + 1 : g.cols.length;
+      g.cols.splice(at, 0, { w: 900, cells: [{ t, h: g.h, label: '' }] }); this._recalcW(); this.gridSel = { c: at, i: 0 }; this._gridDone(); },
+    gridAddCol(){ this.gridAddType('base_cabinet'); },
+    gridDelCol(){ const g = this._grid(); if (!g || g.cols.length <= 1 || !this.gridSel) return;
+      g.cols.splice(this.gridSel.c, 1); this._recalcW(); this.gridSel = null; this._gridDone(); },
+    gridMoveCol(dir){ const g = this._grid(); if (!g || !this.gridSel) return; const i = this.gridSel.c, j = i + dir;
+      if (j < 0 || j >= g.cols.length) return; const t = g.cols[i]; g.cols[i] = g.cols[j]; g.cols[j] = t; this.gridSel = { c: j, i: 0 }; this._gridDone(); },
+    gridFlip(){ const g = this._grid(); if (!g) return; g.cols.reverse();
+      if (this.gridSel) this.gridSel = { c: g.cols.length - 1 - this.gridSel.c, i: this.gridSel.i }; this._gridDone(); },
+    gridSetOverallW(v){ const g = this._grid(); if (!g) return; v = Math.max(200, parseInt(v) || 200);
+      const cur = g.cols.reduce((a, c) => a + (c.w || 1), 0) || 1, f = v / cur;
+      g.cols.forEach(c => c.w = Math.max(50, Math.round(c.w * f))); this._recalcW(); this._gridDone(); },
+    gridSetOverallH(v){ const g = this._grid(); if (!g) return; v = Math.max(200, parseInt(v) || 200);
+      g.cols.forEach(c => { const ct = c.cells.reduce((a, e) => a + (e.h || 1), 0) || 1, f = v / ct; c.cells.forEach(e => e.h = Math.max(20, Math.round(e.h * f))); });
+      g.h = v; this._gridDone(); },
     renderRowSummary(){   // sadece aktif satırın özetini güncelle (tüm listeyi re-render etmeden)
       const wi = this.editWall; if (wi < 0) return;
       const list = document.getElementById('elevWallList');
@@ -7298,9 +7348,11 @@
     addWall(){
       const room = this.spec.rooms[this.room];
       if (room.walls.length >= 6) return;   // backend 6 duvarda sınırlı
-      room.walls.push({ name: L('Yeni duvar'), side: '', opening: 'none', desc: '', segments: [] });
+      const nw = { name: L('Yeni duvar'), side: '', opening: 'none', desc: '' };
+      this.seedGrid(nw);
+      room.walls.push(nw);
       this.checked.add(room.walls.length - 1);
-      this.editWall = room.walls.length - 1; this.segSel = -1;
+      this.editWall = room.walls.length - 1; this.gridSel = null;
       this.renderWalls(); this.updateTotal();
     },
     delWall(wi){
@@ -7310,7 +7362,7 @@
       const old = [...this.checked]; this.checked = new Set();   // seçim indeksleri kaydı
       old.forEach(i => { if (i < wi) this.checked.add(i); else if (i > wi) this.checked.add(i - 1); });
       if (this.editWall === wi) this.editWall = -1; else if (this.editWall > wi) this.editWall--;
-      this.segSel = -1;
+      this.gridSel = null;
       this.renderWalls(); this.updateTotal();
     },
 
@@ -7456,8 +7508,8 @@
     fd.append('style', ELEV.style);
     fd.append('note', document.getElementById('elevNote').value || '');
     if (elevRefFile) fd.append('ref_image', elevIsPdf(elevRefFile) ? elevRefFile : await resizeIfNeeded(elevRefFile));
-    // Her seçili duvarın segment düzenini kılavuz görsel olarak gönder (render birebir tutsun)
-    fd.append('layout_refs', JSON.stringify(walls.map(w => ELEV.wallLayoutPng(w))));
+    // Her seçili duvarın ÖLÇÜLÜ elevation'ını kılavuz görsel olarak gönder (render birebir tutsun)
+    fd.append('layout_refs', JSON.stringify(await Promise.all(walls.map(w => ELEV.wallLayoutPng(w, true)))));
     try {
       const startRes = await fetch(`${API}/elevation/render`, { method:'POST', headers: authHeaders(), body: fd });
       const startData = await startRes.json();
