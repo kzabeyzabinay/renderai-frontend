@@ -659,6 +659,7 @@
   <button id="navToggle" class="nav-toggle" onclick="toggleMainNav()" aria-label="Menü"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;display:block"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   <div id="mainNav">
     <button class="main-nav-btn active" id="nav-render" onclick="switchMainSection('render')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 21h18"/><path d="M6 21V4h8v17"/><path d="M14 21V9h4v12"/><path d="M9 8h2M9 12h2M9 16h2"/></svg><span data-i18n="nav_render">Render</span></button>
+    <button class="main-nav-btn" id="nav-facade" onclick="switchMainSection('facade')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="8" height="18" rx="1"/><rect x="13" y="3" width="8" height="18" rx="1"/><path d="M6 7h2M6 11h2M6 15h2"/><path d="M16 7h2M16 11h2M16 15h2"/></svg><span data-i18n="nav_facade">Cephe Stili</span> <span style="background:#7A8B6A; color:#fff; font-size:9px; padding:2px 6px; border-radius:8px; vertical-align:2px;" data-i18n="nav_new_badge">YENİ</span></button>
     <button class="main-nav-btn" id="nav-staging" onclick="switchMainSection('staging')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M4 10V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 19v2M19 19v2"/></svg><span data-i18n="nav_staging">Sanal Mobilyalama</span></button>
     <button class="main-nav-btn" id="nav-model3d" onclick="switchMainSection('model3d')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg><span data-i18n="nav_model3d">3D Model</span></button>
     <button class="main-nav-btn" id="nav-detay" onclick="switchMainSection('detay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 3v18M15 9v12"/></svg><span data-i18n="nav_detay">Detay Çizimi</span> <span style="background:#7A8B6A; color:#fff; font-size:9px; padding:2px 6px; border-radius:8px; vertical-align:2px;" data-i18n="nav_new_badge">YENİ</span></button>
@@ -2169,6 +2170,97 @@
   </div>
 </div>
 
+<!-- ─── CEPHE STİLİ (Facade Style Transfer) ─────────────────────────────── -->
+<div id="section-facade" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
+  <div data-i18n-html="fac_how" style="background:#FAFAF8; border:1px solid #E0DAD0; border-radius:14px; padding:16px 20px; margin:18px 0; font-size:13px; color:#5A5249; line-height:1.6;">
+    <b style="color:#9A6558;">Nasıl çalışır?</b> Önce <b>kendi projeni</b>, sonra beğendiğin bir <b>referans cephe</b> görselini yükle. AI, binanın kütlesini, kat sayısını, kamera açısını ve çevresini birebir korur; sadece cephe kabuğunu — malzeme, renk, doğrama, balkon ve detayları — referans binanın mimari diline çevirir.
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+
+    <!-- Sol: Girdiler -->
+    <div>
+      <div class="panel">
+        <h2 data-i18n="fac_base_h">1 — Projen</h2>
+        <div class="upload-zone" id="facBaseZone">
+          <input type="file" id="facBaseInput" accept="image/*" />
+          <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M3 21h18"/><path d="M6 21V4h8v17"/><path d="M14 21V9h4v12"/><path d="M9 8h2M9 12h2M9 16h2"/></svg></div>
+          <p><strong data-i18n="fac_base_hint">Render veya bina fotoğrafı seçin</strong> veya sürükleyin</p>
+        </div>
+        <img id="facBasePreview" class="preview-img" />
+        <p data-i18n="fac_base_note" style="font-size:11px; color:#8A7E74; margin:8px 0 0; line-height:1.5;">Binanın kütlesi, kat sayısı, kamera açısı ve çevresi birebir korunur.</p>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="fac_ref_h">2 — Referans Cephe</h2>
+        <div class="upload-zone" id="facRefZone">
+          <input type="file" id="facRefInput" accept="image/*" />
+          <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m3 17 5-4 4 3 3-2 6 4"/></svg></div>
+          <p><strong data-i18n="fac_ref_hint">Stilini almak istediğin cepheyi seçin</strong> veya sürükleyin</p>
+        </div>
+        <img id="facRefPreview" class="preview-img" />
+        <p data-i18n="fac_ref_note" style="font-size:11px; color:#8A7E74; margin:8px 0 0; line-height:1.5;">Sadece malzeme/detay referansı olarak kullanılır; kütlesi, yüksekliği ve çevresi asla kopyalanmaz.</p>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="fac_scope_h">Aktarım Kapsamı</h2>
+        <div style="display:grid; grid-template-columns:1fr; gap:10px;">
+          <button class="scale-btn" id="facScopeMaterial" onclick="setFacadeScope('material')">
+            <div data-i18n="fac_scope_mat_t" style="font-size:14px; font-weight:700; color:#9A6558;">Malzeme &amp; Renk</div>
+            <div data-i18n="fac_scope_mat_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Sadece kaplama, renk ve doku değişir. Pencereler ve balkonlar aynen kalır.</div>
+          </button>
+          <button class="scale-btn active" id="facScopeFacade" onclick="setFacadeScope('facade')">
+            <div data-i18n="fac_scope_fac_t" style="font-size:14px; font-weight:700; color:#9A6558;">Cephe Dili</div>
+            <div data-i18n="fac_scope_fac_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Malzeme + balkon, korkuluk, doğrama, güneş kırıcı ve parapet detayları. Boşluk yerleri korunur.</div>
+          </button>
+          <button class="scale-btn" id="facScopeCharacter" onclick="setFacadeScope('character')">
+            <div data-i18n="fac_scope_chr_t" style="font-size:14px; font-weight:700; color:#9A6558;">Tam Karakter</div>
+            <div data-i18n="fac_scope_chr_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Cephe kompozisyonu da yeniden yorumlanır (boşluk ritmi, hareketlendirme). Kütle ve kat sayısı sabit.</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="fac_qual_h">Kalite</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <button class="scale-btn active" id="facQualAuto" onclick="setFacadeQuality('auto')">
+            <div data-i18n="fac_qual_auto_t" style="font-size:14px; font-weight:700; color:#9A6558;">Oto</div>
+            <div data-i18n="fac_qual_auto_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Hızlı · 10 kredi</div>
+          </button>
+          <button class="scale-btn" id="facQualHigh" onclick="setFacadeQuality('high')">
+            <div data-i18n="fac_qual_high_t" style="font-size:14px; font-weight:700; color:#9A6558;">Yüksek</div>
+            <div data-i18n="fac_qual_high_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Maksimum detay · 20 kredi</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="fac_note_h">İsteğe Bağlı Talimat</h2>
+        <input type="text" id="facNote" data-i18n-ph="fac_note_ph" placeholder="örn: zemin katı taş bırak · doğramaları antrasit yap · balkon camlarına dokunma"
+          style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:16px;" />
+        <button class="render-btn" id="facBtn" onclick="startFacade()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="8" height="18" rx="1"/><rect x="13" y="3" width="8" height="18" rx="1"/><path d="M6 7h2M6 11h2M6 15h2"/><path d="M16 7h2M16 11h2M16 15h2"/></svg> Cepheyi Dönüştür <span id="facBtnCost" style="font-size:11px;opacity:0.8;">· 10 kredi</span></button>
+        <div class="error-msg" id="facError"></div>
+      </div>
+    </div>
+
+    <!-- Sağ: Sonuç -->
+    <div class="panel result-panel">
+      <div class="result-placeholder" id="facPlaceholder">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="8" height="18" rx="1"/><rect x="13" y="3" width="8" height="18" rx="1"/><path d="M6 7h2M6 11h2M6 15h2"/><path d="M16 7h2M16 11h2M16 15h2"/></svg></div>
+        <p data-i18n="fac_placeholder">Yeni cepheli görsel burada görünecek</p>
+      </div>
+      <div class="loading" id="facLoading" style="display:none;">
+        <div class="spinner"></div>
+        <p><span id="facLoadingLabel" data-i18n="fac_loading">AI cepheyi yeniden tasarlıyor...</span><br><span data-i18n="fac_loading_sub" style="font-size:12px; color:#ABA49C;">Malzeme, detay ve ışık eşleştiriliyor (~40-90 sn)</span></p>
+      </div>
+      <div id="facResultContainer" style="display:none; width:100%; text-align:center;">
+        <img id="facResultImg" class="result-img" style="display:block; max-width:100%;" />
+        <a id="facDownloadBtn" class="download-btn" download="bynai_cephe.png" style="margin-top:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> <span data-i18n="fac_download">İndir (PNG)</span></a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ─── YERLEŞTİR (Ürün + Dijital İkiz Montaj) ──────────────────────────── -->
 <div id="section-place" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
@@ -2552,6 +2644,7 @@
         <option value="">Tümü</option>
         <option value="gpt">Render</option>
         <option value="exterior">Dış Cephe</option>
+        <option value="facade">Cephe Stili</option>
         <option value="upscale">Büyüt</option>
         <option value="enhance">Geliştir</option>
         <option value="photo">Foto Stüdyo</option>
@@ -2894,6 +2987,33 @@
     nav_video_studio: "Video Studio",
     nav_detay: "Detail Drawings", nav_new_badge: "NEW",
     nav_elev: "Plan to Render",
+    // Cephe Stili sekmesi
+    nav_facade: "Facade Style",
+    fac_how: "<b style=\"color:#9A6558;\">How does it work?</b> Upload <b>your own project</b> first, then a <b>reference facade</b> you like. The AI keeps your building's mass, floors, camera and surroundings exactly as they are, and redesigns only the facade skin — materials, colours, frames, balconies and details — in the reference building's architectural language.",
+    fac_base_h: "1 — Your Project",
+    fac_base_hint: "Select your render or building photo",
+    fac_base_note: "The building's mass, number of floors, camera angle and surroundings are preserved exactly.",
+    fac_ref_h: "2 — Reference Facade",
+    fac_ref_hint: "Select the facade you want to take the style from",
+    fac_ref_note: "Used as a material/detail lookbook only — its mass, height and surroundings are never copied.",
+    fac_scope_h: "Transfer Scope",
+    fac_scope_mat_t: "Materials & Colours",
+    fac_scope_mat_d: "Only cladding, colour and texture change. Windows and balconies stay exactly as they are.",
+    fac_scope_fac_t: "Facade Language",
+    fac_scope_fac_d: "Materials + balcony, railing, frame, fin and parapet details. Opening positions are preserved.",
+    fac_scope_chr_t: "Full Character",
+    fac_scope_chr_d: "The facade composition is reinterpreted too (opening rhythm, articulation). Mass and floors stay fixed.",
+    fac_qual_h: "Quality",
+    fac_qual_auto_t: "Auto",
+    fac_qual_auto_d: "Fast · 10 credits",
+    fac_qual_high_t: "High",
+    fac_qual_high_d: "Maximum detail · 20 credits",
+    fac_note_h: "Optional Instruction",
+    fac_note_ph: "e.g. keep the ground floor stone · make the frames anthracite · do not touch the balcony glass",
+    fac_placeholder: "The restyled facade will appear here",
+    fac_loading: "AI is redesigning the facade...",
+    fac_loading_sub: "Materials, details and lighting are being matched (~40-90 s)",
+    fac_download: "Download (PNG)",
     // Duvar Görünüşleri sekmesi
     elev_upload_h: "UPLOAD FLOOR PLAN",
     elev_upload_p: "Upload your 2D floor plan — the AI extracts the rooms and each room's walls, then produces a photorealistic <strong>straight-on (elevation)</strong> interior view of each wall you pick, keeping the window/door positions from the plan.",
@@ -3193,6 +3313,11 @@
     "Sıva / Boya": "Plaster / Paint", "Kompozit": "Composite", "Beton": "Concrete", "Seramik": "Ceramic", "Taş": "Stone", "Uygula": "Apply",
     "Geliştirilmiş görsel burada görünecek": "The enhanced image will appear here",
     "Geliştirme uygulanıyor...": "Applying enhancement...", "AI işliyor": "AI is working",
+    // ── Cephe Stili ──
+    "Cephe Stili": "Facade Style", "Cepheyi Dönüştür": "Restyle Facade",
+    "· 10 kredi": "· 10 credits",   // "· 20 kredi" zaten yukarıda tanımlı
+    "Hata: İki görsel de gerekli — kendi projen ve referans cephe.": "Error: Both images are required — your own project and a reference facade.",
+    "Cephe dönüşümü başarısız": "Facade restyling failed",
     // ── Foto Stüdyo ──
     "Foto Stüdyo": "Photo Studio", "📷 Foto Stüdyo": "📷 Photo Studio",
     "FOTOĞRAF YÜKLE": "UPLOAD PHOTO",
@@ -3406,6 +3531,7 @@
     // ── İşlerim filtre/kart etiketleri (emoji) ──
     "🏗️ Dış Cephe": "🏗️ Exterior", "🔍 Büyüt": "🔍 Upscale", "✨ Geliştir": "✨ Enhance",
     "📐 Kat Planı": "📐 Floor Plan", "🧩 Yerleştirme": "🧩 Placement", "🖼 Sadece Sonuç": "🖼 Result Only",
+    "🧱 Cephe Stili": "🧱 Facade Style",
     // ── Harita / parsel bilgi mesajları ──
     "📍 Konum işaretlendi — bölge bilgisi alınıyor...": "📍 Location marked — fetching area info...",
     "📍 Konum işaretlendi": "📍 Location marked", "🔍 Aranıyor...": "🔍 Searching...",
@@ -3537,6 +3663,7 @@
     try { if (typeof ELEV !== 'undefined' && ELEV.spec) ELEV.relang(); } catch (e) {}
     try { if (typeof DETAY !== 'undefined' && DETAY.spec) DETAY.render(); } catch (e) {}
     try { if (typeof refreshFpCost === 'function') refreshFpCost(); } catch (e) {}
+    try { if (typeof refreshFacadeCost === 'function') refreshFacadeCost(); } catch (e) {}
     if (typeof relayoutNav === 'function') setTimeout(relayoutNav, 0);  // etiket genişlikleri değişti
   }
 
@@ -4282,12 +4409,13 @@
     document.getElementById('section-photo').style.display     = section === 'photo'     ? 'block' : 'none';
     document.getElementById('section-video').style.display     = section === 'video'     ? 'block' : 'none';
     document.getElementById('section-floorplan').style.display = section === 'floorplan' ? 'block' : 'none';
+    document.getElementById('section-facade').style.display    = section === 'facade'    ? 'block' : 'none';
     document.getElementById('section-place').style.display     = section === 'place'     ? 'block' : 'none';
     document.getElementById('section-pano').style.display      = section === 'pano'      ? 'block' : 'none';
     document.getElementById('section-decision').style.display  = section === 'decision' ? 'block' : 'none';
     document.getElementById('section-works').style.display     = section === 'works'     ? 'block' : 'none';
     document.getElementById('section-egitim').style.display    = section === 'egitim'    ? 'block' : 'none';
-    ['render','staging','model3d','detay','elev','upscale','enhance','photo','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
+    ['render','facade','staging','model3d','detay','elev','upscale','enhance','photo','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
     if (section === 'works') {
@@ -4304,6 +4432,119 @@
     }
     if (section === 'decision') loadDecisionLibrary();
     if (section === 'pano') loadPanoHistory();
+  }
+
+  // ─── CEPHE STİLİ (Facade Style Transfer) ─────────────────────────────────
+  // 1. görsel: korunacak proje · 2. görsel: stil referansı. Prompt backend'de.
+  let facBaseFile = null;
+  let facRefFile  = null;
+  let facScope    = 'facade';
+  let facQuality  = 'auto';
+
+  function setFacadeScope(scope) {
+    facScope = scope;
+    document.getElementById('facScopeMaterial').classList.toggle('active',  scope === 'material');
+    document.getElementById('facScopeFacade').classList.toggle('active',    scope === 'facade');
+    document.getElementById('facScopeCharacter').classList.toggle('active', scope === 'character');
+  }
+
+  // Etiket JS ile yazıldığı için dil değişiminde de yeniden çizilir (setLang hook'u).
+  function refreshFacadeCost() {
+    const el = document.getElementById('facBtnCost');
+    if (el) el.textContent = L(facQuality === 'high' ? '· 20 kredi' : '· 10 kredi');
+  }
+
+  function setFacadeQuality(q) {
+    facQuality = q;
+    document.getElementById('facQualAuto').classList.toggle('active', q === 'auto');
+    document.getElementById('facQualHigh').classList.toggle('active', q === 'high');
+    refreshFacadeCost();
+  }
+
+  function _facBindUpload(inputId, previewId, zoneId, setFile) {
+    const input = document.getElementById(inputId);
+    input.addEventListener('change', e => {
+      const f = e.target.files[0] || null;
+      setFile(f);
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = document.getElementById(previewId);
+        img.src = ev.target.result;
+        img.style.display = 'block';
+      };
+      reader.readAsDataURL(f);
+    });
+    const zone = document.getElementById(zoneId);
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (!e.dataTransfer.files.length) return;
+      input.files = e.dataTransfer.files;
+      input.dispatchEvent(new Event('change'));
+    });
+  }
+  _facBindUpload('facBaseInput', 'facBasePreview', 'facBaseZone', f => { facBaseFile = f; });
+  _facBindUpload('facRefInput',  'facRefPreview',  'facRefZone',  f => { facRefFile  = f; });
+
+  async function startFacade() {
+    const errEl = document.getElementById('facError');
+    errEl.style.display = 'none';
+    if (!facBaseFile || !facRefFile) {
+      errEl.textContent = L('Hata: İki görsel de gerekli — kendi projen ve referans cephe.');
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const btn = document.getElementById('facBtn');
+    btn.disabled = true;
+    document.getElementById('facPlaceholder').style.display = 'none';
+    document.getElementById('facResultContainer').style.display = 'none';
+    document.getElementById('facLoading').style.display = 'flex';
+
+    try {
+      const formData = new FormData();
+      formData.append('image', await resizeIfNeeded(facBaseFile));
+      formData.append('ref',   await resizeIfNeeded(facRefFile));
+      formData.append('scope', facScope);
+      formData.append('quality', facQuality);
+      formData.append('note', document.getElementById('facNote').value.trim());
+
+      const startRes = await fetch(`${API}/facade/start`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || L('Başlatılamadı'));
+      refreshCredits();
+
+      const jobId = startData.prediction_id;
+      while (true) {
+        await new Promise(r => setTimeout(r, 2500));
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+
+        if (statusData.stage_label) {
+          document.getElementById('facLoadingLabel').textContent = statusData.stage_label;
+        }
+        if (statusData.status === 'succeeded') {
+          document.getElementById('facLoading').style.display = 'none';
+          document.getElementById('facResultImg').src = statusData.render_url;
+          document.getElementById('facDownloadBtn').href = statusData.render_url;
+          document.getElementById('facResultContainer').style.display = 'block';
+          break;
+        }
+        if (statusData.status === 'failed') {
+          throw new Error(statusData.error || L('Cephe dönüşümü başarısız'));
+        }
+      }
+    } catch (e) {
+      document.getElementById('facLoading').style.display = 'none';
+      document.getElementById('facPlaceholder').style.display = 'flex';
+      errEl.textContent = L('Hata: ') + e.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   // ─── YERLEŞTİR ───────────────────────────────────────────────────────────
@@ -5690,7 +5931,7 @@
   const WORKS_PAGE = 30;
 
   const WORKS_LABELS = {
-    gpt: '🏢 Render', exterior: '🏗️ Dış Cephe', upscale: '🔍 Büyüt',
+    gpt: '🏢 Render', exterior: '🏗️ Dış Cephe', facade: '🧱 Cephe Stili', upscale: '🔍 Büyüt',
     enhance: '✨ Geliştir', photo: '📷 Foto Stüdyo', video: '🎬 Video', floorplan: '📐 Kat Planı',
     place: '🧩 Yerleştirme', pano: '🌐 360 Panorama'
   };
