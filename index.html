@@ -1906,11 +1906,25 @@
           </button>
         </div>
 
-        <!-- ✏️ SERBEST İSTEK (isteğe bağlı) — Geliştir'deki özel prompt gibi, video promptuna eklenir -->
+        <!-- 🎬 SON SAHNE (isteğe bağlı) — ilk kare → son kare geçişi -->
         <div style="margin-bottom:16px;">
-          <div style="font-size:11px; color:#8A7E74; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;" data-i18n="vid_note_lbl">✏️ ÖZEL İSTEK (İSTEĞE BAĞLI)</div>
-          <textarea id="videoNote" rows="2" maxlength="300" data-i18n-ph="vid_note_ph" placeholder="Videoda özellikle olmasını istediğini yaz — örn: havuzdaki su hafifçe dalgalansın · bayrak rüzgârda sallansın · şömine alevi titresin" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; font-family:inherit; resize:vertical; line-height:1.5;"></textarea>
-          <div style="font-size:11px; color:#ABA49C; margin-top:4px;" data-i18n="vid_note_hint">Boş bırakabilirsin — seçtiğin hareket ve kamera ayarlarına ek olarak uygulanır.</div>
+          <div style="font-size:11px; color:#8A7E74; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;" data-i18n="vid_end_lbl">🎬 SON SAHNE (İSTEĞE BAĞLI)</div>
+          <div class="upload-zone" id="videoEndZone" style="padding:14px 12px;">
+            <input type="file" id="videoEndInput" accept="image/*" />
+            <p style="margin:0;"><strong data-i18n="vid_end_hint">Videonun biteceği kareyi seç</strong></p>
+          </div>
+          <img id="videoEndPreview" class="preview-img" />
+          <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+            <div style="font-size:11px; color:#ABA49C; flex:1;" data-i18n="vid_end_note">Yüklersen video ilk görselden bu kareye doğal geçiş yapar (örn. gündüz → gece, boş oda → döşenmiş).</div>
+            <button type="button" id="videoEndClear" onclick="clearVideoEnd()" style="display:none; padding:4px 10px; border:1px solid #D8D2C8; border-radius:8px; background:transparent; color:#B5483A; font-size:11px; cursor:pointer;" data-i18n="vid_end_clear">Kaldır</button>
+          </div>
+        </div>
+
+        <!-- ✏️ SERBEST İSTEK (isteğe bağlı) — artık promptun EN BAŞINA ana yönerge olarak gider -->
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11px; color:#8A7E74; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;" data-i18n="vid_note_lbl">✏️ SAHNE YÖNERGESİ (İSTEĞE BAĞLI)</div>
+          <textarea id="videoNote" rows="3" maxlength="600" data-i18n-ph="vid_note_ph" placeholder="Videoda ne olsun? Türkçe yazabilirsin — örn: kamera binaya doğru yavaşça yaklaşsın, gün batımı olsun, balkonlarda insanlar görünsün · havuzdaki su dalgalansın · bayrak rüzgârda sallansın" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; font-family:inherit; resize:vertical; line-height:1.5;"></textarea>
+          <div style="font-size:11px; color:#ABA49C; margin-top:4px;" data-i18n="vid_note_hint">Yazdığın şey videonun ANA yönergesi olur — seçtiğin hareket ve kamera ayarları ona eşlik eder. Türkçe yazsan da olur.</div>
         </div>
 
         <button class="render-btn" id="videoBtn" onclick="startVideo()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 6 3.5-6 3.5Z"/></svg> Video Oluştur <span style="font-size:11px;opacity:0.8;">· 40 kredi · ~60-90 sn</span></button>
@@ -2948,10 +2962,14 @@
   // data-pkey / data-key alanlarına ve backend'e giden hiçbir metne DOKUNMAZ.
   // TR = HTML'deki orijinal metin (otomatik yakalanır), EN = I18N_EN sözlüğü.
   const I18N_EN = {
-    // Video sekmesi — serbest istek kutusu (14 Tem)
-    vid_note_lbl: "✏️ CUSTOM REQUEST (OPTIONAL)",
-    vid_note_ph: "Describe what you specifically want in the video — e.g. pool water ripples gently · flag waves in the wind · fireplace flame flickers",
-    vid_note_hint: "You can leave it empty — it is applied in addition to your motion and camera choices.",
+    // Video sekmesi — sahne yönergesi + son sahne (9 Ağu: prompt ana yönerge oldu)
+    vid_note_lbl: "✏️ SCENE DIRECTION (OPTIONAL)",
+    vid_note_ph: "What should happen in the video? e.g. the camera slowly moves toward the building, sunset light, people on the balconies · pool water ripples · flag waves in the wind",
+    vid_note_hint: "What you write becomes the MAIN direction of the video — your motion and camera choices support it.",
+    vid_end_lbl: "🎬 LAST SCENE (OPTIONAL)",
+    vid_end_hint: "Pick the frame the video should end on",
+    vid_end_note: "If you add one, the video transitions naturally from the first image to this frame (e.g. day → night, empty room → furnished).",
+    vid_end_clear: "Remove",
     // Header / navigasyon
     nav_render: "Render", nav_staging: "Virtual Staging", nav_model3d: "3D Model",
     nav_upscale: "Upscale", nav_enhance: "Enhance", nav_photo: "Photo Studio", nav_video: "Video",
@@ -7783,6 +7801,38 @@
   let selectedVideoTime = 'day';
   let selectedVideoMotion = [];        // çoklu seçim — varsayılan hiçbiri (otomatik hareket yok)
   let selectedVideoCamera = 'static';  // tekli seçim — varsayılan sabit kamera
+  let videoEndFile = null;             // 🎬 isteğe bağlı son sahne (ilk→son kare geçişi)
+
+  document.getElementById('videoEndInput').addEventListener('change', e => {
+    videoEndFile = e.target.files[0] || null;
+    const img = document.getElementById('videoEndPreview');
+    const clr = document.getElementById('videoEndClear');
+    if (!videoEndFile) { img.style.display = 'none'; clr.style.display = 'none'; return; }
+    const reader = new FileReader();
+    reader.onload = ev => { img.src = ev.target.result; img.style.display = 'block'; };
+    reader.readAsDataURL(videoEndFile);
+    clr.style.display = 'inline-block';
+  });
+
+  function clearVideoEnd() {
+    videoEndFile = null;
+    document.getElementById('videoEndInput').value = '';
+    document.getElementById('videoEndPreview').style.display = 'none';
+    document.getElementById('videoEndClear').style.display = 'none';
+  }
+
+  (() => {
+    const z = document.getElementById('videoEndZone');
+    z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('drag-over'); });
+    z.addEventListener('dragleave', () => z.classList.remove('drag-over'));
+    z.addEventListener('drop', e => {
+      e.preventDefault(); z.classList.remove('drag-over');
+      if (!e.dataTransfer.files.length) return;
+      const inp = document.getElementById('videoEndInput');
+      inp.files = e.dataTransfer.files;
+      inp.dispatchEvent(new Event('change'));
+    });
+  })();
 
   function setVideoSeason(btn) {
     document.querySelectorAll('.vseason-btn').forEach(b => {
@@ -7870,7 +7920,9 @@
     formData.append('motion', selectedVideoMotion.join(','));
     formData.append('camera', selectedVideoCamera);
     const videoNote = (document.getElementById('videoNote')?.value || '').trim();
-    if (videoNote) formData.append('note', videoNote);   // ✏️ serbest istek — prompta eklenir
+    if (videoNote) formData.append('note', videoNote);   // ✏️ sahne yönergesi — promptun EN BAŞINA gider
+    // 🎬 isteğe bağlı son sahne — ilk kare → son kare geçişi
+    if (videoEndFile) formData.append('end_image', await resizeIfNeeded(videoEndFile));
 
     try {
       const startRes = await fetch(`${API}/video/start`, { method: 'POST', headers: authHeaders(), body: formData });
