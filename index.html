@@ -2119,7 +2119,7 @@
 
         </div><!-- /fpFloorOpts -->
 
-        <button class="render-btn" id="fpBtn" onclick="startFloorplan()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 14h7V3M10 14v7M21 10h-5"/></svg> Plan Renklendir <span style="font-size:11px;opacity:0.8;">· 7 kredi</span></button>
+        <button class="render-btn" id="fpBtn" onclick="startFloorplan()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 14h7V3M10 14v7M21 10h-5"/></svg> Plan Renklendir <span id="fpBtnCost" style="font-size:11px;opacity:0.8;">· 7 kredi</span></button>
         <div class="error-msg" id="fpError"></div>
       </div>
     </div>
@@ -3345,6 +3345,8 @@
     "Lütfen önce bir oda fotoğrafı yükleyin.": "Please upload a room photo first.", "Mobilyalama başarısız": "Furnishing failed",
     "OBJ dönüşümü başarısız": "OBJ conversion failed", "3D model başarısız": "3D model failed", "Video oluşturma başarısız": "Video creation failed",
     "Boyama başarısız": "Coloring failed", "Renklendirilmiş vaziyet planı burada görünecek": "The colorized site plan will appear here",
+    "Vaziyet planı boyanıyor...": "Coloring the site plan...",
+    "AI boyar, çizgilerin korunur (~40-70 sn)": "AI colors it, your linework is preserved (~40-70 s)",
     "⬇ Vaziyet Planı İndir (PNG)": "⬇ Download Site Plan (PNG)", "⬇ Kat Planı İndir (PNG)": "⬇ Download Floor Plan (PNG)",
 
     // ── İşlerim filtre/kart etiketleri (emoji) ──
@@ -3480,6 +3482,7 @@
     // JS ile üretilmiş dinamik içerik (data-i18n dışı) dil değişince yeniden çizilmeli
     try { if (typeof ELEV !== 'undefined' && ELEV.spec) ELEV.relang(); } catch (e) {}
     try { if (typeof DETAY !== 'undefined' && DETAY.spec) DETAY.render(); } catch (e) {}
+    try { if (typeof refreshFpCost === 'function') refreshFpCost(); } catch (e) {}
     if (typeof relayoutNav === 'function') setTimeout(relayoutNav, 0);  // etiket genişlikleri değişti
   }
 
@@ -7857,6 +7860,14 @@
     site: [],
   };
 
+  // Vaziyet planı ayrı motorda (nano-banana-pro + çizgi geri yazma) → 15 kredi,
+  // kat planı 7. Etiket JS ile yazıldığı için dil değişiminde de yeniden çizilir.
+  let fpPlanType = 'floor';
+  function refreshFpCost() {
+    const el = document.getElementById('fpBtnCost');
+    if (el) el.textContent = L(fpPlanType === 'site' ? '· 15 kredi' : '· 7 kredi');
+  }
+
   function setFpType(btn) {
     document.querySelectorAll('.fp-type-btn').forEach(b => {
       b.style.borderColor = '#D8D2C8';
@@ -7925,9 +7936,11 @@
     if (loadingText) {
       loadingText.innerHTML =
         type === 'site'
-          ? 'Vaziyet planı boyanıyor...<br><span style="font-size:12px;color:#ABA49C;">AI işliyor (~20-40 sn)</span>'
+          ? 'Vaziyet planı boyanıyor...<br><span style="font-size:12px;color:#ABA49C;">AI boyar, çizgilerin korunur (~40-70 sn)</span>'
           : 'Kat planı boyanıyor...<br><span style="font-size:12px;color:#ABA49C;">AI işliyor (~20-40 sn)</span>';
     }
+    fpPlanType = type;
+    refreshFpCost();
     const dlBtn = document.getElementById('fpDownloadBtn');
     if (dlBtn) {
       dlBtn.textContent = type === 'site' ? '⬇ Vaziyet Planı İndir (PNG)' : '⬇ Kat Planı İndir (PNG)';
