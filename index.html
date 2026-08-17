@@ -1590,8 +1590,13 @@
 
     <!-- Sol: Yükle + Bilgi -->
     <div>
+      <!-- Mod: 📷 Görselden (AI) · ✨ Logodan (deterministik extrüzyon, AI yok) -->
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <button id="m3dModeImgBtn" onclick="setM3dMode('image')" style="flex:1; padding:10px 12px; border-radius:10px; border:2px solid #9A6558; background:#9A6558; color:#fff; font-size:13px; font-weight:700; cursor:pointer;" data-i18n="m3d_mode_img">📷 Görselden</button>
+        <button id="m3dModeLogoBtn" onclick="setM3dMode('logo')" style="flex:1; padding:10px 12px; border-radius:10px; border:2px solid #D8D2C8; background:transparent; color:#6B6258; font-size:13px; font-weight:700; cursor:pointer;"><span data-i18n="m3d_mode_logo">✨ Logodan</span> <span style="background:#7A8B6A; color:#fff; font-size:9px; padding:2px 6px; border-radius:8px; vertical-align:2px;" data-i18n="m3d_new_badge">YENİ</span></button>
+      </div>
       <div class="panel">
-        <h2>GÖRSEL YÜKLE</h2>
+        <h2 id="m3dUploadTitle">GÖRSEL YÜKLE</h2>
         <div class="upload-zone" id="model3dUploadZone">
           <input type="file" id="model3dFileInput" accept="image/*" />
           <div class="upload-icon" id="model3dIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg></div>
@@ -1601,9 +1606,72 @@
         </div>
       </div>
 
+      <!-- LOGODAN 3B: ölçü/malzeme ayarları (sadece logo modunda görünür) -->
+      <div class="panel" id="logo3dPanel" style="display:none;">
+        <h2 data-i18n="logo3d_panel">3B LOGO AYARLARI</h2>
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <div style="flex:1;"><label style="font-size:11px; color:#8A7E74;" data-i18n="logo3d_w">Genişlik (mm)</label>
+            <input type="number" id="logo3dWidth" min="20" max="20000" step="10" value="600" oninput="logo3dRefreshSize()" style="width:100%; padding:9px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box;"/></div>
+          <div style="flex:1;"><label style="font-size:11px; color:#8A7E74;" data-i18n="logo3d_d">Derinlik (mm)</label>
+            <input type="number" id="logo3dDepth" min="1" max="2000" step="1" value="40" oninput="logo3dRefreshSize()" style="width:100%; padding:9px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box;"/></div>
+          <div style="flex:1;"><label style="font-size:11px; color:#8A7E74;" data-i18n="logo3d_bevel">Şev / pah (mm)</label>
+            <input type="number" id="logo3dBevel" min="0" max="200" step="1" value="0" style="width:100%; padding:9px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box;"/></div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-end; margin-bottom:12px;">
+          <div style="flex:1;"><label style="font-size:11px; color:#8A7E74;" data-i18n="logo3d_mat">Malzeme</label>
+            <select id="logo3dMaterial" style="width:100%; padding:9px; border:1px solid #D8D2C8; border-radius:8px; background:#fff; font-size:13px; color:#2A2520;">
+              <option value="siyah">Mat Siyah</option>
+              <option value="beyaz">Mat Beyaz</option>
+              <option value="krom">Krom</option>
+              <option value="furcali">Fırçalanmış Metal</option>
+              <option value="altin">Altın</option>
+              <option value="pirinc">Pirinç</option>
+              <option value="terracotta">Terracotta</option>
+              <option value="sage">Adaçayı Yeşili</option>
+              <option value="ahsap">Ahşap Tonu</option>
+            </select></div>
+          <label style="flex:1; font-size:12px; color:#6B6258; display:flex; align-items:center; gap:7px; padding-bottom:9px; cursor:pointer;">
+            <input type="checkbox" id="logo3dPlate" onchange="logo3dPlateToggle()" style="width:15px; height:15px;"/>
+            <span data-i18n="logo3d_plate">Arka plaka ekle</span>
+          </label>
+        </div>
+        <div id="logo3dPlateRow" style="display:none; margin-bottom:12px;">
+          <label style="font-size:11px; color:#8A7E74;" data-i18n="logo3d_plate_m">Plaka kenar payı (mm)</label>
+          <input type="number" id="logo3dPlateMargin" min="0" max="2000" step="5" value="40" style="width:100%; padding:9px; border:1px solid #D8D2C8; border-radius:8px; box-sizing:border-box;"/>
+        </div>
+        <div style="font-size:11px; color:#8A7E74; padding:9px 12px; background:#E8E4DC; border-radius:8px; border:1px solid #D8D2C8; margin-bottom:12px;">
+          <span data-i18n="logo3d_out">Çıktı ölçüsü</span>: <strong id="logo3dSizeInfo">—</strong>
+        </div>
+        <details style="margin-bottom:4px;">
+          <summary style="font-size:12px; color:#9A6558; cursor:pointer; font-weight:600;" data-i18n="logo3d_adv">Gelişmiş — siluet ayarı</summary>
+          <div style="padding-top:12px;">
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+              <label style="font-size:12px; color:#6B6258; display:flex; align-items:center; gap:7px; cursor:pointer;">
+                <input type="checkbox" id="logo3dThreshAuto" checked onchange="logo3dSilhouette()" style="width:15px; height:15px;"/>
+                <span data-i18n="logo3d_auto">Otomatik eşik</span>
+              </label>
+              <label style="font-size:12px; color:#6B6258; display:flex; align-items:center; gap:7px; cursor:pointer;">
+                <input type="checkbox" id="logo3dInvert" onchange="logo3dSilhouette()" style="width:15px; height:15px;"/>
+                <span data-i18n="logo3d_invert">Ters çevir</span>
+              </label>
+            </div>
+            <div style="margin-bottom:10px;">
+              <label style="font-size:11px; color:#8A7E74;" data-i18n="logo3d_thr">Eşik (otomatik kapalıysa)</label>
+              <input type="range" id="logo3dThreshold" min="10" max="245" step="1" value="128" oninput="logo3dSilhouette()" style="width:100%;"/>
+            </div>
+            <div style="margin-bottom:10px;">
+              <label style="font-size:11px; color:#8A7E74;" data-i18n="logo3d_detail">Kenar detayı (sade ↔ keskin)</label>
+              <input type="range" id="logo3dDetail" min="0.4" max="2.5" step="0.1" value="1" style="width:100%;"/>
+            </div>
+            <div class="mini-label" data-i18n="logo3d_prev">Siluet önizleme · ücretsiz, yaklaşık</div>
+            <canvas id="logo3dSilCanvas" style="display:none; max-width:100%; border:1px solid #D8D2C8; border-radius:8px; background:#FAFAF8;"></canvas>
+          </div>
+        </details>
+      </div>
+
       <div class="panel">
         <h2>3D MODEL OLUŞTUR</h2>
-        <p style="font-size:12px; color:#8A7E74; margin-bottom:14px; line-height:1.6;">
+        <p id="m3dAiNote" style="font-size:12px; color:#8A7E74; margin-bottom:14px; line-height:1.6;">
           Görselinizi döndürülebilir 3D modele (GLB) çevirir — AI ile işlenir.
         </p>
         <div data-i18n-html="model3d_hint" style="font-size:11px; color:#8A7E74; padding:10px 12px; background:#E8E4DC; border-radius:8px; border:1px solid #D8D2C8; margin-bottom:16px; line-height:1.5;">
@@ -1611,6 +1679,10 @@
           Komple iç mekan sahnesinde model kabaca kalır. İşlem ~1-2 dakika sürer.
         </div>
         <button class="render-btn" id="model3dBtn" onclick="startModel3d()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg> Modeli Oluştur <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
+        <div id="logo3dHint" data-i18n-html="logo3d_hint" style="display:none; font-size:11px; color:#8A7E74; padding:10px 12px; background:#E8E4DC; border-radius:8px; border:1px solid #D8D2C8; margin-bottom:16px; line-height:1.5;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.1"/></svg> Logonuz <strong>AI ile tahmin edilmez</strong> — silueti birebir vektörleştirilip girdiğiniz ölçülerde katı gövdeye extrüde edilir. En iyi girdi <strong>şeffaf PNG veya SVG</strong> (düz zeminli JPG de olur). Tabela, cephe harfi, plaket ve kabartma için birebir; GLB/OBJ olarak SketchUp ve 3ds Max'e taşınır. ~1 saniye.
+        </div>
+        <button class="render-btn" id="logo3dBtn" onclick="startLogo3d()" style="display:none;">✨ <span data-i18n="logo3d_btn">Logoyu 3B Modele Çevir</span> <span style="font-size:11px;opacity:0.8;">· 10 <span data-i18n="logo3d_credit">kredi</span></span></button>
         <div class="error-msg" id="model3dError"></div>
       </div>
     </div>
@@ -1633,6 +1705,7 @@
         </model-viewer>
         <a id="model3dDownloadBtn" class="download-btn" download="model.glb" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> GLB İndir</a>
         <button id="model3dObjBtn" onclick="downloadModelObj()" style="display:none; margin-left:8px; padding:10px 16px; border:1px solid #7A8B6A; border-radius:10px; background:transparent; color:#7A8B6A; font-size:13px; font-weight:600; cursor:pointer;">⬇ OBJ İndir (SketchUp / 3ds Max)</button>
+        <div id="logo3dStats" style="display:none; margin-top:12px; font-size:11px; color:#8A7E74; line-height:1.6;"></div>
       </div>
     </div>
 
@@ -3124,6 +3197,27 @@
     place_pres_hint: "Your montages + map + 360 in a single link: whoever opens it sees the parcel on the satellite map, reviews the montage images, and walks in front of the building in 360. The link stays active as long as your subscription continues; if it ends the link stays active for 1 more month, and is deleted if you don't resubscribe within that time.",
     pano_hint: "Upload your own <b>equirectangular 360</b> panorama (2:1 ratio — Enscape, Lumion, 360 camera, etc.). You can add it directly to the tour or first get a photorealistic render with AI.",
     tour_room_hint: "Select a room from the list, then click the plan → the room's location is marked. While touring, the active room lights up on the plan.",
+    // Logodan 3B model (deterministik extrüzyon)
+    m3d_mode_img: '📷 From Image',
+    m3d_mode_logo: '✨ From Logo',
+    m3d_new_badge: 'NEW',
+    logo3d_panel: '3D LOGO SETTINGS',
+    logo3d_w: 'Width (mm)',
+    logo3d_d: 'Depth (mm)',
+    logo3d_bevel: 'Bevel (mm)',
+    logo3d_mat: 'Material',
+    logo3d_plate: 'Add backing plate',
+    logo3d_plate_m: 'Plate margin (mm)',
+    logo3d_out: 'Output size',
+    logo3d_adv: 'Advanced — silhouette',
+    logo3d_auto: 'Auto threshold',
+    logo3d_invert: 'Invert',
+    logo3d_thr: 'Threshold (when auto is off)',
+    logo3d_detail: 'Edge detail (simple <-> sharp)',
+    logo3d_prev: 'Silhouette preview - free, approximate',
+    logo3d_btn: 'Convert Logo to 3D Model',
+    logo3d_credit: 'credits',
+    logo3d_hint: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.1"/></svg> Your logo is <strong>not guessed by AI</strong> - its silhouette is vectorized exactly and extruded into a solid body at the dimensions you enter. Best input is a <strong>transparent PNG or SVG</strong> (a flat-background JPG works too). Exact for signage, facade lettering, plaques and embossing; exports as GLB/OBJ for SketchUp and 3ds Max. ~1 second.',
     model3d_hint: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.1"/></svg> Best results are for <strong>a single object</strong> (sofa, product, building exterior mass). In a full interior scene the model stays rough. Processing takes ~1-2 minutes.',
     dec_link_note: "At least 2 options are required. The link stays active as long as your subscription continues; if it ends the link stays active for 1 more month, and is deleted if you don't resubscribe within that time.",
     tour_link_note: "The link stays active as long as your subscription continues; if it ends the link stays active for 1 more month, and is deleted if you don't resubscribe within that time."
@@ -3139,6 +3233,29 @@
   // SADECE birebir eşleşen Türkçe görünen metni çevirir. data-pkey ve diğer
   // attribute'lara DOKUNMAZ (onlar metin düğümü değil). data-i18n öğeleri atlanır.
   const TR2EN = {
+    // Logodan 3B model — çalışma zamanı metinleri + malzeme seçenekleri
+    "LOGO YÜKLE": "UPLOAD LOGO",
+    "GÖRSEL YÜKLE": "UPLOAD IMAGE",
+    "Logonuzu seçin veya sürükleyin": "Select or drag your logo",
+    "Şeffaf PNG, SVG veya düz zeminli JPG": "Transparent PNG, SVG or flat-background JPG",
+    "Tek bir objenin fotoğrafını seçin veya sürükleyin": "Select or drag a photo of a single object",
+    "Koltuk, mobilya, ürün ya da bina dış kütlesi": "Sofa, furniture, product or building exterior mass",
+    "Lütfen önce bir logo yükleyin.": "Please upload a logo first.",
+    "Logo okunamadı:": "Could not read the logo: ",
+    "Hata:": "Error: ",
+    "Sunucu hatası": "Server error",
+    "3B logo üretiliyor...": "Building 3D logo...",
+    "siluet vektörleştiriliyor + extrüde ediliyor": "vectorizing silhouette + extruding",
+    "parça": "shapes",
+    "üçgen": "triangles",
+    "Mat Siyah": "Matte Black",
+    "Mat Beyaz": "Matte White",
+    "Krom": "Chrome",
+    "Fırçalanmış Metal": "Brushed Metal",
+    "Altın": "Gold",
+    "Pirinç": "Brass",
+    "Adaçayı Yeşili": "Sage Green",
+    "Ahşap Tonu": "Wood Tone",
     // Detay Çizimi — çalışma zamanı metinleri
     "Lütfen önce bir mobilya görseli yükleyin.": "Please upload a furniture image first.",
     "Analiz verisi alınamadı — tekrar deneyin.": "Could not get analysis data — please try again.",
@@ -7790,6 +7907,250 @@
       document.getElementById('model3dPlaceholder').style.display = 'block';
       document.getElementById('model3dError').textContent = 'Hata: ' + err.message;
       document.getElementById('model3dError').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+
+  // ─── ✨ LOGODAN 3B MODEL (deterministik extrüzyon — AI YOK) ───────────────
+  // Siluet backend'de OpenCV ile vektörleştirilip trimesh ile extrüde edilir.
+  // Burada: mod geçişi, SVG→PNG rasterizasyon, ücretsiz siluet önizlemesi.
+  let m3dMode = 'image';
+  let logo3dFile = null;      // sunucuya gidecek hâli (SVG ise PNG'ye çevrilmiş)
+  let logo3dAspect = 0;       // siluetin en/boy oranı (ölçü bilgisi için)
+
+  function setM3dMode(mode) {
+    m3dMode = (mode === 'logo') ? 'logo' : 'image';
+    const logo = m3dMode === 'logo';
+    const imgBtn = document.getElementById('m3dModeImgBtn');
+    const logoBtn = document.getElementById('m3dModeLogoBtn');
+    imgBtn.style.background = logo ? 'transparent' : '#9A6558';
+    imgBtn.style.color = logo ? '#6B6258' : '#fff';
+    imgBtn.style.borderColor = logo ? '#D8D2C8' : '#9A6558';
+    logoBtn.style.background = logo ? '#9A6558' : 'transparent';
+    logoBtn.style.color = logo ? '#fff' : '#6B6258';
+    logoBtn.style.borderColor = logo ? '#9A6558' : '#D8D2C8';
+    document.getElementById('logo3dPanel').style.display = logo ? '' : 'none';
+    document.getElementById('logo3dHint').style.display = logo ? 'block' : 'none';
+    document.getElementById('logo3dBtn').style.display = logo ? '' : 'none';
+    document.getElementById('model3dBtn').style.display = logo ? 'none' : '';
+    document.getElementById('m3dAiNote').style.display = logo ? 'none' : '';
+    const oldHint = document.querySelector('#section-model3d [data-i18n-html="model3d_hint"]');
+    if (oldHint) oldHint.style.display = logo ? 'none' : '';
+    document.getElementById('m3dUploadTitle').textContent = logo ? L('LOGO YÜKLE') : L('GÖRSEL YÜKLE');
+    const ut = document.querySelector('#model3dUploadZone .upload-text');
+    const us = document.querySelector('#model3dUploadZone .upload-sub');
+    if (ut) ut.textContent = logo ? L('Logonuzu seçin veya sürükleyin')
+                                  : L('Tek bir objenin fotoğrafını seçin veya sürükleyin');
+    if (us) us.textContent = logo ? L('Şeffaf PNG, SVG veya düz zeminli JPG')
+                                  : L('Koltuk, mobilya, ürün ya da bina dış kütlesi');
+    document.getElementById('model3dFileInput').setAttribute('accept', logo ? 'image/*,.svg' : 'image/*');
+    logo3dRefreshSize();
+    // Görselden modunda seçilmiş dosya varsa logo modunda yeniden yüklemeye gerek kalmasın
+    const sel = document.getElementById('model3dFileInput').files;
+    if (logo && !logo3dFile && sel && sel[0]) logo3dAdopt(sel[0]);
+  }
+  // Dil değişince mod metinlerini tazele (setLang'e dokunmadan, additive)
+  document.addEventListener('DOMContentLoaded', () => {
+    const sel = document.getElementById('langSelect');
+    if (sel) sel.addEventListener('change', () => setTimeout(() => setM3dMode(m3dMode), 0));
+  });
+
+  function logo3dPlateToggle() {
+    document.getElementById('logo3dPlateRow').style.display =
+      document.getElementById('logo3dPlate').checked ? '' : 'none';
+  }
+
+  function logo3dRefreshSize() {
+    const el = document.getElementById('logo3dSizeInfo');
+    if (!el) return;
+    const w = parseFloat(document.getElementById('logo3dWidth').value) || 0;
+    const d = parseFloat(document.getElementById('logo3dDepth').value) || 0;
+    if (!w || !logo3dAspect) { el.textContent = w ? (w + ' × ? × ' + d + ' mm') : '—'; return; }
+    el.textContent = Math.round(w) + ' × ' + Math.round(w / logo3dAspect) + ' × ' + Math.round(d) + ' mm';
+  }
+
+  // SVG tarayıcıda 1600px'e rasterize edilir → sunucuya PNG gider (şeffaflık korunur)
+  async function logo3dRasterizeSvg(file) {
+    const txt = await file.text();
+    const img = await new Promise((res, rej) => {
+      const i = new Image();
+      i.onload = () => res(i);
+      i.onerror = () => rej(new Error('SVG okunamadı'));
+      i.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(txt);
+    });
+    const w = img.naturalWidth || img.width || 1000, h = img.naturalHeight || img.height || 1000;
+    const k = 1600 / Math.max(w, h);
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+    if (!blob) throw new Error('SVG dönüştürülemedi');
+    return new File([blob], 'logo.png', { type: 'image/png' });
+  }
+
+  function logo3dOtsu(gray) {              // backend'deki cv2 Otsu ile aynı yöntem
+    const hist = new Array(256).fill(0);
+    for (let i = 0; i < gray.length; i++) hist[gray[i]]++;
+    const total = gray.length;
+    let sum = 0; for (let t = 0; t < 256; t++) sum += t * hist[t];
+    let sumB = 0, wB = 0, best = 0, thr = 128;
+    for (let t = 0; t < 256; t++) {
+      wB += hist[t]; if (!wB) continue;
+      const wF = total - wB; if (!wF) break;
+      sumB += t * hist[t];
+      const mB = sumB / wB, mF = (sum - sumB) / wF;
+      const between = wB * wF * (mB - mF) * (mB - mF);
+      if (between > best) { best = between; thr = t; }
+    }
+    return thr;
+  }
+
+  // Ücretsiz siluet önizlemesi: sunucudaki maske kurallarının aynısı (alfa varsa
+  // alfa, yoksa Otsu + kenar şeridinden arka plan polaritesi). Yaklaşık — küçük
+  // ölçekte hesaplanır; nihai geometri sunucuda tam çözünürlükte üretilir.
+  function logo3dSilhouette() {
+    const cv = document.getElementById('logo3dSilCanvas');
+    if (!cv || !logo3dFile) return;
+    const url = URL.createObjectURL(logo3dFile);
+    const img = new Image();
+    img.onload = () => {
+      const MX = 340, k = Math.min(1, MX / Math.max(img.width, img.height));
+      const w = Math.max(1, Math.round(img.width * k)), h = Math.max(1, Math.round(img.height * k));
+      cv.width = w; cv.height = h; cv.style.display = 'block';
+      const ctx = cv.getContext('2d', { willReadFrequently: true });
+      ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      const d = ctx.getImageData(0, 0, w, h), p = d.data, n = w * h;
+      let minA = 255;
+      for (let i = 3; i < p.length; i += 4) if (p[i] < minA) minA = p[i];
+      const mask = new Uint8Array(n);
+      if (minA < 250) {
+        for (let i = 0, j = 0; j < n; i += 4, j++) mask[j] = p[i + 3] > 128 ? 1 : 0;
+      } else {
+        const gray = new Uint8Array(n);
+        for (let i = 0, j = 0; j < n; i += 4, j++)
+          gray[j] = (p[i] * 0.299 + p[i + 1] * 0.587 + p[i + 2] * 0.114) | 0;
+        const auto = document.getElementById('logo3dThreshAuto').checked;
+        const thr = auto ? logo3dOtsu(gray) : (parseInt(document.getElementById('logo3dThreshold').value, 10) || 128);
+        const b = Math.max(2, Math.floor(Math.min(w, h) / 60));
+        let bs = 0, bc = 0;
+        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+          if (y < b || y >= h - b || x < b || x >= w - b) { bs += (gray[y * w + x] < thr) ? 1 : 0; bc++; }
+        }
+        const bgDark = bc && (bs / bc) > 0.5;      // kenar koyuysa arka plan koyudur
+        for (let j = 0; j < n; j++) mask[j] = ((gray[j] < thr) !== bgDark) ? 1 : 0;
+      }
+      if (document.getElementById('logo3dInvert').checked)
+        for (let j = 0; j < n; j++) mask[j] = mask[j] ? 0 : 1;
+      // içerik sınırı → en/boy oranı (ölçü bilgisi)
+      let x0 = w, y0 = h, x1 = -1, y1 = -1;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (mask[y * w + x]) {
+        if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+      }
+      logo3dAspect = (x1 >= x0 && y1 >= y0) ? ((x1 - x0 + 1) / (y1 - y0 + 1)) : 0;
+      logo3dRefreshSize();
+      for (let j = 0, i = 0; j < n; j++, i += 4) {     // malzeme koyu, boşluk açık
+        const on = mask[j];
+        p[i] = on ? 42 : 250; p[i + 1] = on ? 40 : 249; p[i + 2] = on ? 36 : 245; p[i + 3] = 255;
+      }
+      ctx.putImageData(d, 0, 0);
+      URL.revokeObjectURL(url);
+    };
+    img.onerror = () => URL.revokeObjectURL(url);
+    img.src = url;
+  }
+
+  // Seçilen dosyayı logo girdisi olarak devral (SVG → PNG) ve silueti önizle
+  async function logo3dAdopt(f) {
+    logo3dFile = null; logo3dAspect = 0;
+    document.getElementById('logo3dSilCanvas').style.display = 'none';
+    if (!f) { logo3dRefreshSize(); return; }
+    try {
+      logo3dFile = (/svg/i.test(f.type) || /\.svg$/i.test(f.name)) ? await logo3dRasterizeSvg(f) : f;
+      logo3dSilhouette();
+    } catch (err) {
+      const el = document.getElementById('model3dError');
+      el.textContent = L('Logo okunamadı: ') + err.message;
+      el.style.display = 'block';
+      logo3dRefreshSize();
+    }
+  }
+
+  document.getElementById('model3dFileInput').addEventListener('change', e => {
+    if (m3dMode !== 'logo') { logo3dFile = null; logo3dAspect = 0; logo3dRefreshSize(); return; }
+    logo3dAdopt(e.target.files && e.target.files[0]);
+  });
+
+  async function startLogo3d() {
+    const errEl = document.getElementById('model3dError');
+    if (!logo3dFile) {
+      errEl.textContent = L('Lütfen önce bir logo yükleyin.');
+      errEl.style.display = 'block';
+      return;
+    }
+    const btn = document.getElementById('logo3dBtn');
+    btn.disabled = true;
+    errEl.style.display = 'none';
+    document.getElementById('model3dPlaceholder').style.display = 'none';
+    document.getElementById('model3dViewer').style.display = 'none';
+    document.getElementById('model3dDownloadBtn').style.display = 'none';
+    document.getElementById('model3dObjBtn').style.display = 'none';
+    document.getElementById('logo3dStats').style.display = 'none';
+    document.getElementById('model3dLoading').style.display = 'block';
+    document.querySelector('#model3dLoading p').innerHTML = L('3B logo üretiliyor...') +
+      '<br><span style="font-size:12px; color:#ABA49C;">' + L('siluet vektörleştiriliyor + extrüde ediliyor') + '</span>';
+
+    const fd = new FormData();
+    fd.append('image', logo3dFile);
+    fd.append('width_mm', String(parseFloat(document.getElementById('logo3dWidth').value) || 600));
+    fd.append('depth_mm', String(parseFloat(document.getElementById('logo3dDepth').value) || 40));
+    fd.append('bevel_mm', String(parseFloat(document.getElementById('logo3dBevel').value) || 0));
+    fd.append('material', document.getElementById('logo3dMaterial').value);
+    fd.append('plate', document.getElementById('logo3dPlate').checked ? '1' : '0');
+    fd.append('plate_margin_mm', String(parseFloat(document.getElementById('logo3dPlateMargin').value) || 40));
+    fd.append('threshold', document.getElementById('logo3dThreshAuto').checked
+      ? '-1' : String(parseInt(document.getElementById('logo3dThreshold').value, 10) || 128));
+    fd.append('invert', document.getElementById('logo3dInvert').checked ? '1' : '0');
+    fd.append('detail', String(parseFloat(document.getElementById('logo3dDetail').value) || 1));
+
+    try {
+      const r = await fetch(`${API}/logo3d/build`, { method: 'POST', headers: authHeaders(), body: fd });
+      let data = {};
+      try { data = await r.json(); } catch (_) { data = {}; }   // sunucu JSON dönmezse (502 vb.) çökmesin
+      if (!r.ok) throw new Error(data.detail || (L('Sunucu hatası') + ' (' + r.status + ')'));
+      refreshCredits();
+      const viewer = document.getElementById('model3dViewer');
+      viewer.src = data.url;
+      viewer.style.display = 'block';
+      document.getElementById('model3dLoading').style.display = 'none';
+      const dl = document.getElementById('model3dDownloadBtn');
+      dl.href = data.url;
+      dl.style.display = 'inline-block';
+      // Cross-origin link'te download attribute'ü yok sayılır → blob ile zorla indir
+      dl.onclick = async (ev) => {
+        ev.preventDefault();
+        try {
+          const resp = await fetch(data.url);
+          const blob = await resp.blob();
+          const u = URL.createObjectURL(blob);
+          const a = document.createElement('a'); a.href = u; a.download = 'logo3d.glb'; a.click();
+          setTimeout(() => URL.revokeObjectURL(u), 4000);
+        } catch (_) { window.open(data.url, '_blank'); }
+      };
+      lastModel3dUrl = data.url;
+      document.getElementById('model3dObjBtn').style.display = 'inline-block';
+      const st = data.stats || {};
+      const sEl = document.getElementById('logo3dStats');
+      sEl.textContent = `${st.width_mm} × ${st.height_mm} × ${st.depth_mm} mm · ` +
+        `${st.shapes} ${L('parça')} · ${((st.triangles || 0) / 1000).toFixed(1)}k ${L('üçgen')} · ${st.size_kb} KB`;
+      sEl.style.display = 'block';
+    } catch (err) {
+      document.getElementById('model3dLoading').style.display = 'none';
+      document.getElementById('model3dPlaceholder').style.display = 'block';
+      errEl.textContent = L('Hata: ') + err.message;
+      errEl.style.display = 'block';
     } finally {
       btn.disabled = false;
     }
