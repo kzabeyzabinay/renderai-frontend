@@ -2789,6 +2789,7 @@
   }
 
   const PACK_KEYS = new Set(['pack_mini', 'pack_medium', 'pack_large']);
+  const SUB_KEYS  = new Set(['sub_starter', 'sub_pro', 'sub_studio']);
 
   async function goCheckout(key) {
     const url = LS_CHECKOUT[key];
@@ -2802,19 +2803,31 @@
       openAuthModal('login');
       return;
     }
-    if (PACK_KEYS.has(key)) {
-      // Ek kredi paketleri sadece aktif abonelere açık — satın almadan önce doğrula
+    if (PACK_KEYS.has(key) || SUB_KEYS.has(key)) {
+      let su = null;
       try {
         const r = await fetch(`${API}/me`, { headers: authHeaders() });
         const d = await r.json();
-        const su = d.subscription_until ? new Date(d.subscription_until) : null;
-        if (!su || su <= new Date()) {
-          uiAlert('Ek kredi paketleri sadece aktif abonelere açıktır. Önce bir abonelik planı seçmelisin.');
-          return;
-        }
+        su = d.subscription_until ? new Date(d.subscription_until) : null;
       } catch (_) {
         uiAlert('Abonelik durumun doğrulanamadı, birazdan tekrar dene.');
         return;
+      }
+      const subActive = !!(su && su > new Date());
+      // Ek kredi paketleri sadece aktif abonelere açık
+      if (PACK_KEYS.has(key) && !subActive) {
+        uiAlert('Ek kredi paketleri sadece aktif abonelere açıktır. Önce bir abonelik planı seçmelisin.');
+        return;
+      }
+      // ⭐ ÇİFT ABONELİK UYARISI — kart güncellemek/plan değiştirmek için buradan DEĞİL,
+      // müşteri portalından gidilmeli. Aksi halde ikinci bir abonelik doğar, eski kart da
+      // zorlanmaya devam eder ve her ay iki kez ödeme çıkar.
+      if (SUB_KEYS.has(key) && subActive) {
+        if (!confirm(L('Zaten aktif bir aboneliğin var.\n\n• Kartını değiştirmek veya planını yükseltmek istiyorsan: Hesabım → "Abonelik ayarları". Yeni kartını orada tanımlarsan eski kartından bir daha çekim denenmez.\n• Buradan ikinci bir abonelik alırsan İKİ ayrı abonelik olur ve her ay İKİ kez ödeme çıkar.\n\nYine de yeni abonelik almak istiyor musun?'))) {
+          document.getElementById('pricingModal').style.display = 'none';
+          manageSubscription();
+          return;
+        }
       }
     }
     const email = localStorage.getItem('ra_email') || '';
@@ -3627,6 +3640,7 @@
     "Bu işlem geri alınamaz. Onaylamak için SİL yaz:": "This action cannot be undone. Type DELETE to confirm:",
     "Üyeliğini KALICI olarak silmek üzeresin.\n\n• Tüm işlerin ve kalan kredilerin silinir, geri alınamaz.\n• Aktif aboneliğin varsa iptal edilir, kartın bir daha çekilmez.\n\nDevam etmek istiyor musun?": "You are about to PERMANENTLY delete your account.\n\n• All your work and remaining credits will be deleted, irreversibly.\n• If you have an active subscription it will be cancelled and your card won't be charged again.\n\nDo you want to continue?",
     // ── Hesabım: kredi dökümü + kredi geçmişi (dinamik, L() ile) ──
+    'Zaten aktif bir aboneliğin var.\n\n• Kartını değiştirmek veya planını yükseltmek istiyorsan: Hesabım → "Abonelik ayarları". Yeni kartını orada tanımlarsan eski kartından bir daha çekim denenmez.\n• Buradan ikinci bir abonelik alırsan İKİ ayrı abonelik olur ve her ay İKİ kez ödeme çıkar.\n\nYine de yeni abonelik almak istiyor musun?': 'You already have an active subscription.\n\n• To change your card or upgrade your plan, use My Account → "Subscription settings". Once your new card is saved there, your old card will never be charged again.\n• Buying a second subscription here creates TWO separate subscriptions and you will be charged TWICE every month.\n\nDo you still want to start a new subscription?',
     "Abonelik kredisi": "Subscription credits", "Paket kredisi": "Pack credits",
     "Kayıt hediyesi": "Signup bonus", "Kullanım": "Usage", "Paket satın alma": "Pack purchase",
     "Abonelik başlangıcı": "Subscription start", "Abonelik yenileme": "Subscription renewal",
