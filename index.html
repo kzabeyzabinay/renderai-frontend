@@ -1240,23 +1240,23 @@
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
           <button class="scale-btn active" id="scale-2" onclick="setScale(2)">
             <div style="font-size:18px; font-weight:700; color:#9A6558;">2K</div>
-            <div style="font-size:11px; color:#8A7E74; margin-top:3px;">2x · ~15 sn</div>
+            <div style="font-size:11px; color:#8A7E74; margin-top:3px;">Hızlı · ~15 sn</div>
           </button>
           <button class="scale-btn" id="scale-4" onclick="setScale(4)">
             <div style="font-size:18px; font-weight:700; color:#7A8B6A;">4K</div>
-            <div style="font-size:11px; color:#7A8B6A; margin-top:3px;">4x · ~30 sn</div>
+            <div style="font-size:11px; color:#7A8B6A; margin-top:3px;">Yüksek · ~30 sn</div>
           </button>
           <button class="scale-btn" id="scale-8" onclick="setScale(8)">
             <div style="font-size:18px; font-weight:700; color:#f59e0b;">8K</div>
-            <div style="font-size:11px; color:#f59e0b; margin-top:3px;">6x · ~45 sn</div>
+            <div style="font-size:11px; color:#f59e0b; margin-top:3px;">Maksimum · ~45 sn</div>
           </button>
         </div>
 
         <div style="padding:12px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px; margin-bottom:16px; font-size:12px; color:#8A7E74; line-height:1.6;">
           <b style="color:#2A2520;">Detayın değişmez.</b> <span>Görsel yeniden üretilmez; var olan piksel profesyonel motorla büyütülür — uydurma doku, sahte kenar, plastik yüzey yok.</span><br>
-          <b style="color:#9A6558;">2K</b> — 2x büyütme<br>
-          <b style="color:#7A8B6A;">4K</b> — 4x büyütme<br>
-          <b style="color:#f59e0b;">8K</b> — 6x büyütme (baskı için)
+          <b style="color:#9A6558;">2K</b> — hızlı büyütme, ekran ve sunum için<br>
+          <b style="color:#7A8B6A;">4K</b> — yüksek çözünürlük, pafta ve büyük ekran<br>
+          <b style="color:#f59e0b;">8K</b> — baskı için maksimum çözünürlük
         </div>
 
         <button class="render-btn" id="upscaleBtn" onclick="startUpscale()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.4-3.4"/></svg> Çözünürlüğü Artır <span style="font-size:11px;opacity:0.8;">· 2K: 5 / 4K-8K: 10 kredi</span></button>
@@ -2849,6 +2849,39 @@
   // ─── ÜYELİK (Supabase Auth) ──────────────────────────────────────────────
   let authMode = 'login';
 
+  // ─── İNDİRME DÜZELTMESİ (17 Ağu) ─────────────────────────────────────────
+  // Tarayıcılar <a download> özniteliğini SADECE aynı kaynaktaki (veya data:/blob:)
+  // linklerde uygular. Çıktılar Topaz/Replicate/Supabase gibi başka kaynaklardan
+  // gelince tıklama indirme değil GEZİNME oluyordu → kullanıcı "indir butonu
+  // fotoğrafı büyütüyor" diyor. Bu delege dinleyici böyle linkleri blob'a çevirip
+  // gerçekten indirir; CORS engellenirse eski davranışa (yeni sekme) düşer.
+  // Kendi onclick indirme mantığı olan butonlar (3D GLB/OBJ) atlanır.
+  document.addEventListener('click', async (e) => {
+    const a = e.target && e.target.closest ? e.target.closest('a.download-btn') : null;
+    if (!a || a.onclick) return;
+    const url = a.getAttribute('href') || '';
+    if (!/^https?:/i.test(url)) return;          // data: / blob: zaten iner
+    e.preventDefault();
+    const name = a.getAttribute('download') || 'bynai.png';
+    const label = a.innerHTML;
+    a.style.pointerEvents = 'none';
+    a.textContent = L('İndiriliyor...');
+    try {
+      const resp = await fetch(url, { mode: 'cors' });
+      if (!resp.ok) throw new Error('fetch ' + resp.status);
+      const blob = await resp.blob();
+      const u = URL.createObjectURL(blob);
+      const t = document.createElement('a');
+      t.href = u; t.download = name; t.click();
+      setTimeout(() => URL.revokeObjectURL(u), 8000);
+    } catch (_) {
+      window.open(url, '_blank');                 // CORS kapalıysa en azından açılsın
+    } finally {
+      a.innerHTML = label;
+      a.style.pointerEvents = '';
+    }
+  });
+
   function authHeaders() {
     const t = localStorage.getItem('ra_token');
     return t ? { 'Authorization': 'Bearer ' + t } : {};
@@ -3426,17 +3459,18 @@
     "Render görselinizi seçin": "Select your render image",
     "Render çıktısı, fotoğraf veya herhangi bir görsel": "Render output, photo, or any image",
     "Hızlı büyütme · ~1 dk": "Quick upscale · ~1 min", "Doku · ~2-3 dk": "Texture · ~2-3 min", "Ultra · ~3-5 dk": "Ultra · ~3-5 min",
-    "2x · ~15 sn": "2x · ~15 s", "4x · ~30 sn": "4x · ~30 s", "6x · ~45 sn": "6x · ~45 s",
+    "Hızlı · ~15 sn": "Fast · ~15 s", "Yüksek · ~30 sn": "High · ~30 s", "Maksimum · ~45 sn": "Maximum · ~45 s",
     "Detayın değişmez.": "Your detail stays.",
     "Görsel yeniden üretilmez; var olan piksel profesyonel motorla büyütülür — uydurma doku, sahte kenar, plastik yüzey yok.":
       "The image is not regenerated; existing pixels are enlarged with a professional engine — no invented texture, no fake edges, no plastic surfaces.",
-    "— 2x büyütme": "— 2x upscale",
-    "— 4x büyütme": "— 4x upscale",
-    "— 6x büyütme (baskı için)": "— 6x upscale (for print)",
+    "— hızlı büyütme, ekran ve sunum için": "— fast upscale, for screen and presentations",
+    "— yüksek çözünürlük, pafta ve büyük ekran": "— high resolution, for boards and large screens",
+    "— baskı için maksimum çözünürlük": "— maximum resolution, for print",
     "— Hızlı piksel büyütme": "— Fast pixel upscale",
     "— Malzeme analizi → gerçekçi doku sentezi → 2x çözünürlük": "— Material analysis → realistic texture synthesis → 2x resolution",
     "— Malzeme analizi → gerçekçi doku sentezi → 4x çözünürlük": "— Material analysis → realistic texture synthesis → 4x resolution",
     "Büyüt & Geliştir": "Upscale & Enhance", "Çözünürlüğü Artır": "Increase Resolution",
+    "İndiriliyor...": "Downloading...",
     "Yüksek · 4x": "High · 4x",
     "Yüksek: en yüksek detayla render + 4x çözünürlük": "High: maximum-detail render + 4x resolution", "· 2K: 5 / 4K-8K: 10 kredi": "· 2K: 5 / 4K-8K: 10 credits",
     "Büyütülmüş görsel burada görünecek": "The upscaled image will appear here",
