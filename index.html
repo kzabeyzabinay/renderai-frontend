@@ -1237,12 +1237,8 @@
       <div class="panel">
         <h2>Büyütme Ayarları</h2>
         <div class="mini-label" style="margin-bottom:10px;">Çözünürlük</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
-          <button class="scale-btn active" id="scale-2" onclick="setScale(2)">
-            <div style="font-size:18px; font-weight:700; color:#9A6558;">2K</div>
-            <div style="font-size:11px; color:#8A7E74; margin-top:3px;">Hızlı · ~15 sn</div>
-          </button>
-          <button class="scale-btn" id="scale-4" onclick="setScale(4)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+          <button class="scale-btn active" id="scale-4" onclick="setScale(4)">
             <div style="font-size:18px; font-weight:700; color:#7A8B6A;">4K</div>
             <div style="font-size:11px; color:#7A8B6A; margin-top:3px;">Yüksek · ~30 sn</div>
           </button>
@@ -1254,12 +1250,11 @@
 
         <div style="padding:12px; background:#E8E4DC; border:1px solid #D8D2C8; border-radius:10px; margin-bottom:16px; font-size:12px; color:#8A7E74; line-height:1.6;">
           <b style="color:#2A2520;">Detayın değişmez.</b> <span>Görsel yeniden üretilmez; var olan piksel profesyonel motorla büyütülür — uydurma doku, sahte kenar, plastik yüzey yok.</span><br>
-          <b style="color:#9A6558;">2K</b> — hızlı büyütme, ekran ve sunum için<br>
           <b style="color:#7A8B6A;">4K</b> — yüksek çözünürlük, pafta ve büyük ekran<br>
           <b style="color:#f59e0b;">8K</b> — baskı için maksimum çözünürlük
         </div>
 
-        <button class="render-btn" id="upscaleBtn" onclick="startUpscale()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.4-3.4"/></svg> Çözünürlüğü Artır <span style="font-size:11px;opacity:0.8;">· 2K: 5 / 4K-8K: 10 kredi</span></button>
+        <button class="render-btn" id="upscaleBtn" onclick="startUpscale()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.4-3.4"/></svg> Çözünürlüğü Artır <span style="font-size:11px;opacity:0.8;">· 10 kredi</span></button>
         <div class="error-msg" id="upscaleError"></div>
       </div>
     </div>
@@ -3472,7 +3467,7 @@
     "Büyüt & Geliştir": "Upscale & Enhance", "Çözünürlüğü Artır": "Increase Resolution",
     "İndiriliyor...": "Downloading...",
     "Yüksek · 4x": "High · 4x",
-    "Yüksek: en yüksek detayla render + 4x çözünürlük": "High: maximum-detail render + 4x resolution", "· 2K: 5 / 4K-8K: 10 kredi": "· 2K: 5 / 4K-8K: 10 credits",
+    "Yüksek: en yüksek detayla render + 4x çözünürlük": "High: maximum-detail render + 4x resolution", "· 10 kredi": "· 2K: 5 / 4K-8K: 10 credits",
     "Büyütülmüş görsel burada görünecek": "The upscaled image will appear here",
     "Görüntü büyütülüyor...": "Upscaling image...", "Detaylar işleniyor": "Processing details",
     // ── Geliştir ──
@@ -6312,11 +6307,10 @@
 
   // ─── BÜYÜT & GELİŞTİR ────────────────────────────────────────────────────
   let upscaleFile = null;
-  let selectedScale = 2;
+  let selectedScale = 4;   // 2K kademesi kaldırıldı (17 Ağu) — varsayılan 4K
 
   function setScale(scale) {
     selectedScale = scale;
-    document.getElementById('scale-2').classList.toggle('active', scale === 2);
     document.getElementById('scale-4').classList.toggle('active', scale === 4);
     document.getElementById('scale-8').classList.toggle('active', scale === 8);
   }
