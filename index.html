@@ -901,9 +901,10 @@
           <div class="mini-label">Kalite</div>
           <div class="mini-toggle">
             <button class="mini-btn active" id="qualityAuto" onclick="setQuality('auto')">Oto</button>
-            <button class="mini-btn" id="qualityHigh" onclick="setQuality('high')">Yüksek · 8x</button>
+            <button class="mini-btn" id="qualityHigh" onclick="setQuality('high')">Yüksek · 4K</button>
+            <button class="mini-btn" id="qualityMax" onclick="setQuality('max')">Çok Yüksek · 8K</button>
           </div>
-          <div style="font-size:10px; color:#ABA49C; margin-top:6px; line-height:1.5;">Yüksek: en yüksek detayla render + 8x çözünürlük (~100 MP) · 25 kredi</div>
+          <div style="font-size:10px; color:#ABA49C; margin-top:6px; line-height:1.5;">Oto: standart render · 8 kredi — Yüksek: maks. detay + 4x çözünürlük · 20 kredi — Çok Yüksek: maks. detay + 8x çözünürlük (~100 MP) · 25 kredi</div>
         </div>
       </div>
 
@@ -3465,9 +3466,11 @@
     "— Malzeme analizi → gerçekçi doku sentezi → 2x çözünürlük": "— Material analysis → realistic texture synthesis → 2x resolution",
     "— Malzeme analizi → gerçekçi doku sentezi → 4x çözünürlük": "— Material analysis → realistic texture synthesis → 4x resolution",
     "Büyüt & Geliştir": "Upscale & Enhance", "Çözünürlüğü Artır": "Increase Resolution",
+    "kredi": "credits",
     "İndiriliyor...": "Downloading...",
-    "Yüksek · 8x": "High · 8x",
-    "Yüksek: en yüksek detayla render + 8x çözünürlük (~100 MP) · 25 kredi": "High: maximum-detail render + 8x resolution (~100 MP) · 25 credits", "· 10 kredi": "· 2K: 5 / 4K-8K: 10 credits",
+    "Yüksek · 4K": "High · 4K",
+    "Çok Yüksek · 8K": "Ultra · 8K",
+    "Oto: standart render · 8 kredi — Yüksek: maks. detay + 4x çözünürlük · 20 kredi — Çok Yüksek: maks. detay + 8x çözünürlük (~100 MP) · 25 kredi": "Auto: standard render · 8 credits — High: max detail + 4x resolution · 20 credits — Ultra: max detail + 8x resolution (~100 MP) · 25 credits", "· 10 kredi": "· 2K: 5 / 4K-8K: 10 credits",
     "Büyütülmüş görsel burada görünecek": "The upscaled image will appear here",
     "Görüntü büyütülüyor...": "Upscaling image...", "Detaylar işleniyor": "Processing details",
     // ── Geliştir ──
@@ -3962,8 +3965,9 @@
     selectedQuality = q;
     document.getElementById('qualityAuto').classList.toggle('active', q === 'auto');
     document.getElementById('qualityHigh').classList.toggle('active', q === 'high');
-    // Yüksek kalite render 25, Oto 8 kredi — buton etiketlerini güncelle
-    const lbl = '· ' + (q === 'high' ? 25 : 8) + ' kredi';
+    document.getElementById('qualityMax').classList.toggle('active', q === 'max');
+    // Oto 8 · Yüksek 20 · Çok Yüksek 25 kredi — buton etiketlerini güncelle
+    const lbl = '· ' + ({ high: 20, max: 25 }[q] || 8) + ' ' + L('kredi');
     ['renderBtnInterior', 'renderBtn'].forEach(id => {
       const b = document.getElementById(id);
       const s = b && b.querySelector('span');
