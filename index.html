@@ -903,7 +903,7 @@
             <button class="mini-btn active" id="qualityAuto" onclick="setQuality('auto')">Oto</button>
             <button class="mini-btn" id="qualityHigh" onclick="setQuality('high')">Yüksek · 8x</button>
           </div>
-          <div style="font-size:10px; color:#ABA49C; margin-top:6px; line-height:1.5;">Yüksek: en yüksek detayla render + 8x çözünürlük (~100 MP)</div>
+          <div style="font-size:10px; color:#ABA49C; margin-top:6px; line-height:1.5;">Yüksek: en yüksek detayla render + 8x çözünürlük (~100 MP) · 25 kredi</div>
         </div>
       </div>
 
@@ -3467,7 +3467,7 @@
     "Büyüt & Geliştir": "Upscale & Enhance", "Çözünürlüğü Artır": "Increase Resolution",
     "İndiriliyor...": "Downloading...",
     "Yüksek · 8x": "High · 8x",
-    "Yüksek: en yüksek detayla render + 8x çözünürlük (~100 MP)": "High: maximum-detail render + 8x resolution (~100 MP)", "· 10 kredi": "· 2K: 5 / 4K-8K: 10 credits",
+    "Yüksek: en yüksek detayla render + 8x çözünürlük (~100 MP) · 25 kredi": "High: maximum-detail render + 8x resolution (~100 MP) · 25 credits", "· 10 kredi": "· 2K: 5 / 4K-8K: 10 credits",
     "Büyütülmüş görsel burada görünecek": "The upscaled image will appear here",
     "Görüntü büyütülüyor...": "Upscaling image...", "Detaylar işleniyor": "Processing details",
     // ── Geliştir ──
@@ -3962,8 +3962,8 @@
     selectedQuality = q;
     document.getElementById('qualityAuto').classList.toggle('active', q === 'auto');
     document.getElementById('qualityHigh').classList.toggle('active', q === 'high');
-    // Yüksek kalite render 20, Oto 8 kredi — buton etiketlerini güncelle
-    const lbl = '· ' + (q === 'high' ? 20 : 8) + ' kredi';
+    // Yüksek kalite render 25, Oto 8 kredi — buton etiketlerini güncelle
+    const lbl = '· ' + (q === 'high' ? 25 : 8) + ' kredi';
     ['renderBtnInterior', 'renderBtn'].forEach(id => {
       const b = document.getElementById(id);
       const s = b && b.querySelector('span');
