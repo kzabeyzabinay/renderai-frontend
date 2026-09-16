@@ -2351,7 +2351,7 @@
 <!-- ─── 🛸 DRONE MONTAJ — drone render'ı arazi görüntüsüne yerleştir ─────────── -->
 <div id="section-drone" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div data-i18n-html="drn_how" style="background:#FAFAF8; border:1px solid #E0DAD0; border-radius:14px; padding:16px 20px; margin:18px 0; font-size:13px; color:#5A5249; line-height:1.6;">
-    <b style="color:#9A6558;">Nasıl çalışır?</b> Google Maps / Google Earth'ten arazinin <b>ekran görüntüsünü</b> yükle, <b>parseli</b> köşelerine tıklayarak çiz, projenin <b>drone render'ını</b> ekle. AI binayı parseline, arazinin kamera açısı, ölçeği, ışığı ve gölgeleriyle kurar. <b>Parselin dışındaki arazi, yollar ve komşu binalar birebir korunur.</b>
+    <b style="color:#9A6558;">Nasıl çalışır?</b> Google Maps / Google Earth'ten arazinin <b>ekran görüntüsünü</b> yükle ve <b>parseli</b> çiz. Projenin <b>drone render'ını</b> yükleyip projenin zemindeki <b>4 köşesini</b> işaretle. Render parsele <b>birebir oturtulur</b>: bina sayısı ve yerleşim düzeni aynen korunur. AI yalnızca ışığı, gölgeyi ve rengi araziye uydurur. <b>Parselin dışındaki arazi, yollar ve komşu binalar hiç değişmez.</b>
   </div>
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
 
@@ -2368,8 +2368,29 @@
       </div>
 
       <div class="panel">
-        <h2 data-i18n="drn_parcel_h">2 — Parseli Çiz</h2>
-        <p data-i18n="drn_parcel_hint" style="font-size:12px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">Arazi görüntüsünde parselin köşelerine sırayla tıkla. İlk noktaya tıklayınca (veya çift tıklayınca) parsel kapanır. Birden fazla parsel çizebilirsin.</p>
+        <h2 data-i18n="drn_render_h">2 — Projenin Drone Render'ı</h2>
+        <div class="upload-zone" id="drnRenderZone">
+          <input type="file" id="drnRenderInput" accept="image/*" />
+          <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 7h16M12 7v3M7 10h10l-1 4H8zM10 18h6M13 14v4"/></svg></div>
+          <p><strong data-i18n="drn_render_hint">Kuşbakışı / drone render'ı seçin</strong> veya sürükleyin</p>
+        </div>
+        <div id="drnCornerBox" style="display:none; margin-top:12px;">
+          <p data-i18n-html="drn_corner_hint" style="font-size:12px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">Render'da projenin <b>zemindeki 4 köşesine</b> sırayla tıkla: çatılara değil, binaların ve bahçelerin zemine oturduğu alanın köşelerine. <b>Tek yüksek binada</b> binanın taban köşelerini işaretle. Binanın yukarı uzanan kısmı aşağıdaki <b>Bina Yüksekliği</b> seçimiyle taşınır. İşaretlemezsen render'ın tamamı kullanılır.</p>
+          <div id="drnCornerWrap" style="position:relative; border-radius:10px; overflow:hidden; border:1px solid #D8D2C8; line-height:0; user-select:none;">
+            <img id="drnCornerImg" style="width:100%; height:auto; display:block;" draggable="false" />
+            <canvas id="drnCornerCanvas" style="position:absolute; left:0; top:0; width:100%; height:100%; cursor:crosshair; touch-action:none;"></canvas>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; align-items:center;">
+            <button class="recolor-mat-btn" onclick="drnCorners.undo()">↶ Son noktayı geri al</button>
+            <button class="recolor-mat-btn" onclick="drnCorners.clear()">Temizle</button>
+            <span id="drnCornerStatus" style="font-size:11px; color:#8A7E74;"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="drn_parcel_h">3 — Parseli Çiz</h2>
+        <p data-i18n="drn_parcel_hint" style="font-size:12px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">Arazi görüntüsünde parselin köşelerine sırayla tıkla. İlk noktaya tıklayınca (veya çift tıklayınca) parsel kapanır. En iyisi 4 köşeli çizmek; fazla köşe otomatik olarak 4'e sadeleştirilir.</p>
         <div id="drnPolyEmpty" data-i18n="drn_parcel_empty" style="font-size:12px; color:#ABA49C; padding:18px; border:1px dashed #D8D2C8; border-radius:10px; text-align:center;">Önce arazi görüntüsünü yükle.</div>
         <div id="drnPolyWrap" style="position:relative; display:none; border-radius:10px; overflow:hidden; border:1px solid #D8D2C8; line-height:0; user-select:none;">
           <img id="drnPolyImg" style="width:100%; height:auto; display:block;" draggable="false" />
@@ -2378,24 +2399,15 @@
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; align-items:center;">
           <button class="recolor-mat-btn" onclick="drnPoly.undo()">↶ Son noktayı geri al</button>
           <button class="recolor-mat-btn" onclick="drnPoly.clear()">Temizle</button>
+          <button class="recolor-mat-btn" id="drnRotBtn" onclick="drnRotate()" style="display:none;">↻ Yönü Döndür</button>
           <span id="drnPolyStatus" style="font-size:11px; color:#8A7E74;"></span>
         </div>
-      </div>
-
-      <div class="panel">
-        <h2 data-i18n="drn_render_h">3 — Projenin Drone Render'ı</h2>
-        <div class="upload-zone" id="drnRenderZone">
-          <input type="file" id="drnRenderInput" accept="image/*" />
-          <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 7h16M12 7v3M7 10h10l-1 4H8zM10 18h6M13 14v4"/></svg></div>
-          <p><strong data-i18n="drn_render_hint">Kuşbakışı / drone render'ı seçin</strong> veya sürükleyin</p>
-        </div>
-        <img id="drnRenderPreview" class="preview-img" />
-        <p data-i18n="drn_render_note" style="font-size:11px; color:#8A7E74; margin:8px 0 0; line-height:1.5;">Binanın kütlesi, kat sayısı, çatısı, malzemeleri ve peyzajı bu görselden alınır.</p>
+        <p id="drnPreviewNote" data-i18n="drn_preview_note" style="display:none; font-size:11px; color:#7A8B6A; margin:8px 0 0; line-height:1.5;">Önizleme: render parsele böyle oturacak (kredi harcanmaz). Binalar ters yöne bakıyorsa ↻ Yönü Döndür.</p>
       </div>
 
       <div class="panel">
         <h2 data-i18n="drn_view_h">Görünüm &amp; Bina Yüksekliği</h2>
-        <p data-i18n="drn_view_hint" style="font-size:11px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">Eğik görünümde bina görüntüde yukarı doğru uzar — AI'ın çalışacağı alan buna göre ayarlanır.</p>
+        <p data-i18n="drn_view_hint" style="font-size:11px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">Eğik görünümde bina görüntüde zeminden yukarı doğru uzar. Burada seçtiğin yükseklik kadar render'ın üst kısmı da taşınır; binalar kesik çıkarsa bir üst seçeneği dene.</p>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <button class="scale-btn" id="drnViewTop" onclick="setDroneView('top')">
             <div data-i18n="drn_view_top_t" style="font-size:14px; font-weight:700; color:#9A6558;">Tepeden (Uydu)</div>
@@ -2418,7 +2430,7 @@
 
       <div class="panel">
         <h2 data-i18n="drn_note_h">İsteğe Bağlı Talimat</h2>
-        <input type="text" id="drnNote" data-i18n-ph="drn_note_ph" placeholder="örn: bina girişi yola baksın · havuz parselin güneyinde olsun · ağaçları koru"
+        <input type="text" id="drnNote" data-i18n-ph="drn_note_ph" placeholder="örn: akşamüstü ışığı · gölgeler daha yumuşak · çevre peyzajı kuru bozkır"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:16px;" />
         <button class="render-btn" id="drnBtn" onclick="startDroneMontage()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 7h16M12 7v3M7 10h10l-1 4H8zM10 18h6M13 14v4"/></svg> <span data-i18n="drn_btn">Araziye Yerleştir</span> <span data-i18n="drn_btn_cost" style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
         <div class="error-msg" id="drnError"></div>
@@ -2433,7 +2445,7 @@
       </div>
       <div class="loading" id="drnLoading" style="display:none;">
         <div class="spinner"></div>
-        <p><span id="drnLoadingLabel" data-i18n="drn_loading">Proje araziye yerleştiriliyor...</span><br><span data-i18n="drn_loading_sub" style="font-size:12px; color:#ABA49C;">Açı, ölçek, ışık ve gölge eşleştiriliyor (~40-90 sn)</span></p>
+        <p><span id="drnLoadingLabel" data-i18n="drn_loading">Proje araziye yerleştiriliyor...</span><br><span data-i18n="drn_loading_sub" style="font-size:12px; color:#ABA49C;">Işık, gölge ve renk eşleştiriliyor (~40-90 sn)</span></p>
       </div>
       <div id="drnResultContainer" style="display:none; width:100%; text-align:center;">
         <img id="drnResultImg" class="result-img" style="display:block; max-width:100%;" />
@@ -3224,28 +3236,29 @@
     nav_facade: "Facade Style",
     // Drone Montaj
     nav_drone: "Drone Montage",
-    drn_how: '<b style="color:#9A6558;">How it works?</b> Upload a <b>screenshot</b> of the site from Google Maps / Google Earth, draw the <b>parcel</b> by clicking its corners, and add your project\'s <b>drone render</b>. The AI builds the project on your parcel matching the site\'s camera angle, scale, light and shadows. <b>The land, roads and neighboring buildings outside the parcel are kept exactly as they are.</b>',
+    drn_how: '<b style="color:#9A6558;">How it works?</b> Upload a <b>screenshot</b> of the site from Google Maps / Google Earth and draw the <b>parcel</b>. Upload your project\'s <b>drone render</b> and mark the project\'s <b>4 ground corners</b>. The render is <b>fitted exactly</b> onto the parcel: the number of buildings and the site layout are kept as they are. The AI only matches light, shadows and colour to the site. <b>The land, roads and neighboring buildings outside the parcel never change.</b>',
     drn_site_h: "1 — Site Image",
     drn_site_hint: "Select a Google Maps / Earth screenshot",
     drn_site_note: '<b>Tip:</b> a screenshot taken in Google Earth\'s <b>3D tilted view</b>, at an angle close to your drone render, gives the best result. A top-down satellite image also works. If you use Google imagery, keep the "© Google" attribution when sharing.',
-    drn_parcel_h: "2 — Draw the Parcel",
-    drn_parcel_hint: "Click the parcel corners in order on the site image. Click the first point (or double-click) to close it. You can draw more than one parcel.",
-    drn_parcel_empty: "Upload the site image first.",
-    drn_render_h: "3 — Project Drone Render",
+    drn_render_h: "2 — Project Drone Render",
     drn_render_hint: "Select an aerial / drone render",
-    drn_render_note: "The building's massing, floors, roof, materials and landscaping are taken from this image.",
+    drn_corner_hint: 'Click the project\'s <b>4 ground corners</b> on the render in order — not the roofs, but the corners of the area where the buildings and gardens sit on the ground. For a <b>single tall building</b>, mark its base corners. The upward part of the building is carried with the <b>Building Height</b> option below. If you don\'t mark them, the whole render is used.',
+    drn_parcel_h: "3 — Draw the Parcel",
+    drn_parcel_hint: "Click the parcel corners in order on the site image. Click the first point (or double-click) to close it. Drawing 4 corners is best; extra corners are simplified to 4 automatically.",
+    drn_parcel_empty: "Upload the site image first.",
+    drn_preview_note: "Preview: this is how the render will sit on the parcel (no credits used). If the buildings face the wrong way, use ↻ Rotate.",
     drn_view_h: "View & Building Height",
-    drn_view_hint: "In a tilted view the building extends upward in the image — the area the AI works on is sized accordingly.",
+    drn_view_hint: "In a tilted view a building extends upward from the ground in the image. The upper part of the render is carried by the height you choose here; if buildings come out cut off, try the next option up.",
     drn_view_top_t: "Top-down (Satellite)", drn_view_top_d: "Straight overhead view",
     drn_view_low_t: "Low Building", drn_view_low_d: "Tilted view · 1-3 floors",
     drn_view_mid_t: "Mid-rise Building", drn_view_mid_d: "Tilted view · 4-8 floors",
     drn_view_high_t: "High-rise Building", drn_view_high_d: "Tilted view · 9+ floors",
     drn_note_h: "Optional Instruction",
-    drn_note_ph: "e.g. building entrance facing the road · pool on the south side of the parcel · keep the trees",
+    drn_note_ph: "e.g. late afternoon light · softer shadows · dry steppe landscaping around",
     drn_btn: "Place on Site", drn_btn_cost: "· 15 credits",
     drn_placeholder: "Your project placed on the site will appear here",
     drn_loading: "Placing the project on the site...",
-    drn_loading_sub: "Matching angle, scale, light and shadows (~40-90 sec)",
+    drn_loading_sub: "Matching light, shadows and colour (~40-90 sec)",
     drn_download: "Download (PNG)",
     fac_how: "<b style=\"color:#9A6558;\">How does it work?</b> Upload <b>your own project</b> first, then a <b>reference facade</b> you like. The AI keeps your building's mass, floors, camera and surroundings exactly as they are, and redesigns only the facade skin — materials, colours, frames, balconies and details — in the reference building's architectural language.",
     fac_base_h: "1 — Your Project",
@@ -3436,6 +3449,10 @@
     "Lütfen önce arazi görüntüsünü yükle.": "Please upload the site image first.",
     "Lütfen arazi görüntüsünde parseli çiz (en az 3 nokta, alanı kapat).": "Please draw the parcel on the site image (at least 3 points, close the shape).",
     "Lütfen projenin drone render'ını yükle.": "Please upload the project's drone render.",
+    "Render'da 4 köşeyi de işaretle ya da köşeleri temizle (tüm render kullanılır).": "Mark all 4 corners on the render, or clear them (the whole render is used).",
+    "Parsel dörtgene çevrilemedi — lütfen parseli 4 köşeli olarak yeniden çiz.": "The parcel could not be turned into a quadrilateral — please redraw it with 4 corners.",
+    "↻ Yönü Döndür": "↻ Rotate",
+    "köşe": "corners",
     "Drone montaj başarısız": "Drone montage failed",
 
     // Geliştir — ⬡ bölge seçimi (çokgen kement)
@@ -4755,8 +4772,12 @@
   }
 
   // ─── 🛸 DRONE MONTAJ ─────────────────────────────────────────────────────
-  // Çokgen kement: noktalar görsele göre NORMALİZE (0-1) — gönderilen görsel küçültülse de doğru yere denk gelir.
-  function makePolyPicker(canvasId, imgId, statusId) {
+  // v3: render, 4 köşesinden parselin 4 köşesine perspektifle oturtulur (backend'de kodla).
+  // Burada aynı eşleşme canvas önizlemesi olarak çizilir → kullanıcı kredi harcamadan görür.
+  // Noktalar görsele göre NORMALİZE (0-1) — gönderilen görsel küçültülse de doğru yere denk gelir.
+  // opts: { maxPoints: 4 → köşe seçici (kapanma yok) · single: true → tek çokgen · overlay(ctx,w,h) }
+  function makePolyPicker(canvasId, imgId, statusId, opts) {
+    opts = opts || {};
     const P = { polys: [], cur: [], hover: null };
     const cv = document.getElementById(canvasId);
     P.draw = function () {
@@ -4768,36 +4789,53 @@
       const ctx = cv.getContext('2d');
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
+      if (opts.overlay) { ctx.save(); opts.overlay(ctx, w, h); ctx.restore(); }
       const XY = p => [p[0] * w, p[1] * h];
       P.polys.forEach(poly => {
         ctx.beginPath();
         poly.forEach((p, i) => { const [x, y] = XY(p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
         ctx.closePath();
-        ctx.fillStyle = 'rgba(154,101,88,0.35)'; ctx.fill();
+        if (!opts.overlayActive || !opts.overlayActive()) { ctx.fillStyle = 'rgba(154,101,88,0.35)'; ctx.fill(); }
         ctx.lineWidth = 2; ctx.strokeStyle = '#9A6558'; ctx.stroke();
       });
       if (P.cur.length) {
         ctx.beginPath();
         P.cur.forEach((p, i) => { const [x, y] = XY(p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
-        if (P.hover) { const [x, y] = XY(P.hover); ctx.lineTo(x, y); }
+        if (opts.maxPoints && P.cur.length === opts.maxPoints) ctx.closePath();
+        else if (P.hover) { const [x, y] = XY(P.hover); ctx.lineTo(x, y); }
         ctx.lineWidth = 2; ctx.setLineDash([6, 4]); ctx.strokeStyle = '#9A6558'; ctx.stroke(); ctx.setLineDash([]);
         P.cur.forEach((p, i) => {
           const [x, y] = XY(p);
-          ctx.beginPath(); ctx.arc(x, y, i === 0 ? 6 : 4, 0, Math.PI * 2);
-          ctx.fillStyle = i === 0 ? '#FAFAF8' : '#9A6558'; ctx.fill();
-          ctx.lineWidth = 2; ctx.strokeStyle = '#9A6558'; ctx.stroke();
+          ctx.beginPath(); ctx.arc(x, y, opts.maxPoints ? 8 : (i === 0 ? 6 : 4), 0, Math.PI * 2);
+          ctx.fillStyle = (i === 0 && !opts.maxPoints) ? '#FAFAF8' : '#9A6558'; ctx.fill();
+          ctx.lineWidth = 2; ctx.strokeStyle = '#FAFAF8'; ctx.stroke();
+          if (opts.maxPoints) {
+            ctx.fillStyle = '#FAFAF8'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(String(i + 1), x, y + 0.5);
+          }
         });
       }
       const st = document.getElementById(statusId);
-      if (st) st.textContent = (P.polys.length ? P.polys.length + ' ' + L('alan seçildi') : '') +
-        (P.cur.length ? (P.polys.length ? ' · ' : '') + L('çizim sürüyor') : '');
+      if (st) {
+        if (opts.maxPoints) st.textContent = P.cur.length + '/' + opts.maxPoints + ' ' + L('köşe');
+        else st.textContent = (P.polys.length ? P.polys.length + ' ' + L('alan seçildi') : '') +
+          (P.cur.length ? (P.polys.length ? ' · ' : '') + L('çizim sürüyor') : '');
+      }
+      if (opts.onChange) opts.onChange();
     };
     const pt = e => {
       const r = cv.getBoundingClientRect();
       return [Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)),
               Math.min(1, Math.max(0, (e.clientY - r.top) / r.height))];
     };
-    P.close = function () { if (P.cur.length >= 3) P.polys.push(P.cur); P.cur = []; P.hover = null; P.draw(); };
+    P.close = function () {
+      if (P.cur.length >= 3 && !opts.maxPoints) {
+        if (opts.single) P.polys = [];
+        P.polys.push(P.cur);
+      }
+      if (!opts.maxPoints) P.cur = [];
+      P.hover = null; P.draw();
+    };
     P.undo = function () { if (P.cur.length) P.cur.pop(); else if (P.polys.length) P.cur = P.polys.pop(); P.draw(); };
     P.clear = function () { P.polys = []; P.cur = []; P.hover = null; P.draw(); };
     P.json = function () {
@@ -4807,21 +4845,156 @@
     cv.addEventListener('click', e => {
       if (e.detail > 1) return;   // çift tıklamanın 2. tıkı nokta eklemesin
       const p = pt(e);
+      if (opts.maxPoints) {
+        if (P.cur.length >= opts.maxPoints) P.cur = [];   // 5. tık yeni seçime başlar
+        P.cur.push(p); P.draw(); return;
+      }
       if (P.cur.length >= 3) {
         const r = cv.getBoundingClientRect(), f = P.cur[0];
         if (Math.hypot((p[0] - f[0]) * r.width, (p[1] - f[1]) * r.height) < 12) { P.close(); return; }
       }
+      if (opts.single && !P.cur.length && P.polys.length) P.polys = [];   // yeni parsel eskisinin yerine
       P.cur.push(p); P.draw();
     });
-    cv.addEventListener('dblclick', e => { e.preventDefault(); P.close(); });
-    cv.addEventListener('mousemove', e => { if (P.cur.length) { P.hover = pt(e); P.draw(); } });
+    cv.addEventListener('dblclick', e => { e.preventDefault(); if (!opts.maxPoints) P.close(); });
+    cv.addEventListener('mousemove', e => { if (P.cur.length && !opts.maxPoints) { P.hover = pt(e); P.draw(); } });
     cv.addEventListener('mouseleave', () => { P.hover = null; P.draw(); });
     window.addEventListener('resize', () => P.draw());
     return P;
   }
 
-  let drnSiteFile = null, drnRenderFile = null, drnView = 'mid';
-  const drnPoly = makePolyPicker('drnPolyCanvas', 'drnPolyImg', 'drnPolyStatus');
+  // ── Dörtgen geometrisi (piksel uzayında) ──
+  function _drnHull(pts) {
+    const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const lo = [], up = [];
+    p.forEach(q => { while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); });
+    p.slice().reverse().forEach(q => { while (up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); });
+    return lo.slice(0, -1).concat(up.slice(0, -1));
+  }
+  function _drnTo4(pts) {   // dışbükey zarf → en az alan kaybettiren köşeyi at → 4 köşe
+    let h = _drnHull(pts);
+    const tri = (a, b, c) => Math.abs((b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1]));
+    while (h.length > 4) {
+      let best = 0, bestA = Infinity;
+      h.forEach((q, i) => { const a = tri(h[(i - 1 + h.length) % h.length], q, h[(i + 1) % h.length]); if (a < bestA) { bestA = a; best = i; } });
+      h.splice(best, 1);
+    }
+    return h.length === 4 ? h : null;
+  }
+  function _drnOrderCW(q) {   // ekranda saat yönü, sol-üstten başla
+    const cx = q.reduce((s, p) => s + p[0], 0) / 4, cy = q.reduce((s, p) => s + p[1], 0) / 4;
+    const o = q.slice().sort((a, b) => Math.atan2(a[1] - cy, a[0] - cx) - Math.atan2(b[1] - cy, b[0] - cx));
+    let k = 0; o.forEach((p, i) => { if (p[0] + p[1] < o[k][0] + o[k][1]) k = i; });
+    return o.slice(k).concat(o.slice(0, k));
+  }
+  function _drnBestRot(rq, sq) {   // kenar yönleri en uyumlu döngüsel eşleşme
+    const ang = (a, b) => Math.atan2(b[1] - a[1], b[0] - a[0]);
+    let best = 0, bestC = Infinity;
+    for (let r = 0; r < 4; r++) {
+      let c = 0;
+      for (let i = 0; i < 4; i++) {
+        let d = Math.abs(ang(rq[(i + r) % 4], rq[(i + r + 1) % 4]) - ang(sq[i], sq[(i + 1) % 4])) % (2 * Math.PI);
+        c += Math.min(d, 2 * Math.PI - d);
+      }
+      if (c < bestC) { bestC = c; best = r; }
+    }
+    return best;
+  }
+  function _drnHomography(src, dst) {   // 4 nokta → 3x3 perspektif matrisi
+    const A = [], b = [];
+    for (let i = 0; i < 4; i++) {
+      const [x, y] = src[i], [u, v] = dst[i];
+      A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u);
+      A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v);
+    }
+    for (let c = 0; c < 8; c++) {
+      let m = c; for (let r = c + 1; r < 8; r++) if (Math.abs(A[r][c]) > Math.abs(A[m][c])) m = r;
+      [A[c], A[m]] = [A[m], A[c]]; [b[c], b[m]] = [b[m], b[c]];
+      if (Math.abs(A[c][c]) < 1e-12) return null;
+      for (let r = 0; r < 8; r++) {
+        if (r === c) continue;
+        const f = A[r][c] / A[c][c];
+        for (let k = c; k < 8; k++) A[r][k] -= f * A[c][k];
+        b[r] -= f * b[c];
+      }
+    }
+    const h = b.map((v, i) => v / A[i][i]);
+    return [[h[0], h[1], h[2]], [h[3], h[4], h[5]], [h[6], h[7], 1]];
+  }
+
+  let drnSiteFile = null, drnRenderFile = null, drnView = 'mid', drnRotOffset = 0;
+
+  // Güncel eşleşme: { siteQ, renderQ } normalize ve karşılıklı sırada — yoksa null
+  function drnMatch() {
+    const sImg = document.getElementById('drnPolyImg'), rImg = document.getElementById('drnCornerImg');
+    if (!drnPoly.polys.length || !drnRenderFile || !sImg.naturalWidth || !rImg.naturalWidth) return null;
+    const SW = sImg.naturalWidth, SH = sImg.naturalHeight, RW = rImg.naturalWidth, RH = rImg.naturalHeight;
+    const s4 = _drnTo4(drnPoly.polys[0].map(p => [p[0] * SW, p[1] * SH]));
+    if (!s4) return null;
+    const sq = _drnOrderCW(s4);
+    const rpts = drnCorners.cur.length === 4 ? drnCorners.cur.map(p => [p[0] * RW, p[1] * RH])
+                                             : [[0, 0], [RW, 0], [RW, RH], [0, RH]];
+    const rq0 = _drnOrderCW(rpts);
+    const r = (_drnBestRot(rq0, sq) + drnRotOffset) % 4;
+    const rq = [0, 1, 2, 3].map(i => rq0[(i + r) % 4]);
+    return { siteQ: sq.map(p => [p[0] / SW, p[1] / SH]), renderQ: rq.map(p => [p[0] / RW, p[1] / RH]) };
+  }
+
+  function drnDrawOverlay(ctx, w, h) {
+    const m = drnMatch();
+    document.getElementById('drnRotBtn').style.display = m ? '' : 'none';
+    document.getElementById('drnPreviewNote').style.display = m ? '' : 'none';
+    if (!m) return;
+    const img = document.getElementById('drnCornerImg');
+    const RW = img.naturalWidth, RH = img.naturalHeight;
+    const src = m.renderQ.map(p => [p[0] * RW, p[1] * RH]);
+    const dst = m.siteQ.map(p => [p[0] * w, p[1] * h]);
+    const Hm = _drnHomography(src, dst);
+    if (!Hm) return;
+    const map = (x, y) => { const z = Hm[2][0] * x + Hm[2][1] * y + 1; return [(Hm[0][0] * x + Hm[0][1] * y + Hm[0][2]) / z, (Hm[1][0] * x + Hm[1][1] * y + Hm[1][2]) / z]; };
+    const N = 14;
+    const S = (u, v) => {   // render dörtgeninde (u,v) noktası (çift doğrusal)
+      const a = src[0], b = src[1], c = src[2], d = src[3];
+      return [(1 - v) * ((1 - u) * a[0] + u * b[0]) + v * ((1 - u) * d[0] + u * c[0]),
+              (1 - v) * ((1 - u) * a[1] + u * b[1]) + v * ((1 - u) * d[1] + u * c[1])];
+    };
+    ctx.globalAlpha = 0.85;
+    const tri = (s0, s1, s2) => {
+      const d0 = map(...s0), d1 = map(...s1), d2 = map(...s2);
+      ctx.save();
+      ctx.beginPath();
+      const cx = (d0[0] + d1[0] + d2[0]) / 3, cy = (d0[1] + d1[1] + d2[1]) / 3;
+      [d0, d1, d2].forEach((p, i) => {   // dikiş çizgisi kalmasın diye 0.6px şişir
+        const dx = p[0] - cx, dy = p[1] - cy, l = Math.hypot(dx, dy) || 1;
+        const q = [p[0] + dx / l * 0.6, p[1] + dy / l * 0.6];
+        i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]);
+      });
+      ctx.closePath(); ctx.clip();
+      const den = (s1[0] - s0[0]) * (s2[1] - s0[1]) - (s2[0] - s0[0]) * (s1[1] - s0[1]);
+      if (Math.abs(den) < 1e-9) { ctx.restore(); return; }
+      const a = ((d1[0] - d0[0]) * (s2[1] - s0[1]) - (d2[0] - d0[0]) * (s1[1] - s0[1])) / den;
+      const b = ((d1[1] - d0[1]) * (s2[1] - s0[1]) - (d2[1] - d0[1]) * (s1[1] - s0[1])) / den;
+      const c = ((d2[0] - d0[0]) * (s1[0] - s0[0]) - (d1[0] - d0[0]) * (s2[0] - s0[0])) / den;
+      const d = ((d2[1] - d0[1]) * (s1[0] - s0[0]) - (d1[1] - d0[1]) * (s2[0] - s0[0])) / den;
+      ctx.transform(a, b, c, d, d0[0] - a * s0[0] - c * s0[1], d0[1] - b * s0[0] - d * s0[1]);
+      ctx.drawImage(img, 0, 0);
+      ctx.restore();
+    };
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+      const p00 = S(i / N, j / N), p10 = S((i + 1) / N, j / N), p01 = S(i / N, (j + 1) / N), p11 = S((i + 1) / N, (j + 1) / N);
+      tri(p00, p10, p11); tri(p00, p11, p01);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  const drnPoly = makePolyPicker('drnPolyCanvas', 'drnPolyImg', 'drnPolyStatus',
+    { single: true, overlay: drnDrawOverlay, overlayActive: () => !!drnMatch() });
+  const drnCorners = makePolyPicker('drnCornerCanvas', 'drnCornerImg', 'drnCornerStatus',
+    { maxPoints: 4, onChange: () => { if (window.drnPoly) drnPoly.draw(); } });
+  window.drnPoly = drnPoly;
+
+  function drnRotate() { drnRotOffset = (drnRotOffset + 1) % 4; drnPoly.draw(); }
 
   function setDroneView(v) {
     drnView = v;
@@ -4854,14 +5027,15 @@
     document.getElementById('drnPolyEmpty').style.display = 'none';
     document.getElementById('drnPolyWrap').style.display = 'block';
     const img = document.getElementById('drnPolyImg');
-    img.onload = () => drnPoly.clear();   // yeni arazi → eski parsel geçersiz
+    img.onload = () => { drnRotOffset = 0; drnPoly.clear(); };   // yeni arazi → eski parsel geçersiz
     img.src = url;
   });
   _drnBindUpload('drnRenderInput', 'drnRenderZone', (f, url) => {
     drnRenderFile = f;
-    const img = document.getElementById('drnRenderPreview');
+    document.getElementById('drnCornerBox').style.display = 'block';
+    const img = document.getElementById('drnCornerImg');
+    img.onload = () => { drnRotOffset = 0; drnCorners.clear(); };
     img.src = url;
-    img.style.display = 'block';
   });
 
   async function startDroneMontage() {
@@ -4869,9 +5043,12 @@
     errEl.style.display = 'none';
     const fail = msg => { errEl.textContent = L(msg); errEl.style.display = 'block'; };
     if (!drnSiteFile) return fail('Lütfen önce arazi görüntüsünü yükle.');
-    const region = drnPoly.json();
-    if (!region) return fail('Lütfen arazi görüntüsünde parseli çiz (en az 3 nokta, alanı kapat).');
     if (!drnRenderFile) return fail("Lütfen projenin drone render'ını yükle.");
+    if (drnCorners.cur.length && drnCorners.cur.length !== 4) return fail("Render'da 4 köşeyi de işaretle ya da köşeleri temizle (tüm render kullanılır).");
+    if (drnPoly.cur.length >= 3) drnPoly.close();
+    if (!drnPoly.polys.length) return fail('Lütfen arazi görüntüsünde parseli çiz (en az 3 nokta, alanı kapat).');
+    const m = drnMatch();
+    if (!m) return fail('Parsel dörtgene çevrilemedi — lütfen parseli 4 köşeli olarak yeniden çiz.');
 
     const btn = document.getElementById('drnBtn');
     btn.disabled = true;
@@ -4880,10 +5057,12 @@
     document.getElementById('drnLoading').style.display = 'flex';
 
     try {
+      const q = a => JSON.stringify(a.map(p => [+p[0].toFixed(5), +p[1].toFixed(5)]));
       const formData = new FormData();
       formData.append('image', await resizeIfNeeded(drnSiteFile));
       formData.append('render', await resizeIfNeeded(drnRenderFile));
-      formData.append('region', region);
+      formData.append('site_quad', q(m.siteQ));
+      formData.append('render_quad', q(m.renderQ));
       formData.append('view', drnView);
       formData.append('note', document.getElementById('drnNote').value.trim());
 
