@@ -1350,7 +1350,6 @@
           <div class="mini-label">Ne değişsin?</div>
           <textarea id="enhanceCustomPrompt" rows="3" placeholder="Örn: yazıları kaldır · zemini ahşap parke yap · duvarı antrasit boya · gökyüzünü gün batımı yap" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; font-family:inherit; resize:vertical; line-height:1.5;"></textarea>
           <p style="font-size:11px; color:#8A7E74; margin-top:6px; line-height:1.5;">Yazdığın değişiklik uygulanır, sahnenin geri kalanı (açı, mobilya, ışık) birebir korunur.</p>
-
           <!-- ⬡ Bölge seçimi (çokgen kement) -->
           <div class="mini-label" style="margin-top:14px; margin-bottom:6px;">Nerede uygulansın?</div>
           <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
@@ -3311,13 +3310,6 @@
   // SADECE birebir eşleşen Türkçe görünen metni çevirir. data-pkey ve diğer
   // attribute'lara DOKUNMAZ (onlar metin düğümü değil). data-i18n öğeleri atlanır.
   const TR2EN = {
-    // Video — sinematik mod çalışma zamanı metinleri
-    "🎬 SAHNE — NE OLSUN?": "🎬 THE SCENE — WHAT HAPPENS?",
-    "✏️ SAHNE YÖNERGESİ (İSTEĞE BAĞLI)": "✏️ SCENE DIRECTION (OPTIONAL)",
-    "Sahneyi anlat — örn: dev bir tsunami dalgası binaya çarpsın, su her yeri bassın · binanın önünde patlama olsun, alevler ve duman yükselsin · bina yıkılsın, toz bulutu kaplasın · şiddetli fırtına, şimşekler çaksın": "Describe the scene — e.g. a huge tsunami wave slams into the building and floods everything · an explosion in front of the building, flames and smoke rising · the building collapses in a cloud of dust · a violent storm with lightning strikes",
-    "Videoda ne olsun? Türkçe yazabilirsin — örn: kamera binaya doğru yavaşça yaklaşsın, gün batımı olsun, balkonlarda insanlar görünsün · havuzdaki su dalgalansın · bayrak rüzgârda sallansın": "What should happen in the video? e.g. the camera slowly moves toward the building, sunset light, people on the balconies · water rippling in the pool · a flag waving in the wind",
-
-    // Logodan 3B model — çalışma zamanı metinleri + malzeme seçenekleri
     // Geliştir — ⬡ bölge seçimi (çokgen kement)
     "Nerede uygulansın?": "Where to apply?",
     "Tüm görsel": "Whole image",
@@ -3330,6 +3322,13 @@
     "çizim sürüyor": "drawing in progress",
     "Lütfen görsel üzerinde değiştirilecek alanı çiz (en az 3 nokta, alanı kapat).": "Please draw the area to change on the image (at least 3 points, close the shape).",
 
+    // Video — sinematik mod çalışma zamanı metinleri
+    "🎬 SAHNE — NE OLSUN?": "🎬 THE SCENE — WHAT HAPPENS?",
+    "✏️ SAHNE YÖNERGESİ (İSTEĞE BAĞLI)": "✏️ SCENE DIRECTION (OPTIONAL)",
+    "Sahneyi anlat — örn: dev bir tsunami dalgası binaya çarpsın, su her yeri bassın · binanın önünde patlama olsun, alevler ve duman yükselsin · bina yıkılsın, toz bulutu kaplasın · şiddetli fırtına, şimşekler çaksın": "Describe the scene — e.g. a huge tsunami wave slams into the building and floods everything · an explosion in front of the building, flames and smoke rising · the building collapses in a cloud of dust · a violent storm with lightning strikes",
+    "Videoda ne olsun? Türkçe yazabilirsin — örn: kamera binaya doğru yavaşça yaklaşsın, gün batımı olsun, balkonlarda insanlar görünsün · havuzdaki su dalgalansın · bayrak rüzgârda sallansın": "What should happen in the video? e.g. the camera slowly moves toward the building, sunset light, people on the balconies · water rippling in the pool · a flag waving in the wind",
+
+    // Logodan 3B model — çalışma zamanı metinleri + malzeme seçenekleri
     "LOGO YÜKLE": "UPLOAD LOGO",
     "GÖRSEL YÜKLE": "UPLOAD IMAGE",
     "Logonuzu seçin veya sürükleyin": "Select or drag your logo",
@@ -6753,17 +6752,6 @@
     }
   }
 
-  function setEnhanceType(type) {
-    selectedEnhanceType = type;
-    ['entourage','illumination','realistic','detail','color','custom','recolor'].forEach(t => {
-      document.getElementById('ecard-' + t).classList.toggle('active', t === type);
-    });
-    document.getElementById('enhanceCustomBox').style.display  = (type === 'custom')   ? 'block' : 'none';
-    document.getElementById('enhanceRecolorBox').style.display = (type === 'recolor')  ? 'block' : 'none';
-    if (type === 'recolor') setupRecolorPicker();
-    else teardownRecolorPicker();
-  }
-
   // ─── ⬡ Bölge seçimi — çokgen kement ────────────────────────────────────────
   // Noktalar görsele göre NORMALİZE (0-1) tutulur → gönderilen görsel küçültülse de doğru yere denk gelir.
   let enhanceScope = 'all';
@@ -6862,6 +6850,18 @@
     window.addEventListener('resize', () => { if (enhanceScope === 'region') enhRegionDraw(); });
   })();
 
+  function setEnhanceType(type) {
+    selectedEnhanceType = type;
+    ['entourage','illumination','realistic','detail','color','custom','recolor'].forEach(t => {
+      document.getElementById('ecard-' + t).classList.toggle('active', t === type);
+    });
+    document.getElementById('enhanceCustomBox').style.display  = (type === 'custom')   ? 'block' : 'none';
+    document.getElementById('enhanceRecolorBox').style.display = (type === 'recolor')  ? 'block' : 'none';
+    if (type === 'recolor') setupRecolorPicker();
+    else teardownRecolorPicker();
+    if (type === 'custom' && enhanceScope === 'region') enhRegionSync();
+  }
+
   document.getElementById('enhanceFileInput').addEventListener('change', e => {
     enhanceFile = e.target.files[0];
     if (!enhanceFile) return;
@@ -6871,8 +6871,8 @@
       preview.src = ev.target.result;
       preview.style.display = 'block';
       document.querySelector('#enhanceUploadZone').style.padding = '12px';
-    if (type === 'custom' && enhanceScope === 'region') enhRegionSync();
       document.getElementById('enhanceIcon').style.display = 'none';
+      if (enhanceScope === 'region') enhRegionSync();
     };
     reader.readAsDataURL(enhanceFile);
   });
@@ -6884,7 +6884,6 @@
     e.preventDefault();
     enhanceZone.classList.remove('drag-over');
     enhanceFile = e.dataTransfer.files[0];
-      if (enhanceScope === 'region') enhRegionSync();
     document.getElementById('enhanceFileInput').files = e.dataTransfer.files;
     document.getElementById('enhanceFileInput').dispatchEvent(new Event('change'));
   });
@@ -6904,17 +6903,6 @@
         return;
       }
     }
-    // 🎨 Renk Değiştir: prompt şablonu backend'de (F12 gizliliği) — sadece renkler + malzeme anahtarı gider
-    let recolorSrc = '', recolorDst = '';
-    if (selectedEnhanceType === 'recolor') {
-      recolorSrc = document.getElementById('recolorSrcHex').value.trim();
-      recolorDst = document.getElementById('recolorDstHex').value.trim();
-      if (!/^#[0-9a-fA-F]{6}$/.test(recolorSrc) || !/^#[0-9a-fA-F]{6}$/.test(recolorDst)) {
-        document.getElementById('enhanceError').textContent = 'Lütfen geçerli kaynak ve hedef renk gir (örn: #A65E2E).';
-        document.getElementById('enhanceError').style.display = 'block';
-        return;
-      }
-    }
     // ⬡ Bölge seçimi: yarım kalan çizim 3+ noktaysa otomatik kapatılır
     let regionJson = '';
     if (selectedEnhanceType === 'custom' && enhanceScope === 'region') {
@@ -6925,6 +6913,17 @@
         return;
       }
       regionJson = JSON.stringify(enhRegionPolys.map(poly => poly.map(p => [+p[0].toFixed(5), +p[1].toFixed(5)])));
+    }
+    // 🎨 Renk Değiştir: prompt şablonu backend'de (F12 gizliliği) — sadece renkler + malzeme anahtarı gider
+    let recolorSrc = '', recolorDst = '';
+    if (selectedEnhanceType === 'recolor') {
+      recolorSrc = document.getElementById('recolorSrcHex').value.trim();
+      recolorDst = document.getElementById('recolorDstHex').value.trim();
+      if (!/^#[0-9a-fA-F]{6}$/.test(recolorSrc) || !/^#[0-9a-fA-F]{6}$/.test(recolorDst)) {
+        document.getElementById('enhanceError').textContent = 'Lütfen geçerli kaynak ve hedef renk gir (örn: #A65E2E).';
+        document.getElementById('enhanceError').style.display = 'block';
+        return;
+      }
     }
 
     const btn = document.getElementById('enhanceBtn');
@@ -6940,6 +6939,7 @@
     formData.append('image', enhanceToSend);
     formData.append('enhance_type', selectedEnhanceType);
     if (selectedEnhanceType === 'custom') formData.append('prompt', customPrompt);
+    if (regionJson) formData.append('region', regionJson);
     if (selectedEnhanceType === 'recolor') {
       formData.append('recolor_src', recolorSrc);
       formData.append('recolor_dst', recolorDst);
@@ -6951,7 +6951,6 @@
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
       refreshCredits();
-    if (regionJson) formData.append('region', regionJson);
 
       const jobId = startData.prediction_id;
       let elapsed = 0;
