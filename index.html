@@ -1350,6 +1350,26 @@
           <div class="mini-label">Ne değişsin?</div>
           <textarea id="enhanceCustomPrompt" rows="3" placeholder="Örn: yazıları kaldır · zemini ahşap parke yap · duvarı antrasit boya · gökyüzünü gün batımı yap" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #D8D2C8; border-radius:10px; background:#FAFAF8; color:#2A2520; font-size:13px; font-family:inherit; resize:vertical; line-height:1.5;"></textarea>
           <p style="font-size:11px; color:#8A7E74; margin-top:6px; line-height:1.5;">Yazdığın değişiklik uygulanır, sahnenin geri kalanı (açı, mobilya, ışık) birebir korunur.</p>
+
+          <!-- ⬡ Bölge seçimi (çokgen kement) -->
+          <div class="mini-label" style="margin-top:14px; margin-bottom:6px;">Nerede uygulansın?</div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
+            <button class="recolor-mat-btn active" id="enhScopeAll" onclick="setEnhanceScope('all')">Tüm görsel</button>
+            <button class="recolor-mat-btn" id="enhScopeRegion" onclick="setEnhanceScope('region')">⬡ Sadece seçtiğim alan</button>
+          </div>
+          <div id="enhRegionBox" style="display:none;">
+            <p style="font-size:11px; color:#8A7E74; margin-bottom:8px; line-height:1.5;">Görselde köşelere tıklayarak alanı çiz. İlk noktaya tıklayınca (veya çift tıklayınca) alan kapanır. Birden fazla alan çizebilirsin.</p>
+            <div id="enhRegionEmpty" style="font-size:12px; color:#ABA49C; padding:18px; border:1px dashed #D8D2C8; border-radius:10px; text-align:center;">Önce yukarıdan bir görsel yükle.</div>
+            <div id="enhRegionWrap" style="position:relative; display:none; border-radius:10px; overflow:hidden; border:1px solid #D8D2C8; line-height:0; user-select:none;">
+              <img id="enhRegionImg" style="width:100%; height:auto; display:block;" draggable="false" />
+              <canvas id="enhRegionCanvas" style="position:absolute; left:0; top:0; width:100%; height:100%; cursor:crosshair; touch-action:none;"></canvas>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; align-items:center;">
+              <button class="recolor-mat-btn" onclick="enhRegionUndo()">↶ Son noktayı geri al</button>
+              <button class="recolor-mat-btn" onclick="enhRegionClear()">Temizle</button>
+              <span id="enhRegionStatus" style="font-size:11px; color:#8A7E74;"></span>
+            </div>
+          </div>
         </div>
 
         <div id="enhanceRecolorBox" style="display:none; margin-bottom:20px;">
@@ -3298,6 +3318,18 @@
     "Videoda ne olsun? Türkçe yazabilirsin — örn: kamera binaya doğru yavaşça yaklaşsın, gün batımı olsun, balkonlarda insanlar görünsün · havuzdaki su dalgalansın · bayrak rüzgârda sallansın": "What should happen in the video? e.g. the camera slowly moves toward the building, sunset light, people on the balconies · water rippling in the pool · a flag waving in the wind",
 
     // Logodan 3B model — çalışma zamanı metinleri + malzeme seçenekleri
+    // Geliştir — ⬡ bölge seçimi (çokgen kement)
+    "Nerede uygulansın?": "Where to apply?",
+    "Tüm görsel": "Whole image",
+    "⬡ Sadece seçtiğim alan": "⬡ Only the area I select",
+    "Görselde köşelere tıklayarak alanı çiz. İlk noktaya tıklayınca (veya çift tıklayınca) alan kapanır. Birden fazla alan çizebilirsin.": "Draw the area by clicking its corners on the image. Click the first point (or double-click) to close it. You can draw more than one area.",
+    "Önce yukarıdan bir görsel yükle.": "Upload an image above first.",
+    "↶ Son noktayı geri al": "↶ Undo last point",
+    "Temizle": "Clear",
+    "alan seçildi": "area(s) selected",
+    "çizim sürüyor": "drawing in progress",
+    "Lütfen görsel üzerinde değiştirilecek alanı çiz (en az 3 nokta, alanı kapat).": "Please draw the area to change on the image (at least 3 points, close the shape).",
+
     "LOGO YÜKLE": "UPLOAD LOGO",
     "GÖRSEL YÜKLE": "UPLOAD IMAGE",
     "Logonuzu seçin veya sürükleyin": "Select or drag your logo",
@@ -6732,6 +6764,104 @@
     else teardownRecolorPicker();
   }
 
+  // ─── ⬡ Bölge seçimi — çokgen kement ────────────────────────────────────────
+  // Noktalar görsele göre NORMALİZE (0-1) tutulur → gönderilen görsel küçültülse de doğru yere denk gelir.
+  let enhanceScope = 'all';
+  let enhRegionPolys = [];     // kapanmış çokgenler
+  let enhRegionCur = [];       // çizilmekte olan
+  let enhRegionHover = null;
+
+  function setEnhanceScope(scope) {
+    enhanceScope = scope;
+    document.getElementById('enhScopeAll').classList.toggle('active', scope === 'all');
+    document.getElementById('enhScopeRegion').classList.toggle('active', scope === 'region');
+    document.getElementById('enhRegionBox').style.display = (scope === 'region') ? 'block' : 'none';
+    if (scope === 'region') enhRegionSync();
+  }
+
+  function enhRegionSync() {
+    const src = document.getElementById('enhancePreview').getAttribute('src');
+    const img = document.getElementById('enhRegionImg');
+    document.getElementById('enhRegionEmpty').style.display = src ? 'none' : 'block';
+    document.getElementById('enhRegionWrap').style.display = src ? 'block' : 'none';
+    if (!src) return;
+    if (img.getAttribute('src') !== src) {
+      enhRegionPolys = []; enhRegionCur = [];
+      img.onload = enhRegionDraw;
+      img.src = src;
+    } else enhRegionDraw();
+  }
+
+  function enhRegionDraw() {
+    const img = document.getElementById('enhRegionImg');
+    const cv = document.getElementById('enhRegionCanvas');
+    const w = img.clientWidth, h = img.clientHeight;
+    if (!w || !h) return;
+    const dpr = window.devicePixelRatio || 1;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const P = p => [p[0] * w, p[1] * h];
+    enhRegionPolys.forEach(poly => {
+      ctx.beginPath();
+      poly.forEach((p, i) => { const [x, y] = P(p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(154,101,88,0.35)'; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = '#9A6558'; ctx.stroke();
+    });
+    if (enhRegionCur.length) {
+      ctx.beginPath();
+      enhRegionCur.forEach((p, i) => { const [x, y] = P(p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+      if (enhRegionHover) { const [x, y] = P(enhRegionHover); ctx.lineTo(x, y); }
+      ctx.lineWidth = 2; ctx.setLineDash([6, 4]); ctx.strokeStyle = '#9A6558'; ctx.stroke(); ctx.setLineDash([]);
+      enhRegionCur.forEach((p, i) => {
+        const [x, y] = P(p);
+        ctx.beginPath(); ctx.arc(x, y, i === 0 ? 6 : 4, 0, Math.PI * 2);
+        ctx.fillStyle = i === 0 ? '#FAFAF8' : '#9A6558'; ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = '#9A6558'; ctx.stroke();
+      });
+    }
+    const st = document.getElementById('enhRegionStatus');
+    st.textContent = (enhRegionPolys.length ? enhRegionPolys.length + ' ' + L('alan seçildi') : '') +
+      (enhRegionCur.length ? (enhRegionPolys.length ? ' · ' : '') + L('çizim sürüyor') : '');
+  }
+
+  function enhRegionPt(e) {
+    const r = document.getElementById('enhRegionCanvas').getBoundingClientRect();
+    return [Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)),
+            Math.min(1, Math.max(0, (e.clientY - r.top) / r.height))];
+  }
+  function enhRegionClose() {
+    if (enhRegionCur.length >= 3) enhRegionPolys.push(enhRegionCur);
+    enhRegionCur = []; enhRegionHover = null;
+    enhRegionDraw();
+  }
+  function enhRegionUndo() {
+    if (enhRegionCur.length) enhRegionCur.pop();
+    else if (enhRegionPolys.length) enhRegionCur = enhRegionPolys.pop();
+    enhRegionDraw();
+  }
+  function enhRegionClear() { enhRegionPolys = []; enhRegionCur = []; enhRegionHover = null; enhRegionDraw(); }
+
+  (function initEnhRegion() {
+    const cv = document.getElementById('enhRegionCanvas');
+    cv.addEventListener('click', e => {
+      if (e.detail > 1) return;   // çift tıklamanın 2. tıkı nokta eklemesin
+      const p = enhRegionPt(e);
+      if (enhRegionCur.length >= 3) {
+        const r = cv.getBoundingClientRect(), f = enhRegionCur[0];
+        if (Math.hypot((p[0] - f[0]) * r.width, (p[1] - f[1]) * r.height) < 12) { enhRegionClose(); return; }
+      }
+      enhRegionCur.push(p);
+      enhRegionDraw();
+    });
+    cv.addEventListener('dblclick', e => { e.preventDefault(); enhRegionClose(); });
+    cv.addEventListener('mousemove', e => { if (enhRegionCur.length) { enhRegionHover = enhRegionPt(e); enhRegionDraw(); } });
+    cv.addEventListener('mouseleave', () => { enhRegionHover = null; enhRegionDraw(); });
+    window.addEventListener('resize', () => { if (enhanceScope === 'region') enhRegionDraw(); });
+  })();
+
   document.getElementById('enhanceFileInput').addEventListener('change', e => {
     enhanceFile = e.target.files[0];
     if (!enhanceFile) return;
@@ -6741,6 +6871,7 @@
       preview.src = ev.target.result;
       preview.style.display = 'block';
       document.querySelector('#enhanceUploadZone').style.padding = '12px';
+    if (type === 'custom' && enhanceScope === 'region') enhRegionSync();
       document.getElementById('enhanceIcon').style.display = 'none';
     };
     reader.readAsDataURL(enhanceFile);
@@ -6753,6 +6884,7 @@
     e.preventDefault();
     enhanceZone.classList.remove('drag-over');
     enhanceFile = e.dataTransfer.files[0];
+      if (enhanceScope === 'region') enhRegionSync();
     document.getElementById('enhanceFileInput').files = e.dataTransfer.files;
     document.getElementById('enhanceFileInput').dispatchEvent(new Event('change'));
   });
@@ -6783,6 +6915,17 @@
         return;
       }
     }
+    // ⬡ Bölge seçimi: yarım kalan çizim 3+ noktaysa otomatik kapatılır
+    let regionJson = '';
+    if (selectedEnhanceType === 'custom' && enhanceScope === 'region') {
+      if (enhRegionCur.length >= 3) enhRegionClose();
+      if (!enhRegionPolys.length) {
+        document.getElementById('enhanceError').textContent = L('Lütfen görsel üzerinde değiştirilecek alanı çiz (en az 3 nokta, alanı kapat).');
+        document.getElementById('enhanceError').style.display = 'block';
+        return;
+      }
+      regionJson = JSON.stringify(enhRegionPolys.map(poly => poly.map(p => [+p[0].toFixed(5), +p[1].toFixed(5)])));
+    }
 
     const btn = document.getElementById('enhanceBtn');
     btn.disabled = true;
@@ -6808,6 +6951,7 @@
       const startData = await startRes.json();
       if (!startRes.ok) throw new Error(startData.detail || 'Başlatılamadı');
       refreshCredits();
+    if (regionJson) formData.append('region', regionJson);
 
       const jobId = startData.prediction_id;
       let elapsed = 0;
