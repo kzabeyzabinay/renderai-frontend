@@ -660,6 +660,7 @@
   <div id="mainNav">
     <button class="main-nav-btn active" id="nav-render" onclick="switchMainSection('render')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 21h18"/><path d="M6 21V4h8v17"/><path d="M14 21V9h4v12"/><path d="M9 8h2M9 12h2M9 16h2"/></svg><span data-i18n="nav_render">Render</span></button>
     <button class="main-nav-btn" id="nav-facade" onclick="switchMainSection('facade')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="8" height="18" rx="1"/><rect x="13" y="3" width="8" height="18" rx="1"/><path d="M6 7h2M6 11h2M6 15h2"/><path d="M16 7h2M16 11h2M16 15h2"/></svg><span data-i18n="nav_facade">Cephe Stili</span> <span style="background:#7A8B6A; color:#fff; font-size:9px; padding:2px 6px; border-radius:8px; vertical-align:2px;" data-i18n="nav_new_badge">YENİ</span></button>
+    <button class="main-nav-btn" id="nav-drone" onclick="switchMainSection('drone')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M4 7h16M12 7v3M7 10h10l-1 4H8zM10 18h6M13 14v4"/></svg><span data-i18n="nav_drone">Drone Montaj</span> <span style="background:#7A8B6A; color:#fff; font-size:9px; padding:2px 6px; border-radius:8px; vertical-align:2px;" data-i18n="nav_new_badge">YENİ</span></button>
     <button class="main-nav-btn" id="nav-staging" onclick="switchMainSection('staging')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M4 10V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2z"/><path d="M5 19v2M19 19v2"/></svg><span data-i18n="nav_staging">Sanal Mobilyalama</span></button>
     <button class="main-nav-btn" id="nav-model3d" onclick="switchMainSection('model3d')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg><span data-i18n="nav_model3d">3D Model</span></button>
     <button class="main-nav-btn" id="nav-detay" onclick="switchMainSection('detay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 3v18M15 9v12"/></svg><span data-i18n="nav_detay">Detay Çizimi</span> <span style="background:#7A8B6A; color:#fff; font-size:9px; padding:2px 6px; border-radius:8px; vertical-align:2px;" data-i18n="nav_new_badge">YENİ</span></button>
@@ -2347,6 +2348,102 @@
   </div>
 </div>
 
+<!-- ─── 🛸 DRONE MONTAJ — drone render'ı arazi görüntüsüne yerleştir ─────────── -->
+<div id="section-drone" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
+  <div data-i18n-html="drn_how" style="background:#FAFAF8; border:1px solid #E0DAD0; border-radius:14px; padding:16px 20px; margin:18px 0; font-size:13px; color:#5A5249; line-height:1.6;">
+    <b style="color:#9A6558;">Nasıl çalışır?</b> Google Maps / Google Earth'ten arazinin <b>ekran görüntüsünü</b> yükle, <b>parseli</b> köşelerine tıklayarak çiz, projenin <b>drone render'ını</b> ekle. AI binayı parseline, arazinin kamera açısı, ölçeği, ışığı ve gölgeleriyle kurar. <b>Parselin dışındaki arazi, yollar ve komşu binalar birebir korunur.</b>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+
+    <!-- Sol: Girdiler -->
+    <div>
+      <div class="panel">
+        <h2 data-i18n="drn_site_h">1 — Arazi Görüntüsü</h2>
+        <div class="upload-zone" id="drnSiteZone">
+          <input type="file" id="drnSiteInput" accept="image/*" />
+          <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg></div>
+          <p><strong data-i18n="drn_site_hint">Google Maps / Earth ekran görüntüsünü seçin</strong> veya sürükleyin</p>
+        </div>
+        <p data-i18n-html="drn_site_note" style="font-size:11px; color:#8A7E74; margin:8px 0 0; line-height:1.5;"><b>İpucu:</b> Google Earth'ün <b>3B eğik görünümünde</b>, drone render'ına yakın bir açıyla alınan görüntü en iyi sonucu verir. Tepeden uydu görüntüsü de kullanılabilir. Google görüntüsü kullanıyorsan paylaşırken "© Google" atfını koru.</p>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="drn_parcel_h">2 — Parseli Çiz</h2>
+        <p data-i18n="drn_parcel_hint" style="font-size:12px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">Arazi görüntüsünde parselin köşelerine sırayla tıkla. İlk noktaya tıklayınca (veya çift tıklayınca) parsel kapanır. Birden fazla parsel çizebilirsin.</p>
+        <div id="drnPolyEmpty" data-i18n="drn_parcel_empty" style="font-size:12px; color:#ABA49C; padding:18px; border:1px dashed #D8D2C8; border-radius:10px; text-align:center;">Önce arazi görüntüsünü yükle.</div>
+        <div id="drnPolyWrap" style="position:relative; display:none; border-radius:10px; overflow:hidden; border:1px solid #D8D2C8; line-height:0; user-select:none;">
+          <img id="drnPolyImg" style="width:100%; height:auto; display:block;" draggable="false" />
+          <canvas id="drnPolyCanvas" style="position:absolute; left:0; top:0; width:100%; height:100%; cursor:crosshair; touch-action:none;"></canvas>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; align-items:center;">
+          <button class="recolor-mat-btn" onclick="drnPoly.undo()">↶ Son noktayı geri al</button>
+          <button class="recolor-mat-btn" onclick="drnPoly.clear()">Temizle</button>
+          <span id="drnPolyStatus" style="font-size:11px; color:#8A7E74;"></span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="drn_render_h">3 — Projenin Drone Render'ı</h2>
+        <div class="upload-zone" id="drnRenderZone">
+          <input type="file" id="drnRenderInput" accept="image/*" />
+          <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 7h16M12 7v3M7 10h10l-1 4H8zM10 18h6M13 14v4"/></svg></div>
+          <p><strong data-i18n="drn_render_hint">Kuşbakışı / drone render'ı seçin</strong> veya sürükleyin</p>
+        </div>
+        <img id="drnRenderPreview" class="preview-img" />
+        <p data-i18n="drn_render_note" style="font-size:11px; color:#8A7E74; margin:8px 0 0; line-height:1.5;">Binanın kütlesi, kat sayısı, çatısı, malzemeleri ve peyzajı bu görselden alınır.</p>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="drn_view_h">Görünüm &amp; Bina Yüksekliği</h2>
+        <p data-i18n="drn_view_hint" style="font-size:11px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">Eğik görünümde bina görüntüde yukarı doğru uzar — AI'ın çalışacağı alan buna göre ayarlanır.</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <button class="scale-btn" id="drnViewTop" onclick="setDroneView('top')">
+            <div data-i18n="drn_view_top_t" style="font-size:14px; font-weight:700; color:#9A6558;">Tepeden (Uydu)</div>
+            <div data-i18n="drn_view_top_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Düz yukarıdan bakış</div>
+          </button>
+          <button class="scale-btn" id="drnViewLow" onclick="setDroneView('low')">
+            <div data-i18n="drn_view_low_t" style="font-size:14px; font-weight:700; color:#9A6558;">Alçak Bina</div>
+            <div data-i18n="drn_view_low_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Eğik görünüm · 1-3 kat</div>
+          </button>
+          <button class="scale-btn active" id="drnViewMid" onclick="setDroneView('mid')">
+            <div data-i18n="drn_view_mid_t" style="font-size:14px; font-weight:700; color:#9A6558;">Orta Bina</div>
+            <div data-i18n="drn_view_mid_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Eğik görünüm · 4-8 kat</div>
+          </button>
+          <button class="scale-btn" id="drnViewHigh" onclick="setDroneView('high')">
+            <div data-i18n="drn_view_high_t" style="font-size:14px; font-weight:700; color:#9A6558;">Yüksek Bina</div>
+            <div data-i18n="drn_view_high_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Eğik görünüm · 9+ kat</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="drn_note_h">İsteğe Bağlı Talimat</h2>
+        <input type="text" id="drnNote" data-i18n-ph="drn_note_ph" placeholder="örn: bina girişi yola baksın · havuz parselin güneyinde olsun · ağaçları koru"
+          style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:16px;" />
+        <button class="render-btn" id="drnBtn" onclick="startDroneMontage()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 7h16M12 7v3M7 10h10l-1 4H8zM10 18h6M13 14v4"/></svg> <span data-i18n="drn_btn">Araziye Yerleştir</span> <span data-i18n="drn_btn_cost" style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
+        <div class="error-msg" id="drnError"></div>
+      </div>
+    </div>
+
+    <!-- Sağ: Sonuç -->
+    <div class="panel result-panel">
+      <div class="result-placeholder" id="drnPlaceholder">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 7h16M12 7v3M7 10h10l-1 4H8zM10 18h6M13 14v4"/></svg></div>
+        <p data-i18n="drn_placeholder">Araziye yerleştirilmiş proje burada görünecek</p>
+      </div>
+      <div class="loading" id="drnLoading" style="display:none;">
+        <div class="spinner"></div>
+        <p><span id="drnLoadingLabel" data-i18n="drn_loading">Proje araziye yerleştiriliyor...</span><br><span data-i18n="drn_loading_sub" style="font-size:12px; color:#ABA49C;">Açı, ölçek, ışık ve gölge eşleştiriliyor (~40-90 sn)</span></p>
+      </div>
+      <div id="drnResultContainer" style="display:none; width:100%; text-align:center;">
+        <img id="drnResultImg" class="result-img" style="display:block; max-width:100%;" />
+        <a id="drnDownloadBtn" class="download-btn" download="bynai_drone_montaj.png" style="margin-top:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg> <span data-i18n="drn_download">İndir (PNG)</span></a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ─── YERLEŞTİR (Ürün + Dijital İkiz Montaj) ──────────────────────────── -->
 <div id="section-place" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
@@ -3125,6 +3222,31 @@
     nav_elev: "Plan to Render",
     // Cephe Stili sekmesi
     nav_facade: "Facade Style",
+    // Drone Montaj
+    nav_drone: "Drone Montage",
+    drn_how: '<b style="color:#9A6558;">How it works?</b> Upload a <b>screenshot</b> of the site from Google Maps / Google Earth, draw the <b>parcel</b> by clicking its corners, and add your project\'s <b>drone render</b>. The AI builds the project on your parcel matching the site\'s camera angle, scale, light and shadows. <b>The land, roads and neighboring buildings outside the parcel are kept exactly as they are.</b>',
+    drn_site_h: "1 — Site Image",
+    drn_site_hint: "Select a Google Maps / Earth screenshot",
+    drn_site_note: '<b>Tip:</b> a screenshot taken in Google Earth\'s <b>3D tilted view</b>, at an angle close to your drone render, gives the best result. A top-down satellite image also works. If you use Google imagery, keep the "© Google" attribution when sharing.',
+    drn_parcel_h: "2 — Draw the Parcel",
+    drn_parcel_hint: "Click the parcel corners in order on the site image. Click the first point (or double-click) to close it. You can draw more than one parcel.",
+    drn_parcel_empty: "Upload the site image first.",
+    drn_render_h: "3 — Project Drone Render",
+    drn_render_hint: "Select an aerial / drone render",
+    drn_render_note: "The building's massing, floors, roof, materials and landscaping are taken from this image.",
+    drn_view_h: "View & Building Height",
+    drn_view_hint: "In a tilted view the building extends upward in the image — the area the AI works on is sized accordingly.",
+    drn_view_top_t: "Top-down (Satellite)", drn_view_top_d: "Straight overhead view",
+    drn_view_low_t: "Low Building", drn_view_low_d: "Tilted view · 1-3 floors",
+    drn_view_mid_t: "Mid-rise Building", drn_view_mid_d: "Tilted view · 4-8 floors",
+    drn_view_high_t: "High-rise Building", drn_view_high_d: "Tilted view · 9+ floors",
+    drn_note_h: "Optional Instruction",
+    drn_note_ph: "e.g. building entrance facing the road · pool on the south side of the parcel · keep the trees",
+    drn_btn: "Place on Site", drn_btn_cost: "· 15 credits",
+    drn_placeholder: "Your project placed on the site will appear here",
+    drn_loading: "Placing the project on the site...",
+    drn_loading_sub: "Matching angle, scale, light and shadows (~40-90 sec)",
+    drn_download: "Download (PNG)",
     fac_how: "<b style=\"color:#9A6558;\">How does it work?</b> Upload <b>your own project</b> first, then a <b>reference facade</b> you like. The AI keeps your building's mass, floors, camera and surroundings exactly as they are, and redesigns only the facade skin — materials, colours, frames, balconies and details — in the reference building's architectural language.",
     fac_base_h: "1 — Your Project",
     fac_base_hint: "Select your render or building photo",
@@ -3310,6 +3432,12 @@
   // SADECE birebir eşleşen Türkçe görünen metni çevirir. data-pkey ve diğer
   // attribute'lara DOKUNMAZ (onlar metin düğümü değil). data-i18n öğeleri atlanır.
   const TR2EN = {
+    // Drone Montaj — çalışma zamanı metinleri (kement metinleri Geliştir bölümünde tanımlı)
+    "Lütfen önce arazi görüntüsünü yükle.": "Please upload the site image first.",
+    "Lütfen arazi görüntüsünde parseli çiz (en az 3 nokta, alanı kapat).": "Please draw the parcel on the site image (at least 3 points, close the shape).",
+    "Lütfen projenin drone render'ını yükle.": "Please upload the project's drone render.",
+    "Drone montaj başarısız": "Drone montage failed",
+
     // Geliştir — ⬡ bölge seçimi (çokgen kement)
     "Nerede uygulansın?": "Where to apply?",
     "Tüm görsel": "Whole image",
@@ -4600,12 +4728,13 @@
     document.getElementById('section-video').style.display     = section === 'video'     ? 'block' : 'none';
     document.getElementById('section-floorplan').style.display = section === 'floorplan' ? 'block' : 'none';
     document.getElementById('section-facade').style.display    = section === 'facade'    ? 'block' : 'none';
+    document.getElementById('section-drone').style.display     = section === 'drone'     ? 'block' : 'none';
     document.getElementById('section-place').style.display     = section === 'place'     ? 'block' : 'none';
     document.getElementById('section-pano').style.display      = section === 'pano'      ? 'block' : 'none';
     document.getElementById('section-decision').style.display  = section === 'decision' ? 'block' : 'none';
     document.getElementById('section-works').style.display     = section === 'works'     ? 'block' : 'none';
     document.getElementById('section-egitim').style.display    = section === 'egitim'    ? 'block' : 'none';
-    ['render','facade','staging','model3d','detay','elev','upscale','enhance','photo','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
+    ['render','facade','drone','staging','model3d','detay','elev','upscale','enhance','photo','video','floorplan','place','pano','decision','works','egitim'].forEach(s =>
       document.getElementById('nav-' + s).classList.toggle('active', s === section)
     );
     if (section === 'works') {
@@ -4622,6 +4751,173 @@
     }
     if (section === 'decision') loadDecisionLibrary();
     if (section === 'pano') loadPanoHistory();
+    if (section === 'drone') drnPoly.draw();
+  }
+
+  // ─── 🛸 DRONE MONTAJ ─────────────────────────────────────────────────────
+  // Çokgen kement: noktalar görsele göre NORMALİZE (0-1) — gönderilen görsel küçültülse de doğru yere denk gelir.
+  function makePolyPicker(canvasId, imgId, statusId) {
+    const P = { polys: [], cur: [], hover: null };
+    const cv = document.getElementById(canvasId);
+    P.draw = function () {
+      const img = document.getElementById(imgId);
+      const w = img.clientWidth, h = img.clientHeight;
+      if (!w || !h) return;
+      const dpr = window.devicePixelRatio || 1;
+      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+      const ctx = cv.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      const XY = p => [p[0] * w, p[1] * h];
+      P.polys.forEach(poly => {
+        ctx.beginPath();
+        poly.forEach((p, i) => { const [x, y] = XY(p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(154,101,88,0.35)'; ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = '#9A6558'; ctx.stroke();
+      });
+      if (P.cur.length) {
+        ctx.beginPath();
+        P.cur.forEach((p, i) => { const [x, y] = XY(p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+        if (P.hover) { const [x, y] = XY(P.hover); ctx.lineTo(x, y); }
+        ctx.lineWidth = 2; ctx.setLineDash([6, 4]); ctx.strokeStyle = '#9A6558'; ctx.stroke(); ctx.setLineDash([]);
+        P.cur.forEach((p, i) => {
+          const [x, y] = XY(p);
+          ctx.beginPath(); ctx.arc(x, y, i === 0 ? 6 : 4, 0, Math.PI * 2);
+          ctx.fillStyle = i === 0 ? '#FAFAF8' : '#9A6558'; ctx.fill();
+          ctx.lineWidth = 2; ctx.strokeStyle = '#9A6558'; ctx.stroke();
+        });
+      }
+      const st = document.getElementById(statusId);
+      if (st) st.textContent = (P.polys.length ? P.polys.length + ' ' + L('alan seçildi') : '') +
+        (P.cur.length ? (P.polys.length ? ' · ' : '') + L('çizim sürüyor') : '');
+    };
+    const pt = e => {
+      const r = cv.getBoundingClientRect();
+      return [Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)),
+              Math.min(1, Math.max(0, (e.clientY - r.top) / r.height))];
+    };
+    P.close = function () { if (P.cur.length >= 3) P.polys.push(P.cur); P.cur = []; P.hover = null; P.draw(); };
+    P.undo = function () { if (P.cur.length) P.cur.pop(); else if (P.polys.length) P.cur = P.polys.pop(); P.draw(); };
+    P.clear = function () { P.polys = []; P.cur = []; P.hover = null; P.draw(); };
+    P.json = function () {
+      if (P.cur.length >= 3) P.close();
+      return P.polys.length ? JSON.stringify(P.polys.map(poly => poly.map(p => [+p[0].toFixed(5), +p[1].toFixed(5)]))) : '';
+    };
+    cv.addEventListener('click', e => {
+      if (e.detail > 1) return;   // çift tıklamanın 2. tıkı nokta eklemesin
+      const p = pt(e);
+      if (P.cur.length >= 3) {
+        const r = cv.getBoundingClientRect(), f = P.cur[0];
+        if (Math.hypot((p[0] - f[0]) * r.width, (p[1] - f[1]) * r.height) < 12) { P.close(); return; }
+      }
+      P.cur.push(p); P.draw();
+    });
+    cv.addEventListener('dblclick', e => { e.preventDefault(); P.close(); });
+    cv.addEventListener('mousemove', e => { if (P.cur.length) { P.hover = pt(e); P.draw(); } });
+    cv.addEventListener('mouseleave', () => { P.hover = null; P.draw(); });
+    window.addEventListener('resize', () => P.draw());
+    return P;
+  }
+
+  let drnSiteFile = null, drnRenderFile = null, drnView = 'mid';
+  const drnPoly = makePolyPicker('drnPolyCanvas', 'drnPolyImg', 'drnPolyStatus');
+
+  function setDroneView(v) {
+    drnView = v;
+    [['top', 'drnViewTop'], ['low', 'drnViewLow'], ['mid', 'drnViewMid'], ['high', 'drnViewHigh']]
+      .forEach(([k, id]) => document.getElementById(id).classList.toggle('active', k === v));
+  }
+
+  function _drnBindUpload(inputId, zoneId, onFile) {
+    const input = document.getElementById(inputId);
+    input.addEventListener('change', e => {
+      const f = e.target.files[0] || null;
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = ev => onFile(f, ev.target.result);
+      reader.readAsDataURL(f);
+    });
+    const zone = document.getElementById(zoneId);
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (!e.dataTransfer.files.length) return;
+      input.files = e.dataTransfer.files;
+      input.dispatchEvent(new Event('change'));
+    });
+  }
+  _drnBindUpload('drnSiteInput', 'drnSiteZone', (f, url) => {
+    drnSiteFile = f;
+    document.getElementById('drnPolyEmpty').style.display = 'none';
+    document.getElementById('drnPolyWrap').style.display = 'block';
+    const img = document.getElementById('drnPolyImg');
+    img.onload = () => drnPoly.clear();   // yeni arazi → eski parsel geçersiz
+    img.src = url;
+  });
+  _drnBindUpload('drnRenderInput', 'drnRenderZone', (f, url) => {
+    drnRenderFile = f;
+    const img = document.getElementById('drnRenderPreview');
+    img.src = url;
+    img.style.display = 'block';
+  });
+
+  async function startDroneMontage() {
+    const errEl = document.getElementById('drnError');
+    errEl.style.display = 'none';
+    const fail = msg => { errEl.textContent = L(msg); errEl.style.display = 'block'; };
+    if (!drnSiteFile) return fail('Lütfen önce arazi görüntüsünü yükle.');
+    const region = drnPoly.json();
+    if (!region) return fail('Lütfen arazi görüntüsünde parseli çiz (en az 3 nokta, alanı kapat).');
+    if (!drnRenderFile) return fail("Lütfen projenin drone render'ını yükle.");
+
+    const btn = document.getElementById('drnBtn');
+    btn.disabled = true;
+    document.getElementById('drnPlaceholder').style.display = 'none';
+    document.getElementById('drnResultContainer').style.display = 'none';
+    document.getElementById('drnLoading').style.display = 'flex';
+
+    try {
+      const formData = new FormData();
+      formData.append('image', await resizeIfNeeded(drnSiteFile));
+      formData.append('render', await resizeIfNeeded(drnRenderFile));
+      formData.append('region', region);
+      formData.append('view', drnView);
+      formData.append('note', document.getElementById('drnNote').value.trim());
+
+      const startRes = await fetch(`${API}/drone/start`, { method: 'POST', headers: authHeaders(), body: formData });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.detail || L('Başlatılamadı'));
+      refreshCredits();
+
+      const jobId = startData.prediction_id;
+      let elapsed = 0;
+      while (true) {
+        await new Promise(r => setTimeout(r, 3000));
+        elapsed += 3;
+        const statusRes = await fetch(`${API}/render/status/${jobId}`);
+        const statusData = await statusRes.json();
+        if (statusData.stage_label) document.getElementById('drnLoadingLabel').textContent = statusData.stage_label;
+        if (statusData.status === 'succeeded') {
+          document.getElementById('drnLoading').style.display = 'none';
+          document.getElementById('drnResultImg').src = statusData.render_url;
+          document.getElementById('drnDownloadBtn').href = statusData.render_url;
+          document.getElementById('drnResultContainer').style.display = 'block';
+          break;
+        }
+        if (statusData.status === 'failed') throw new Error(statusData.error || L('Drone montaj başarısız'));
+        if (elapsed > 300) throw new Error(L('5 dakika aşıldı, lütfen tekrar deneyin'));
+      }
+    } catch (e) {
+      document.getElementById('drnLoading').style.display = 'none';
+      document.getElementById('drnPlaceholder').style.display = 'flex';
+      errEl.textContent = L('Hata:').trim() + ' ' + e.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   // ─── CEPHE STİLİ (Facade Style Transfer) ─────────────────────────────────
