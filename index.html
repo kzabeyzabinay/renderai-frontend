@@ -7938,7 +7938,7 @@
   function isDxfFile(f) { return !!f && /\.dxf$/i.test(f.name || ''); }
   function refreshPlan3dCost() {
     const el = document.getElementById('plan3dCost');
-    if (el) el.textContent = '· ' + (isDxfFile(model3dFile) ? 10 : 20) + ' ' + L('kredi');
+    if (el) el.textContent = '· ' + 20 + ' ' + L('kredi');
   }
 
   async function startPlan3dDxf() {
