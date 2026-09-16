@@ -1622,7 +1622,7 @@
           📐 <strong>Kat planı görseli veya PDF</strong> yükleyin — duvarlar AI ile ölçülür ve <strong>plana sadık, ölçülü, içinde gezilebilir gerçek 3B model</strong> kurulur (mobilyalı). GLB indirme ücretsizdir. Net, yüksek kontrastlı planlar en iyi sonucu verir. İşlem ~30-60 sn sürer.
         </div>
         <button class="render-btn" id="model3dBtn" onclick="startModel3d()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 2 3 7v10l9 5 9-5V7Z"/><path d="m3 7 9 5 9-5"/><path d="M12 12v10"/></svg> Modeli Oluştur <span style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
-        <button class="render-btn" id="plan3dBtn" onclick="startPlan3d()" style="display:none;">📐 <span data-i18n="plan3d_btn">Kat Planını 3B'ye Dönüştür</span> <span style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
+        <button class="render-btn" id="plan3dBtn" onclick="startPlan3d()" style="display:none;">📐 <span data-i18n="plan3d_btn">Kat Planını 3B'ye Dönüştür</span> <span id="plan3dCost" style="font-size:11px;opacity:0.8;">· 20 kredi</span></button>
         <div class="error-msg" id="model3dError"></div>
       </div>
     </div>
@@ -3379,6 +3379,14 @@
     "AI duvarları, kapıları ve pencereleri algılıyor": "AI is detecting walls, doors and windows",
     "Kat planı ölçülüyor...": "Measuring the floor plan...",
     "Kat seç:": "Floor:",
+    "Kat planı görseli, PDF veya DXF seçin ya da sürükleyin": "Select or drag a floor plan image, PDF or DXF",
+    "Mimari kat planı — PNG, JPG, PDF veya DXF (DXF ile ölçüler birebir)": "Architectural floor plan — PNG, JPG, PDF or DXF (DXF keeps exact dimensions)",
+    "DXF okunuyor...": "Reading DXF...",
+    "Duvarlar çizimden birebir ölçülüyor": "Walls are measured exactly from the drawing",
+    "DXF işlenemedi — tekrar deneyin.": "DXF could not be processed — please try again.",
+    "DXF sadece \"Kat Planından\" modunda desteklenir.": "DXF is only supported in \"From Floor Plan\" mode.",
+    "kredi": "credits",
+    "Hata:": "Error:",
     "Kat": "Floor",
     "AI duvarları çıkarıyor, 3B model kuruluyor": "AI is extracting walls, building the 3D model",
     "sn geçti": "s elapsed",
@@ -6960,6 +6968,23 @@
   document.getElementById('model3dFileInput').addEventListener('change', e => {
     model3dFile = e.target.files[0];
     if (!model3dFile) return;
+    refreshPlan3dCost();
+    if (isDxfFile(model3dFile)) {
+      const el = document.getElementById('model3dError');
+      if (m3dMode !== 'plan') {
+        el.textContent = L('DXF sadece "Kat Planından" modunda desteklenir.');
+        el.style.display = 'block';
+        model3dFile = null;
+        refreshPlan3dCost();
+        return;
+      }
+      el.style.display = 'none';
+      document.getElementById('model3dPreview').style.display = 'none';
+      document.getElementById('model3dIcon').style.display = '';
+      const us = document.querySelector('#model3dUploadZone .upload-sub');
+      if (us) us.textContent = '📐 ' + model3dFile.name;
+      return;
+    }
     // Kat Planından modunda PDF kabul edilir → ilk sayfa JPEG'e çevrilir (kat planı sekmesiyle aynı yol)
     const _isPdf = model3dFile.type === 'application/pdf' || /\.pdf$/i.test(model3dFile.name || '');
     const _finishPreview = () => {
@@ -7897,15 +7922,60 @@
     document.getElementById('plan3dBtn').style.display = plan ? '' : 'none';
     const ut = document.querySelector('#model3dUploadZone .upload-text');
     const us = document.querySelector('#model3dUploadZone .upload-sub');
-    if (ut) ut.textContent = plan ? L('Kat planı görseli veya PDF seçin ya da sürükleyin') : L('Tek bir objenin fotoğrafını seçin veya sürükleyin');
-    if (us) us.textContent = plan ? L('Mimari kat planı — PNG, JPG veya PDF') : L('Koltuk, mobilya, ürün ya da bina dış kütlesi');
-    document.getElementById('model3dFileInput').setAttribute('accept', plan ? 'image/*,.pdf,application/pdf' : 'image/*');
+    if (ut) ut.textContent = plan ? L('Kat planı görseli, PDF veya DXF seçin ya da sürükleyin') : L('Tek bir objenin fotoğrafını seçin veya sürükleyin');
+    if (us) us.textContent = (plan && isDxfFile(model3dFile)) ? '📐 ' + model3dFile.name
+      : (plan ? L('Mimari kat planı — PNG, JPG, PDF veya DXF (DXF ile ölçüler birebir)') : L('Koltuk, mobilya, ürün ya da bina dış kütlesi'));
+    document.getElementById('model3dFileInput').setAttribute('accept', plan ? 'image/*,.pdf,application/pdf,.dxf' : 'image/*');
+    refreshPlan3dCost();
   }
   // Dil değişince mod metinlerini tazele (setLang'e dokunmadan, additive)
   document.addEventListener('DOMContentLoaded', () => {
     const sel = document.getElementById('langSelect');
     if (sel) sel.addEventListener('change', () => setTimeout(() => setM3dMode(m3dMode), 0));
   });
+
+  // DXF (vektör plan) → /plan3d/dxf: AI yok, ölçüler çizimden birebir
+  function isDxfFile(f) { return !!f && /\.dxf$/i.test(f.name || ''); }
+  function refreshPlan3dCost() {
+    const el = document.getElementById('plan3dCost');
+    if (el) el.textContent = '· ' + (isDxfFile(model3dFile) ? 10 : 20) + ' ' + L('kredi');
+  }
+
+  async function startPlan3dDxf() {
+    const errEl = document.getElementById('model3dError');
+    const btn = document.getElementById('plan3dBtn');
+    btn.disabled = true;
+    document.getElementById('model3dPlaceholder').style.display = 'none';
+    document.getElementById('model3dLoading').style.display = 'block';
+    document.querySelector('#model3dLoading p').innerHTML =
+      `${L('DXF okunuyor...')}<br><span style="font-size:12px;color:#ABA49C;">${L('Duvarlar çizimden birebir ölçülüyor')}</span>`;
+    document.getElementById('model3dViewer').style.display = 'none';
+    document.getElementById('model3dDownloadBtn').style.display = 'none';
+    document.getElementById('model3dObjBtn').style.display = 'none';
+    document.getElementById('plan3dWrap').style.display = 'none';
+    errEl.style.display = 'none';
+    try {
+      const fd = new FormData();
+      fd.append('dxf', model3dFile);
+      const res = await fetch(`${API}/plan3d/dxf`, { method: 'POST', headers: authHeaders(), body: fd });
+      let data = {};
+      try { data = await res.json(); } catch (_) {}
+      if (!res.ok) throw new Error(data.detail || L('DXF işlenemedi — tekrar deneyin.'));
+      refreshCredits();
+      if (!data.plan_json) throw new Error(L('Plan verisi alınamadı — tekrar deneyin.'));
+      document.querySelector('#model3dLoading p').innerHTML = L('3B sahne kuruluyor...');
+      await PLAN3D.show(data.plan_json);
+      PLAN3D.setFloors(data.plan_json.floors);
+      document.getElementById('model3dLoading').style.display = 'none';
+    } catch (err) {
+      document.getElementById('model3dLoading').style.display = 'none';
+      document.getElementById('model3dPlaceholder').style.display = 'block';
+      errEl.textContent = L('Hata:') + ' ' + err.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
 
   async function startPlan3d() {
     const errEl = document.getElementById('model3dError');
@@ -7914,6 +7984,7 @@
       errEl.style.display = 'block';
       return;
     }
+    if (isDxfFile(model3dFile)) return startPlan3dDxf();
     const btn = document.getElementById('plan3dBtn');
     btn.disabled = true;
     document.getElementById('model3dPlaceholder').style.display = 'none';
