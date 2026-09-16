@@ -1648,6 +1648,7 @@
 
         <!-- Plan → 3D görüntüleyici (three.js — istemci tarafı gerçek geometri) -->
         <div id="plan3dWrap" style="display:none; width:100%;">
+          <div id="plan3dFloors" style="display:none; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center; margin-bottom:10px;"></div>
           <div id="plan3dCanvasWrap" style="position:relative; width:100%; height:480px; background:#1A1A16; border-radius:12px; overflow:hidden;">
             <div id="plan3dWalkHint" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(26,26,22,.85); color:#fff; padding:14px 22px; border-radius:12px; font-size:13px; line-height:1.6; z-index:5; pointer-events:none; text-align:center;"></div>
           </div>
@@ -3377,6 +3378,8 @@
     "Kat planı analiz ediliyor...": "Analyzing floor plan...",
     "AI duvarları, kapıları ve pencereleri algılıyor": "AI is detecting walls, doors and windows",
     "Kat planı ölçülüyor...": "Measuring the floor plan...",
+    "Kat seç:": "Floor:",
+    "Kat": "Floor",
     "AI duvarları çıkarıyor, 3B model kuruluyor": "AI is extracting walls, building the 3D model",
     "sn geçti": "s elapsed",
     "3B sahne kuruluyor...": "Building the 3D scene...",
@@ -3680,6 +3683,7 @@
     // JS ile üretilmiş dinamik içerik (data-i18n dışı) dil değişince yeniden çizilmeli
     try { if (typeof ELEV !== 'undefined' && ELEV.spec) ELEV.relang(); } catch (e) {}
     try { if (typeof DETAY !== 'undefined' && DETAY.spec) DETAY.render(); } catch (e) {}
+    try { if (typeof PLAN3D !== 'undefined' && PLAN3D._floors) PLAN3D.setFloors(PLAN3D._floors, PLAN3D._floorIdx); } catch (e) {}
     try { if (typeof refreshFpCost === 'function') refreshFpCost(); } catch (e) {}
     try { if (typeof refreshFacadeCost === 'function') refreshFacadeCost(); } catch (e) {}
     if (typeof relayoutNav === 'function') setTimeout(relayoutNav, 0);  // etiket genişlikleri değişti
@@ -6978,7 +6982,7 @@
         return;
       }
       document.getElementById('model3dError').style.display = 'none';
-      pdfFirstPageToJpeg(model3dFile, 2400).then(f => { model3dFile = f; _finishPreview(); })
+      pdfFirstPageToJpeg(model3dFile, 4000).then(f => { model3dFile = f; _finishPreview(); })
         .catch(() => {
           const el = document.getElementById('model3dError');
           el.textContent = L('PDF okunamadı. Lütfen planı PNG/JPG olarak yükleyin.');
@@ -7923,7 +7927,8 @@
     errEl.style.display = 'none';
 
     const formData = new FormData();
-    const imageToSend = await resizeIfNeeded(model3dFile);
+    // plan okuyucu küçük yazıları (oda adı/ölçü) okuyabilsin diye yüksek çözünürlük korunur
+    const imageToSend = await resizeIfNeeded(model3dFile, 4096);
     formData.append('image', imageToSend);
 
     try {
@@ -7969,6 +7974,7 @@
           } else if (statusData.plan_json) {
             document.querySelector('#model3dLoading p').innerHTML = L('3B sahne kuruluyor...');
             await PLAN3D.show(statusData.plan_json);
+            PLAN3D.setFloors(statusData.plan_json.floors);
             document.getElementById('model3dLoading').style.display = 'none';
           } else {
             throw new Error(L('Plan verisi alınamadı — tekrar deneyin.'));
@@ -8200,9 +8206,12 @@
           });
         });
         if (best && best.d < 1.2) {
-          const ww = Math.min(1.6, Math.max(0.8, best.len * 0.6));
-          const m = new T.Mesh(new T.BoxGeometry(ww, 1.2, 0.08), glassMat);
-          m.position.set(best.qx, 0.9 + 0.6, best.qz);
+          // plan okuyucu pencere enini (w_m) verdiyse o kullanılır; balkon kapısı yere kadar iner
+          const ww = w.w_m ? Math.min(best.len, Math.max(0.5, w.w_m)) : Math.min(1.6, Math.max(0.8, best.len * 0.6));
+          const isDoor = w.kind === 'balcony_door';
+          const gh = isDoor ? 2.1 : 1.2, gy = isDoor ? 1.05 : 0.9 + 0.6;
+          const m = new T.Mesh(new T.BoxGeometry(ww, gh, 0.08), glassMat);
+          m.position.set(best.qx, gy, best.qz);
           m.rotation.y = -best.ang;
           group.add(m);
         }
@@ -8766,6 +8775,34 @@
       const spr = new T.Sprite(new T.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
       spr.scale.set(2.6, 0.65, 1);
       return spr;
+    },
+
+    // çok katlı pafta: backend her katı ayrı modeller (plan.floors) → kat seçici düğmeleri
+    setFloors(floors, active = 0) {
+      const box = document.getElementById('plan3dFloors');
+      if (!box) return;
+      box.innerHTML = '';
+      this._floors = (Array.isArray(floors) && floors.length > 1) ? floors : null;
+      this._floorIdx = active;
+      if (!this._floors) { box.style.display = 'none'; return; }
+      const lbl = document.createElement('span');
+      lbl.style.cssText = 'font-size:12px; color:#6B655C; font-weight:600;';
+      lbl.textContent = L('Kat seç:');
+      box.appendChild(lbl);
+      const paint = act => [...box.querySelectorAll('button')].forEach((b, j) => {
+        const on = j === act;
+        b.style.background = on ? '#9A6558' : 'transparent';
+        b.style.color = on ? '#fff' : '#9A6558';
+      });
+      floors.forEach((f, i) => {
+        const b = document.createElement('button');
+        b.style.cssText = 'padding:8px 14px; border:1px solid #9A6558; border-radius:10px; font-size:12px; font-weight:600; cursor:pointer;';
+        b.textContent = (f && f.title) || `${L('Kat')} ${i + 1}`;
+        b.onclick = () => { if (f && f.plan) { this.build(f.plan); this.setNav('orbit'); this._floorIdx = i; paint(i); } };
+        box.appendChild(b);
+      });
+      box.style.display = 'flex';
+      paint(active);
     },
 
     async show(plan) {
