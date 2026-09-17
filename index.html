@@ -4924,6 +4924,8 @@
   }
 
   let drnSiteFile = null, drnRenderFile = null, drnView = 'mid', drnRotOffset = 0;
+  // Bina yüksekliği payı — backend DRONE_HEIGHT_FACTORS ile AYNI olmalı (render uzayında oran)
+  const DRN_HEIGHT = { top: 0.02, low: 0.15, mid: 0.35, high: 0.7 };
 
   // Güncel eşleşme: { siteQ, renderQ } normalize ve karşılıklı sırada — yoksa null
   function drnMatch() {
@@ -4981,8 +4983,12 @@
       ctx.drawImage(img, 0, 0);
       ctx.restore();
     };
+    // v ekseni yükseklik payı kadar YUKARI uzatılır: binaların dörtgenin üstünde kalan
+    // kısmı da (backend'deki gibi render uzayında ölçülerek) önizlemede görünsün.
+    const ext = DRN_HEIGHT[drnView] || 0;
+    const V = j => -ext + (j / N) * (1 + ext);
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
-      const p00 = S(i / N, j / N), p10 = S((i + 1) / N, j / N), p01 = S(i / N, (j + 1) / N), p11 = S((i + 1) / N, (j + 1) / N);
+      const p00 = S(i / N, V(j)), p10 = S((i + 1) / N, V(j)), p01 = S(i / N, V(j + 1)), p11 = S((i + 1) / N, V(j + 1));
       tri(p00, p10, p11); tri(p00, p11, p01);
     }
     ctx.globalAlpha = 1;
@@ -5000,6 +5006,7 @@
     drnView = v;
     [['top', 'drnViewTop'], ['low', 'drnViewLow'], ['mid', 'drnViewMid'], ['high', 'drnViewHigh']]
       .forEach(([k, id]) => document.getElementById(id).classList.toggle('active', k === v));
+    drnPoly.draw();   // yükseklik payı önizlemede de değişsin
   }
 
   function _drnBindUpload(inputId, zoneId, onFile) {
