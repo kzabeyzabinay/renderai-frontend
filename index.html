@@ -8927,18 +8927,27 @@
       this._disposePrev();
       const floors = plan.floors || [], stack = (plan.building && plan.building.stack) || [];
       const all = new T.Group(), labels = new T.Group();
+      const built = new Map();   // pafta → bir kez kurulan kat (tekrarlayan katlar bunun KOPYASI)
       stack.forEach(e => {
         const f = floors[e.floor];
         if (!f || !f.plan) return;
-        this.buildFromMask(f.plan);
-        const g = this.group, lg = this.labelGroup, hg = this.helperGroup;
-        [g, lg, hg].forEach(o => o && this.scene.remove(o));
-        if (hg) hg.traverse(o => { if (o.geometry) o.geometry.dispose(); });
-        this.group = this.labelGroup = this.helperGroup = this.ceiling = null;
-        const fr = f.frame || { origin_m: [0, 0] };
-        const ox = fr.origin_m[0] + this._cx * this._s, oz = fr.origin_m[1] + this._cy * this._s;
-        g.position.set(ox, e.level_m, oz);
-        lg.position.set(ox, e.level_m, oz);
+        let proto = built.get(e.floor);
+        if (!proto) {
+          this.buildFromMask(f.plan);
+          const g = this.group, lg = this.labelGroup, hg = this.helperGroup;
+          [g, lg, hg].forEach(o => o && this.scene.remove(o));
+          if (hg) hg.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+          this.group = this.labelGroup = this.helperGroup = this.ceiling = null;
+          const fr = f.frame || { origin_m: [0, 0] };
+          proto = { g, lg, ox: fr.origin_m[0] + this._cx * this._s, oz: fr.origin_m[1] + this._cy * this._s, used: false };
+          built.set(e.floor, proto);
+        }
+        // ilk kullanımda asıl kat, sonrakilerde geometri/malzeme PAYLAŞAN kopya (clone)
+        const g = proto.used ? proto.g.clone() : proto.g;
+        const lg = proto.used ? proto.lg.clone() : proto.lg;
+        proto.used = true;
+        g.position.set(proto.ox, e.level_m, proto.oz);
+        lg.position.set(proto.ox, e.level_m, proto.oz);
         all.add(g);
         labels.add(lg);
       });
