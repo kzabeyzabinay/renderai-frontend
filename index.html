@@ -9833,7 +9833,7 @@
         else if (v === 'INSERT' && kotBlocks.has(f.name)) keep = true;
         else if (!inWin(f.x)) keep = false;
         else if (TXT.has(v)) keep = TXT_KEEP.test(f.txt.trim()) || KEEP_LAY.test(base);
-        else if (GEO.has(v)) keep = v !== 'INSERT' || KEEP_LAY.test(base) || base === '0' || base === 'DEFPOINTS';  // pafta içindeki çizgiler: duvar katmanı adı bilinmeyebilir
+        else if (GEO.has(v)) keep = true;  // pafta içindeki çizgi ve blok yerleşimleri: katman adı içeriği söylemez (blok içeriği aşağıda katmana göre süzülür)
         else keep = false;
         if (keep) { for (let k = i; k < j; k++) out.push(L[k]); kept++; if (v === 'INSERT' && f.name) used.add(f.name); }
         else dropped++;
