@@ -2351,7 +2351,7 @@
 <!-- ─── 🛸 DRONE MONTAJ — drone render'ı arazi görüntüsüne yerleştir ─────────── -->
 <div id="section-drone" style="display:none; max-width:1560px; margin:0 auto; padding:0 32px 80px;">
   <div data-i18n-html="drn_how" style="background:#FAFAF8; border:1px solid #E0DAD0; border-radius:14px; padding:16px 20px; margin:18px 0; font-size:13px; color:#5A5249; line-height:1.6;">
-    <b style="color:#9A6558;">Nasıl çalışır?</b> Google Maps / Google Earth'ten arazinin <b>ekran görüntüsünü</b> yükle ve <b>parseli</b> çiz. Projenin <b>drone render'ını</b> yükleyip projenin zemindeki <b>4 köşesini</b> işaretle. Render parsele <b>birebir oturtulur</b>: bina sayısı ve yerleşim düzeni aynen korunur. AI yalnızca ışığı, gölgeyi ve rengi araziye uydurur. <b>Parselin dışındaki arazi, yollar ve komşu binalar hiç değişmez.</b>
+    <b style="color:#9A6558;">Nasıl çalışır?</b> Google Maps / Google Earth'ten arazinin <b>ekran görüntüsünü</b> ve projenin <b>drone render'ını</b> yükle. Render'da <b>almak istediğin kısmın</b> etrafını, arazide de <b>parseli</b> köşelerine tıklayarak çiz. Sadece seçtiğin kısım parsele oturtulur; bina sayısı ve düzen aynen korunur. AI sonucu, proje <b>orada zaten varmış gibi</b> fotorealistik hale getirir. <b>Parselin dışındaki arazi, yollar ve komşu binalar hiç değişmez.</b>
   </div>
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
 
@@ -2375,14 +2375,14 @@
           <p><strong data-i18n="drn_render_hint">Kuşbakışı / drone render'ı seçin</strong> veya sürükleyin</p>
         </div>
         <div id="drnCornerBox" style="display:none; margin-top:12px;">
-          <p data-i18n-html="drn_corner_hint" style="font-size:12px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">Render'da projenin <b>zemindeki 4 köşesine</b> sırayla tıkla: çatılara değil, binaların ve bahçelerin zemine oturduğu alanın köşelerine. <b>Tek yüksek binada</b> binanın taban köşelerini işaretle. Binanın yukarı uzanan kısmı aşağıdaki <b>Bina Yüksekliği</b> seçimiyle taşınır. İşaretlemezsen render'ın tamamı kullanılır.</p>
+          <p data-i18n-html="drn_corner_hint" style="font-size:12px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">Render'da <b>almak istediğin kısmın</b> etrafına sırayla tıkla: binaların <b>çatıları dahil</b>, istediğin kadar nokta. İlk noktaya tıklayınca (veya çift tıklayınca) seçim kapanır. <b>Sadece bu kısım</b> alınır; orman, çim gibi fazlalıkları dışarıda bırak. Çizmezsen render'ın tamamı kullanılır.</p>
           <div id="drnCornerWrap" style="position:relative; border-radius:10px; overflow:hidden; border:1px solid #D8D2C8; line-height:0; user-select:none;">
             <img id="drnCornerImg" style="width:100%; height:auto; display:block;" draggable="false" />
             <canvas id="drnCornerCanvas" style="position:absolute; left:0; top:0; width:100%; height:100%; cursor:crosshair; touch-action:none;"></canvas>
           </div>
           <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; align-items:center;">
-            <button class="recolor-mat-btn" onclick="drnCorners.undo()">↶ Son noktayı geri al</button>
-            <button class="recolor-mat-btn" onclick="drnCorners.clear()">Temizle</button>
+            <button class="recolor-mat-btn" onclick="drnRenderPoly.undo()">↶ Son noktayı geri al</button>
+            <button class="recolor-mat-btn" onclick="drnRenderPoly.clear()">Temizle</button>
             <span id="drnCornerStatus" style="font-size:11px; color:#8A7E74;"></span>
           </div>
         </div>
@@ -2406,31 +2406,8 @@
       </div>
 
       <div class="panel">
-        <h2 data-i18n="drn_view_h">Görünüm &amp; Bina Yüksekliği</h2>
-        <p data-i18n="drn_view_hint" style="font-size:11px; color:#8A7E74; margin:0 0 10px; line-height:1.5;">Eğik görünümde bina görüntüde zeminden yukarı doğru uzar. Burada seçtiğin yükseklik kadar render'ın üst kısmı da taşınır; binalar kesik çıkarsa bir üst seçeneği dene.</p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <button class="scale-btn" id="drnViewTop" onclick="setDroneView('top')">
-            <div data-i18n="drn_view_top_t" style="font-size:14px; font-weight:700; color:#9A6558;">Tepeden (Uydu)</div>
-            <div data-i18n="drn_view_top_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Düz yukarıdan bakış</div>
-          </button>
-          <button class="scale-btn" id="drnViewLow" onclick="setDroneView('low')">
-            <div data-i18n="drn_view_low_t" style="font-size:14px; font-weight:700; color:#9A6558;">Alçak Bina</div>
-            <div data-i18n="drn_view_low_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Eğik görünüm · 1-3 kat</div>
-          </button>
-          <button class="scale-btn active" id="drnViewMid" onclick="setDroneView('mid')">
-            <div data-i18n="drn_view_mid_t" style="font-size:14px; font-weight:700; color:#9A6558;">Orta Bina</div>
-            <div data-i18n="drn_view_mid_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Eğik görünüm · 4-8 kat</div>
-          </button>
-          <button class="scale-btn" id="drnViewHigh" onclick="setDroneView('high')">
-            <div data-i18n="drn_view_high_t" style="font-size:14px; font-weight:700; color:#9A6558;">Yüksek Bina</div>
-            <div data-i18n="drn_view_high_d" style="font-size:11px; color:#8A7E74; margin-top:3px;">Eğik görünüm · 9+ kat</div>
-          </button>
-        </div>
-      </div>
-
-      <div class="panel">
         <h2 data-i18n="drn_note_h">İsteğe Bağlı Talimat</h2>
-        <input type="text" id="drnNote" data-i18n-ph="drn_note_ph" placeholder="örn: akşamüstü ışığı · gölgeler daha yumuşak · çevre peyzajı kuru bozkır"
+        <input type="text" id="drnNote" data-i18n-ph="drn_note_ph" placeholder="örn: akşamüstü ışığı · gölgeler daha uzun · bahçeler yeni dikilmiş gibi"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #D8D2C8; border-radius:10px; background:#fff; font-size:13px; color:#2A2520; margin-bottom:16px;" />
         <button class="render-btn" id="drnBtn" onclick="startDroneMontage()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M4 7h16M12 7v3M7 10h10l-1 4H8zM10 18h6M13 14v4"/></svg> <span data-i18n="drn_btn">Araziye Yerleştir</span> <span data-i18n="drn_btn_cost" style="font-size:11px;opacity:0.8;">· 15 kredi</span></button>
         <div class="error-msg" id="drnError"></div>
@@ -2445,7 +2422,7 @@
       </div>
       <div class="loading" id="drnLoading" style="display:none;">
         <div class="spinner"></div>
-        <p><span id="drnLoadingLabel" data-i18n="drn_loading">Proje araziye yerleştiriliyor...</span><br><span data-i18n="drn_loading_sub" style="font-size:12px; color:#ABA49C;">Işık, gölge ve renk eşleştiriliyor (~40-90 sn)</span></p>
+        <p><span id="drnLoadingLabel" data-i18n="drn_loading">Proje araziye yerleştiriliyor...</span><br><span data-i18n="drn_loading_sub" style="font-size:12px; color:#ABA49C;">Orada zaten varmış gibi fotorealistik hale getiriliyor (~40-90 sn)</span></p>
       </div>
       <div id="drnResultContainer" style="display:none; width:100%; text-align:center;">
         <img id="drnResultImg" class="result-img" style="display:block; max-width:100%;" />
@@ -3236,29 +3213,23 @@
     nav_facade: "Facade Style",
     // Drone Montaj
     nav_drone: "Drone Montage",
-    drn_how: '<b style="color:#9A6558;">How it works?</b> Upload a <b>screenshot</b> of the site from Google Maps / Google Earth and draw the <b>parcel</b>. Upload your project\'s <b>drone render</b> and mark the project\'s <b>4 ground corners</b>. The render is <b>fitted exactly</b> onto the parcel: the number of buildings and the site layout are kept as they are. The AI only matches light, shadows and colour to the site. <b>The land, roads and neighboring buildings outside the parcel never change.</b>',
+    drn_how: '<b style="color:#9A6558;">How it works?</b> Upload a <b>screenshot</b> of the site from Google Maps / Google Earth and your project\'s <b>drone render</b>. On the render, draw around <b>the part you want to take</b>; on the site, draw the <b>parcel</b> by clicking its corners. Only the part you selected is fitted onto the parcel; the number of buildings and the layout are kept as they are. The AI makes the result photorealistic, <b>as if the project already stood there</b>. <b>The land, roads and neighboring buildings outside the parcel never change.</b>',
     drn_site_h: "1 — Site Image",
     drn_site_hint: "Select a Google Maps / Earth screenshot",
     drn_site_note: '<b>Tip:</b> a screenshot taken in Google Earth\'s <b>3D tilted view</b>, at an angle close to your drone render, gives the best result. A top-down satellite image also works. If you use Google imagery, keep the "© Google" attribution when sharing.',
     drn_render_h: "2 — Project Drone Render",
     drn_render_hint: "Select an aerial / drone render",
-    drn_corner_hint: 'Click the project\'s <b>4 ground corners</b> on the render in order — not the roofs, but the corners of the area where the buildings and gardens sit on the ground. For a <b>single tall building</b>, mark its base corners. The upward part of the building is carried with the <b>Building Height</b> option below. If you don\'t mark them, the whole render is used.',
+    drn_corner_hint: 'Click around <b>the part you want to take</b> on the render, in order — <b>including the roofs</b> of the buildings, as many points as you like. Click the first point (or double-click) to close it. <b>Only this part</b> is taken; leave extras such as forest or lawn outside. If you don\'t draw it, the whole render is used.',
     drn_parcel_h: "3 — Draw the Parcel",
     drn_parcel_hint: "Click the parcel corners in order on the site image. Click the first point (or double-click) to close it. Drawing 4 corners is best; extra corners are simplified to 4 automatically.",
     drn_parcel_empty: "Upload the site image first.",
     drn_preview_note: "Preview: this is how the render will sit on the parcel (no credits used). If the buildings face the wrong way, use ↻ Rotate.",
-    drn_view_h: "View & Building Height",
-    drn_view_hint: "In a tilted view a building extends upward from the ground in the image. The upper part of the render is carried by the height you choose here; if buildings come out cut off, try the next option up.",
-    drn_view_top_t: "Top-down (Satellite)", drn_view_top_d: "Straight overhead view",
-    drn_view_low_t: "Low Building", drn_view_low_d: "Tilted view · 1-3 floors",
-    drn_view_mid_t: "Mid-rise Building", drn_view_mid_d: "Tilted view · 4-8 floors",
-    drn_view_high_t: "High-rise Building", drn_view_high_d: "Tilted view · 9+ floors",
     drn_note_h: "Optional Instruction",
-    drn_note_ph: "e.g. late afternoon light · softer shadows · dry steppe landscaping around",
+    drn_note_ph: "e.g. late afternoon light · longer shadows · gardens look newly planted",
     drn_btn: "Place on Site", drn_btn_cost: "· 15 credits",
     drn_placeholder: "Your project placed on the site will appear here",
     drn_loading: "Placing the project on the site...",
-    drn_loading_sub: "Matching light, shadows and colour (~40-90 sec)",
+    drn_loading_sub: "Making it photorealistic, as if it already stood there (~40-90 sec)",
     drn_download: "Download (PNG)",
     fac_how: "<b style=\"color:#9A6558;\">How does it work?</b> Upload <b>your own project</b> first, then a <b>reference facade</b> you like. The AI keeps your building's mass, floors, camera and surroundings exactly as they are, and redesigns only the facade skin — materials, colours, frames, balconies and details — in the reference building's architectural language.",
     fac_base_h: "1 — Your Project",
@@ -3452,10 +3423,9 @@
     "Lütfen önce arazi görüntüsünü yükle.": "Please upload the site image first.",
     "Lütfen arazi görüntüsünde parseli çiz (en az 3 nokta, alanı kapat).": "Please draw the parcel on the site image (at least 3 points, close the shape).",
     "Lütfen projenin drone render'ını yükle.": "Please upload the project's drone render.",
-    "Render'da 4 köşeyi de işaretle ya da köşeleri temizle (tüm render kullanılır).": "Mark all 4 corners on the render, or clear them (the whole render is used).",
-    "Parsel dörtgene çevrilemedi — lütfen parseli 4 köşeli olarak yeniden çiz.": "The parcel could not be turned into a quadrilateral — please redraw it with 4 corners.",
+    "Render'daki seçimi kapat (en az 3 nokta) ya da temizle (tüm render kullanılır).": "Close the selection on the render (at least 3 points) or clear it (the whole render is used).",
+    "Seçimler dörtgene çevrilemedi — render ve parsel çizimlerini daha belirgin köşelerle yeniden çiz.": "The selections could not be turned into quadrilaterals — redraw the render and parcel selections with clearer corners.",
     "↻ Yönü Döndür": "↻ Rotate",
-    "köşe": "corners",
     "Drone montaj başarısız": "Drone montage failed",
 
     // Geliştir — ⬡ bölge seçimi (çokgen kement)
@@ -4986,24 +4956,28 @@
     return [[h[0], h[1], h[2]], [h[3], h[4], h[5]], [h[6], h[7], 1]];
   }
 
-  let drnSiteFile = null, drnRenderFile = null, drnView = 'mid', drnRotOffset = 0;
-  // Bina yüksekliği payı — backend DRONE_HEIGHT_FACTORS ile AYNI olmalı (render uzayında oran)
-  const DRN_HEIGHT = { top: 0.02, low: 0.15, mid: 0.35, high: 0.7 };
+  let drnSiteFile = null, drnRenderFile = null, drnRotOffset = 0;
 
-  // Güncel eşleşme: { siteQ, renderQ } normalize ve karşılıklı sırada — yoksa null
+  // Render'da seçilen parça (normalize çokgen). Çizilmediyse görselin tamamı.
+  function drnRenderPolyNorm() {
+    if (drnRenderPoly.cur.length >= 3 && !drnRenderPoly.polys.length) return drnRenderPoly.cur;
+    return drnRenderPoly.polys.length ? drnRenderPoly.polys[0] : [[0, 0], [1, 0], [1, 1], [0, 1]];
+  }
+
+  // Güncel eşleşme: { siteQ, renderQ, renderPoly } normalize; Q'lar karşılıklı sırada — yoksa null
   function drnMatch() {
     const sImg = document.getElementById('drnPolyImg'), rImg = document.getElementById('drnCornerImg');
     if (!drnPoly.polys.length || !drnRenderFile || !sImg.naturalWidth || !rImg.naturalWidth) return null;
     const SW = sImg.naturalWidth, SH = sImg.naturalHeight, RW = rImg.naturalWidth, RH = rImg.naturalHeight;
     const s4 = _drnTo4(drnPoly.polys[0].map(p => [p[0] * SW, p[1] * SH]));
-    if (!s4) return null;
+    const rp = drnRenderPolyNorm();
+    const r4 = _drnTo4(rp.map(p => [p[0] * RW, p[1] * RH]));
+    if (!s4 || !r4) return null;
     const sq = _drnOrderCW(s4);
-    const rpts = drnCorners.cur.length === 4 ? drnCorners.cur.map(p => [p[0] * RW, p[1] * RH])
-                                             : [[0, 0], [RW, 0], [RW, RH], [0, RH]];
-    const rq0 = _drnOrderCW(rpts);
+    const rq0 = _drnOrderCW(r4);
     const r = (_drnBestRot(rq0, sq) + drnRotOffset) % 4;
     const rq = [0, 1, 2, 3].map(i => rq0[(i + r) % 4]);
-    return { siteQ: sq.map(p => [p[0] / SW, p[1] / SH]), renderQ: rq.map(p => [p[0] / RW, p[1] / RH]) };
+    return { siteQ: sq.map(p => [p[0] / SW, p[1] / SH]), renderQ: rq.map(p => [p[0] / RW, p[1] / RH]), renderPoly: rp };
   }
 
   function drnDrawOverlay(ctx, w, h) {
@@ -5046,31 +5020,29 @@
       ctx.drawImage(img, 0, 0);
       ctx.restore();
     };
-    // v ekseni yükseklik payı kadar YUKARI uzatılır: binaların dörtgenin üstünde kalan
-    // kısmı da (backend'deki gibi render uzayında ölçülerek) önizlemede görünsün.
-    const ext = DRN_HEIGHT[drnView] || 0;
-    const V = j => -ext + (j / N) * (1 + ext);
-    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
-      const p00 = S(i / N, V(j)), p10 = S((i + 1) / N, V(j)), p01 = S(i / N, V(j + 1)), p11 = S((i + 1) / N, V(j + 1));
+    // Yalnız render'da seçilen parça görünsün: araziye taşınmış çokgenle kırp. Çokgen
+    // sadeleşen dörtgenden taşabilir → ağ dörtgenin dışına da (−0.5…1.5) uzatılır.
+    ctx.save();
+    ctx.beginPath();
+    m.renderPoly.forEach((p, i) => { const q = map(p[0] * RW, p[1] * RH); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); });
+    ctx.closePath(); ctx.clip();
+    const M = 28, U = t => -0.5 + (t / M) * 2;
+    for (let i = 0; i < M; i++) for (let j = 0; j < M; j++) {
+      const p00 = S(U(i), U(j)), p10 = S(U(i + 1), U(j)), p01 = S(U(i), U(j + 1)), p11 = S(U(i + 1), U(j + 1));
       tri(p00, p10, p11); tri(p00, p11, p01);
     }
+    ctx.restore();
     ctx.globalAlpha = 1;
   }
 
   const drnPoly = makePolyPicker('drnPolyCanvas', 'drnPolyImg', 'drnPolyStatus',
     { single: true, overlay: drnDrawOverlay, overlayActive: () => !!drnMatch() });
-  const drnCorners = makePolyPicker('drnCornerCanvas', 'drnCornerImg', 'drnCornerStatus',
-    { maxPoints: 4, onChange: () => { if (window.drnPoly) drnPoly.draw(); } });
+  // Render'da alınacak parça: istediği kadar nokta, ilk noktaya tıklayınca kapanır
+  const drnRenderPoly = makePolyPicker('drnCornerCanvas', 'drnCornerImg', 'drnCornerStatus',
+    { single: true, onChange: () => { if (window.drnPoly) drnPoly.draw(); } });
   window.drnPoly = drnPoly;
 
   function drnRotate() { drnRotOffset = (drnRotOffset + 1) % 4; drnPoly.draw(); }
-
-  function setDroneView(v) {
-    drnView = v;
-    [['top', 'drnViewTop'], ['low', 'drnViewLow'], ['mid', 'drnViewMid'], ['high', 'drnViewHigh']]
-      .forEach(([k, id]) => document.getElementById(id).classList.toggle('active', k === v));
-    drnPoly.draw();   // yükseklik payı önizlemede de değişsin
-  }
 
   function _drnBindUpload(inputId, zoneId, onFile) {
     const input = document.getElementById(inputId);
@@ -5104,7 +5076,7 @@
     drnRenderFile = f;
     document.getElementById('drnCornerBox').style.display = 'block';
     const img = document.getElementById('drnCornerImg');
-    img.onload = () => { drnRotOffset = 0; drnCorners.clear(); };
+    img.onload = () => { drnRotOffset = 0; drnRenderPoly.clear(); };
     img.src = url;
   });
 
@@ -5114,11 +5086,12 @@
     const fail = msg => { errEl.textContent = L(msg); errEl.style.display = 'block'; };
     if (!drnSiteFile) return fail('Lütfen önce arazi görüntüsünü yükle.');
     if (!drnRenderFile) return fail("Lütfen projenin drone render'ını yükle.");
-    if (drnCorners.cur.length && drnCorners.cur.length !== 4) return fail("Render'da 4 köşeyi de işaretle ya da köşeleri temizle (tüm render kullanılır).");
+    if (drnRenderPoly.cur.length >= 3) drnRenderPoly.close();
+    if (drnRenderPoly.cur.length) return fail("Render'daki seçimi kapat (en az 3 nokta) ya da temizle (tüm render kullanılır).");
     if (drnPoly.cur.length >= 3) drnPoly.close();
     if (!drnPoly.polys.length) return fail('Lütfen arazi görüntüsünde parseli çiz (en az 3 nokta, alanı kapat).');
     const m = drnMatch();
-    if (!m) return fail('Parsel dörtgene çevrilemedi — lütfen parseli 4 köşeli olarak yeniden çiz.');
+    if (!m) return fail('Seçimler dörtgene çevrilemedi — render ve parsel çizimlerini daha belirgin köşelerle yeniden çiz.');
 
     const btn = document.getElementById('drnBtn');
     btn.disabled = true;
@@ -5133,7 +5106,7 @@
       formData.append('render', await resizeIfNeeded(drnRenderFile));
       formData.append('site_quad', q(m.siteQ));
       formData.append('render_quad', q(m.renderQ));
-      formData.append('view', drnView);
+      formData.append('render_poly', q(m.renderPoly));
       formData.append('note', document.getElementById('drnNote').value.trim());
 
       const startRes = await fetch(`${API}/drone/start`, { method: 'POST', headers: authHeaders(), body: formData });
