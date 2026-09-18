@@ -1649,6 +1649,7 @@
         <!-- Plan → 3D görüntüleyici (three.js — istemci tarafı gerçek geometri) -->
         <div id="plan3dWrap" style="display:none; width:100%;">
           <div id="plan3dFloors" style="display:none; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center; margin-bottom:10px;"></div>
+          <div id="plan3dHeights" style="display:none; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center; margin-bottom:10px; font-size:12px; color:#6B655C;"></div>
           <div id="plan3dCanvasWrap" style="position:relative; width:100%; height:480px; background:#1A1A16; border-radius:12px; overflow:hidden;">
             <div id="plan3dWalkHint" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(26,26,22,.85); color:#fff; padding:14px 22px; border-radius:12px; font-size:13px; line-height:1.6; z-index:5; pointer-events:none; text-align:center;"></div>
           </div>
@@ -3380,6 +3381,14 @@
     "Kat planı ölçülüyor...": "Measuring the floor plan...",
     "Kat seç:": "Floor:",
     "Tüm Bina": "Whole Building",
+    "Yükseklikler": "Heights",
+    "Denizlik": "Sill",
+    "Pencere üstü": "Window head",
+    "Korkuluk": "Railing",
+    "Uygula": "Apply",
+    "kesitten okundu": "read from section",
+    "standart değer": "default value",
+    "Yükseklikler geçersiz: pencere üstü denizlikten büyük, kat yüksekliğinden küçük olmalı.": "Invalid heights: window head must be above the sill and below the floor height.",
     "kat": "floors",
     "DXF süzülüyor — yalnız kat planı katmanları gönderilecek...": "Filtering DXF — only floor plan layers will be sent...",
     "Kat planı görseli, PDF veya DXF seçin ya da sürükleyin": "Select or drag a floor plan image, PDF or DXF",
@@ -3695,6 +3704,7 @@
     try { if (typeof ELEV !== 'undefined' && ELEV.spec) ELEV.relang(); } catch (e) {}
     try { if (typeof DETAY !== 'undefined' && DETAY.spec) DETAY.render(); } catch (e) {}
     try { if (typeof PLAN3D !== 'undefined' && PLAN3D._floors) PLAN3D.setFloors(PLAN3D._floors, PLAN3D._floorIdx, PLAN3D._building); } catch (e) {}
+    try { if (typeof PLAN3D !== 'undefined' && PLAN3D._full) PLAN3D.setHeights(PLAN3D._full); } catch (e) {}
     try { if (typeof refreshFpCost === 'function') refreshFpCost(); } catch (e) {}
     try { if (typeof refreshFacadeCost === 'function') refreshFacadeCost(); } catch (e) {}
     if (typeof relayoutNav === 'function') setTimeout(relayoutNav, 0);  // etiket genişlikleri değişti
@@ -8250,7 +8260,7 @@
       // balkon korkulukları: ince izler 1.05m parapet olarak yükselir
       (plan.parapet_polys || []).forEach(pp => {
         if (!pp || pp.length < 3) return;
-        const g = new T.ExtrudeGeometry(pathFrom(pp, T.Shape), { depth: 1.05, bevelEnabled: false });
+        const g = new T.ExtrudeGeometry(pathFrom(pp, T.Shape), { depth: plan.rail_m || 1.05, bevelEnabled: false });
         const m = new T.Mesh(g, wallMat);
         m.rotation.x = -Math.PI / 2;
         m.castShadow = m.receiveShadow = true;
@@ -8980,6 +8990,59 @@
       this.orbit.update();
     },
 
+    // YÜKSEKLİK PANELİ: kesit/poz/varsayılan değerleri gösterir; kullanıcı düzeltirse model anında
+    // yeniden kurulur (sunucuya gitmez, kredi yok). Pozdan gelen kapı/pencere yükseklikleri korunur.
+    setHeights(plan) {
+      const box = document.getElementById('plan3dHeights');
+      if (!box) return;
+      this._full = plan;
+      const h = (plan && (plan.heights || (plan.floors && plan.floors[0] && plan.floors[0].plan.heights))) || null;
+      if (!h) { box.style.display = 'none'; box.innerHTML = ''; return; }
+      const src = h.src === 'kesit' ? L('kesitten okundu') : L('standart değer');
+      const inp = (id, label, v) => `<label style="display:flex;align-items:center;gap:4px;">${label}
+        <input id="${id}" type="number" step="0.05" min="0" max="10" value="${Number(v).toFixed(2)}"
+          style="width:64px;padding:5px 6px;border:1px solid #D8D2C8;border-radius:8px;font-size:12px;"> m</label>`;
+      box.innerHTML = `<span style="font-weight:600;">${L('Yükseklikler')}</span>
+        ${inp('p3hFloor', L('Kat'), h.floor_h_m)} ${inp('p3hSill', L('Denizlik'), h.sill_m)}
+        ${inp('p3hHead', L('Pencere üstü'), h.head_m)} ${inp('p3hRail', L('Korkuluk'), h.rail_m)}
+        <button id="p3hApply" style="padding:6px 12px;border:1px solid #9A6558;border-radius:8px;background:#9A6558;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">${L('Uygula')}</button>
+        <span style="font-size:11px;color:#9A938A;">(${src})</span>`;
+      box.style.display = 'flex';
+      document.getElementById('p3hApply').onclick = () => this.applyHeights();
+    },
+
+    applyHeights() {
+      const g = id => parseFloat(document.getElementById(id).value);
+      const fh = g('p3hFloor'), sill = g('p3hSill'), head = g('p3hHead'), rail = g('p3hRail');
+      if (![fh, sill, head, rail].every(v => isFinite(v)) || fh < 2 || head <= sill || head > fh) {
+        uiAlert(L('Yükseklikler geçersiz: pencere üstü denizlikten büyük, kat yüksekliğinden küçük olmalı.'));
+        return;
+      }
+      const full = this._full;
+      if (!full) return;
+      const plans = full.floors ? full.floors.map(f => f.plan) : [full];
+      plans.forEach(pl => {
+        pl.wall_height_m = fh;
+        pl.rail_m = rail;
+        pl.heights = Object.assign({}, pl.heights || {}, { floor_h_m: fh, sill_m: sill, head_m: head, rail_m: rail, src: 'kullanici' });
+        (pl.openings || []).forEach(o => {
+          if (o.src === 'poz') { o.head_m = Math.min(o.head_m, fh - 0.05); return; }   // poz yüksekliği korunur
+          if (o.kind === 'window') { o.sill_m = sill; o.head_m = head; }
+          else o.head_m = Math.min(Math.max(head, 2.0), fh - 0.05);
+        });
+      });
+      if (full.building && full.building.stack) {
+        full.building.floor_h_m = fh;
+        full.building.stack.forEach(e => { e.level_m = +(e.storey * fh).toFixed(3); });
+      }
+      if (this._floorIdx === -1 && full.building) this.buildBuilding(full);
+      else {
+        const pl = full.floors ? (full.floors[Math.max(0, this._floorIdx)] || full.floors[0]).plan : full;
+        this.build(pl);
+      }
+      this.setNav('orbit');
+    },
+
     // çok katlı pafta: backend her katı ayrı modeller (plan.floors) → kat seçici düğmeleri
     setFloors(floors, active = 0, building = null) {
       const box = document.getElementById('plan3dFloors');
@@ -9024,6 +9087,7 @@
       this.initRenderer();
       if (plan && plan.building && plan.floors) this.buildBuilding(plan);
       else this.build(plan);
+      this.setHeights(plan);
       this.setNav('orbit');
     },
 
@@ -9657,7 +9721,7 @@
 <script>
 // DXF süzgeci (tarayıcı): büyük mimari DXF'lerden yalnız Plan→3D için gereken katmanları bırakır.
 // Kat planı paftaları + kot yazıları korunur; cephe/vaziyet/detay paftaları, mobilya, tarama,
-// ölçü ve poz yazıları atılır. Baytlar korunur (windows-1252 çöz→kodla), DXF yapısı bozulmaz.
+// ölçü yazıları atılır; kapı/pencere pozları ve yükseklik notları korunur. Baytlar korunur (windows-1252 çöz→kodla), DXF yapısı bozulmaz.
 (function (root) {
   const KEEP_LAY = /duvar|wall|perde|tugla|tuğla|bims|gazbeton|ytong|partition|^ba$|betonarme|kolon|column|struct|tasiyici|taşıyıcı|kapi|kapı|door|wndw|window|pencere|glas|dograma|doğrama|m2|alan|area|mahal|room|kot|antet|title|pafta|sheet|merdiven|stair|korkuluk|denizlik|parapet/i;
   const GEO = new Set(['LINE', 'LWPOLYLINE', 'POLYLINE', 'ARC', 'CIRCLE', 'ELLIPSE', 'INSERT']);
@@ -9666,7 +9730,7 @@
   const SEC_T = /kesit[iıİI]?\b|\bsection\b/i;
   const OTHER_T = /cephes[iı]|görünüş|gorunus|elevation|vaziyet|aplikasyon|detay|sistem/i;
   const KOT_T = /^[±+\-]?\s*\d{1,3}[.,]\d{2}$/;
-  const TXT_KEEP = /kat\s*plan|kesit|oda|salon|mutfak|banyo|\bwc\b|antre|hol|balkon|teras|kiler|kİler|giyinme|yaşam|yemek|çalışma|duş|çamaşır|living|kitchen|bath|bed|room|hall|^[±+\-]?\s*\d{1,3}[.,]\d{2}$|\d\s*m(²|2)|alan\s*:/i;
+  const TXT_KEEP = /kat\s*plan|kesit|oda|salon|mutfak|banyo|\bwc\b|antre|hol|balkon|teras|kiler|kİler|giyinme|yaşam|yemek|çalışma|duş|çamaşır|living|kitchen|bath|bed|room|hall|^[±+\-]?\s*\d{1,3}[.,]\d{2}$|\d\s*m(²|2)|alan\s*:|\d{1,3}(?:[.,]\d{1,2})?\s*[/xX×*]\s*\d{1,3}|korkuluk|parapet|denizlik|\bh\s*[:=]\s*\d|^[A-ZÇĞİÖŞÜ]{1,3}\s*-?\s*\d{1,2}$/i;
 
   function byteMaps() {
     const dec = new TextDecoder('windows-1252');
@@ -9769,7 +9833,7 @@
         else if (v === 'INSERT' && kotBlocks.has(f.name)) keep = true;
         else if (!inWin(f.x)) keep = false;
         else if (TXT.has(v)) keep = TXT_KEEP.test(f.txt.trim()) || KEEP_LAY.test(base);
-        else if (GEO.has(v)) keep = KEEP_LAY.test(base) || base === '0' || base === 'DEFPOINTS';
+        else if (GEO.has(v)) keep = v !== 'INSERT' || KEEP_LAY.test(base) || base === '0' || base === 'DEFPOINTS';  // pafta içindeki çizgiler: duvar katmanı adı bilinmeyebilir
         else keep = false;
         if (keep) { for (let k = i; k < j; k++) out.push(L[k]); kept++; if (v === 'INSERT' && f.name) used.add(f.name); }
         else dropped++;
