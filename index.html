@@ -3379,6 +3379,9 @@
     "AI duvarları, kapıları ve pencereleri algılıyor": "AI is detecting walls, doors and windows",
     "Kat planı ölçülüyor...": "Measuring the floor plan...",
     "Kat seç:": "Floor:",
+    "Tüm Bina": "Whole Building",
+    "kat": "floors",
+    "DXF süzülüyor — yalnız kat planı katmanları gönderilecek...": "Filtering DXF — only floor plan layers will be sent...",
     "Kat planı görseli, PDF veya DXF seçin ya da sürükleyin": "Select or drag a floor plan image, PDF or DXF",
     "Mimari kat planı — PNG, JPG, PDF veya DXF (DXF ile ölçüler birebir)": "Architectural floor plan — PNG, JPG, PDF or DXF (DXF keeps exact dimensions)",
     "DXF okunuyor...": "Reading DXF...",
@@ -3691,7 +3694,7 @@
     // JS ile üretilmiş dinamik içerik (data-i18n dışı) dil değişince yeniden çizilmeli
     try { if (typeof ELEV !== 'undefined' && ELEV.spec) ELEV.relang(); } catch (e) {}
     try { if (typeof DETAY !== 'undefined' && DETAY.spec) DETAY.render(); } catch (e) {}
-    try { if (typeof PLAN3D !== 'undefined' && PLAN3D._floors) PLAN3D.setFloors(PLAN3D._floors, PLAN3D._floorIdx); } catch (e) {}
+    try { if (typeof PLAN3D !== 'undefined' && PLAN3D._floors) PLAN3D.setFloors(PLAN3D._floors, PLAN3D._floorIdx, PLAN3D._building); } catch (e) {}
     try { if (typeof refreshFpCost === 'function') refreshFpCost(); } catch (e) {}
     try { if (typeof refreshFacadeCost === 'function') refreshFacadeCost(); } catch (e) {}
     if (typeof relayoutNav === 'function') setTimeout(relayoutNav, 0);  // etiket genişlikleri değişti
@@ -7955,8 +7958,21 @@
     document.getElementById('plan3dWrap').style.display = 'none';
     errEl.style.display = 'none';
     try {
+      // büyük DXF: tarayıcıda süz → sunucuya yalnız kat planı katmanları gider (bellek/süre sınırı)
+      let upFile = model3dFile;
+      try {
+        if (window.dxfFilterForPlan3d && model3dFile.size > 3 * 1024 * 1024) {
+          document.querySelector('#model3dLoading p').innerHTML = L('DXF süzülüyor — yalnız kat planı katmanları gönderilecek...');
+          await new Promise(r => setTimeout(r, 30));
+          const buf = new Uint8Array(await model3dFile.arrayBuffer());
+          const outb = window.dxfFilterForPlan3d(buf);
+          if (outb && outb.length > 1000 && outb.length < buf.length) upFile = new File([outb], model3dFile.name, { type: 'application/dxf' });
+          document.querySelector('#model3dLoading p').innerHTML =
+            `${L('DXF okunuyor...')}<br><span style="font-size:12px;color:#ABA49C;">${L('Duvarlar çizimden birebir ölçülüyor')}</span>`;
+        }
+      } catch (e) { console.warn('DXF süzme atlandı:', e); }
       const fd = new FormData();
-      fd.append('dxf', model3dFile);
+      fd.append('dxf', upFile);
       const res = await fetch(`${API}/plan3d/dxf`, { method: 'POST', headers: authHeaders(), body: fd });
       let data = {};
       try { data = await res.json(); } catch (_) {}
@@ -7965,7 +7981,7 @@
       if (!data.plan_json) throw new Error(L('Plan verisi alınamadı — tekrar deneyin.'));
       document.querySelector('#model3dLoading p').innerHTML = L('3B sahne kuruluyor...');
       await PLAN3D.show(data.plan_json);
-      PLAN3D.setFloors(data.plan_json.floors);
+      PLAN3D.setFloors(data.plan_json.floors, data.plan_json.building ? -1 : 0, data.plan_json.building);
       document.getElementById('model3dLoading').style.display = 'none';
     } catch (err) {
       document.getElementById('model3dLoading').style.display = 'none';
@@ -8904,27 +8920,87 @@
       return spr;
     },
 
+    // TÜM BİNA: DXF'ten gelen kat yığını (plan.building.stack) — her kat kendi paftasından kurulur,
+    // antet çapasına göre hizalanır (frame.origin_m) ve kesitten okunan kotuna (level_m) yükseltilir
+    buildBuilding(plan) {
+      const T = this.T;
+      this._disposePrev();
+      const floors = plan.floors || [], stack = (plan.building && plan.building.stack) || [];
+      const all = new T.Group(), labels = new T.Group();
+      stack.forEach(e => {
+        const f = floors[e.floor];
+        if (!f || !f.plan) return;
+        this.buildFromMask(f.plan);
+        const g = this.group, lg = this.labelGroup, hg = this.helperGroup;
+        [g, lg, hg].forEach(o => o && this.scene.remove(o));
+        if (hg) hg.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+        this.group = this.labelGroup = this.helperGroup = this.ceiling = null;
+        const fr = f.frame || { origin_m: [0, 0] };
+        const ox = fr.origin_m[0] + this._cx * this._s, oz = fr.origin_m[1] + this._cy * this._s;
+        g.position.set(ox, e.level_m, oz);
+        lg.position.set(ox, e.level_m, oz);
+        all.add(g);
+        labels.add(lg);
+      });
+      if (!all.children.length) { this.build(plan); return; }
+      const box = new T.Box3().setFromObject(all);
+      const c = box.getCenter(new T.Vector3()), sz = box.getSize(new T.Vector3());
+      all.position.x -= c.x; all.position.z -= c.z;
+      labels.position.x -= c.x; labels.position.z -= c.z;
+      labels.visible = false;                              // 13 katın etiketleri üst üste binmesin
+      const helperGroup = new T.Group();
+      const R = Math.max(sz.x, sz.z) * 3;
+      const ground = new T.Mesh(new T.CircleGeometry(R, 48), new T.MeshStandardMaterial({ color: 0xDCD6CA, roughness: 1 }));
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = box.min.y - 0.02;
+      ground.receiveShadow = true;
+      helperGroup.add(ground);
+      const size = Math.max(sz.x, sz.y, sz.z);
+      const sc = this.dirLight.shadow.camera;
+      sc.left = -size; sc.right = size; sc.top = size; sc.bottom = -size; sc.far = size * 6;
+      sc.updateProjectionMatrix();
+      this.dirLight.position.set(size * 0.6, size * 1.2, size * 0.4);
+      this.scene.add(all); this.scene.add(labels); this.scene.add(helperGroup);
+      this.group = all; this.labelGroup = labels; this.helperGroup = helperGroup;
+      this.planData = plan;
+      this._bbox = { minX: -sz.x / 2, maxX: sz.x / 2, minZ: -sz.z / 2, maxZ: sz.z / 2 };
+      this.camera.position.set(size * 0.9, c.y + size * 0.55, size * 0.9);
+      this.camera.far = Math.max(500, size * 10); this.camera.updateProjectionMatrix();
+      this._camHome = this.camera.position.clone();
+      this.orbit.target.set(0, c.y, 0);
+      this.orbit.update();
+    },
+
     // çok katlı pafta: backend her katı ayrı modeller (plan.floors) → kat seçici düğmeleri
-    setFloors(floors, active = 0) {
+    setFloors(floors, active = 0, building = null) {
       const box = document.getElementById('plan3dFloors');
       if (!box) return;
       box.innerHTML = '';
       this._floors = (Array.isArray(floors) && floors.length > 1) ? floors : null;
+      this._building = (building && building.stack && building.stack.length > 1) ? building : null;
       this._floorIdx = active;
       if (!this._floors) { box.style.display = 'none'; return; }
       const lbl = document.createElement('span');
       lbl.style.cssText = 'font-size:12px; color:#6B655C; font-weight:600;';
       lbl.textContent = L('Kat seç:');
       box.appendChild(lbl);
+      const off = this._building ? 1 : 0;              // "Tüm Bina" düğmesi varsa kat düğmeleri 1 kayar
       const paint = act => [...box.querySelectorAll('button')].forEach((b, j) => {
-        const on = j === act;
+        const on = j === act + off;
         b.style.background = on ? '#9A6558' : 'transparent';
         b.style.color = on ? '#fff' : '#9A6558';
       });
+      if (this._building) {
+        const bb = document.createElement('button');
+        bb.style.cssText = 'padding:8px 14px; border:1px solid #9A6558; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;';
+        bb.textContent = `${L('Tüm Bina')} · ${this._building.stack.length} ${L('kat')}`;
+        bb.onclick = () => { this.buildBuilding({ floors: this._floors, building: this._building }); this.setNav('orbit'); this._floorIdx = -1; paint(-1); };
+        box.appendChild(bb);
+      }
       floors.forEach((f, i) => {
         const b = document.createElement('button');
         b.style.cssText = 'padding:8px 14px; border:1px solid #9A6558; border-radius:10px; font-size:12px; font-weight:600; cursor:pointer;';
-        b.textContent = (f && f.title) || `${L('Kat')} ${i + 1}`;
+        b.textContent = ((f && f.title) || `${L('Kat')} ${i + 1}`) + (f && f.repeat > 1 ? ` ×${f.repeat}` : '');
         b.onclick = () => { if (f && f.plan) { this.build(f.plan); this.setNav('orbit'); this._floorIdx = i; paint(i); } };
         box.appendChild(b);
       });
@@ -8937,7 +9013,8 @@
       document.getElementById('model3dViewer').style.display = 'none';
       await this.ensureThree();
       this.initRenderer();
-      this.build(plan);
+      if (plan && plan.building && plan.floors) this.buildBuilding(plan);
+      else this.build(plan);
       this.setNav('orbit');
     },
 
@@ -9568,5 +9645,178 @@
     </div>
   </div>
 </div>
+<script>
+// DXF süzgeci (tarayıcı): büyük mimari DXF'lerden yalnız Plan→3D için gereken katmanları bırakır.
+// Kat planı paftaları + kot yazıları korunur; cephe/vaziyet/detay paftaları, mobilya, tarama,
+// ölçü ve poz yazıları atılır. Baytlar korunur (windows-1252 çöz→kodla), DXF yapısı bozulmaz.
+(function (root) {
+  const KEEP_LAY = /duvar|wall|perde|tugla|tuğla|bims|gazbeton|ytong|partition|^ba$|betonarme|kolon|column|struct|tasiyici|taşıyıcı|kapi|kapı|door|wndw|window|pencere|glas|dograma|doğrama|m2|alan|area|mahal|room|kot|antet|title|pafta|sheet|merdiven|stair|korkuluk|denizlik|parapet/i;
+  const GEO = new Set(['LINE', 'LWPOLYLINE', 'POLYLINE', 'ARC', 'CIRCLE', 'ELLIPSE', 'INSERT']);
+  const TXT = new Set(['TEXT', 'MTEXT']);
+  const PLAN_T = /kat[ıiİI]?\s*plan|floor\s*plan/i;
+  const SEC_T = /kesit[iıİI]?\b|\bsection\b/i;
+  const OTHER_T = /cephes[iı]|görünüş|gorunus|elevation|vaziyet|aplikasyon|detay|sistem/i;
+  const KOT_T = /^[±+\-]?\s*\d{1,3}[.,]\d{2}$/;
+  const TXT_KEEP = /kat\s*plan|kesit|oda|salon|mutfak|banyo|\bwc\b|antre|hol|balkon|teras|kiler|kİler|giyinme|yaşam|yemek|çalışma|duş|çamaşır|living|kitchen|bath|bed|room|hall|^[±+\-]?\s*\d{1,3}[.,]\d{2}$|\d\s*m(²|2)|alan\s*:/i;
+
+  function byteMaps() {
+    const dec = new TextDecoder('windows-1252');
+    const b = new Uint8Array(256);
+    for (let i = 0; i < 256; i++) b[i] = i;
+    const chars = dec.decode(b);
+    const toByte = new Map();
+    for (let i = 0; i < 256; i++) toByte.set(chars[i], i);
+    return { dec, toByte };
+  }
+
+  function encode(str, toByte) {
+    const out = new Uint8Array(str.length);
+    for (let i = 0; i < str.length; i++) {
+      const b = toByte.get(str[i]);
+      out[i] = b === undefined ? 63 : b;   // bilinmeyen karakter → '?'
+    }
+    return out;
+  }
+
+  // DXF (kod, değer) çiftleri: satırları indeksleyip gezeriz
+  function splitLines(s, nl) { return s.split(nl); }
+
+  function fields(L, i, j) {
+    let lay = '', txt = '', name = '', x = null;
+    for (let k = i + 2; k + 1 < j; k += 2) {
+      const c = L[k].trim(), v = L[k + 1];
+      if (c === '8' && !lay) lay = v.trim();
+      else if (c === '2' && !name) name = v.trim();
+      else if (c === '10' && x === null) { const f = parseFloat(v); x = isNaN(f) ? null : f; }
+      else if (c === '1' || c === '3') txt += v;
+    }
+    return { lay, txt, name, x };
+  }
+
+  function endOf(L, i, n) {
+    let j = i + 2;
+    while (j + 1 < n && L[j].trim() !== '0') j += 2;
+    return j;
+  }
+
+  function filterDxf(bytes, onInfo) {
+    const { dec, toByte } = byteMaps();
+    const s = dec.decode(bytes);
+    const nl = s.slice(0, 400).includes('\r\n') ? '\r\n' : '\n';
+    const L = splitLines(s, nl);
+    const n = L.length - (L.length && L[L.length - 1] === '' ? 1 : 0);
+
+    // 1. geçiş: pafta başlıkları
+    const titles = [];
+    let sec = '', i = 0;
+    while (i + 1 < n) {
+      const code = L[i].trim(), val = L[i + 1].trim();
+      if (code === '0' && val === 'SECTION') sec = (L[i + 3] || '').trim();
+      else if (code === '0' && val === 'ENDSEC') sec = '';
+      if (sec === 'ENTITIES' && code === '0' && TXT.has(val)) {
+        const j = endOf(L, i, n);
+        const f = fields(L, i, j), t = f.txt.trim();
+        if (f.x !== null && t.length < 60) {
+          const kind = PLAN_T.test(t) ? 'plan' : (SEC_T.test(t) ? 'sec' : (OTHER_T.test(t) ? 'other' : null));
+          if (kind) titles.push({ x: f.x, kind });
+        }
+        i = j; continue;
+      }
+      i += 2;
+    }
+    let wins = [];
+    const main = titles.filter(t => t.kind === 'plan' || t.kind === 'sec').map(t => t.x);
+    if (main.length) {
+      const xs = [...new Set(main.map(x => Math.round(x)))].sort((a, b) => a - b);
+      const gaps = xs.slice(1).map((x, k) => x - xs[k]).filter(g => g > 100).sort((a, b) => a - b);
+      let half = gaps.length ? gaps[Math.floor(gaps.length / 2)] / 2 : 8000;
+      half = Math.max(3000, Math.min(half, 20000));
+      wins = main.map(x => [x - half, x + half]).sort((a, b) => a[0] - b[0]);
+      const merged = [];
+      for (const [a, b] of wins) {
+        if (merged.length && a <= merged[merged.length - 1][1]) merged[merged.length - 1][1] = Math.max(merged[merged.length - 1][1], b);
+        else merged.push([a, b]);
+      }
+      wins = merged;
+    }
+    const inWin = x => !wins.length || x === null || wins.some(([a, b]) => x >= a && x <= b);
+
+    // 2. geçiş: ENTITIES süz + BLOCKS topla
+    const out = [];
+    const used = new Set(), kotBlocks = new Set(), blocks = [];
+    let cur = null, kept = 0, dropped = 0;
+    sec = ''; i = 0;
+    while (i + 1 < n) {
+      const code = L[i].trim(), v = L[i + 1].trim();
+      if (code === '0' && v === 'SECTION') { sec = (L[i + 3] || '').trim(); out.push(L[i], L[i + 1], L[i + 2], L[i + 3]); i += 4; continue; }
+      if (code === '0' && v === 'ENDSEC') { if (sec === 'BLOCKS') out.push('\u0000BLOCKS'); sec = ''; out.push(L[i], L[i + 1]); i += 2; continue; }
+      if (sec === 'ENTITIES' && code === '0') {
+        const j = endOf(L, i, n);
+        if (v === 'SEQEND' || v === 'VERTEX' || v === 'ATTRIB') { for (let k = i; k < j; k++) out.push(L[k]); i = j; continue; }
+        const f = fields(L, i, j);
+        const base = f.lay.split('$').pop().trim();
+        let keep;
+        if (TXT.has(v) && KOT_T.test(f.txt.trim())) keep = true;
+        else if (v === 'INSERT' && kotBlocks.has(f.name)) keep = true;
+        else if (!inWin(f.x)) keep = false;
+        else if (TXT.has(v)) keep = TXT_KEEP.test(f.txt.trim()) || KEEP_LAY.test(base);
+        else if (GEO.has(v)) keep = KEEP_LAY.test(base) || base === '0' || base === 'DEFPOINTS';
+        else keep = false;
+        if (keep) { for (let k = i; k < j; k++) out.push(L[k]); kept++; if (v === 'INSERT' && f.name) used.add(f.name); }
+        else dropped++;
+        i = j; continue;
+      }
+      if (sec === 'BLOCKS' && code === '0') {
+        const j = endOf(L, i, n);
+        const chunk = L.slice(i, j);
+        if (v === 'BLOCK') {
+          cur = { name: fields(L, i, j).name, chunks: [chunk], inserts: new Set(), kot: false };
+        } else if (v === 'ENDBLK') {
+          if (cur) { cur.chunks.push(chunk); blocks.push(cur); if (cur.kot) kotBlocks.add(cur.name); cur = null; }
+        } else if (cur) {
+          if (v === 'SEQEND' || v === 'VERTEX' || v === 'ATTRIB' || v === 'ATTDEF') {
+            const f2 = fields(L, i, j);
+            if (KOT_T.test(f2.txt.trim())) cur.kot = true;
+            cur.chunks.push(chunk);
+          } else {
+            const f2 = fields(L, i, j);
+            const base = f2.lay.split('$').pop().trim();
+            let k2;
+            if (TXT.has(v)) { k2 = TXT_KEEP.test(f2.txt.trim()) || KEEP_LAY.test(base); if (KOT_T.test(f2.txt.trim())) cur.kot = true; }
+            else if (GEO.has(v)) k2 = KEEP_LAY.test(base) || base === '0' || base === 'DEFPOINTS';
+            else k2 = false;
+            if (k2) { cur.chunks.push(chunk); kept++; if (v === 'INSERT' && f2.name) cur.inserts.add(f2.name); }
+            else dropped++;
+          }
+        }
+        i = j; continue;
+      }
+      out.push(L[i], L[i + 1]); i += 2;
+    }
+
+    // 3. geçiş: yalnız kullanılan bloklar (iç içe dahil)
+    const byName = new Map(blocks.map(b => [b.name, b]));
+    const need = new Set(used);
+    for (let r = 0; r < 4; r++) {
+      let grew = false;
+      for (const nm of [...need]) {
+        const b = byName.get(nm);
+        if (b) for (const x of b.inserts) if (!need.has(x)) { need.add(x); grew = true; }
+      }
+      if (!grew) break;
+    }
+    const blockLines = [];
+    for (const b of blocks) if (b.name.startsWith('*') || need.has(b.name)) for (const ch of b.chunks) for (const ln of ch) blockLines.push(ln);
+
+    const res = [];
+    for (const ln of out) { if (ln === '\u0000BLOCKS') { for (const bl of blockLines) res.push(bl); } else res.push(ln); }
+    if (L.length && L[L.length - 1] === '') res.push('');
+    if (onInfo) onInfo({ kept, dropped, sheets: titles.length, blocks: blocks.length, keptBlocks: need.size });
+    return encode(res.join(nl), toByte);
+  }
+
+  root.dxfFilterForPlan3d = filterDxf;
+})(typeof module !== 'undefined' ? module.exports : window);
+</script>
 </body>
 </html>
