@@ -3328,6 +3328,9 @@
     hdr_packages: "Packages", hdr_login: "Log In", hdr_account: "Account", hdr_logout: "Log Out",
     lang_title: "Language / Dil",
     support_btn: "Support", support_title: "Help & Support",
+    plg_su: "SketchUp Plugin", plg_max: "3ds Max Plugin",
+    plg_su_title: "Download the SketchUp plugin (subscribers only)",
+    plg_max_title: "Download the 3ds Max plugin (subscribers only)",
     wa_btn: "Community", wa_title: "Join the BynAi WhatsApp Community",
 
     // Fiyat / paket modalı
@@ -3573,6 +3576,17 @@
     "Günışığı": "Sunlight", "Kalabalık Şehir": "Busy City", "İnsan/Araç Kaldır": "Remove People/Cars",
     "Köy": "Village", "Şehir": "City", "Villa Bölgesi": "Villa Area", "Apartman Çevresi": "Apartment Area",
     "Kamusal Alan": "Public Space", "Park": "Park", "Deniz Kenarı": "Seaside", "Dağ": "Mountain",
+    "BynAi eklentileri aktif aboneliği olan hesaplara özeldir. Paketler bölümünden abone olabilirsin.":
+      "BynAi plugins are available to accounts with an active subscription. You can subscribe from Plans.",
+    "Eklenti indirilemedi, birazdan tekrar dene.": "Could not download the plugin, please try again shortly.",
+    "SketchUp kurulumu:": "SketchUp setup:",
+    "1) Extensions → Extension Manager → Install Extension": "1) Extensions → Extension Manager → Install Extension",
+    "2) İndirdiğin bynai_render.rbz dosyasını seç": "2) Select the bynai_render.rbz file you downloaded",
+    "3) Extensions menüsünden \"BynAi Render\" ile aç": "3) Open it from Extensions → \"BynAi Render\"",
+    "3ds Max kurulumu (2022 ve sonrası):": "3ds Max setup (2022 and newer):",
+    "1) bynai_3dsmax.zip dosyasını bir klasöre çıkar": "1) Extract bynai_3dsmax.zip into a folder",
+    "2) install_bynai.ms dosyasını viewport'a sürükle-bırak yap": "2) Drag and drop install_bynai.ms into the viewport",
+    "3) Pencere açılır; sonra üst menüdeki \"BynAi\" ile açabilirsin": "3) The window opens; you can reopen it later from the \"BynAi\" menu",
     "Otel": "Hotel", "Dini": "Religious", "Sinematik": "Cinematic", "Gerçekçi & Temiz": "Realistic & Clean",
     "Eskiz": "Sketch", "Editöryal": "Editorial", "Drone": "Drone", "Taş Doku": "Stone Texture",
     "Kompozit Panel": "Composite Panel", "Mekanik Seramik": "Mechanical Ceramic",
@@ -4016,6 +4030,55 @@
     if (sel) sel.value = RA_LANG;
     applyI18n();
   });
+  // ═══ EKLENTİ İNDİRME (SketchUp / 3ds Max) — ABONELERE ÖZEL ═══
+  // Dosyalar sitede statik DEĞİL: /plugins/download/<kind> auth + aktif abonelik
+  // ister (linki bilen indiremez). 403 → Paketler modalı.
+  const BR2 = String.fromCharCode(10, 10);   // iki satir atlama (kacis karakteri kullanmadan)
+  const PLUGIN_NAMES = { sketchup: 'bynai_render.rbz', '3dsmax': 'bynai_3dsmax.zip' };
+  const PLUGIN_HELP = {
+    sketchup: [
+      'SketchUp kurulumu:',
+      '1) Extensions → Extension Manager → Install Extension',
+      '2) İndirdiğin bynai_render.rbz dosyasını seç',
+      '3) Extensions menüsünden "BynAi Render" ile aç'
+    ],
+    '3dsmax': [
+      '3ds Max kurulumu (2022 ve sonrası):',
+      '1) bynai_3dsmax.zip dosyasını bir klasöre çıkar',
+      "2) install_bynai.ms dosyasını viewport'a sürükle-bırak yap",
+      '3) Pencere açılır; sonra üst menüdeki "BynAi" ile açabilirsin'
+    ]
+  };
+
+  async function downloadPlugin(kind) {
+    if (!localStorage.getItem('ra_token')) { openAuthModal('login'); return; }
+    const btns = document.querySelectorAll('#pluginBtns button');
+    btns.forEach(b => { b.disabled = true; b.style.opacity = '0.6'; });
+    try {
+      const url = `${API}/plugins/download/${kind}`;
+      let r = await fetch(url, { headers: authHeaders() });
+      if (r.status === 401 && await refreshSession()) r = await fetch(url, { headers: authHeaders() });
+      if (r.status === 401) { openAuthModal('login'); return; }
+      if (r.status === 403) {
+        await uiAlert(L('BynAi eklentileri aktif aboneliği olan hesaplara özeldir. Paketler bölümünden abone olabilirsin.'));
+        openPricingModal();
+        return;
+      }
+      if (!r.ok) { await uiAlert(L('Eklenti indirilemedi, birazdan tekrar dene.')); return; }
+      const blob = await r.blob();
+      const href = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = href; a.download = PLUGIN_NAMES[kind] || 'bynai_plugin.zip';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(href), 30000);
+      await uiAlert((PLUGIN_HELP[kind] || []).map(L).join(BR2));
+    } catch (_) {
+      await uiAlert(L('Eklenti indirilemedi, birazdan tekrar dene.'));
+    } finally {
+      btns.forEach(b => { b.disabled = false; b.style.opacity = ''; });
+    }
+  }
+
   function openHelp() { document.getElementById('helpModal').style.display = 'flex'; }
   function sendHelp() {
     const msg = document.getElementById('helpMsg').value.trim();
@@ -9432,6 +9495,32 @@
       btn.disabled = false;
     }
   }
+</script>
+
+<!-- ─── SAĞ-ALT EKLENTİ BUTONLARI (Topluluk + Destek'in üstünde) ─────────── -->
+<style>@media (max-width: 860px) { #pluginBtns { display: none !important; } }</style>
+<div id="pluginBtns" style="position:fixed; right:22px; bottom:134px; z-index:1000; display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
+  <button onclick="downloadPlugin('3dsmax')" title="3ds Max eklentisini indir (abonelere özel)" data-i18n-title="plg_max_title"
+    style="display:flex; align-items:center; gap:8px; padding:10px 16px; border:1px solid #D8D2C8; border-radius:30px;
+           background:#FAFAF8; color:#2A2520; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 6px 20px rgba(26,26,22,0.18);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px;"><path d="M12 3 3 7.5v9L12 21l9-4.5v-9L12 3Z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>
+    <span data-i18n="plg_max">3ds Max Eklentisi</span>
+  </button>
+  <button onclick="downloadPlugin('sketchup')" title="SketchUp eklentisini indir (abonelere özel)" data-i18n-title="plg_su_title"
+    style="display:flex; align-items:center; gap:8px; padding:10px 16px; border:1px solid #D8D2C8; border-radius:30px;
+           background:#FAFAF8; color:#2A2520; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 6px 20px rgba(26,26,22,0.18);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px;"><path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7Z"/><path d="M4 8.5 12 13l8-4.5"/></svg>
+    <span data-i18n="plg_su">SketchUp Eklentisi</span>
+  </button>
+</div>
+<script>
+  (function () {
+    // Topluluk butonu yoksa (WhatsApp linki tanımsız) bir sıra aşağı in
+    if (typeof WA_COMMUNITY !== 'string' || !WA_COMMUNITY) {
+      var w = document.getElementById('pluginBtns');
+      if (w) w.style.bottom = '78px';
+    }
+  })();
 </script>
 
 <!-- ─── SAĞ-ALT YÜZEN WHATSAPP TOPLULUK BUTONU (Destek'in hemen üstünde) ─── -->
