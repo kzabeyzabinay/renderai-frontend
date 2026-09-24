@@ -9298,11 +9298,12 @@
     if (funcMapNote) {
       funcMapNote.style.display = selectedFpStyle === 'function_map' ? '' : 'none';
     }
-    // Kredi etiketi: 2D düz stiller 7, fotorealistik/3D stiller 20
+    // Kredi etiketi (backend CREDIT_COSTS ile aynı): vaziyet 15, 2D düz stiller 5, fotorealistik/3D stiller 10
     const fpBtn = document.getElementById('fpBtn');
     if (fpBtn) {
-      const gem = ['wall_paint','function_map','vaziyet_professional','vaziyet_modern','vaziyet_vibrant'].includes(selectedFpStyle);
-      const sp = fpBtn.querySelector('span'); if (sp) sp.textContent = '· ' + (gem ? 7 : 20) + ' kredi';
+      const cost = String(selectedFpStyle || '').startsWith('vaziyet_') ? 15
+                 : ['wall_paint','function_map'].includes(selectedFpStyle) ? 5 : 10;
+      const sp = fpBtn.querySelector('span'); if (sp) sp.textContent = '· ' + cost + ' ' + L('kredi');
     }
   }
 
