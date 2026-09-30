@@ -2027,14 +2027,14 @@
           <div style="font-size:11px; color:#ABA49C; margin-top:4px;" data-i18n="vid_note_hint">Yazdığın şey videonun ANA yönergesi olur — seçtiğin hareket ve kamera ayarları ona eşlik eder. Türkçe yazsan da olur.</div>
         </div>
 
-        <!-- ⭐ KALİTE: Standart = Kling 2.5 (20 kredi) · Yüksek = Seedance 1 Pro 1080p (30 kredi) -->
+        <!-- ⭐ KALİTE: Standart = Kling 2.5 (20 kredi) · Yüksek = Seedance 1 Pro 1080p (35 kredi) -->
         <div style="margin-bottom:16px;">
           <div style="font-size:11px; color:#8A7E74; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;" data-i18n="vid_q_lbl">KALİTE</div>
           <div style="display:flex; gap:8px;">
             <button type="button" id="vidQStdBtn" onclick="setVideoQuality('standard')" style="flex:1; padding:9px 10px; border-radius:10px; border:2px solid #9A6558; background:#9A6558; color:#fff; font-size:12px; font-weight:700; cursor:pointer;"><span data-i18n="vid_q_std">Standart</span> <span style="font-weight:500; opacity:.85;">· 20</span></button>
-            <button type="button" id="vidQHighBtn" onclick="setVideoQuality('high')" style="flex:1; padding:9px 10px; border-radius:10px; border:2px solid #D8D2C8; background:transparent; color:#6B6258; font-size:12px; font-weight:700; cursor:pointer;"><span data-i18n="vid_q_high">Yüksek Kalite · 1080p</span> <span style="font-weight:500; opacity:.85;">· 30</span></button>
+            <button type="button" id="vidQHighBtn" onclick="setVideoQuality('high')" style="flex:1; padding:9px 10px; border-radius:10px; border:2px solid #D8D2C8; background:transparent; color:#6B6258; font-size:12px; font-weight:700; cursor:pointer;"><span data-i18n="vid_q_high">Yüksek Kalite · 1080p</span> <span style="font-weight:500; opacity:.85;">· 35</span></button>
           </div>
-          <div id="vidQNote" style="display:none; font-size:11px; color:#ABA49C; margin-top:6px; line-height:1.5;" data-i18n="vid_q_note">Daha keskin detay ve daha güçlü ilk kare → son kare geçişi. Yüksek kalite modeli yanıt vermezse video standart kalitede üretilir ve 10 kredi iade edilir.</div>
+          <div id="vidQNote" style="display:none; font-size:11px; color:#ABA49C; margin-top:6px; line-height:1.5;" data-i18n="vid_q_note">Daha keskin detay ve daha güçlü ilk kare → son kare geçişi. Yüksek kalite modeli yanıt vermezse video standart kalitede üretilir ve 15 kredi iade edilir.</div>
         </div>
 
         <button class="render-btn" id="videoBtn" onclick="startVideo()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 6 3.5-6 3.5Z"/></svg> Video Oluştur <span id="vidBtnCost" style="font-size:11px;opacity:0.8;">· 20 kredi · ~60-90 sn</span></button>
@@ -3393,7 +3393,7 @@
     vid_q_lbl: 'QUALITY',
     vid_q_std: 'Standard',
     vid_q_high: 'High Quality · 1080p',
-    vid_q_note: 'Sharper detail and a stronger first frame → last frame transition. If the high-quality model does not respond, the video is made in standard quality and 10 credits are refunded.',
+    vid_q_note: 'Sharper detail and a stronger first frame → last frame transition. If the high-quality model does not respond, the video is made in standard quality and 15 credits are refunded.',
     vid_mode_cine: '🎬 Cinematic',
     vid_new_badge: 'NEW',
     vid_cine_hint: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-.15em;display:inline-block"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.1"/></svg> <strong>You write the scene</strong> in the text box below and the model follows it as the main direction — tsunami, explosion, fire, destruction included. In this mode the building is <strong>not guaranteed to stay intact</strong> (the protection is lifted so destruction is possible). For presentation videos stay in <strong>Architectural</strong> mode: there the building is never deformed.',
@@ -3707,7 +3707,7 @@
     "HAREKET ÖĞELERİ": "MOTION ELEMENTS", "Sadece seçtiklerin hareket eder — istemediğini ekleme": "Only what you select moves — don't add what you don't want",
     "İnsanlar": "People", "Araçlar": "Vehicles", "Gökyüzü / Bulutlar": "Sky / Clouds", "Ağaçlar / Bitkiler": "Trees / Plants",
     "KAMERA HAREKETİ": "CAMERA MOVEMENT", "Sabit": "Static", "Sola Kaydır": "Pan Left", "Sağa Kaydır": "Pan Right", "Yörünge": "Orbit",
-    "Video Oluştur": "Create Video", "· 20 kredi · ~60-90 sn": "· 20 credits · ~60-90 s", "· 30 kredi · ~1-2 dk": "· 30 credits · ~1-2 min",
+    "Video Oluştur": "Create Video", "· 20 kredi · ~60-90 sn": "· 20 credits · ~60-90 s", "· 35 kredi · ~1-2 dk": "· 35 credits · ~1-2 min",
     "Oluşturulan video burada görünecek": "The generated video will appear here", "AI işliyor...": "AI is working...",
     "Lütfen bekleyin": "Please wait", "Video İndir (MP4)": "Download Video (MP4)",
     // ── Kat Planı ──
@@ -8970,7 +8970,7 @@
     if (sel) sel.addEventListener('change', () => setTimeout(() => setVideoMode(videoMode), 0));
   });
 
-  // Kalite: 'standard' = Kling 2.5 (20 kredi) · 'high' = Seedance 1 Pro 1080p (30 kredi).
+  // Kalite: 'standard' = Kling 2.5 (20 kredi) · 'high' = Seedance 1 Pro 1080p (35 kredi).
   // Bedeller backend CREDIT_COSTS["video"] / ["video_high"] ile AYNI olmalı.
   let videoQuality = 'standard';
   function setVideoQuality(q) {
@@ -8980,7 +8980,7 @@
     s.style.background = hi ? 'transparent' : '#9A6558'; s.style.color = hi ? '#6B6258' : '#fff'; s.style.borderColor = hi ? '#D8D2C8' : '#9A6558';
     h.style.background = hi ? '#9A6558' : 'transparent'; h.style.color = hi ? '#fff' : '#6B6258'; h.style.borderColor = hi ? '#9A6558' : '#D8D2C8';
     document.getElementById('vidQNote').style.display = hi ? 'block' : 'none';
-    document.getElementById('vidBtnCost').textContent = L(hi ? '· 30 kredi · ~1-2 dk' : '· 20 kredi · ~60-90 sn');
+    document.getElementById('vidBtnCost').textContent = L(hi ? '· 35 kredi · ~1-2 dk' : '· 20 kredi · ~60-90 sn');
   }
   document.addEventListener('DOMContentLoaded', () => {
     const sel = document.getElementById('langSelect');
@@ -9113,7 +9113,7 @@
     const videoNote = (document.getElementById('videoNote')?.value || '').trim();
     if (videoNote) formData.append('note', videoNote);   // ✏️ sahne yönergesi — promptun EN BAŞINA gider
     if (videoMode === 'cine') formData.append('cinematic', '1');
-    formData.append('quality', videoQuality);   // standard (20) · high = Seedance 1080p (30)   // 🎬 sinematik: koruma frenleri kalkar
+    formData.append('quality', videoQuality);   // standard (20) · high = Seedance 1080p (35)   // 🎬 sinematik: koruma frenleri kalkar
     // 🎬 isteğe bağlı son sahne — ilk kare → son kare geçişi
     if (videoEndFile) formData.append('end_image', await resizeIfNeeded(videoEndFile));
 
